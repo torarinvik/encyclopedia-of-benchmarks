@@ -1,7 +1,7 @@
 const IKD_MAX_COORDINATE: i64 = 1000000000
 
-def infinite_knight_distance_impl(input: view[i64]) -> i64:
-    if input.len() != 2: return -1
+def infinite_knight_distance_impl(input: i64&, input_length: usize) -> i64:
+    if input_length != 2: return -1
     dx: i64 = input[0]
     dy: i64 = input[1]
     if dx < -IKD_MAX_COORDINATE or dx > IKD_MAX_COORDINATE: return -1
@@ -23,7 +23,10 @@ def infinite_knight_distance_impl(input: view[i64]) -> i64:
     if (large + small - distance) % 2 != 0: distance <- distance + 1
     return distance
 
-export fn infinite_knight_distance(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 2: return -1
-    input_view: view[i64] = input[0:length]
-    infinite_knight_distance_impl(input_view)
+def infinite_knight_distance_entry(input: i64&, length: usize) -> i64:
+    if input == null or length != 2: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    infinite_knight_distance_impl(input_view, input_view_length)
+
+export fn infinite_knight_distance(input: i64&, length: usize) -> i64 = infinite_knight_distance_entry

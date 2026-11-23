@@ -1,7 +1,7 @@
 # Least cyclic rotation by two-candidate elimination.
 const MINIMUM_STRING_REPRESENTATION_MAX_LENGTH: usize = 4096
 
-def minimum_string_representation_scan(values: view[i64], length: usize) -> i64:
+def minimum_string_representation_scan(values: i64&, length: usize) -> i64:
     if length == 0:
         return 0
     index: mutable usize = 0
@@ -34,12 +34,14 @@ def minimum_string_representation_scan(values: view[i64], length: usize) -> i64:
     else:
         right.i64()
 
-def minimum_string_representation(values: i64&, length: usize) -> i64 @export("minimum_string_representation"):
+def minimum_string_representation_impl(values: i64&, length: usize) -> i64:
     if length > MINIMUM_STRING_REPRESENTATION_MAX_LENGTH:
         return -1
     if length == 0:
         return 0
-    if values.is_null():
+    if values == null:
         return -1
-    data: view[i64] = values[0:length]
+    data: i64& = values
     minimum_string_representation_scan(data, length)
+
+export fn minimum_string_representation(values: i64&, length: usize) -> i64 = minimum_string_representation_impl

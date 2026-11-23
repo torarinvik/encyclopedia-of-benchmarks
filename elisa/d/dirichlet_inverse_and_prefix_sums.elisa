@@ -22,7 +22,7 @@ def dips_locate(q: view[usize], count: usize, value: usize) -> i64:
 
 def dips_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input == null or length < 2 or length > 16: return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 1 or values[0] > 64: return -1
     n: usize = values[0].usize()
     q: mutable usize[15] = zeroed
@@ -38,7 +38,7 @@ def dips_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) 
     for j in 0..<count:
         if values[1+j] < 0 or values[1+j] >= DIPS_MOD: return -1
     if output == null or capacity < 8*count: return -2
-    result: mutable view[u8] = output[0:8*count]
+    result: mutable u8& = output
     inverse: i64 = dips_power(values[1],998244351)
     g: mutable i64[15] = zeroed
     for j in 0..<count:
@@ -58,7 +58,8 @@ def dips_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) 
         g[j] <- ((1-total+DIPS_MOD) % DIPS_MOD)*inverse % DIPS_MOD
     for j in 0..<count:
         bits: u64 = g[j].u64()
-        for byte in 0..<8: result[8*j+byte] <- ((bits >> (8*byte)) & 255.u64()).u8()
+        for byte in 0..<8:
+            result[8*j+byte] <- ((bits >> (8*byte)) & 255.u64()).u8()
     (8*count).i64()
 
 export fn dirichlet_inverse_and_prefix_sums(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = dips_impl

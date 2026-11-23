@@ -1,14 +1,14 @@
 const MAX_LEVEL: i64 = 6
 const SCALE: i64 = 1000000
 
-def cantor_put_byte(output: mutable view[u8], capacity: usize, length: mutable usize&, value: u8) -> bool:
+def cantor_put_byte(output: mutable u8&, capacity: usize, length: mutable usize&, value: u8) -> bool:
     if length >= capacity:
         return false
     output[length] <- value
     length <- length + 1
     true
 
-def cantor_put_uint(output: mutable view[u8], capacity: usize, length: mutable usize&, value: i64) -> bool:
+def cantor_put_uint(output: mutable u8&, capacity: usize, length: mutable usize&, value: i64) -> bool:
     digits: mutable u8[20]
     count: mutable usize = 0
     remaining: mutable i64 = value
@@ -24,7 +24,7 @@ def cantor_put_uint(output: mutable view[u8], capacity: usize, length: mutable u
             return false
     true
 
-def cantor_put_fixed(output: mutable view[u8], capacity: usize, length: mutable usize&, ticks: i64) -> bool:
+def cantor_put_fixed(output: mutable u8&, capacity: usize, length: mutable usize&, ticks: i64) -> bool:
     fraction: i64 = ticks % SCALE
     if not cantor_put_uint(output, capacity, length, ticks / SCALE):
         return false
@@ -51,7 +51,7 @@ def cantor_set_impl(input: i64&, length: usize, output: mutable u8&, output_capa
     next_positions: mutable i64[64] = zeroed
     interval_count: mutable usize = 1
     output_length: mutable usize = 0
-    output_view: mutable view[u8] = output[0:output_capacity]
+    output_view: mutable u8& = output
     denominator: mutable i64 = 1
     span: i64 = ending - start
     level: mutable i64 = 0

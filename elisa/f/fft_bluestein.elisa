@@ -6,7 +6,7 @@ def quantize(value: f64) -> i64:
     if scaled >= 0.0: return (scaled + 0.5).i64()
     (scaled - 0.5).i64()
 
-def store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -77,7 +77,8 @@ def fft_bluestein_impl(values: i64&, length: usize, output: mutable u8&, capacit
         i <- i + 1
     z: mutable usize = 1
     need: usize = (3 * m - 2).usize()
-    while z < need: z <- z * 2
+    while z < need:
+        z <- z * 2
     bytes: usize = m.usize() * 16
     if output == null or capacity < bytes: return -2
     ar: mutable f64[32] = zeroed
@@ -114,8 +115,8 @@ def fft_bluestein_impl(values: i64&, length: usize, output: mutable u8&, capacit
         ix: usize = k.usize() + m.usize() - 1
         re: f64 = ar[ix] * cr - ai[ix] * ci
         im: f64 = ar[ix] * ci + ai[ix] * cr
-        store_i64(quantize(re), output[0:capacity], 16 * k.usize())
-        store_i64(quantize(im), output[0:capacity], 16 * k.usize() + 8)
+        store_i64(quantize(re), output, 16 * k.usize())
+        store_i64(quantize(im), output, 16 * k.usize() + 8)
         k <- k + 1
     bytes.i64()
 

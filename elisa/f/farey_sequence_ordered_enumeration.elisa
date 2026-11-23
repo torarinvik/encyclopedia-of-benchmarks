@@ -1,59 +1,61 @@
 def farey_count(order: i64) -> i64:
-    let a: mutable i64 = 0
-    let b: mutable i64 = 1
-    let c: mutable i64 = 1
-    let d: mutable i64 = order
-    let count: mutable i64 = 1
+    a:  mutable i64 = 0
+    b:  mutable i64 = 1
+    c:  mutable i64 = 1
+    d:  mutable i64 = order
+    count:  mutable i64 = 1
     while true:
         count <- count + 1
         if c == d: break
-        let k: i64 = (order + b) / d
-        let next_c: i64 = k * c - a
-        let next_d: i64 = k * d - b
+        k:  i64 = (order + b) / d
+        next_c:  i64 = k * c - a
+        next_d:  i64 = k * d - b
         a <- c
         b <- d
         c <- next_c
         d <- next_d
     count
 
-def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
-    let bits: u64 = value.u64()
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits:  u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
 
-def farey_sequence_ordered_enumeration_impl(input: view[i64], output: mutable u8&,
+def farey_sequence_ordered_enumeration_impl(input: i64&, input_length: usize, output: mutable u8&,
     capacity: usize) -> i64:
-    if input.len() != 1: return -1
-    let order: i64 = input[0]
+    if input_length != 1: return -1
+    order:  i64 = input[0]
     if order < 1 or order > 32: return -1
-    let count: i64 = farey_count(order)
-    let required: usize = ((1 + 2 * count) * 8).usize()
+    count:  i64 = farey_count(order)
+    required:  usize = ((1 + 2 * count) * 8).usize()
     if output == null or capacity < required: return -2
 
-    let bytes: mutable view[u8] = output[0:required]
+    bytes: mutable u8& = output
     store_i64_le(count, bytes, 0)
     store_i64_le(0, bytes, 8)
     store_i64_le(1, bytes, 16)
-    let a: mutable i64 = 0
-    let b: mutable i64 = 1
-    let c: mutable i64 = 1
-    let d: mutable i64 = order
-    let position: mutable usize = 24
+    a:  mutable i64 = 0
+    b:  mutable i64 = 1
+    c:  mutable i64 = 1
+    d:  mutable i64 = order
+    position:  mutable usize = 24
     while true:
         store_i64_le(c, bytes, position)
         store_i64_le(d, bytes, position + 8)
         position <- position + 16
         if c == d: break
-        let k: i64 = (order + b) / d
-        let next_c: i64 = k * c - a
-        let next_d: i64 = k * d - b
+        k:  i64 = (order + b) / d
+        next_c:  i64 = k * c - a
+        next_d:  i64 = k * d - b
         a <- c
         b <- d
         c <- next_c
         d <- next_d
     required.i64()
 
-export fn farey_sequence_ordered_enumeration(input: i64&, length: usize,
+def farey_sequence_ordered_enumeration_entry(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
     if input == null or length != 1: return -1
-    farey_sequence_ordered_enumeration_impl(input[0:length], output, capacity)
+    farey_sequence_ordered_enumeration_impl(input, length, output, capacity)
+
+export fn farey_sequence_ordered_enumeration(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = farey_sequence_ordered_enumeration_entry

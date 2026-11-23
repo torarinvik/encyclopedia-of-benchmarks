@@ -40,7 +40,7 @@ def jot_lca(ancestors: view[usize], depth: view[usize], left_value: usize,
             right <- right_ancestor
     ancestors[left * MAX_LEVELS]
 
-def jot_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def jot_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -48,7 +48,7 @@ def jot_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> voi
         byte <- byte + 1
 
 def jump_on_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 2 or length > MAX_INPUT_VALUES: return -1
     n_value: i64 = input[0]
     q_value: i64 = input[1]
     if n_value < 2 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
@@ -70,12 +70,11 @@ def jump_on_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity:
         offset: usize = 2 + 2 * edge
         left_value: i64 = input[offset]
         right_value: i64 = input[offset + 1]
-        if left_value < 0 or left_value >= n_value or right_value < 0 or
-            right_value >= n_value or left_value == right_value: return -1
+        if left_value < 0 or left_value >= n_value or right_value < 0 or right_value >= n_value or left_value == right_value: return -1
         left: usize = left_value.usize()
         right: usize = right_value.usize()
-        root_left: usize = jot_find_root(dsu_parent[0:MAX_N], left)
-        root_right: usize = jot_find_root(dsu_parent[0:MAX_N], right)
+        root_left: mutable usize = jot_find_root(dsu_parent[0:MAX_N], left)
+        root_right: mutable usize = jot_find_root(dsu_parent[0:MAX_N], right)
         if root_left == root_right: return -1
         if dsu_size[root_left] < dsu_size[root_right]:
             temporary: usize = root_left
@@ -90,20 +89,20 @@ def jump_on_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity:
     ancestors: mutable usize[MAX_N * MAX_LEVELS] = zeroed
     depth: mutable usize[MAX_N] = zeroed
     visited: mutable bool[MAX_N] = zeroed
-    stack: mutable usize[MAX_N] = zeroed
+    stack_value: mutable usize[MAX_N] = zeroed
     top: mutable usize = 1
-    stack[0] <- 0
+    stack_value[0] <- 0
     visited[0] <- true
     while top > 0:
         top <- top - 1
-        current: usize = stack[top]
+        current: usize = stack_value[top]
         neighbor: mutable usize = 0
         while neighbor < n:
             if adjacent[current * MAX_N + neighbor] and not visited[neighbor]:
                 visited[neighbor] <- true
                 ancestors[neighbor * MAX_LEVELS] <- current
                 depth[neighbor] <- depth[current] + 1
-                stack[top] <- neighbor
+                stack_value[top] <- neighbor
                 top <- top + 1
             neighbor <- neighbor + 1
     level: mutable usize = 1
@@ -122,8 +121,7 @@ def jump_on_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity:
         start_value: i64 = input[offset]
         target_value: i64 = input[offset + 1]
         index_value: i64 = input[offset + 2]
-        if start_value < 0 or start_value >= n_value or target_value < 0 or
-            target_value >= n_value or index_value < 0 or index_value >= n_value: return -1
+        if start_value < 0 or start_value >= n_value or target_value < 0 or target_value >= n_value or index_value < 0 or index_value >= n_value: return -1
         start: usize = start_value.usize()
         target: usize = target_value.usize()
         index: usize = index_value.usize()
@@ -140,8 +138,8 @@ def jump_on_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity:
         query <- query + 1
 
     required: usize = 8 * q
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     query <- 0
     while query < q:
         jot_store_i64_le(answers[query], output_view, 8 * query)

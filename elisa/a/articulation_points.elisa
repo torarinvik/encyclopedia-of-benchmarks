@@ -32,9 +32,9 @@ def articulation_points_visit(adjacency: view[u64], discovery: mutable view[i64]
 
 def articulation_points_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 0 or values[0] > i64(MAX_VERTEX_COUNT) or values[1] < 0 or values[1] > i64(MAX_EDGE_COUNT):
         return -1
     vertex_count: usize = values[0].usize()
@@ -74,10 +74,10 @@ def articulation_points_impl(input: i64&, length: usize,
         if is_articulation[vertex] != 0:
             point_count <- point_count + 1
         vertex <- vertex + 1
-    if output_capacity < point_count or (point_count > 0 and output.is_null()):
+    if output_capacity < point_count or (point_count > 0 and output == null):
         return -2
     if point_count == 0: return 0
-    target: mutable view[u8] = output[0:point_count]
+    target: mutable u8& = output
     position: mutable usize = 0
     vertex <- 0
     while vertex < vertex_count |vertex, is_articulation, position, target|:

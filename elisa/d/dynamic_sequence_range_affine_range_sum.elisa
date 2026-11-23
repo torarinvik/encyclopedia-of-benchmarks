@@ -6,27 +6,28 @@ const MAX_INPUT: usize = 195
 const NONE: usize = MAX_NODES
 
 struct Node:
-    left: usize
-    right: usize
-    size: usize
-    value: i64
-    sum: i64
-    mul: i64
-    add: i64
-    priority: u64
-    reversed: bool
+    left: mutable usize
+    right: mutable usize
+    size: mutable usize
+    value: mutable i64
+    sum: mutable i64
+    mul: mutable i64
+    add: mutable i64
+    priority: mutable u64
+    reversed: mutable bool
 
 struct Operation:
-    kind: usize
-    left: usize
-    right: usize
-    node: usize
-    mul: i64
-    add: i64
+    kind: mutable usize
+    left: mutable usize
+    right: mutable usize
+    node: mutable usize
+    mul: mutable i64
+    add: mutable i64
 
 def dsras_priority(id: usize) -> u64:
     state: mutable i64 = 1
-    for _ in 0..(id + 1): state <- (state * 48271) % 2147483647
+    for _ in 0..<(id + 1):
+        state <- (state * 48271) % 2147483647
     state.u64()
 
 def dsras_size(nodes: view[Node], index: usize) -> usize:
@@ -108,15 +109,15 @@ def dsras_merge(nodes: mutable view[Node], left: usize, right: usize) -> usize:
     dsras_pull(nodes, right)
     return right
 
-def dsras_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+def dsras_store(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
 
 def dynamic_sequence_range_affine_range_sum_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
-    frame: view[i64] = input[0:length]
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    frame: i64& = input
     n_value: i64 = frame[0]
     q_value: i64 = frame[1]
     if n_value < 0 or n_value > MAX_N.i64() or q_value < 0 or q_value > MAX_Q.i64(): return -1
@@ -199,7 +200,8 @@ def dynamic_sequence_range_affine_range_sum_impl(input: i64&, length: usize,
         operations[i] <- op
     if offset != length: return -1
     root: mutable usize = NONE
-    for i in 0..<n: root <- dsras_merge(nodes[0:MAX_NODES], root, i)
+    for i in 0..<n:
+        root <- dsras_merge(nodes[0:MAX_NODES], root, i)
     answers: mutable i64[MAX_Q] = zeroed
     answer_count: mutable usize = 0
     for i in 0..<q:
@@ -211,23 +213,24 @@ def dynamic_sequence_range_affine_range_sum_impl(input: i64&, length: usize,
             root <- dsras_merge(nodes[0:MAX_NODES], dsras_merge(nodes[0:MAX_NODES], prefix, op.node), suffix)
             continue
         middle: mutable usize = NONE
-        tail: mutable usize = NONE
+        tail_value: mutable usize = NONE
         if op.kind == 1:
-            dsras_split(nodes[0:MAX_NODES], suffix, 1, middle, tail)
-            root <- dsras_merge(nodes[0:MAX_NODES], prefix, tail)
+            dsras_split(nodes[0:MAX_NODES], suffix, 1, middle, tail_value)
+            root <- dsras_merge(nodes[0:MAX_NODES], prefix, tail_value)
             continue
         else:
-            dsras_split(nodes[0:MAX_NODES], suffix, op.right - op.left, middle, tail)
+            dsras_split(nodes[0:MAX_NODES], suffix, op.right - op.left, middle, tail_value)
             if op.kind == 2: dsras_reverse(nodes[0:MAX_NODES], middle)
             elif op.kind == 3: dsras_affine(nodes[0:MAX_NODES], middle, op.mul, op.add)
             else:
                 answers[answer_count] <- dsras_sum(nodes[0:MAX_NODES], middle).i64()
                 answer_count <- answer_count + 1
-        root <- dsras_merge(nodes[0:MAX_NODES], dsras_merge(nodes[0:MAX_NODES], prefix, middle), tail)
+        root <- dsras_merge(nodes[0:MAX_NODES], dsras_merge(nodes[0:MAX_NODES], prefix, middle), tail_value)
     byte_count: usize = 8 * query_count
-    if output.is_null() or capacity < byte_count: return -2
-    output_view: mutable view[u8] = output[0:byte_count]
-    for i in 0..<query_count: dsras_store(answers[i], output_view, 8 * i)
+    if output == null or capacity < byte_count: return -2
+    output_view: mutable u8& = output
+    for i in 0..<query_count:
+        dsras_store(answers[i], output_view, 8 * i)
     byte_count.i64()
 
 export fn dynamic_sequence_range_affine_range_sum(input: i64&, length: usize,

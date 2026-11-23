@@ -2,15 +2,15 @@ const MAX_TEXT: usize = 4096
 const MAX_PATTERN: usize = 128
 const MAX_INPUT_LENGTH: usize = 4227
 
-def skip_search_impl(input: view[i64], length: usize) -> i64:
+def skip_search_impl(input: i64&, length: usize) -> i64:
     if length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    let raw_n: i64 = input[0]
-    let raw_m: i64 = input[1]
+    raw_n:  i64 = input[0]
+    raw_m:  i64 = input[1]
     if raw_n < 0 or raw_n > MAX_TEXT.i64() or raw_m < 1 or raw_m > MAX_PATTERN.i64():
         return -1
-    let n: usize = raw_n.usize()
-    let m: usize = raw_m.usize()
+    n:  usize = raw_n.usize()
+    m:  usize = raw_m.usize()
     if length != 2 + n + m:
         return -1
 
@@ -18,7 +18,7 @@ def skip_search_impl(input: view[i64], length: usize) -> i64:
     pattern: mutable u8[MAX_PATTERN] = zeroed
     q: mutable usize = 0
     while q < n:
-        let value: i64 = input[2 + q]
+        value:  i64 = input[2 + q]
         if value < 0 or value > 3:
             return -1
         text[q] <- value.u8()
@@ -27,11 +27,11 @@ def skip_search_impl(input: view[i64], length: usize) -> i64:
     bucket_sizes: mutable i64[4] = zeroed
     q <- 0
     while q < m:
-        let value: i64 = input[2 + n + q]
+        value:  i64 = input[2 + n + q]
         if value < 0 or value > 3:
             return -1
         pattern[q] <- value.u8()
-        let symbol: usize = value.usize()
+        symbol:  usize = value.usize()
         positions[symbol * MAX_PATTERN + bucket_sizes[symbol].usize()] <- q.i64()
         bucket_sizes[symbol] <- bucket_sizes[symbol] + 1
         q <- q + 1
@@ -43,11 +43,11 @@ def skip_search_impl(input: view[i64], length: usize) -> i64:
     offset_xor: mutable i64 = 0
     sample: mutable usize = m - 1
     while sample < n:
-        let symbol: usize = text[sample].usize()
+        symbol:  usize = text[sample].usize()
         item: mutable usize = 0
         while item < bucket_sizes[symbol].usize():
-            let pattern_position: usize = positions[symbol * MAX_PATTERN + item].usize()
-            let start: usize = sample - pattern_position
+            pattern_position:  usize = positions[symbol * MAX_PATTERN + item].usize()
+            start:  usize = sample - pattern_position
             if start <= n - m:
                 matched: mutable usize = 0
                 while matched < m and text[start + matched] == pattern[matched]:
@@ -60,8 +60,10 @@ def skip_search_impl(input: view[i64], length: usize) -> i64:
         sample <- sample + m
     (count << 36) | (offset_sum << 12) | offset_xor
 
-export fn skip_search(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+def skip_search_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    let input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     skip_search_impl(input_view, length)
+
+export fn skip_search(input: i64&, length: usize) -> i64 = skip_search_entry

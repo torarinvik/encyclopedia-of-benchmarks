@@ -1,8 +1,8 @@
 const AA_MAX_LENGTH: usize = 8
 const AA_ALPHABET_SIZE: usize = 26
 
-def alphabetic_anagrams_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def alphabetic_anagrams_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 1 or length > 10: return -1
     n_value: i64 = input[0]
     if n_value < 0 or n_value > 8 or length != n_value.usize() + 1: return -1
@@ -48,7 +48,10 @@ def alphabetic_anagrams_impl(input: view[i64]) -> i64:
         position <- position + 1
     return rank
 
-export fn alphabetic_anagrams(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > 10: return -1
-    input_view: view[i64] = input[0:length]
-    alphabetic_anagrams_impl(input_view)
+def alphabetic_anagrams_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 10: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    alphabetic_anagrams_impl(input_view, input_view_length)
+
+export fn alphabetic_anagrams(input: i64&, length: usize) -> i64 = alphabetic_anagrams_entry

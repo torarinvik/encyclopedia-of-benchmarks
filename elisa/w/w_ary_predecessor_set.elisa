@@ -59,7 +59,7 @@ def wary_successor(leaf: view[u64], group: view[u64], top: u64, key: usize) -> i
     if later != 0:
         next_word <- group_index * 64 + slot + 1 + wary_low_bit(later)
     else:
-        later <- if group_index < 63: top >> (group_index + 1) else: 0
+        later <- top >> (group_index + 1) if group_index < 63 else 0
         if later == 0: return 0
         next_group: usize = group_index + 1 + wary_low_bit(later)
         next_word <- next_group * 64 + wary_low_bit(group[next_group])
@@ -83,8 +83,8 @@ def wary_predecessor(leaf: view[u64], group: view[u64], top: u64, key: usize) ->
         previous_word <- previous_group * 64 + wary_high_bit(group[previous_group])
     (previous_word * 64 + wary_high_bit(leaf[previous_word]) + 1).i64()
 
-def wary_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def wary_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 1 or length > 66 or input[0] < 0 or input[0] > 32: return -1
     q: usize = input[0].usize()
     if length != 1 + 2 * q: return -1
@@ -100,12 +100,14 @@ def wary_impl(input: view[i64]) -> i64:
         answer: mutable i64 = 0
         if opcode == 0: answer <- wary_insert(leaf[0:4096], group[0:64], top, key)
         elif opcode == 1: answer <- wary_erase(leaf[0:4096], group[0:64], top, key)
-        elif opcode == 2: answer <- if (leaf[key >> 6] & (1.u64() << (key & 63))) != 0: 1 else: 0
+        elif opcode == 2: answer <- 1 if (leaf[key >> 6] & (1.u64() << (key & 63))) != 0 else 0
         elif opcode == 3: answer <- wary_successor(leaf[0:4096], group[0:64], top, key)
         else: answer <- wary_predecessor(leaf[0:4096], group[0:64], top, key)
         result <- result + (index.i64() + 1) * answer
     result
 
-export fn w_ary_predecessor_set(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > 66: return -1
-    wary_impl(input[0:length])
+def w_ary_predecessor_set_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 66: return -1
+    wary_impl(input, length)
+
+export fn w_ary_predecessor_set(input: i64&, length: usize) -> i64 = w_ary_predecessor_set_impl

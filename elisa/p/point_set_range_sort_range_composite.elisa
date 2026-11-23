@@ -1,9 +1,9 @@
-const MODULUS: i64 = 998_244_353
+const MODULUS: i64 = 998244353
 const MAX_LENGTH: usize = 210
 
-fn point_set_range_sort_range_composite_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_LENGTH: return -1
-    frame: view[i64] = input[0:length]
+def point_set_range_sort_range_composite_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_LENGTH: return -1
+    frame: i64& = input
     n_value: i64 = frame[0]
     q_value: i64 = frame[1]
     if n_value < 1 or n_value > 16 or q_value < 1 or q_value > 32: return -1
@@ -11,10 +11,10 @@ fn point_set_range_sort_range_composite_impl(input: i64&, length: usize) -> i64:
     q: usize = q_value.usize()
     if length < 2 + 3 * n: return -1
 
-    priority: mutable [16]i64 = [0; 16]
-    multiplier: mutable [16]i64 = [0; 16]
-    offset: mutable [16]i64 = [0; 16]
-    seen: mutable [48]i64 = [0; 48]
+    priority: mutable i64[16] = zeroed
+    multiplier: mutable i64[16] = zeroed
+    offset: mutable i64[16] = zeroed
+    seen: mutable i64[48] = zeroed
     seen_count: mutable usize = 0
     cursor: mutable usize = 2
     for i in 0..<n:
@@ -22,7 +22,7 @@ fn point_set_range_sort_range_composite_impl(input: i64&, length: usize) -> i64:
         a: i64 = frame[cursor + 1]
         b: i64 = frame[cursor + 2]
         cursor <- cursor + 3
-        if p < 0 or p > 1_000_000_000 or a < 1 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
+        if p < 0 or p > 1000000000 or a < 1 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
         for j in 0..<seen_count:
             if seen[j] == p: return -1
         seen[seen_count] <- p
@@ -44,7 +44,7 @@ fn point_set_range_sort_range_composite_impl(input: i64&, length: usize) -> i64:
             a: i64 = frame[cursor + 2]
             b: i64 = frame[cursor + 3]
             cursor <- cursor + 4
-            if index < 0 or index >= n_value or p < 0 or p > 1_000_000_000 or a < 1 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
+            if index < 0 or index >= n_value or p < 0 or p > 1000000000 or a < 1 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
             for j in 0..<seen_count:
                 if seen[j] == p: return -1
             seen[seen_count] <- p
@@ -52,7 +52,7 @@ fn point_set_range_sort_range_composite_impl(input: i64&, length: usize) -> i64:
             priority[index.usize()] <- p
             multiplier[index.usize()] <- a
             offset[index.usize()] <- b
-        else if opcode == 1:
+        elif opcode == 1:
             if length - cursor < 3: return -1
             left: i64 = frame[cursor]
             right: i64 = frame[cursor + 1]
@@ -64,7 +64,7 @@ fn point_set_range_sort_range_composite_impl(input: i64&, length: usize) -> i64:
                 answer <- (multiplier[i] * answer + offset[i]) % MODULUS
             query_number <- query_number + 1
             checksum <- (checksum + query_number * answer) % MODULUS
-        else if opcode == 2 or opcode == 3:
+        elif opcode == 2 or opcode == 3:
             if length - cursor < 2: return -1
             left: i64 = frame[cursor]
             right: i64 = frame[cursor + 1]

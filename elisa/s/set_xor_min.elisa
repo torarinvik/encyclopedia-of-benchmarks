@@ -57,7 +57,7 @@ def sxm_minimum_xor(children_zero: view[i64], children_one: view[i64],
     while bit > 0:
         bit <- bit - 1
         preferred: usize = ((value >> bit) & 1).usize()
-        child: i64 = children_zero[node] if preferred == 0 else children_one[node]
+        child: mutable i64 = children_zero[node] if preferred == 0 else children_one[node]
         if child >= 0 and count[child.usize()] > 0:
             node <- child.usize()
         else:
@@ -66,7 +66,7 @@ def sxm_minimum_xor(children_zero: view[i64], children_one: view[i64],
             node <- child.usize()
     result
 
-def sxm_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def sxm_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -74,8 +74,8 @@ def sxm_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> voi
         byte <- byte + 1
 
 def set_xor_min_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_VALUES: return -1
-    frame: view[i64] = input[0:length]
+    if input == null or length < 3 or length > MAX_INPUT_VALUES: return -1
+    frame: i64& = input
     q_value: i64 = frame[0]
     if q_value < 1 or q_value > MAX_Q.i64(): return -1
     q: usize = q_value.usize()
@@ -83,8 +83,7 @@ def set_xor_min_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
     operation: mutable usize = 0
     while operation < q:
         offset: usize = 1 + 2 * operation
-        if frame[offset] < 0 or frame[offset] > 2 or frame[offset + 1] < 0 or
-            frame[offset + 1] >= 1073741824: return -1
+        if frame[offset] < 0 or frame[offset] > 2 or frame[offset + 1] < 0 or frame[offset + 1] >= 1073741824: return -1
         operation <- operation + 1
 
     children_zero: mutable i64[MAX_NODES] = zeroed
@@ -117,8 +116,8 @@ def set_xor_min_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
         operation <- operation + 1
 
     required: usize = 8 * answer_count
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     operation <- 0
     while operation < answer_count:
         sxm_store_i64_le(answers[operation], output_view, 8 * operation)

@@ -16,8 +16,8 @@ def lct_is_root(nodes: view[i64], x: usize) -> bool:
 def lct_pull(nodes: mutable view[i64], x: usize) -> void:
     left: i64 = nodes[LEFT + x]
     right: i64 = nodes[RIGHT + x]
-    left_sum: i64 = if left < 0 then 0 else nodes[SUM + left.usize()]
-    right_sum: i64 = if right < 0 then 0 else nodes[SUM + right.usize()]
+    left_sum: i64 = 0 if left < 0 else nodes[SUM + left.usize()]
+    right_sum: i64 = 0 if right < 0 else nodes[SUM + right.usize()]
     nodes[SUM + x] <- nodes[VALUE + x] + left_sum + right_sum
 
 def lct_reverse(nodes: mutable view[i64], x: i64) -> void:
@@ -38,7 +38,7 @@ def lct_rotate(nodes: mutable view[i64], x: usize) -> void:
     p: usize = nodes[PARENT + x].usize()
     g_value: i64 = nodes[PARENT + p]
     is_right: bool = nodes[RIGHT + p] == x.i64()
-    middle: i64 = if is_right then nodes[LEFT + x] else nodes[RIGHT + x]
+    middle: i64 = nodes[LEFT + x] if is_right else nodes[RIGHT + x]
     if not lct_is_root(nodes, p):
         g: usize = g_value.usize()
         if nodes[LEFT + g] == p.i64(): nodes[LEFT + g] <- x.i64()
@@ -56,23 +56,23 @@ def lct_rotate(nodes: mutable view[i64], x: usize) -> void:
     lct_pull(nodes, x)
 
 def lct_splay(nodes: mutable view[i64], x: usize) -> void:
-    stack: mutable usize[MAX_N] = zeroed
+    stack_value: mutable usize[MAX_N] = zeroed
     count: mutable usize = 1
     y: mutable usize = x
-    stack[0] <- y
+    stack_value[0] <- y
     while not lct_is_root(nodes, y):
         y <- nodes[PARENT + y].usize()
-        stack[count] <- y
+        stack_value[count] <- y
         count <- count + 1
     while count > 0:
         count <- count - 1
-        lct_push(nodes, stack[count])
+        lct_push(nodes, stack_value[count])
     while not lct_is_root(nodes, x):
         p: usize = nodes[PARENT + x].usize()
         if not lct_is_root(nodes, p):
             g: usize = nodes[PARENT + p].usize()
             zigzig: bool = (nodes[LEFT + p] == x.i64()) == (nodes[LEFT + g] == p.i64())
-            lct_rotate(nodes, if zigzig then p else x)
+            lct_rotate(nodes, (p if zigzig else x))
         lct_rotate(nodes, x)
 
 def lct_access(nodes: mutable view[i64], x: usize) -> void:
@@ -126,15 +126,15 @@ def lct_path_sum(nodes: mutable view[i64], u: usize, v: usize) -> i64:
     lct_access(nodes, v)
     nodes[SUM + v]
 
-def lct_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def lct_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def link_cut_tree(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64 @export("link_cut_tree"):
-    if input.is_null() or input_length < 2 or input_length > MAX_INPUT: return -1
+def link_cut_tree_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or input_length < 2 or input_length > MAX_INPUT: return -1
     n64: i64 = input[0]
     q64: i64 = input[1]
     if n64 < 1 or n64 > MAX_N.i64() or q64 < 1 or q64 > MAX_Q.i64(): return -1
@@ -155,7 +155,7 @@ def link_cut_tree(input: i64&, input_length: usize, output: mutable u8&, capacit
         if op < 0 or op > 2 or u < 0 or u >= n64 or v < 0 or v >= n64: return -1
         i <- i + 1
     bytes: usize = 8 * q
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     nodes: mutable i64[96] = zeroed
     i <- 0
     while i < n:
@@ -171,7 +171,9 @@ def link_cut_tree(input: i64&, input_length: usize, output: mutable u8&, capacit
         op: i64 = input[at]
         u: usize = input[at + 1].usize()
         v: usize = input[at + 2].usize()
-        result: i64 = if op == 0 then lct_link(nodes[0:96], u, v) else if op == 1 then lct_cut(nodes[0:96], u, v) else lct_path_sum(nodes[0:96], u, v)
-        lct_put_i64(result, output[0:bytes], 8 * i)
+        result: i64 = lct_link(nodes[0:96], u, v) if op == 0 else (lct_cut(nodes[0:96], u, v) if op == 1 else lct_path_sum(nodes[0:96], u, v))
+        lct_put_i64(result, output, 8 * i)
         i <- i + 1
     bytes.i64()
+
+export fn link_cut_tree(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64 = link_cut_tree_impl

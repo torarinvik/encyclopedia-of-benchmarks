@@ -1,14 +1,13 @@
 # 0-1 BFS over a bounded directed graph encoded as weighted edge triples.
 def zero_one_bfs_impl(values: i64&, length: usize, output: mutable u8&,
         output_capacity: usize) -> i64:
-    if values.is_null() or length < 3 or length > 3075:
+    if values == null or length < 3 or length > 3075:
         return -1
-    input: view[i64] = values[0:length]
+    input: i64& = values
     vertices_value: i64 = input[0]
     source_value: i64 = input[1]
     edge_count_value: i64 = input[2]
-    if (vertices_value < 1 or vertices_value > 64 or source_value < 0 or
-        edge_count_value < 0 or edge_count_value > 1024):
+    if (vertices_value < 1 or vertices_value > 64 or source_value < 0 or edge_count_value < 0 or edge_count_value > 1024):
         return -1
     vertices: usize = vertices_value.usize()
     source: usize = source_value.usize()
@@ -30,9 +29,7 @@ def zero_one_bfs_impl(values: i64&, length: usize, output: mutable u8&,
         origin_value: i64 = input[3 + 3 * edge]
         destination_value: i64 = input[4 + 3 * edge]
         weight: i64 = input[5 + 3 * edge]
-        if (origin_value < 0 or destination_value < 0 or
-            origin_value >= vertices_value or destination_value >= vertices_value or
-            (weight != 0 and weight != 1)):
+        if (origin_value < 0 or destination_value < 0 or origin_value >= vertices_value or destination_value >= vertices_value or (weight != 0 and weight != 1)):
             return -1
         origin: usize = origin_value.usize()
         destination: usize = destination_value.usize()
@@ -42,9 +39,9 @@ def zero_one_bfs_impl(values: i64&, length: usize, output: mutable u8&,
         else:
             one_edges[origin] <- one_edges[origin] | mask
         edge <- edge + 1
-    if output.is_null() or output_capacity < vertices:
+    if output == null or output_capacity < vertices:
         return -2
-    target: mutable view[u8] = output[0:vertices]
+    target: mutable u8& = output
 
     head: mutable usize = 0
     deque_end: mutable usize = 1

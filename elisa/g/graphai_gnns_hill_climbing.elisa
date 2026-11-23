@@ -5,9 +5,9 @@ const GNNS_MAX_PARSEABLE: usize = 90
 const GNNS_COORD_LIMIT: i64 = 100
 const GNNS_DISTANCE_RADIX: i64 = 160001
 
-export fn graphai_gnns_hill_climbing(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 5 or length > GNNS_MAX_PARSEABLE: return -1
-    input_view: view[i64] = input[0:length]
+def graphai_gnns_hill_climbing_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 5 or length > GNNS_MAX_PARSEABLE: return -1
+    input_view: i64& = input
     n_value: i64 = input_view[0]
     d_value: i64 = input_view[1]
     start_value: i64 = input_view[2]
@@ -82,3 +82,5 @@ export fn graphai_gnns_hill_climbing(input: i64&, length: usize) -> i64:
         moves <- moves + 1
         step <- step + 1
     (((evaluations * 17 + moves) * 16 + current.i64()) * GNNS_DISTANCE_RADIX + current_distance)
+
+export fn graphai_gnns_hill_climbing(input: i64&, length: usize) -> i64 = graphai_gnns_hill_climbing_impl

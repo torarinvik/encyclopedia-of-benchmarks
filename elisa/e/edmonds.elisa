@@ -4,7 +4,7 @@ const INF: i64 = 1000000000
 
 def edmonds_impl(a: i64&, length: usize) -> i64:
     if a == null or length < 3 or length > 39: return -1
-    values: view[i64] = a[0:length]
+    values: i64& = a
     n64: i64 = values[0]
     root64: i64 = values[1]
     m64: i64 = values[2]

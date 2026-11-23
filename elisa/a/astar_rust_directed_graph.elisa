@@ -1,4 +1,4 @@
-def write_i64_le(output: mutable view[u8], offset: mutable usize&, value: i64) -> usize:
+def write_i64_le(output: mutable u8&, offset: mutable usize&, value: i64) -> usize:
     shift: mutable usize = 0
     while shift < 64:
         output[offset] <- ((value >> shift) & 255).u8()
@@ -7,7 +7,7 @@ def write_i64_le(output: mutable view[u8], offset: mutable usize&, value: i64) -
     offset
 
 def astar_rust_directed_graph_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 4: return -1
+    if input == null or length < 4: return -1
     vertices: i64 = input[0]
     edge_count: i64 = input[1]
     if vertices < 1 or vertices > 32 or edge_count < 0 or edge_count > 128: return -1
@@ -26,10 +26,10 @@ def astar_rust_directed_graph_impl(input: i64&, length: usize, output: mutable u
     edge_index: mutable usize = 0
     while edge_index < edge_count.usize():
         from: i64 = input[edge_base + edge_index * 3]
-        to: i64 = input[edge_base + edge_index * 3 + 1]
+        to_value: i64 = input[edge_base + edge_index * 3 + 1]
         weight: i64 = input[edge_base + edge_index * 3 + 2]
-        if from < 0 or from >= vertices or to < 0 or to >= vertices or weight < 0 or weight > 1000000: return -1
-        if heuristic[from.usize()] > weight + heuristic[to.usize()]: return -1
+        if from < 0 or from >= vertices or to_value < 0 or to_value >= vertices or weight < 0 or weight > 1000000: return -1
+        if heuristic[from.usize()] > weight + heuristic[to_value.usize()]: return -1
         edge_index <- edge_index + 1
     distance: mutable i64[32] = zeroed
     parent: mutable i64[32] = zeroed
@@ -73,13 +73,13 @@ def astar_rust_directed_graph_impl(input: i64&, length: usize, output: mutable u
         if current < 0: return -1
     if reversed[path_length - 1] != start: return -1
     required: usize = 8 * (path_length + 2)
-    if output.is_null() or capacity < required: return -2
+    if output == null or capacity < required: return -2
     position: mutable usize = 0
-    write_i64_le(output[0:required], &position, distance[goal.usize()])
-    write_i64_le(output[0:required], &position, path_length.i64())
+    write_i64_le(output, &position, distance[goal.usize()])
+    write_i64_le(output, &position, path_length.i64())
     index <- 0
     while index < path_length:
-        write_i64_le(output[0:required], &position, reversed[path_length - 1 - index])
+        write_i64_le(output, &position, reversed[path_length - 1 - index])
         index <- index + 1
     required.i64()
 

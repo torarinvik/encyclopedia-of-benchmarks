@@ -52,7 +52,7 @@ def puf_visit_version(node: usize, kind: view[i64], u: view[i64], v: view[i64],
             parent[changed_child.usize()] <- changed_child.usize()
             set_size[root] <- history_size[history_count].usize()
 
-def puf_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def puf_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -61,8 +61,8 @@ def puf_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> voi
 
 def persistent_unionfind_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 6 or length > MAX_INPUT_VALUES: return -1
-    frame: view[i64] = input[0:length]
+    if input == null or length < 6 or length > MAX_INPUT_VALUES: return -1
+    frame: i64& = input
     n_value: i64 = frame[0]
     q_value: i64 = frame[1]
     if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
@@ -88,9 +88,7 @@ def persistent_unionfind_impl(input: i64&, length: usize,
         version: i64 = frame[offset + 1]
         u[operation] <- frame[offset + 2]
         v[operation] <- frame[offset + 3]
-        if (kind[operation] != 0 and kind[operation] != 1) or version < -1 or
-            version >= operation.i64() or u[operation] < 0 or u[operation] >= n_value or
-            v[operation] < 0 or v[operation] >= n_value: return -1
+        if (kind[operation] != 0 and kind[operation] != 1) or version < -1 or version >= operation.i64() or u[operation] < 0 or u[operation] >= n_value or v[operation] < 0 or v[operation] >= n_value: return -1
         if version >= 0 and kind[version.usize()] != 0: return -1
         if kind[operation] == 1: query_count <- query_count + 1
         parent_node: usize = (version + 1).usize()
@@ -99,7 +97,7 @@ def persistent_unionfind_impl(input: i64&, length: usize,
         operation <- operation + 1
 
     required: usize = 8 * query_count
-    if output.is_null() or capacity < required: return -2
+    if output == null or capacity < required: return -2
     parent: mutable usize[MAX_N] = zeroed
     set_size: mutable usize[MAX_N] = zeroed
     node <- 0
@@ -117,7 +115,7 @@ def persistent_unionfind_impl(input: i64&, length: usize,
         history_root[0:MAX_Q], history_size[0:MAX_Q], history_count)
     written: mutable usize = 0
     operation <- 0
-    output_view: mutable view[u8] = output[0:required]
+    output_view: mutable u8& = output
     while operation < q:
         if kind[operation] == 1:
             puf_store_i64_le(answer[operation + 1], output_view, written)

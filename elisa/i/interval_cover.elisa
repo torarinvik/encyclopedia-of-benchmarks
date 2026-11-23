@@ -1,5 +1,5 @@
-def interval_cover_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def interval_cover_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 3 or length > 36:
         return -2
     target_left: i64 = input[0]
@@ -33,7 +33,9 @@ def interval_cover_impl(input: view[i64]) -> i64:
         selected <- selected + 1
     selected
 
-export fn interval_cover(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > 36:
+def interval_cover_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > 36:
         return -2
-    interval_cover_impl(input[0:length])
+    interval_cover_impl(input, length)
+
+export fn interval_cover(input: i64&, length: usize) -> i64 = interval_cover_entry

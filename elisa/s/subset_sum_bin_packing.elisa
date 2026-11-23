@@ -3,7 +3,7 @@ const SUBSET_SUM_BIN_PACKING_MAX_CAPACITY: usize = 32
 const SUBSET_SUM_BIN_PACKING_MAX_INPUT_LENGTH: usize = 19
 const SUBSET_SUM_BIN_PACKING_STRIDE: usize = 33
 
-def subset_sum_bin_packing_impl(input: view[i64], length: usize) -> i64:
+def subset_sum_bin_packing_impl(input: i64&, length: usize) -> i64:
     if length < 2 or length > SUBSET_SUM_BIN_PACKING_MAX_INPUT_LENGTH:
         return -1
     raw_count: i64 = input[0]
@@ -76,8 +76,10 @@ def subset_sum_bin_packing_impl(input: view[i64], length: usize) -> i64:
         index <- index + 1
     checksum
 
-export fn subset_sum_bin_packing(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > SUBSET_SUM_BIN_PACKING_MAX_INPUT_LENGTH:
+def subset_sum_bin_packing_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > SUBSET_SUM_BIN_PACKING_MAX_INPUT_LENGTH:
         return -1
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     subset_sum_bin_packing_impl(input_view, length)
+
+export fn subset_sum_bin_packing(input: i64&, length: usize) -> i64 = subset_sum_bin_packing_entry

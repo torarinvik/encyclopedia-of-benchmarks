@@ -26,13 +26,16 @@ def wn_numerator(n: i64) -> i64:
         k <- k + 1
     numerator
 
-def wn_impl(input: view[i64]) -> i64:
-    if input.length != 1: return -1
+def wn_impl(input: i64&, input_length: usize) -> i64:
+    if input_length != 1: return -1
     n: i64 = input[0]
     if n < 1 or n > WN_MAX_N: return -1
     wn_numerator(n)
 
-export fn wolstenholme_numbers(input: i64&, input_length: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > WN_MAX_PARSEABLE_LENGTH: return -1
-    input_view: view[i64] = input[0:input_length]
-    wn_impl(input_view)
+def wolstenholme_numbers_impl(input: i64&, input_length: usize) -> i64:
+    if input == null or input_length < 1 or input_length > WN_MAX_PARSEABLE_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = input_length
+    wn_impl(input_view, input_view_length)
+
+export fn wolstenholme_numbers(input: i64&, input_length: usize) -> i64 = wolstenholme_numbers_impl

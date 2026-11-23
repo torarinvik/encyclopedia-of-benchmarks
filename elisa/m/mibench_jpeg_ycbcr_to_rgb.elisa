@@ -5,16 +5,16 @@ def mibench_jpeg_ycbcr_arshift16(value: i64) -> i64:
 
 def mibench_jpeg_ycbcr_clamp(value: i64) -> u8:
     if value < 0:
-        return 0u8
+        return 0
     if value > 255:
-        return 255u8
+        return 255
     value.u8()
 
 def mibench_jpeg_ycbcr_impl(input: i64&, input_length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 4 or input_length > 49:
+    if input == null or input_length < 4 or input_length > 49:
         return -1
-    values: view[i64] = input[0:input_length]
+    values: i64& = input
     if values[0] < 1 or values[0] > 16 or input_length != (1 + 3 * values[0]).usize():
         return -1
     index: mutable usize = 1
@@ -35,9 +35,9 @@ def mibench_jpeg_ycbcr_impl(input: i64&, input_length: usize,
         staged[out_index + 2] <- mibench_jpeg_ycbcr_clamp(y + mibench_jpeg_ycbcr_arshift16(116130 * cb + 32768))
         out_index <- out_index + 3
         index <- index + 3
-    if output.is_null() or output_capacity < out_index:
+    if output == null or output_capacity < out_index:
         return -2
-    bytes: mutable view[u8] = output[0:out_index]
+    bytes: mutable u8& = output
     index <- 0
     while index < out_index:
         bytes[index] <- staged[index]

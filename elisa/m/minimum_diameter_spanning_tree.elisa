@@ -42,7 +42,7 @@ def mdst_shortest_tree(n: usize, m: usize, edge_u: view[usize], edge_v: view[usi
             if left != right:
                 neighbor: mutable usize = n
                 if current == left: neighbor <- right
-                else if current == right: neighbor <- left
+                elif current == right: neighbor <- left
                 if neighbor != n:
                     candidate: i64 = distance[current] + 2 * edge_weight[edge_id]
                     if not settled[neighbor] and candidate < distance[neighbor]:
@@ -71,18 +71,18 @@ def mdst_tree_diameter(n: usize, selected: view[usize], edge_u: view[usize],
     while source < n:
         distance: mutable i64[MAX_N] = zeroed
         parent: mutable usize[MAX_N] = zeroed
-        stack: mutable usize[MAX_N] = zeroed
+        stack_value: mutable usize[MAX_N] = zeroed
         vertex: mutable usize = 0
         while vertex < n:
             distance[vertex] <- -1
             parent[vertex] <- n
             vertex <- vertex + 1
         top: mutable usize = 1
-        stack[0] <- source
+        stack_value[0] <- source
         distance[source] <- 0
         while top > 0:
             top <- top - 1
-            current: usize = stack[top]
+            current: usize = stack_value[top]
             if distance[current] > diameter: diameter <- distance[current]
             neighbor: mutable usize = 0
             while neighbor < n:
@@ -90,13 +90,13 @@ def mdst_tree_diameter(n: usize, selected: view[usize], edge_u: view[usize],
                 if adjacent[cell] and parent[current] != neighbor and distance[neighbor] < 0:
                     parent[neighbor] <- current
                     distance[neighbor] <- distance[current] + weight[cell]
-                    stack[top] <- neighbor
+                    stack_value[top] <- neighbor
                     top <- top + 1
                 neighbor <- neighbor + 1
         source <- source + 1
     diameter
 
-def mdst_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def mdst_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -105,8 +105,8 @@ def mdst_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> vo
 
 def minimum_diameter_spanning_tree_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 2 or length > MAX_INPUT_VALUES: return -1
+    values: i64& = input
     n_value: i64 = values[0]
     m_value: i64 = values[1]
     if n_value < 1 or n_value > MAX_N.i64() or m_value < 0 or m_value > MAX_M.i64(): return -1
@@ -123,7 +123,7 @@ def minimum_diameter_spanning_tree_impl(input: i64&, length: usize,
     while u < n:
         v <- 0
         while v < n:
-            graph_distance[u * MAX_N + v] <- if u == v: 0 else: INF
+            graph_distance[u * MAX_N + v] <- 0 if u == v else INF
             v <- v + 1
         u <- u + 1
     edge_id: mutable usize = 0
@@ -132,8 +132,7 @@ def minimum_diameter_spanning_tree_impl(input: i64&, length: usize,
         u_value: i64 = values[offset]
         v_value: i64 = values[offset + 1]
         edge_w: i64 = values[offset + 2]
-        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or
-            edge_w < 0 or edge_w > 9: return -1
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or edge_w < 0 or edge_w > 9: return -1
         u <- u_value.usize()
         v <- v_value.usize()
         edge_u[edge_id] <- u
@@ -197,7 +196,7 @@ def minimum_diameter_spanning_tree_impl(input: i64&, length: usize,
                 while vertex < n:
                     from_u: i64 = 2 * graph_distance[u * MAX_N + vertex] + x2
                     from_v: i64 = 2 * graph_distance[v * MAX_N + vertex] + 2 * edge_w - x2
-                    value: i64 = if from_u < from_v: from_u else: from_v
+                    value: i64 = from_u if from_u < from_v else from_v
                     if value > radius2: radius2 <- value
                     vertex <- vertex + 1
                 if radius2 < best_radius2:
@@ -246,8 +245,8 @@ def minimum_diameter_spanning_tree_impl(input: i64&, length: usize,
         staged[u + 1] <- selected[u].i64()
         u <- u + 1
     required: usize = 8 * n
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     u <- 0
     while u < n:
         mdst_store_i64_le(staged[u], output_view, 8 * u)

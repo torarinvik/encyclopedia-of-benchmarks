@@ -1,6 +1,6 @@
 def longest_common_substring_sam_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 515: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 2 or length > 515: return -1
+    values: i64& = input
     if values[0] < 0 or values[0] > 256: return -1
     n: usize = values[0].usize()
     if length < n+2 or values[n+1] < 0 or values[n+1] > 256: return -1
@@ -13,8 +13,10 @@ def longest_common_substring_sam_impl(input: i64&, length: usize) -> i64:
     edges: mutable i32[48735] = zeroed
     links: mutable i32[513] = zeroed
     lens: mutable usize[513] = zeroed
-    for i in 0..<48735: edges[i] <- -1
-    for i in 0..<513: links[i] <- -1
+    for i in 0..<48735:
+        edges[i] <- -1
+    for i in 0..<513:
+        links[i] <- -1
     size: mutable usize = 1
     last: mutable usize = 0
     for i in 0..<n:
@@ -33,7 +35,8 @@ def longest_common_substring_sam_impl(input: i64&, length: usize) -> i64:
             else:
                 clone: usize = size
                 size <- size+1
-                for a in 0..<95: edges[95*clone+a] <- edges[95*q+a]
+                for a in 0..<95:
+                    edges[95*clone+a] <- edges[95*q+a]
                 links[clone] <- links[q]
                 lens[clone] <- lens[p.usize()]+1
                 while p >= 0 and edges[95*p.usize()+symbol] == q.i32():

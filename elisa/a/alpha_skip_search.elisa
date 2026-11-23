@@ -3,7 +3,7 @@ const ALPHA_SKIP_MAX_PATTERN: usize = 128
 const ALPHA_SKIP_MAX_INPUT_LENGTH: usize = 4227
 const ALPHA_SKIP_MAX_BUCKETS: usize = 64
 
-def alpha_skip_search_impl(input: view[i64], length: usize) -> i64:
+def alpha_skip_search_impl(input: i64&, length: usize) -> i64:
     if length < 2 or length > ALPHA_SKIP_MAX_INPUT_LENGTH:
         return -1
     raw_text_length: i64 = input[0]
@@ -98,8 +98,10 @@ def alpha_skip_search_impl(input: view[i64], length: usize) -> i64:
 
     (match_count << 36) | (offset_sum << 12) | offset_xor
 
-export fn alpha_skip_search(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > ALPHA_SKIP_MAX_INPUT_LENGTH:
+def alpha_skip_search_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > ALPHA_SKIP_MAX_INPUT_LENGTH:
         return -1
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     alpha_skip_search_impl(input_view, length)
+
+export fn alpha_skip_search(input: i64&, length: usize) -> i64 = alpha_skip_search_entry

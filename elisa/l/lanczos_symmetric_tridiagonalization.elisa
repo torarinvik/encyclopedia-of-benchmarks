@@ -10,7 +10,7 @@ def lanczos_integer(value: f64, low: i64, high: i64) -> bool:
     if not lanczos_finite(value) or value < low.f64() or value > high.f64(): return false
     value.i64().f64() == value
 
-def lanczos_valid(input: view[f64], input_length: usize) -> bool:
+def lanczos_valid(input: f64&, input_length: usize) -> bool:
     if input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return false
     for index in 0..<input_length:
         if not lanczos_finite(input[index]): return false
@@ -25,29 +25,30 @@ def lanczos_valid(input: view[f64], input_length: usize) -> bool:
             if value != input[2 + col * n.usize() + row]: return false
     true
 
-def lanczos_compute(input: view[f64], output: mutable view[f64]) -> i64:
+def lanczos_compute(input: f64&, output: mutable f64&) -> i64:
     n: i64 = input[0].i64()
     k: i64 = input[1].i64()
-    mut previous: f64[4] = zeroed
-    mut current: f64[4] = zeroed
-    mut product: f64[4] = zeroed
-    mut residual: f64[4] = zeroed
-    mut next: f64[4] = zeroed
-    mut diagonal: f64[4] = zeroed
-    mut off_diagonal: f64[3] = zeroed
+    previous: mutable f64[4] = zeroed
+    current: mutable f64[4] = zeroed
+    product: mutable f64[4] = zeroed
+    residual: mutable f64[4] = zeroed
+    next: mutable f64[4] = zeroed
+    diagonal: mutable f64[4] = zeroed
+    off_diagonal: mutable f64[3] = zeroed
     current[0] <- 1.0
-    mut previous_beta: f64 = 0.0
-    for step in 0..k:
+    previous_beta: mutable f64 = 0.0
+    for step in 0..<k:
         for row in 0..<n.usize():
             product[row] <- 0.0
             for col in 0..<n.usize():
                 product[row] <- product[row] + input[2 + row * n.usize() + col] * current[col]
-        mut alpha: f64 = 0.0
-        for index in 0..<n.usize(): alpha <- alpha + current[index] * product[index]
+        alpha: mutable f64 = 0.0
+        for index in 0..<n.usize():
+            alpha <- alpha + current[index] * product[index]
         if not lanczos_finite(alpha): return -3
         diagonal[step.usize()] <- alpha
         if step + 1 == k: break
-        mut norm_squared: f64 = 0.0
+        norm_squared: mutable f64 = 0.0
         for index in 0..<n.usize():
             residual[index] <- product[index] - alpha * current[index] - previous_beta * previous[index]
             norm_squared <- norm_squared + residual[index] * residual[index]
@@ -55,22 +56,29 @@ def lanczos_compute(input: view[f64], output: mutable view[f64]) -> i64:
         beta: f64 = sqrt(norm_squared)
         if not lanczos_finite(beta) or beta <= 9.094947017729282e-13: return -3
         off_diagonal[step.usize()] <- beta
-        for index in 0..<n.usize(): next[index] <- residual[index] / beta
-        for index in 0..<n.usize(): previous[index] <- current[index]
-        for index in 0..<n.usize(): current[index] <- next[index]
+        for index in 0..<n.usize():
+            next[index] <- residual[index] / beta
+        for index in 0..<n.usize():
+            previous[index] <- current[index]
+        for index in 0..<n.usize():
+            current[index] <- next[index]
         previous_beta <- beta
     output[0] <- k.f64()
-    for index in 0..<k: output[index.usize() + 1] <- diagonal[index.usize()]
-    for index in 0..<(k - 1): output[(k + index + 1).usize()] <- off_diagonal[index.usize()]
+    for index in 0..<k:
+        output[index.usize() + 1] <- diagonal[index.usize()]
+    for index in 0..<(k - 1):
+        output[(k + index + 1).usize()] <- off_diagonal[index.usize()]
     (2 * k).i64()
 
-export fn lanczos_symmetric_tridiagonalization(input: f64&, input_length: usize,
+def lanczos_symmetric_tridiagonalization_impl(input: f64&, input_length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
-    input_view: view[f64] = input[0:input_length]
+    if input == null or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    input_view: f64& = input
     if not lanczos_valid(input_view, input_length): return -1
     k: i64 = input_view[1].i64()
     required: usize = (2 * k).usize()
-    if output.is_null() or output_capacity < required: return -2
-    output_view: mutable view[f64] = output[0:required]
+    if output == null or output_capacity < required: return -2
+    output_view: mutable f64& = output
     lanczos_compute(input_view, output_view)
+
+export fn lanczos_symmetric_tridiagonalization(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = lanczos_symmetric_tridiagonalization_impl

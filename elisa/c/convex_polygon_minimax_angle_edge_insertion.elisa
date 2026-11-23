@@ -25,9 +25,9 @@ def cmai_angle_dot(points: view[CmaiPoint], angle: CmaiAngle) -> i64:
     va: usize = angle.a
     vb: usize = angle.b
     vc: usize = angle.c
-    center: usize = if angle.vertex == 0: va else: (if angle.vertex == 1: vb else: vc)
-    first: usize = if center != va: va else: vb
-    second: usize = if center != vc: vc else: (if center != vb: vb else: va)
+    center: usize = va if angle.vertex == 0 else ((vb if angle.vertex == 1 else vc))
+    first: usize = va if center != va else vb
+    second: usize = vc if center != vc else ((vb if center != vb else va))
     ux: i64 = points[first].x - points[center].x
     uy: i64 = points[first].y - points[center].y
     vx: i64 = points[second].x - points[center].x
@@ -38,9 +38,9 @@ def cmai_angle_den(points: view[CmaiPoint], angle: CmaiAngle) -> i64:
     va: usize = angle.a
     vb: usize = angle.b
     vc: usize = angle.c
-    center: usize = if angle.vertex == 0: va else: (if angle.vertex == 1: vb else: vc)
-    first: usize = if center != va: va else: vb
-    second: usize = if center != vc: vc else: (if center != vb: vb else: va)
+    center: usize = va if angle.vertex == 0 else ((vb if angle.vertex == 1 else vc))
+    first: usize = va if center != va else vb
+    second: usize = vc if center != vc else ((vb if center != vb else va))
     ux: i64 = points[first].x - points[center].x
     uy: i64 = points[first].y - points[center].y
     vx: i64 = points[second].x - points[center].x
@@ -56,17 +56,17 @@ def cmai_angle_cmp(points: view[CmaiPoint], left: CmaiAngle, right: CmaiAngle) -
         if d1 == d2:
             return 0
         if d1 == 0:
-            return if d2 > 0: 1 else: -1
-        return if d1 > 0: -1 else: 1
+            return 1 if d2 > 0 else -1
+        return -1 if d1 > 0 else 1
     if (d1 < 0) != (d2 < 0):
-        return if d1 < 0: 1 else: -1
+        return 1 if d1 < 0 else -1
     lhs: i64 = d1 * d1 * z2
     rhs: i64 = d2 * d2 * z1
     if lhs == rhs:
         return 0
     if d1 > 0:
-        return if lhs > rhs: -1 else: 1
-    return if lhs > rhs: 1 else: -1
+        return -1 if lhs > rhs else 1
+    return 1 if lhs > rhs else -1
 
 def cmai_triangle_max(points: view[CmaiPoint], triangle: CmaiTriangle) -> CmaiAngle:
     a: usize = triangle.a
@@ -134,8 +134,8 @@ def cmai_angle_rank(points: view[CmaiPoint], n: usize, target: CmaiAngle) -> i64
 def cmai_proper_crossing(points: view[CmaiPoint], a: usize, b: usize, c: usize, d: usize) -> bool:
     cmai_orient(points, a, b, c) * cmai_orient(points, a, b, d) < 0 and cmai_orient(points, c, d, a) * cmai_orient(points, c, d, b) < 0
 
-def cmai_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def cmai_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 1 or length > CMAI_MAX_LENGTH:
         return -1
     if input[0] < CMAI_MIN_N.i64() or input[0] > CMAI_MAX_N.i64():
@@ -165,7 +165,7 @@ def cmai_impl(input: view[i64]) -> i64:
         i <- i + 1
     if area2 == 0:
         return -1
-    orientation: i64 = if area2 > 0: 1 else: -1
+    orientation: i64 = 1 if area2 > 0 else -1
     a: mutable usize = 0
     while a < n:
         b: mutable usize = a + 1
@@ -190,7 +190,7 @@ def cmai_impl(input: view[i64]) -> i64:
     fan: mutable CmaiTriangle[2] = zeroed
     fan[0] <- CmaiTriangle{a: 0, b: 1, c: 2}
     fan[1] <- CmaiTriangle{a: 0, b: 2, c: 3}
-    worst: mutable CmaiAngle = if n == 3: cmai_triangle_max(points[0:n], CmaiTriangle{a: 0, b: 1, c: 2}) else: cmai_triangulation_max(points[0:n], fan[0:2], 2)
+    worst: mutable CmaiAngle = cmai_triangle_max(points[0:n], CmaiTriangle{a: 0, b: 1, c: 2}) if n == 3 else cmai_triangulation_max(points[0:n], fan[0:2], 2)
     if n == 4:
         accepted: mutable bool = false
         ti: mutable usize = 0
@@ -227,7 +227,9 @@ def cmai_impl(input: view[i64]) -> i64:
             ti <- ti + 1
     cmai_angle_rank(points[0:n], n, worst)
 
-export fn convex_polygon_minimax_angle_edge_insertion(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > CMAI_MAX_LENGTH:
+def convex_polygon_minimax_angle_edge_insertion_impl(input: i64&, length: usize) -> i64:
+    if input == null or length > CMAI_MAX_LENGTH:
         return -1
-    cmai_impl(input[0:length])
+    cmai_impl(input, length)
+
+export fn convex_polygon_minimax_angle_edge_insertion(input: i64&, length: usize) -> i64 = convex_polygon_minimax_angle_edge_insertion_impl

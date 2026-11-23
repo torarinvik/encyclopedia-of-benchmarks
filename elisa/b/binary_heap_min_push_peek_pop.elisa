@@ -1,22 +1,22 @@
-def binary_heap_min_push_peek_pop_sift_down(heap: mutable view[i64], count: usize, start: usize) -> void:
+def binary_heap_min_push_peek_pop_sift_down(heap_value: mutable view[i64], count: usize, start: usize) -> void:
     index: mutable usize = start
     while true:
         smallest: mutable usize = index
         left: usize = index * 2 + 1
         right: usize = left + 1
-        if left < count and heap[left] < heap[smallest]:
+        if left < count and heap_value[left] < heap_value[smallest]:
             smallest <- left
-        if right < count and heap[right] < heap[smallest]:
+        if right < count and heap_value[right] < heap_value[smallest]:
             smallest <- right
         if smallest == index:
             return
-        temporary: mutable i64 = heap[index]
-        heap[index] <- heap[smallest]
-        heap[smallest] <- temporary
+        temporary: mutable i64 = heap_value[index]
+        heap_value[index] <- heap_value[smallest]
+        heap_value[smallest] <- temporary
         index <- smallest
 
-def binary_heap_min_push_peek_pop_store(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
+def binary_heap_min_push_peek_pop_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
@@ -24,40 +24,40 @@ def binary_heap_min_push_peek_pop_store(value: i64, output: mutable view[u8], of
         byte <- byte + 1
 
 def binary_heap_min_push_peek_pop_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if values.is_null() or length < 2 or length > 257:
+    if values == null or length < 2 or length > 257:
         return -1
     raw_count: i64 = values[0]
     if raw_count < 1 or raw_count > 256 or length != raw_count.usize() + 1:
         return -1
     count: usize = raw_count.usize()
-    heap: mutable i64[256] = zeroed
-    index: usize = 0
+    heap_value: mutable i64[256] = zeroed
+    index:mutable  mutable usize = 0
     while index < count:
         value: i64 = values[index + 1]
         if value < -2147483648 or value > 2147483647:
             return -1
         position: mutable usize = index
-        heap[position] <- value
+        heap_value[position] <- value
         while position > 0:
             parent: usize = (position - 1) / 2
-            if heap[parent] <= heap[position]:
+            if heap_value[parent] <= heap_value[position]:
                 break
-            temporary: mutable i64 = heap[parent]
-            heap[parent] <- heap[position]
-            heap[position] <- temporary
+            temporary: mutable i64 = heap_value[parent]
+            heap_value[parent] <- heap_value[position]
+            heap_value[position] <- temporary
             position <- parent
         index <- index + 1
     output_bytes: usize = 8 * count
-    if output.is_null() or capacity < output_bytes:
+    if output == null or capacity < output_bytes:
         return -2
     remaining: mutable usize = count
     index <- 0
     while index < count:
-        binary_heap_min_push_peek_pop_store(heap[0], output[0:output_bytes], 8 * index)
+        binary_heap_min_push_peek_pop_store(heap_value[0], output, 8 * index)
         remaining <- remaining - 1
         if remaining > 0:
-            heap[0] <- heap[remaining]
-            binary_heap_min_push_peek_pop_sift_down(heap[0:remaining], remaining, 0)
+            heap_value[0] <- heap_value[remaining]
+            binary_heap_min_push_peek_pop_sift_down(heap_value[0:remaining], remaining, 0)
         index <- index + 1
     output_bytes.i64()
 

@@ -1,8 +1,8 @@
 const MAX_N: usize = 64
 const MAX_INPUT_VALUES: usize = 1 + MAX_N * MAX_N
 
-def matrix_det_mod_2_store(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
+def matrix_det_mod_2_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
@@ -10,7 +10,7 @@ def matrix_det_mod_2_store(value: i64, output: mutable view[u8], offset: usize) 
         byte <- byte + 1
 
 def matrix_det_mod_2_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 1 or length > MAX_INPUT_VALUES: return -1
     n_value: i64 = input[0]
     if n_value < 1 or n_value > MAX_N.i64(): return -1
     n: usize = n_value.usize()
@@ -31,7 +31,8 @@ def matrix_det_mod_2_impl(input: i64&, length: usize, output: mutable u8&, capac
     column: mutable usize = 0
     while column < n:
         pivot: mutable usize = pivot_row
-        while pivot < n and ((rows[pivot] >> column) & 1) == 0: pivot <- pivot + 1
+        while pivot < n and ((rows[pivot] >> column) & 1) == 0:
+            pivot <- pivot + 1
         if pivot < n:
             temporary: u64 = rows[pivot_row]
             rows[pivot_row] <- rows[pivot]
@@ -44,9 +45,9 @@ def matrix_det_mod_2_impl(input: i64&, length: usize, output: mutable u8&, capac
             pivot_row <- pivot_row + 1
         column <- column + 1
 
-    if output.is_null() or capacity < 8: return -2
-    result: i64 = if pivot_row == n: 1 else: 0
-    matrix_det_mod_2_store(result, output[0:8], 0)
+    if output == null or capacity < 8: return -2
+    result: i64 = 1 if pivot_row == n else 0
+    matrix_det_mod_2_store(result, output, 0)
     8
 
 export fn matrix_det_mod_2(input: i64&, length: usize,

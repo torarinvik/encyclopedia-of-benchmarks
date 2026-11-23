@@ -2,7 +2,7 @@ const KV_MAX_N: usize = 8
 const KV_MAX_M: usize = 28
 const KV_MAX_INPUT: usize = 59
 
-def kv_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def kv_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -13,11 +13,11 @@ def kv_connected_without_vertex(n: usize, m: usize, u: view[usize], v: view[usiz
     seen: mutable bool[8] = zeroed
     queue: mutable usize[8] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 1
-    start: usize = if removed == 0: 1 else: 0
+    tail_value: mutable usize = 1
+    start: usize = 1 if removed == 0 else 0
     queue[0] <- start
     seen[start] <- true
-    while head < tail:
+    while head < tail_value:
         x: usize = queue[head]
         head <- head + 1
         edge: mutable usize = 0
@@ -25,11 +25,11 @@ def kv_connected_without_vertex(n: usize, m: usize, u: view[usize], v: view[usiz
             if u[edge] != removed and v[edge] != removed:
                 next: mutable usize = KV_MAX_N
                 if u[edge] == x: next <- v[edge]
-                else if v[edge] == x: next <- u[edge]
+                elif v[edge] == x: next <- u[edge]
                 if next < n and not seen[next]:
                     seen[next] <- true
-                    queue[tail] <- next
-                    tail <- tail + 1
+                    queue[tail_value] <- next
+                    tail_value <- tail_value + 1
             edge <- edge + 1
     vertex: mutable usize = 0
     while vertex < n:
@@ -40,10 +40,10 @@ def kv_connected_without_vertex(n: usize, m: usize, u: view[usize], v: view[usiz
 def kv_earlier(a: usize, b: usize, disc: view[usize]) -> bool:
     disc[a] < disc[b]
 
-def two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 @export("two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs"):
-    if input.is_null() or length < 2 or length > KV_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
+def two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > KV_MAX_INPUT: return -1
+    input_view: i64& = input
     n64: i64 = input_view[0]
     m64: i64 = input_view[1]
     if n64 < 3 or n64 > 8 or m64 < 3 or m64 > 28: return -1
@@ -98,7 +98,7 @@ def two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs(input: i64&, leng
             stack_cursor[frame] <- current_edge + 1
             y: mutable usize = KV_MAX_N
             if u[current_edge] == x: y <- v[current_edge]
-            else if v[current_edge] == x: y <- u[current_edge]
+            elif v[current_edge] == x: y <- u[current_edge]
             if y == KV_MAX_N: continue
             if state[y] == 0:
                 selected[current_edge] <- true
@@ -113,7 +113,7 @@ def two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs(input: i64&, leng
                 stack_parent[top] <- x
                 stack_cursor[top] <- 0
                 top <- top + 1
-            else if state[y] == 1 and y != parent and kv_earlier(y, low[x], disc[0:KV_MAX_N]):
+            elif state[y] == 1 and y != parent and kv_earlier(y, low[x], disc[0:KV_MAX_N]):
                 low[x] <- y
                 savior[x] <- x
             continue
@@ -121,8 +121,8 @@ def two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs(input: i64&, leng
         if parent < n and low_h[x] == x:
             a: usize = savior[x]
             b: usize = low[x]
-            lo: usize = a
-            hi: usize = b
+            lo: mutable usize = a
+            hi: mutable usize = b
             if a > b: lo <- b
             if a > b: hi <- a
             edge <- 0
@@ -136,8 +136,8 @@ def two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs(input: i64&, leng
         if parent < n and low_h[x] == parent:
             a: usize = savior[x]
             b: usize = low[x]
-            lo: usize = a
-            hi: usize = b
+            lo: mutable usize = a
+            hi: mutable usize = b
             if a > b: lo <- b
             if a > b: hi <- a
             edge <- 0
@@ -160,8 +160,8 @@ def two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs(input: i64&, leng
         if selected[edge]: count <- count + 1
         edge <- edge + 1
     bytes: usize = 8 * (1 + 2 * count)
-    if output.is_null() or capacity < bytes: return -2
-    result: mutable view[u8] = output[0:bytes]
+    if output == null or capacity < bytes: return -2
+    result: mutable u8& = output
     kv_put_i64(count.i64(), result, 0)
     offset: mutable usize = 8
     a: mutable usize = 0
@@ -178,3 +178,5 @@ def two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs(input: i64&, leng
             b <- b + 1
         a <- a + 1
     bytes.i64()
+
+export fn two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = two_vertex_connected_spanning_subgraph_khuller_vishkin_dfs_impl

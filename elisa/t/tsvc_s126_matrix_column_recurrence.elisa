@@ -4,7 +4,7 @@ const TSVC_S126_MAX_N: usize = 6
 const TSVC_S126_MAX_CELLS: usize = 36
 const TSVC_S126_MAX_INPUT_LENGTH: usize = 109
 
-def tsvc_s126_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def tsvc_s126_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -13,7 +13,7 @@ def tsvc_s126_store_i64_le(value: i64, output: mutable view[u8], offset: usize) 
 
 def tsvc_s126_matrix_column_recurrence_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 13 or length > TSVC_S126_MAX_INPUT_LENGTH:
+    if input == null or length < 13 or length > TSVC_S126_MAX_INPUT_LENGTH:
         return -1
     n_value: i64 = input[0]
     if n_value < 2 or n_value > 6:
@@ -30,12 +30,11 @@ def tsvc_s126_matrix_column_recurrence_impl(input: i64&, length: usize,
         coefficients[i] <- input[1 + i]
         c_matrix[i] <- input[1 + cells + i]
         b_matrix[i] <- input[1 + 2 * cells + i]
-        if coefficients[i] < -100 or coefficients[i] > 100 or
-                c_matrix[i] < -100 or c_matrix[i] > 100 or b_matrix[i] < -100 or b_matrix[i] > 100:
+        if coefficients[i] < -100 or coefficients[i] > 100 or c_matrix[i] < -100 or c_matrix[i] > 100 or b_matrix[i] < -100 or b_matrix[i] > 100:
             return -1
         i <- i + 1
     output_bytes: usize = 8 * cells
-    if output.is_null() or capacity < output_bytes:
+    if output == null or capacity < output_bytes:
         return -2
     k: mutable usize = 1
     i <- 0
@@ -50,7 +49,7 @@ def tsvc_s126_matrix_column_recurrence_impl(input: i64&, length: usize,
         i <- i + 1
     i <- 0
     while i < cells:
-        tsvc_s126_store_i64_le(b_matrix[i], output[0:capacity], 8 * i)
+        tsvc_s126_store_i64_le(b_matrix[i], output, 8 * i)
         i <- i + 1
     cells.i64()
 

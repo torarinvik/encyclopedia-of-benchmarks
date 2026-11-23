@@ -2,9 +2,9 @@
 const MAX_CELLS: usize = 1024
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 1031
 
-def flood_fill_compute(input: view[i64], image: mutable view[i64],
+def flood_fill_compute(input: i64&, input_length: usize, image: mutable view[i64],
                        work_stack: mutable view[usize]) -> i64:
-    length: usize = input.len()
+    length: usize = input_length
     if length < 6 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
     width_value: i64 = input[0]
     height_value: i64 = input[1]
@@ -14,15 +14,11 @@ def flood_fill_compute(input: view[i64], image: mutable view[i64],
     target_color: i64 = input[5]
     if width_value < 1 or width_value > 32 or height_value < 1 or height_value > 32:
         return -1
-    if new_color < -2147483648 or new_color > 2147483647 or
-       target_color < -2147483648 or target_color > 2147483647 or
-       new_color == target_color:
+    if new_color < -2147483648 or new_color > 2147483647 or target_color < -2147483648 or target_color > 2147483647 or new_color == target_color:
         return -1
     width: usize = width_value.usize()
     height: usize = height_value.usize()
-    if length != 6 + width * height or start_x_value < 0 or
-       start_x_value >= width_value or start_y_value < 0 or
-       start_y_value >= height_value:
+    if length != 6 + width * height or start_x_value < 0 or start_x_value >= width_value or start_y_value < 0 or start_y_value >= height_value:
         return -1
     cells: usize = width * height
     for index in 0..<cells:
@@ -47,8 +43,7 @@ def flood_fill_compute(input: view[i64], image: mutable view[i64],
                     if dx != 0 or dy != 0:
                         next_x: i64 = x + dx
                         next_y: i64 = y + dy
-                        if next_x >= 0 and next_x < width_value and
-                           next_y >= 0 and next_y < height_value:
+                        if next_x >= 0 and next_x < width_value and next_y >= 0 and next_y < height_value:
                             next: usize = next_x.usize() * height + next_y.usize()
                             if image[next] == target_color:
                                 image[next] <- new_color
@@ -58,25 +53,28 @@ def flood_fill_compute(input: view[i64], image: mutable view[i64],
                 dx <- dx + 1
     (cells * 8).i64()
 
-def flood_fill_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def flood_fill_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-export fn flood_fill(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 6 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
+def flood_fill_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 6 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
     image: mutable i64[MAX_CELLS] = zeroed
     work_stack: mutable usize[MAX_CELLS] = zeroed
-    required_result: i64 = flood_fill_compute(input_view, image[0:MAX_CELLS],
+    required_result: i64 = flood_fill_compute(input_view, input_view_length, image[0:MAX_CELLS],
                                                 work_stack[0:MAX_CELLS])
     if required_result < 0: return required_result
     required: usize = required_result.usize()
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     cells: usize = required / 8
     for index in 0..<cells:
         flood_fill_store_i64(image[index], output_view, index * 8)
     required_result
+
+export fn flood_fill(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = flood_fill_impl

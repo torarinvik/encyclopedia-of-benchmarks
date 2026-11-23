@@ -3,17 +3,17 @@ const ADM_MAX_ASSIGNMENTS: usize = 3
 const ADM_MAX_INPUT: usize = 27
 const ADM_MAX_WORDS: usize = 73
 
-def adm_put_i64(value: i64, output: mutable view[u8], word: usize) -> void:
+def adm_put_i64(value: i64, output: mutable u8&, word: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[word * 8 + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def all_distances_sketch_k_mins(input: i64&, length: usize, output: mutable u8&,
-        capacity: usize) -> i64 @export("all_distances_sketch_k_mins"):
-    if input.is_null() or length < 2 or length > ADM_MAX_INPUT: return -1
-    values: view[i64] = input[0:length]
+def all_distances_sketch_k_mins_impl(input: i64&, length: usize, output: mutable u8&,
+        capacity: usize) -> i64:
+    if input == null or length < 2 or length > ADM_MAX_INPUT: return -1
+    values: i64& = input
     n64: i64 = values[0]
     assignments64: i64 = values[1]
     if n64 < 1 or n64 > ADM_MAX_N.i64() or assignments64 < 1
@@ -63,10 +63,12 @@ def all_distances_sketch_k_mins(input: i64&, length: usize, output: mutable u8&,
     staged[0] <- count.i64()
     words: usize = 1 + 4 * count
     bytes: usize = 8 * words
-    if output.is_null() or capacity < bytes: return -2
-    out: mutable view[u8] = output[0:capacity]
+    if output == null or capacity < bytes: return -2
+    out: mutable u8& = output
     word: mutable usize = 0
     while word < words:
         adm_put_i64(staged[word], out, word)
         word <- word + 1
     bytes.i64()
+
+export fn all_distances_sketch_k_mins(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = all_distances_sketch_k_mins_impl

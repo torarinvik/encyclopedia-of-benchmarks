@@ -5,13 +5,13 @@ const BK_TREE_MAX_PARSEABLE: usize = 28
 
 def bk_tree_valid_word(word: i64) -> bool:
     if word < 0: return false
-    packed: u64 = word.u64()
-    if (packed >> 44) != 0: return false
-    word_length: usize = ((packed >> 40) & 15).usize()
+    packed_value: u64 = word.u64()
+    if (packed_value >> 44) != 0: return false
+    word_length: usize = ((packed_value >> 40) & 15).usize()
     if word_length > BK_TREE_MAX_WORD_LENGTH: return false
     position: mutable usize = 0
     while position < BK_TREE_MAX_WORD_LENGTH:
-        symbol: usize = ((packed >> (4 * position)) & 15).usize()
+        symbol: usize = ((packed_value >> (4 * position)) & 15).usize()
         if position < word_length:
             if symbol == 0: return false
         elif symbol != 0:
@@ -39,9 +39,9 @@ def bk_tree_edit_distance(left: i64, right: i64) -> usize:
             b_symbol: usize = ((b >> (4 * (j - 1))) & 15).usize()
             deletion: usize = previous[j] + 1
             insertion: usize = current[j - 1] + 1
-            replacement: usize = previous[j - 1]
+            replacement: mutable usize = previous[j - 1]
             if a_symbol != b_symbol: replacement <- replacement + 1
-            best: usize = deletion
+            best:mutable  mutable usize = deletion
             if insertion < best: best <- insertion
             if replacement < best: best <- replacement
             current[j] <- best
@@ -53,8 +53,8 @@ def bk_tree_edit_distance(left: i64, right: i64) -> usize:
         i <- i + 1
     previous[m]
 
-def bk_tree_edit_distance_search_impl(input: view[i64]) -> i64:
-    if input.len() < 3 or input.len() > BK_TREE_MAX_PARSEABLE: return -1
+def bk_tree_edit_distance_search_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 3 or input_length > BK_TREE_MAX_PARSEABLE: return -1
     n_value: i64 = input[0]
     q_value: i64 = input[1]
     radius_value: i64 = input[2]
@@ -64,7 +64,7 @@ def bk_tree_edit_distance_search_impl(input: view[i64]) -> i64:
     n: usize = n_value.usize()
     q: usize = q_value.usize()
     radius: usize = radius_value.usize()
-    if input.len() != 3 + n + q: return -1
+    if input_length != 3 + n + q: return -1
     i: mutable usize = 0
     while i < n + q:
         if not bk_tree_valid_word(input[3 + i]): return -1
@@ -100,31 +100,33 @@ def bk_tree_edit_distance_search_impl(input: view[i64]) -> i64:
         matches: mutable i64 = 0
         index_sum: mutable i64 = 0
         if n != 0:
-            stack: mutable usize[16] = zeroed
+            stack_value: mutable usize[16] = zeroed
             top: mutable usize = 1
-            stack[0] <- 0
+            stack_value[0] <- 0
             while top != 0:
                 top <- top - 1
-                current_node: usize = stack[top]
+                current_node: usize = stack_value[top]
                 distance: usize = bk_tree_edit_distance(input[3 + n + query_index], input[3 + current_node])
                 if distance <= radius:
                     matches <- matches + 1
                     index_sum <- index_sum + current_node.i64()
-                low: usize = 0
+                low: mutable usize = 0
                 if distance > radius: low <- distance - radius
-                high: usize = distance + radius
+                high: mutable usize = distance + radius
                 if high > BK_TREE_MAX_WORD_LENGTH: high <- BK_TREE_MAX_WORD_LENGTH
                 edge: mutable usize = low
                 while edge <= high:
                     child: i32 = children[current_node * 11 + edge]
                     if child >= 0:
-                        stack[top] <- child.usize()
+                        stack_value[top] <- child.usize()
                         top <- top + 1
                     edge <- edge + 1
         result <- result + (query_index.i64() + 1) * (17 * matches + index_sum)
         query_index <- query_index + 1
     result
 
-export fn bk_tree_edit_distance_search(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > BK_TREE_MAX_PARSEABLE: return -1
-    bk_tree_edit_distance_search_impl(input[0:length])
+def bk_tree_edit_distance_search_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > BK_TREE_MAX_PARSEABLE: return -1
+    bk_tree_edit_distance_search_impl(input, length)
+
+export fn bk_tree_edit_distance_search(input: i64&, length: usize) -> i64 = bk_tree_edit_distance_search_entry

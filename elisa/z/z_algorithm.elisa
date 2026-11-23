@@ -1,20 +1,20 @@
 const MAX_LENGTH: usize = 4095
 
 def z_algorithm_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_LENGTH + 1:
+    if input == null or length < 1 or length > MAX_LENGTH + 1:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 0 or values[0] > i64(MAX_LENGTH):
         return -1
     count: usize = values[0].usize()
     if length != count + 1:
         return -1
     output_bytes: usize = count * 4
-    if output_capacity < output_bytes or (count > 0 and output.is_null()):
+    if output_capacity < output_bytes or (count > 0 and output == null):
         return -2
     if count == 0:
         return 0
-    result: mutable view[u8] = output[0:output_bytes]
+    result: mutable u8& = output
 
     z: mutable usize[4095] = zeroed
     left: mutable usize = 0

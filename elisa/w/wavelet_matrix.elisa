@@ -33,8 +33,8 @@ def wm_quantile(prefix: view[i64], zeros: view[i64], first: usize, last: usize, 
             right <- zeros[level].usize() + right - rz
     key - 1000
 
-def wm_solve(input: view[i64]) -> i64:
-    length: usize = input.len()
+def wm_solve(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 2 or length > 706 or input[0] < 1 or input[0] > 64: return -1
     n: usize = input[0].usize()
     if length < n + 2: return -1
@@ -46,7 +46,8 @@ def wm_solve(input: view[i64]) -> i64:
     zeros: mutable i64[11] = zeroed
     current: mutable i64[64] = zeroed
     scratch: mutable i64[64] = zeroed
-    for i in 0..<n: current[i] <- input[1 + i] + 1000
+    for i in 0..<n:
+        current[i] <- input[1 + i] + 1000
     for level in 0..<11:
         bit: usize = 10 - level
         for i in 0..<n:
@@ -63,7 +64,8 @@ def wm_solve(input: view[i64]) -> i64:
             else:
                 scratch[o] <- current[i]
                 o <- o + 1
-        for i in 0..<n: current[i] <- scratch[i]
+        for i in 0..<n:
+            current[i] <- scratch[i]
     total: mutable i64 = 0
     for j in 0..<qv.usize():
         at: usize = n + 2 + 5 * j
@@ -86,6 +88,8 @@ def wm_solve(input: view[i64]) -> i64:
         total <- total + (j + 1).i64() * (answer + 1000001)
     total
 
-export fn wavelet_matrix(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 706: return -1
-    wm_solve(input[0:length])
+def wavelet_matrix_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 706: return -1
+    wm_solve(input, length)
+
+export fn wavelet_matrix(input: i64&, length: usize) -> i64 = wavelet_matrix_impl

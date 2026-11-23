@@ -29,9 +29,9 @@ def bridges_visit(adjacency: view[u64], bridge_mask: mutable view[u64], discover
 
 def bridges_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 0 or values[0] > i64(MAX_VERTEX_COUNT) or values[1] < 0 or values[1] > i64(MAX_EDGE_COUNT):
         return -1
     vertex_count: usize = values[0].usize()
@@ -74,10 +74,10 @@ def bridges_impl(input: i64&, length: usize,
             right <- right + 1
         left <- left + 1
     output_length: usize = 2 * bridge_count
-    if output_capacity < output_length or (output_length > 0 and output.is_null()):
+    if output_capacity < output_length or (output_length > 0 and output == null):
         return -2
     if output_length == 0: return 0
-    target: mutable view[u8] = output[0:output_length]
+    target: mutable u8& = output
     position: mutable usize = 0
     right: mutable usize = 0
     left <- 0

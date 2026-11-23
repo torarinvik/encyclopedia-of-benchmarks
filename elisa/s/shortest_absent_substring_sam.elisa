@@ -1,6 +1,6 @@
 def shortest_absent_substring_sam_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 66: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 2 or length > 66: return -1
+    values: i64& = input
     if values[0] < 2 or values[0] > 4 or values[1] < 0 or values[1] > 64: return -1
     alphabet: usize = values[0].usize()
     n: usize = values[1].usize()
@@ -10,8 +10,10 @@ def shortest_absent_substring_sam_impl(input: i64&, length: usize, output: mutab
     edges: mutable i32[516] = zeroed
     links: mutable i32[129] = zeroed
     lens: mutable usize[129] = zeroed
-    for i in 0..<516: edges[i] <- -1
-    for i in 0..<129: links[i] <- -1
+    for i in 0..<516:
+        edges[i] <- -1
+    for i in 0..<129:
+        links[i] <- -1
     size: mutable usize = 1
     last: mutable usize = 0
     for i in 0..<n:
@@ -30,7 +32,8 @@ def shortest_absent_substring_sam_impl(input: i64&, length: usize, output: mutab
             else:
                 clone: usize = size
                 size <- size+1
-                for a in 0..<4: edges[4*clone+a] <- edges[4*q+a]
+                for a in 0..<4:
+                    edges[4*clone+a] <- edges[4*q+a]
                 links[clone] <- links[q]
                 lens[clone] <- lens[p.usize()]+1
                 while p >= 0 and edges[4*p.usize()+symbol] == q.i32():
@@ -42,8 +45,10 @@ def shortest_absent_substring_sam_impl(input: i64&, length: usize, output: mutab
     counts: mutable usize[65] = zeroed
     order: mutable usize[129] = zeroed
     dp: mutable usize[129] = zeroed
-    for s in 0..<size: counts[lens[s]] <- counts[lens[s]]+1
-    for i in 1..<(n+1): counts[i] <- counts[i]+counts[i-1]
+    for s in 0..<size:
+        counts[lens[s]] <- counts[lens[s]]+1
+    for i in 1..<(n+1):
+        counts[i] <- counts[i]+counts[i-1]
     for offset in 0..<size:
         s: usize = size-1-offset
         counts[lens[s]] <- counts[lens[s]]-1
@@ -70,9 +75,10 @@ def shortest_absent_substring_sam_impl(input: i64&, length: usize, output: mutab
                 count <- count+1
                 state <- child
                 break
-    if output.is_null() or capacity < count: return -2
-    out: mutable view[u8] = output[0:count]
-    for i in 0..<count: out[i] <- result[i]
+    if output == null or capacity < count: return -2
+    out: mutable u8& = output
+    for i in 0..<count:
+        out[i] <- result[i]
     count.i64()
 
 export fn shortest_absent_substring_sam(input: i64&, length: usize,

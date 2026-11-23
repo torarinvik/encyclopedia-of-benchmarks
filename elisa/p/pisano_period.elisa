@@ -1,8 +1,8 @@
 const PISANO_MAX_MODULUS = 64
 const PISANO_MAX_INPUT_LENGTH = 2
 
-def pisano_period_impl(input: view[i64]) -> i64:
-    if input.len() != 1: return -1
+def pisano_period_impl(input: i64&, input_length: usize) -> i64:
+    if input_length != 1: return -1
     modulus: i64 = input[0]
     if modulus < 1 or modulus > PISANO_MAX_MODULUS: return -1
     initial_next: i64 = 1 % modulus
@@ -17,6 +17,8 @@ def pisano_period_impl(input: view[i64]) -> i64:
         period <- period + 1
     -1
 
-export fn pisano_period(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > PISANO_MAX_INPUT_LENGTH: return -1
-    pisano_period_impl(input[0:length])
+def pisano_period_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > PISANO_MAX_INPUT_LENGTH: return -1
+    pisano_period_impl(input, length)
+
+export fn pisano_period(input: i64&, length: usize) -> i64 = pisano_period_entry

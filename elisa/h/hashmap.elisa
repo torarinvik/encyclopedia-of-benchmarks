@@ -11,7 +11,7 @@ def hashmap_hash_byte(hash_value: u64, byte: u64) -> u64:
 
 def hashmap_hash_key(key: i64) -> u64:
     hash_value: mutable u64 = FNV_OFFSET
-    magnitude: mutable u64 = if key < 0: (-key).u64() else: key.u64()
+    magnitude: mutable u64 = (-key).u64() if key < 0 else key.u64()
     digits: mutable u64[10] = zeroed
     digit_count: mutable usize = 0
     while true:
@@ -28,20 +28,18 @@ def hashmap_hash_key(key: i64) -> u64:
 def hashmap_bucket_for(key: i64, capacity: usize) -> usize:
     (hashmap_hash_key(key) & (capacity - 1).u64()).usize()
 
-def hashmap_put_i64_le(output: mutable view[u8], word: usize, value: i64) -> void:
+def hashmap_put_i64_le(output: mutable u8&, word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[word * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def hashmap(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 @export("hashmap"):
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+def hashmap_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
     initial_capacity: i64 = input[0]
     operation_count: i64 = input[1]
-    if initial_capacity < 1 or initial_capacity > MAX_INITIAL_CAPACITY.i64() or
-        (initial_capacity & (initial_capacity - 1)) != 0 or operation_count < 0 or
-        operation_count > MAX_OPERATIONS.i64() or length != 2 + 3 * operation_count.usize(): return -1
+    if initial_capacity < 1 or initial_capacity > MAX_INITIAL_CAPACITY.i64() or (initial_capacity & (initial_capacity - 1)) != 0 or operation_count < 0 or operation_count > MAX_OPERATIONS.i64() or length != 2 + 3 * operation_count.usize(): return -1
     operation: mutable usize = 0
     while operation < operation_count.usize():
         op: i64 = input[2 + 3 * operation]
@@ -127,12 +125,12 @@ def hashmap(input: i64&, length: usize, output: mutable u8&, output_capacity: us
             results[result_words] <- op
             result_words <- result_words + 1
             if op == 1:
-                results[result_words] <- if entry >= 0: 1 else: 0
+                results[result_words] <- 1 if entry >= 0 else 0
                 result_words <- result_words + 1
-                results[result_words] <- if entry >= 0: values[entry.usize()] else: 0
+                results[result_words] <- values[entry.usize()] if entry >= 0 else 0
                 result_words <- result_words + 1
             else:
-                results[result_words] <- if entry >= 0: 1 else: 0
+                results[result_words] <- 1 if entry >= 0 else 0
                 result_words <- result_words + 1
             query_count <- query_count + 1
         operation <- operation + 1
@@ -143,9 +141,11 @@ def hashmap(input: i64&, length: usize, output: mutable u8&, output_capacity: us
     results[result_words] <- map_capacity.i64()
     result_words <- result_words + 1
     output_bytes: usize = result_words * 8
-    if output.is_null() or output_capacity < output_bytes: return -2
+    if output == null or output_capacity < output_bytes: return -2
     index <- 0
     while index < result_words:
-        hashmap_put_i64_le(output[0:output_bytes], index, results[index])
+        hashmap_put_i64_le(output, index, results[index])
         index <- index + 1
     output_bytes.i64()
+
+export fn hashmap(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = hashmap_impl

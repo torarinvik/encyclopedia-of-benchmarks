@@ -14,7 +14,7 @@ def tpc_is_prime(value: i64) -> bool:
         divisor <- divisor + 2
     true
 
-def tpc_put_u32(value: u32, output: mutable view[u8], offset: usize) -> void:
+def tpc_put_u32(value: u32, output: mutable u8&, offset: usize) -> void:
     byte: mutable usize = 0
     while byte < 4:
         output[offset + byte] <- ((value >> (8 * byte).u32()) & 255.u32()).u8()
@@ -22,7 +22,7 @@ def tpc_put_u32(value: u32, output: mutable view[u8], offset: usize) -> void:
 
 def three_prime_carmichael_enumerator_impl(input: i64&, length: usize,
                                            output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length != 1:
+    if input == null or length != 1:
         return -1
     limit: i64 = input[0]
     if limit < 2 or limit > TPC_MAX_LIMIT:
@@ -44,8 +44,7 @@ def three_prime_carmichael_enumerator_impl(input: i64&, length: usize,
                             p2: i64 = 1 + (p1 - 1) * g / d
                             if p2 > p1 and tpc_is_prime(p2):
                                 p3: i64 = 1 + (p1 * p2) / h3
-                                if p3 > p2 and tpc_is_prime(p3) and
-                                   (p2 * p3) % (p1 - 1) == 1:
+                                if p3 > p2 and tpc_is_prime(p3) and (p2 * p3) % (p1 - 1) == 1:
                                     triples[triple_count * 3] <- p1.u32()
                                     triples[triple_count * 3 + 1] <- p2.u32()
                                     triples[triple_count * 3 + 2] <- p3.u32()
@@ -55,9 +54,9 @@ def three_prime_carmichael_enumerator_impl(input: i64&, length: usize,
         p1 <- p1 + 1
 
     required: usize = 4 + triple_count * 12
-    if output.is_null() or capacity < required:
+    if output == null or capacity < required:
         return -2
-    output_view: mutable view[u8] = output[0:required]
+    output_view: mutable u8& = output
     tpc_put_u32(triple_count.u32(), output_view, 0)
     record: mutable usize = 0
     while record < triple_count:

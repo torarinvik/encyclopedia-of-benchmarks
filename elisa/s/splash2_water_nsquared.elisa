@@ -3,7 +3,7 @@ const SWN_MAX_INPUT: usize = 259
 const SWN_MAX_PARSEABLE: usize = 260
 const SWN_MAX_WORDS: usize = 194
 
-def swn_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+def swn_store(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -17,7 +17,7 @@ def swn_trunc_div(numerator: i64, denominator: i64) -> i64:
 
 def splash2_water_nsquared_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > SWN_MAX_PARSEABLE: return -1
+    if input == null or length < 3 or length > SWN_MAX_PARSEABLE: return -1
     n_raw: i64 = input[0]
     grid: i64 = input[1]
     radius: i64 = input[2]
@@ -62,9 +62,10 @@ def splash2_water_nsquared_impl(input: i64&, length: usize,
             pairs <- pairs + 1
     words: usize = 3 * n + 2
     bytes: usize = words * 8
-    if output.is_null() or capacity < bytes: return -2
-    output_view: mutable view[u8] = output[0:capacity]
-    for i in 0..<(3 * n): swn_store(force[i], output_view, 8 * i)
+    if output == null or capacity < bytes: return -2
+    output_view: mutable u8& = output
+    for i in 0..<(3 * n):
+        swn_store(force[i], output_view, 8 * i)
     swn_store(energy, output_view, 24 * n)
     swn_store(pairs, output_view, 24 * n + 8)
     bytes.i64()

@@ -3,8 +3,8 @@ const HS_SLOTS: usize = 16
 const HS_H: usize = 4
 const HS_MAX_OPS: usize = 32
 
-def hs_distance(from: usize, to: usize) -> usize:
-    (to + HS_SLOTS - from) % HS_SLOTS
+def hs_distance(from: usize, to_value: usize) -> usize:
+    (to_value + HS_SLOTS - from) % HS_SLOTS
 
 def hs_contains(keys: view[i16], hops: view[u8], key: usize, home: usize) -> bool:
     offset: mutable usize = 0
@@ -40,8 +40,7 @@ def hs_insert(keys: mutable view[i16], homes: mutable view[u8], hops: mutable vi
                 while old_offset < new_offset:
                     if (hops[bucket] & (1.u8() << old_offset)) != 0:
                         old_slot: usize = (bucket + old_offset) % HS_SLOTS
-                        if keys[old_slot] >= 0 and homes[old_slot].usize() == bucket and
-                           hs_distance(home, old_slot) < reach:
+                        if keys[old_slot] >= 0 and homes[old_slot].usize() == bucket and hs_distance(home, old_slot) < reach:
                             keys[hole] <- keys[old_slot]
                             homes[hole] <- homes[old_slot]
                             keys[old_slot] <- -1
@@ -61,8 +60,8 @@ def hs_insert(keys: mutable view[i16], homes: mutable view[u8], hops: mutable vi
     hops[home] <- hops[home] | (1.u8() << reach)
     1
 
-def hash_map_hopscotch_hashing_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+def hash_map_hopscotch_hashing_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input_length
     if length < 1 or length > 1 + 3 * HS_MAX_OPS: return -1
     count_value: i64 = input[0]
     if count_value < 0 or count_value > HS_MAX_OPS.i64(): return -1
@@ -79,15 +78,14 @@ def hash_map_hopscotch_hashing_impl(input: view[i64], output: mutable u8&, capac
         opcode: i64 = input[1 + 3 * op]
         raw_key: i64 = input[2 + 3 * op]
         raw_home: i64 = input[3 + 3 * op]
-        if (opcode != 1 and opcode != 2) or raw_key < 0 or raw_key >= 64 or
-           raw_home < 0 or raw_home >= HS_SLOTS.i64(): return -1
+        if (opcode != 1 and opcode != 2) or raw_key < 0 or raw_key >= 64 or raw_home < 0 or raw_home >= HS_SLOTS.i64(): return -1
         key <- raw_key.usize()
         if known_home[key] >= 0 and known_home[key].i64() != raw_home: return -1
         known_home[key] <- raw_home.i8()
         op <- op + 1
 
     required: usize = count + 2 * HS_SLOTS
-    if output.is_null() or capacity < required: return -2
+    if output == null or capacity < required: return -2
     keys: mutable i16[HS_SLOTS] = zeroed
     homes: mutable u8[HS_SLOTS] = zeroed
     hops: mutable u8[HS_SLOTS] = zeroed
@@ -110,7 +108,7 @@ def hash_map_hopscotch_hashing_impl(input: view[i64], output: mutable u8&, capac
                 statuses[op] <- 1
         op <- op + 1
 
-    result: mutable view[u8] = output[0:required]
+    result: mutable u8& = output
     cursor: mutable usize = 0
     op <- 0
     while op < count:
@@ -119,7 +117,7 @@ def hash_map_hopscotch_hashing_impl(input: view[i64], output: mutable u8&, capac
         op <- op + 1
     slot <- 0
     while slot < HS_SLOTS:
-        result[cursor] <- if keys[slot] < 0: 0.u8() else: (keys[slot] + 1).u8()
+        result[cursor] <- 0.u8() if keys[slot] < 0 else (keys[slot] + 1).u8()
         cursor <- cursor + 1
         slot <- slot + 1
     slot <- 0
@@ -129,7 +127,9 @@ def hash_map_hopscotch_hashing_impl(input: view[i64], output: mutable u8&, capac
         slot <- slot + 1
     required.i64()
 
-export fn hash_map_hopscotch_hashing(input: i64&, length: usize,
+def hash_map_hopscotch_hashing_entry(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > 1 + 3 * HS_MAX_OPS: return -1
-    hash_map_hopscotch_hashing_impl(input[0:length], output, capacity)
+    if input == null or length < 1 or length > 1 + 3 * HS_MAX_OPS: return -1
+    hash_map_hopscotch_hashing_impl(input, length, output, capacity)
+
+export fn hash_map_hopscotch_hashing(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = hash_map_hopscotch_hashing_entry

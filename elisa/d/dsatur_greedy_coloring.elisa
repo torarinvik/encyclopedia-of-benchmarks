@@ -11,7 +11,7 @@ def dsatur_popcount(value_input: u64) -> usize:
         count <- count + 1
     count
 
-def dsatur_greedy_coloring_impl(values: view[i64], length: usize) -> i64:
+def dsatur_greedy_coloring_impl(values: i64&, length: usize) -> i64:
     if length < 2 or length > MAX_PARSEABLE_VALUES:
         return -1
     n_value: i64 = values[0]
@@ -66,7 +66,7 @@ def dsatur_greedy_coloring_impl(values: view[i64], length: usize) -> i64:
                     selected <- vertex.i64()
                     selected_saturation <- sat_count
                     selected_degree <- degree
-                else if sat_count > selected_saturation or (sat_count == selected_saturation and (degree > selected_degree or (degree == selected_degree and vertex < selected.usize()))):
+                elif sat_count > selected_saturation or (sat_count == selected_saturation and (degree > selected_degree or (degree == selected_degree and vertex < selected.usize()))):
                     selected <- vertex.i64()
                     selected_saturation <- sat_count
                     selected_degree <- degree
@@ -89,14 +89,16 @@ def dsatur_greedy_coloring_impl(values: view[i64], length: usize) -> i64:
             neighbor <- neighbor + 1
         colored_count <- colored_count + 1
 
-    packed: mutable u64 = color_count.u64() << 48
+    packed_value: mutable u64 = color_count.u64() << 48
     vertex <- 0
     while vertex < n:
-        packed <- packed | (colors[vertex].u64() << (4 * vertex))
+        packed_value <- packed_value | (colors[vertex].u64() << (4 * vertex))
         vertex <- vertex + 1
-    packed.i64()
+    packed_value.i64()
 
-export fn dsatur_greedy_coloring(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_PARSEABLE_VALUES:
+def dsatur_greedy_coloring_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_PARSEABLE_VALUES:
         return -1
-    dsatur_greedy_coloring_impl(input[0:length], length)
+    dsatur_greedy_coloring_impl(input, length)
+
+export fn dsatur_greedy_coloring(input: i64&, length: usize) -> i64 = dsatur_greedy_coloring_entry

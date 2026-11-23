@@ -51,7 +51,7 @@ def mad(a: f64[3], size: usize, med: f64) -> f64:
     if size % 2 == 1: return deviations[middle]
     0.5 * (deviations[middle - 1] + deviations[middle])
 
-def put_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     b: mutable usize = 0
     while b < 8:
@@ -84,7 +84,7 @@ def hampel_filter_impl(input: i64&, length: usize, output: mutable u8&, capacity
         if distance < 0.0: distance <- med - value
         filtered: mutable f64 = value
         if distance > 3.0 * 1.4826 * mdev: filtered <- med
-        put_i64_le(filtered.i64(), output[0:n * 8], i * 8)
+        put_i64_le(filtered.i64(), output, i * 8)
         i <- i + 1
     (n * 8).i64()
 

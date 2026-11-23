@@ -1,9 +1,9 @@
 const MN_MAX_N: i64 = 30
 const MN_MAX_PARSEABLE_LENGTH: usize = 2
 
-def motzkin_number_impl(input: view[i64]) -> i64:
-    if input.length < 1 or input.length > MN_MAX_PARSEABLE_LENGTH: return -1
-    if input.length != 1: return -1
+def motzkin_number_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 1 or input_length > MN_MAX_PARSEABLE_LENGTH: return -1
+    if input_length != 1: return -1
     n_value: i64 = input[0]
     if n_value < 0 or n_value > MN_MAX_N: return -1
     n: usize = n_value.usize()
@@ -21,7 +21,10 @@ def motzkin_number_impl(input: view[i64]) -> i64:
         size <- size + 1
     values[n]
 
-export fn motzkin_number(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MN_MAX_PARSEABLE_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
-    motzkin_number_impl(input_view)
+def motzkin_number_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MN_MAX_PARSEABLE_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    motzkin_number_impl(input_view, input_view_length)
+
+export fn motzkin_number(input: i64&, length: usize) -> i64 = motzkin_number_entry

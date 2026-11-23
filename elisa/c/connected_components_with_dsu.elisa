@@ -10,9 +10,9 @@ def connected_components_with_dsu_find_root(parent: mutable view[usize], node: u
     current
 
 def connected_components_with_dsu_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 0 or values[0] > i64(MAX_NODE_COUNT) or values[1] < 0 or values[1] > i64(MAX_EDGE_COUNT): return -1
     node_count: usize = values[0].usize()
     edge_count: usize = values[1].usize()

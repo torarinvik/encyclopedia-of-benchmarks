@@ -4,16 +4,16 @@ const MAX_INPUT: usize = MAX_N + 2
 const MAX_WEIGHT: i64 = 1000000
 const GW_INFINITY: i64 = 4611686018427387904
 
-def garsia_wachs_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def garsia_wachs_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def garsia_wachs_alphabetic_tree(input: i64&, input_length: usize,
-    output: mutable u8&, capacity: usize) -> i64 @export("garsia_wachs_alphabetic_tree"):
-    if input.is_null() or input_length < 2 or input_length > MAX_INPUT: return -1
+def garsia_wachs_alphabetic_tree_impl(input: i64&, input_length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input == null or input_length < 2 or input_length > MAX_INPUT: return -1
     n64: i64 = input[0]
     if n64 < 1 or n64 > MAX_N.i64(): return -1
     n: usize = n64.usize()
@@ -33,7 +33,7 @@ def garsia_wachs_alphabetic_tree(input: i64&, input_length: usize,
     while active_count > 1:
         pair: mutable usize = 0
         while pair + 1 < active_count:
-            following: i64 = GW_INFINITY
+            following: mutable i64 = GW_INFINITY
             if pair + 2 < active_count: following <- node_weight[active[pair + 2]]
             if node_weight[active[pair]] <= following: break
             pair <- pair + 1
@@ -110,10 +110,12 @@ def garsia_wachs_alphabetic_tree(input: i64&, input_length: usize,
         cost <- cost + input[i + 1] * depths[i].i64()
         i <- i + 1
     output_bytes: usize = 8 * (n + 1)
-    if output.is_null() or capacity < output_bytes: return -2
-    garsia_wachs_put_i64(cost, output[0:output_bytes], 0)
+    if output == null or capacity < output_bytes: return -2
+    garsia_wachs_put_i64(cost, output, 0)
     i <- 0
     while i < n:
-        garsia_wachs_put_i64(depths[i].i64(), output[0:output_bytes], 8 * (i + 1))
+        garsia_wachs_put_i64(depths[i].i64(), output, 8 * (i + 1))
         i <- i + 1
     output_bytes.i64()
+
+export fn garsia_wachs_alphabetic_tree(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64 = garsia_wachs_alphabetic_tree_impl

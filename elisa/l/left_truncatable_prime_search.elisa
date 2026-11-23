@@ -14,11 +14,11 @@ def left_truncatable_is_prime(value: i64) -> bool:
         divisor <- divisor + 2
     true
 
-def left_truncatable_search(input: view[i64]) -> i64:
-    if input.length < 2 or input.length > MAX_PARSEABLE_LENGTH: return -1
+def left_truncatable_search(input: i64&, input_length: usize) -> i64:
+    if input_length < 2 or input_length > MAX_PARSEABLE_LENGTH: return -1
     base: i64 = input[0]
     digits: i64 = input[1]
-    if input.length != 2 or base < MIN_BASE or base > MAX_BASE or digits < 1 or digits > MAX_DIGITS: return -1
+    if input_length != 2 or base < MIN_BASE or base > MAX_BASE or digits < 1 or digits > MAX_DIGITS: return -1
     limit: mutable i64 = 1
     index: mutable i64 = 0
     while index < digits:
@@ -59,7 +59,10 @@ def left_truncatable_search(input: view[i64]) -> i64:
         width <- width + 1
     best
 
-export fn left_truncatable_prime_search(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_PARSEABLE_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
-    left_truncatable_search(input_view)
+def left_truncatable_prime_search_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_PARSEABLE_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    left_truncatable_search(input_view, input_view_length)
+
+export fn left_truncatable_prime_search(input: i64&, length: usize) -> i64 = left_truncatable_prime_search_impl

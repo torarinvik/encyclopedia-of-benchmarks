@@ -6,8 +6,8 @@ const MAX_ITEMS: usize = 32
 const MAX_INPUT_LENGTH: usize = 15
 const MAX_WEIGHT: i64 = 1000000
 
-def length_limited_huffman_package_merge_impl(values: view[i64]) -> i64:
-    if values.len() < 4 or values.len() > MAX_INPUT_LENGTH:
+def length_limited_huffman_package_merge_impl(values: i64&, values_length: usize) -> i64:
+    if values_length < 4 or values_length > MAX_INPUT_LENGTH:
         return -1
     symbol_value: i64 = values[0]
     limit_value: i64 = values[1]
@@ -15,7 +15,7 @@ def length_limited_huffman_package_merge_impl(values: view[i64]) -> i64:
         return -1
     symbol_count: usize = symbol_value.usize()
     limit: usize = limit_value.usize()
-    if symbol_count > (1 << limit) or values.len() != symbol_count + 2:
+    if symbol_count > (1 << limit) or values_length != symbol_count + 2:
         return -1
 
     weights: mutable i64[MAX_SYMBOLS] = zeroed
@@ -114,7 +114,9 @@ def length_limited_huffman_package_merge_impl(values: view[i64]) -> i64:
         level <- next_level
     total
 
-export fn length_limited_huffman_package_merge(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+def length_limited_huffman_package_merge_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT_LENGTH:
         return -1
-    length_limited_huffman_package_merge_impl(input[0:length])
+    length_limited_huffman_package_merge_impl(input, length)
+
+export fn length_limited_huffman_package_merge(input: i64&, length: usize) -> i64 = length_limited_huffman_package_merge_entry

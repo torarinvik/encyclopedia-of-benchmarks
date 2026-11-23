@@ -1,13 +1,13 @@
 # Independent hook-length count; see package README.
 const HOOK_PRIME: i64 = 998244353
 
-export fn hook_length_tableaux(input: i64&, length: usize) -> i64:
+def hook_length_tableaux_impl(input: i64&, length: usize) -> i64:
     if input == null or length == 0: return -1
-    header: view[i64] = input[0:1]
+    header: i64& = input
     if header[0] < 0 or header[0] > 65536: return -1
     rows: usize = header[0].usize()
     if length != rows + 1: return -1
-    frame: view[i64] = input[0:length]
+    frame: i64& = input
     total: mutable i64 = 0
     previous: mutable i64 = 1000000
     for i in 0..<rows:
@@ -20,7 +20,8 @@ export fn hook_length_tableaux(input: i64&, length: usize) -> i64:
     height: mutable usize = rows
     if rows > 0:
         for column in 0..<frame[1].usize():
-            while height > 0 and frame[height] <= column.i64(): height <- height - 1
+            while height > 0 and frame[height] <= column.i64():
+                height <- height - 1
             for row in 0..<height:
                 hook: i64 = frame[row + 1] - column.i64() + (height - row - 1).i64()
                 product <- product * hook % HOOK_PRIME
@@ -34,3 +35,5 @@ export fn hook_length_tableaux(input: i64&, length: usize) -> i64:
         product <- product * product % HOOK_PRIME
         exponent <- exponent >> 1
     factorial * inverse % HOOK_PRIME
+
+export fn hook_length_tableaux(input: i64&, length: usize) -> i64 = hook_length_tableaux_impl

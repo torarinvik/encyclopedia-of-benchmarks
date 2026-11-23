@@ -2,7 +2,7 @@ def append_record(records: mutable view[i64], count: mutable usize&, value: i64)
     records[count] <- value
     count <- count + 1
 
-def write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -11,7 +11,7 @@ def write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
         byte <- byte + 1
 
 def table_list_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > 98: return -1
+    if input == null or length < 1 or length > 98: return -1
     operation_count: i64 = input[0]
     if operation_count < 0 or operation_count > 32 or length != 1 + 3 * operation_count.usize(): return -1
     items: mutable i64[64] = zeroed
@@ -78,7 +78,7 @@ def table_list_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
             if arg1 < -1 or arg1 > 33 or arg2 != 0: return -1
             append_record(records[0:594], record_count, opcode)
             append_record(records[0:594], record_count, 1)
-            result: i64 = 0
+            result: mutable i64 = 0
             if arg1 >= 1 and arg1 <= item_count.i64(): result <- 1
             append_record(records[0:594], record_count, result)
         elif opcode == 9:
@@ -92,7 +92,7 @@ def table_list_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
             append_record(records[0:594], record_count, item_count.i64())
             offset: mutable usize = 0
             while offset < item_count:
-                logical: usize = offset + 1
+                logical: mutable usize = offset + 1
                 if opcode == 11: logical <- item_count - offset
                 append_record(records[0:594], record_count, logical.i64())
                 append_record(records[0:594], record_count, items[head + logical - 1])
@@ -106,10 +106,10 @@ def table_list_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
         append_record(records[0:594], record_count, items[head + index])
         index <- index + 1
     output_bytes: usize = record_count * 8
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     index <- 0
     while index < record_count:
-        write_i64_le(output[0:capacity], index * 8, records[index])
+        write_i64_le(output, index * 8, records[index])
         index <- index + 1
     return output_bytes.i64()
 

@@ -1,7 +1,7 @@
 # Clean-room bounded deterministic Sequitur grammar profile.
-export fn sequitur_grammar_induction(input: i64&, length: usize) -> i64:
+def sequitur_grammar_induction_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 1 or length > 66: return -1
-    frame: view[i64] = input[0:length]
+    frame: i64& = input
     if frame[0] < 0 or frame[0] > 64 or length != frame[0].usize()+1: return -1
     n: usize = frame[0].usize()
     for i in 0..<n:
@@ -37,17 +37,19 @@ export fn sequitur_grammar_induction(input: i64&, length: usize) -> i64:
                             live[target] <- 0
                             lengths[target] <- 0
                             cleanup_changed <- true
-                        else if count == 1:
+                        elif count == 1:
                             replacement_length: usize = lengths[target]
                             copy: mutable i32[64] = zeroed
-                            for i in 0..<replacement_length: copy[i] <- symbols[target*64+i]
+                            for i in 0..<replacement_length:
+                                copy[i] <- symbols[target*64+i]
                             delta: usize = replacement_length-1
                             old_length: usize = lengths[parent]
                             at: mutable usize = old_length
                             while at > position+1:
                                 at <- at-1
                                 symbols[parent*64+at+delta] <- symbols[parent*64+at]
-                            for i in 0..<replacement_length: symbols[parent*64+position+i] <- copy[i]
+                            for i in 0..<replacement_length:
+                                symbols[parent*64+position+i] <- copy[i]
                             lengths[parent] <- old_length+delta
                             live[target] <- 0
                             lengths[target] <- 0
@@ -128,3 +130,5 @@ export fn sequitur_grammar_induction(input: i64&, length: usize) -> i64:
             if rule != 0: rules <- rules+1
             symbol_count <- symbol_count+lengths[rule].i64()
     1000*rules+symbol_count
+
+export fn sequitur_grammar_induction(input: i64&, length: usize) -> i64 = sequitur_grammar_induction_impl

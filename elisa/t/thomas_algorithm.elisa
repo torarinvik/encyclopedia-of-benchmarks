@@ -2,7 +2,7 @@ extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable
 
 const MAX_N: usize = 32
 
-def thomas_algorithm_store(value: f64, output: mutable view[u8], offset: usize) -> void:
+def thomas_algorithm_store(value: f64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -12,7 +12,7 @@ def thomas_algorithm_store(value: f64, output: mutable view[u8], offset: usize) 
         byte <- byte + 1
 
 def thomas_algorithm_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 5 or length > 1 + 4 * MAX_N: return -1
+    if input == null or length < 5 or length > 1 + 4 * MAX_N: return -1
     n_value: i64 = input[0]
     if n_value < 1 or n_value > MAX_N.i64(): return -1
     n: usize = n_value.usize()
@@ -34,12 +34,12 @@ def thomas_algorithm_impl(input: i64&, length: usize, output: mutable u8&, capac
     while row < n:
         if lower[row] < -16 or lower[row] > 16 or upper[row] < -16 or upper[row] > 16: return -1
         if diagonal[row] < 17 or diagonal[row] > 64 or rhs[row] < -1000 or rhs[row] > 1000: return -1
-        lower_abs: i64 = if lower[row] < 0: -lower[row] else: lower[row]
-        upper_abs: i64 = if upper[row] < 0: -upper[row] else: upper[row]
+        lower_abs: i64 = -lower[row] if lower[row] < 0 else lower[row]
+        upper_abs: i64 = -upper[row] if upper[row] < 0 else upper[row]
         if diagonal[row] <= lower_abs + upper_abs: return -1
         row <- row + 1
     output_bytes: usize = n * 8
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
 
     modified_upper: mutable f64[MAX_N] = zeroed
     modified_rhs: mutable f64[MAX_N] = zeroed
@@ -59,7 +59,7 @@ def thomas_algorithm_impl(input: i64&, length: usize, output: mutable u8&, capac
         solution[row] <- modified_rhs[row] - modified_upper[row] * solution[row + 1]
     row <- 0
     while row < n:
-        thomas_algorithm_store(solution[row], output[0:output_bytes], row * 8)
+        thomas_algorithm_store(solution[row], output, row * 8)
         row <- row + 1
     output_bytes.i64()
 

@@ -3,14 +3,14 @@ const AFS_MAX_STRING_LENGTH: usize = 32
 const AFS_BUCKET_COUNT: usize = 257
 const AFS_MAX_PARSEABLE_LENGTH: usize = 8450
 
-def afs_key(input: view[i64], offsets: view[usize],
+def afs_key(input: i64&, offsets: view[usize],
         string_lengths: view[usize], string_index: usize, depth: usize) -> usize:
     if depth >= string_lengths[string_index]:
         return 0
     (input[offsets[string_index] + depth] + 1).usize()
 
 def afs_sort_indices(order: mutable view[usize], low: usize, high: usize,
-        depth: usize, input: view[i64], offsets: view[usize],
+        depth: usize, input: i64&, offsets: view[usize],
         string_lengths: view[usize]) -> void:
     if high - low < 2:
         return
@@ -53,7 +53,7 @@ def afs_sort_indices(order: mutable view[usize], low: usize, high: usize,
         bucket <- bucket + 1
 
 def american_flag_string_sorter_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > AFS_MAX_PARSEABLE_LENGTH:
+    if input == null or length < 1 or length > AFS_MAX_PARSEABLE_LENGTH:
         return -1
 
     count_value: i64 = input[0]
@@ -87,7 +87,7 @@ def american_flag_string_sorter_impl(input: i64&, length: usize) -> i64:
         return -1
 
     if count > 1:
-        afs_sort_indices(order[0:count], 0, count, 0, input[0:length],
+        afs_sort_indices(order[0:count], 0, count, 0, input,
             offsets[0:count], string_lengths[0:count])
 
     checksum: mutable i64 = 0

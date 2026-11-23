@@ -1,12 +1,12 @@
 # Uncompiled bounded minimum-cost proper tree coloring draft.
-def tree_mcc_solve(values: view[i64]) -> i64:
-    if values.len() < 2 or values.len() > 1090: return -1
+def tree_mcc_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 2 or values_length > 1090: return -1
     nv: i64 = values[0]
     kv: i64 = values[1]
     if nv < 1 or nv > 64 or kv < 1 or kv > 16: return -1
     n: usize = nv.usize()
     k: usize = kv.usize()
-    if values.len() != n + 1 + n * k: return -1
+    if values_length != n + 1 + n * k: return -1
     for v in 1..<n:
         if values[1 + v] < 0 or values[1 + v] >= v.i64(): return -1
     dp: mutable i64[1024] = zeroed
@@ -39,6 +39,8 @@ def tree_mcc_solve(values: view[i64]) -> i64:
         if dp[color] < best: best <- dp[color]
     best
 
-export fn tree_min_cost_proper_coloring(input: i64&, length: usize) -> i64:
+def tree_min_cost_proper_coloring_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 2 or length > 1090: return -1
-    tree_mcc_solve(input[0:length])
+    tree_mcc_solve(input, length)
+
+export fn tree_min_cost_proper_coloring(input: i64&, length: usize) -> i64 = tree_min_cost_proper_coloring_impl

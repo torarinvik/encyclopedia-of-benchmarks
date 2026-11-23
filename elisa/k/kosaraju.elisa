@@ -26,9 +26,9 @@ def kosaraju_collect(transpose: view[u64], visited: mutable view[u8], component_
 
 def kosaraju_impl(input: i64&, length: usize, output: mutable u8&,
         output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 0 or values[0] > i64(MAX_VERTEX_COUNT) or values[1] < 0 or values[1] > i64(MAX_EDGE_COUNT):
         return -1
     vertex_count: usize = values[0].usize()
@@ -72,9 +72,9 @@ def kosaraju_impl(input: i64&, length: usize, output: mutable u8&,
             component_count <- component_count + 1
         step <- step + 1
     output_length: usize = 1 + vertex_count + component_count
-    if output.is_null() or output_capacity < output_length:
+    if output == null or output_capacity < output_length:
         return -2
-    target: mutable view[u8] = output[0:output_length]
+    target: mutable u8& = output
     target[0] <- component_count.u8()
     position: mutable usize = 1
     for first in 0..<vertex_count |first, component_id, position, target|:

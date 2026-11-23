@@ -7,13 +7,12 @@ const OUTPUT_BYTES: usize = 116
 
 def hough_line_transform_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_PARSEABLE_INPUT_LENGTH:
+    if input == null or length < 3 or length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     height_value: i64 = input_view[0]
     width_value: i64 = input_view[1]
-    if height_value < 1 or height_value > MAX_HEIGHT or
-            width_value < 1 or width_value > MAX_WIDTH:
+    if height_value < 1 or height_value > MAX_HEIGHT or width_value < 1 or width_value > MAX_WIDTH:
         return -1
     height: usize = height_value.usize()
     width: usize = width_value.usize()
@@ -26,7 +25,7 @@ def hough_line_transform_impl(input: i64&, length: usize,
         if pixel != 0 and pixel != 1:
             return -1
         index <- index + 1
-    if output.is_null() or output_capacity < OUTPUT_BYTES:
+    if output == null or output_capacity < OUTPUT_BYTES:
         return -2
 
     accumulator: mutable u8[OUTPUT_BYTES] = zeroed
@@ -45,7 +44,7 @@ def hough_line_transform_impl(input: i64&, length: usize,
                     angle <- angle + 1
             column <- column + 1
         row <- row + 1
-    output_view: mutable view[u8] = output[0:OUTPUT_BYTES]
+    output_view: mutable u8& = output
     index <- 0
     while index < OUTPUT_BYTES:
         output_view[index] <- accumulator[index]

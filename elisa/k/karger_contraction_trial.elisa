@@ -1,9 +1,10 @@
 def karger_root(parent: view[usize], vertex: usize) -> usize:
     current: mutable usize = vertex
-    while parent[current] != current: current <- parent[current]
+    while parent[current] != current:
+        current <- parent[current]
     current
 
-def karger_contraction_trial_impl(input: view[i64], length: usize) -> i64:
+def karger_contraction_trial_impl(input: i64&, length: usize) -> i64:
     if length < 2 or length > 57: return -1
     if input[0] < 2 or input[0] > 8 or input[1] < 1 or input[1] > 24: return -1
     n: usize = input[0].usize()
@@ -12,7 +13,8 @@ def karger_contraction_trial_impl(input: view[i64], length: usize) -> i64:
     lefts: mutable usize[24] = zeroed
     rights: mutable usize[24] = zeroed
     parent: mutable usize[8] = zeroed
-    for i in 0..<n: parent[i] <- i
+    for i in 0..<n:
+        parent[i] <- i
     for i in 0..<m:
         a: i64 = input[2 + 2 * i]
         b: i64 = input[3 + 2 * i]
@@ -25,7 +27,8 @@ def karger_contraction_trial_impl(input: view[i64], length: usize) -> i64:
     initial: usize = karger_root(parent[0:n], 0)
     for i in 1..<n:
         if karger_root(parent[0:n], i) != initial: return -1
-    for i in 0..<n: parent[i] <- i
+    for i in 0..<n:
+        parent[i] <- i
     for step in 0..<(n - 2):
         live: mutable i64 = 0
         for i in 0..<m:
@@ -45,6 +48,8 @@ def karger_contraction_trial_impl(input: view[i64], length: usize) -> i64:
         if karger_root(parent[0:n], lefts[i]) != karger_root(parent[0:n], rights[i]): cut <- cut + 1
     cut
 
-export fn karger_contraction_trial(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 57: return -1
-    karger_contraction_trial_impl(input[0:length], length)
+def karger_contraction_trial_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 57: return -1
+    karger_contraction_trial_impl(input, length)
+
+export fn karger_contraction_trial(input: i64&, length: usize) -> i64 = karger_contraction_trial_entry

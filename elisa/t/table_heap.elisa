@@ -22,39 +22,49 @@ def table_heap_insert(map_ids: mutable view[i32], map_priority: mutable view[i32
         if map_state[slot] == 2 and tombstone == MAP_CAPACITY: tombstone <- slot
         if map_state[slot] == 0:
             if tombstone != MAP_CAPACITY: slot <- tombstone
-            map_ids[slot] <- id; map_priority[slot] <- priority; map_index[slot] <- index; map_state[slot] <- 1
+            map_ids[slot] <- id
+            map_priority[slot] <- priority
+            map_index[slot] <- index
+            map_state[slot] <- 1
             return slot
         if map_state[slot] == 1 and map_ids[slot] == id: return slot
         slot <- (slot + 1) & 127
     if tombstone != MAP_CAPACITY:
-        map_ids[tombstone] <- id; map_priority[tombstone] <- priority; map_index[tombstone] <- index; map_state[tombstone] <- 1
+        map_ids[tombstone] <- id
+        map_priority[tombstone] <- priority
+        map_index[tombstone] <- index
+        map_state[tombstone] <- 1
         return tombstone
     MAP_CAPACITY
 
-def table_heap_swap(heap: mutable view[i32], map_ids: view[i32], map_index: mutable view[usize], map_state: view[u8], left: usize, right: usize, update: bool) -> void:
-    value: i32 = heap[left]; heap[left] <- heap[right]; heap[right] <- value
+def table_heap_swap(heap_value: mutable view[i32], map_ids: view[i32], map_index: mutable view[usize], map_state: view[u8], left: usize, right: usize, update: bool) -> void:
+    value: i32 = heap_value[left]
+    heap_value[left] <- heap_value[right]
+    heap_value[right] <- value
     if update:
-        map_index[table_heap_find(map_ids, map_state, heap[left])] <- left
-        map_index[table_heap_find(map_ids, map_state, heap[right])] <- right
+        map_index[table_heap_find(map_ids, map_state, heap_value[left])] <- left
+        map_index[table_heap_find(map_ids, map_state, heap_value[right])] <- right
 
-def table_heap_down(heap: mutable view[i32], count: usize, map_ids: view[i32], map_priority: view[i32], map_index: mutable view[usize], map_state: view[u8], start: usize, update: bool) -> void:
+def table_heap_down(heap_value: mutable view[i32], count: usize, map_ids: view[i32], map_priority: view[i32], map_index: mutable view[usize], map_state: view[u8], start: usize, update: bool) -> void:
     index: mutable usize = start
     while true:
         left: usize = index * 2 + 1
         if left >= count: return
         child: mutable usize = left + 1
-        if child >= count or map_priority[table_heap_find(map_ids, map_state, heap[left])] < map_priority[table_heap_find(map_ids, map_state, heap[child])]: child <- left
-        if map_priority[table_heap_find(map_ids, map_state, heap[child])] >= map_priority[table_heap_find(map_ids, map_state, heap[index])]: return
-        table_heap_swap(heap, map_ids, map_index, map_state, index, child, update); index <- child
+        if child >= count or map_priority[table_heap_find(map_ids, map_state, heap_value[left])] < map_priority[table_heap_find(map_ids, map_state, heap_value[child])]: child <- left
+        if map_priority[table_heap_find(map_ids, map_state, heap_value[child])] >= map_priority[table_heap_find(map_ids, map_state, heap_value[index])]: return
+        table_heap_swap(heap_value, map_ids, map_index, map_state, index, child, update)
+        index <- child
 
-def table_heap_up(heap: mutable view[i32], map_ids: view[i32], map_priority: view[i32], map_index: mutable view[usize], map_state: view[u8], start: usize) -> void:
+def table_heap_up(heap_value: mutable view[i32], map_ids: view[i32], map_priority: view[i32], map_index: mutable view[usize], map_state: view[u8], start: usize) -> void:
     index: mutable usize = start
     while index > 0:
         parent: usize = (index - 1) / 2
-        if map_priority[table_heap_find(map_ids, map_state, heap[index])] >= map_priority[table_heap_find(map_ids, map_state, heap[parent])]: return
-        table_heap_swap(heap, map_ids, map_index, map_state, index, parent, true); index <- parent
+        if map_priority[table_heap_find(map_ids, map_state, heap_value[index])] >= map_priority[table_heap_find(map_ids, map_state, heap_value[parent])]: return
+        table_heap_swap(heap_value, map_ids, map_index, map_state, index, parent, true)
+        index <- parent
 
-def table_heap_store(output: mutable view[u8], offset: usize, value: i64) -> void:
+def table_heap_store(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255.u64()).u8()
@@ -64,91 +74,113 @@ def table_heap_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
     if input == null or length < 2 or length > 1155: return -1
     initial_value: i64 = input[0]
     if initial_value < 0 or initial_value > 64: return -1
-    initial: usize = initial_value.usize(); operation_index: usize = 1 + 2 * initial
+    initial: usize = initial_value.usize()
+    operation_index: usize = 1 + 2 * initial
     if length <= operation_index: return -1
     operation_value: i64 = input[operation_index]
     if operation_value < 0 or operation_value > 256: return -1
     operation_count: usize = operation_value.usize()
     if length != 2 + 2 * initial + 4 * operation_count or length > 1154: return -1
 
-    heap: mutable i32[64] = zeroed
+    heap_value: mutable i32[64] = zeroed
     map_ids: mutable i32[128] = zeroed
     map_priority: mutable i32[128] = zeroed
     map_index: mutable usize[128] = zeroed
     map_state: mutable u8[128] = zeroed
     count: mutable usize = initial
     for index in 0..<initial:
-        id: i64 = input[1 + 2 * index]; priority: i64 = input[2 + 2 * index]
+        id: i64 = input[1 + 2 * index]
+        priority: i64 = input[2 + 2 * index]
         if id < -2147483648 or id > 2147483647 or priority < -2147483648 or priority > 2147483647: return -1
         item: i32 = id.i32()
         if table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], item) != MAP_CAPACITY: return -1
-        heap[index] <- item
+        heap_value[index] <- item
         if table_heap_insert(map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], item, priority.i32(), 0) == MAP_CAPACITY: return -1
     parent: mutable usize = count / 2
     while parent > 0:
         parent <- parent - 1
-        table_heap_down(heap[0:MAX_ITEMS], count, map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], parent, false)
-    for index in 0..<count: map_index[table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], heap[index])] <- index
+        table_heap_down(heap_value[0:MAX_ITEMS], count, map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], parent, false)
+    for index in 0..<count:
+        map_index[table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], heap_value[index])] <- index
 
-    answers: mutable i64[256] = zeroed; cursor: mutable usize = operation_index + 1
+    answers: mutable i64[256] = zeroed
+    cursor: mutable usize = operation_index + 1
     for operation in 0..<operation_count:
-        opcode: i64 = input[cursor]; a: i64 = input[cursor + 1]; b: i64 = input[cursor + 2]; c: i64 = input[cursor + 3]; cursor <- cursor + 4
+        opcode: i64 = input[cursor]
+        a: i64 = input[cursor + 1]
+        b: i64 = input[cursor + 2]
+        c: i64 = input[cursor + 3]
+        cursor <- cursor + 4
         if opcode < 0 or opcode > 9: return -1
         if opcode == 0:
             if a < -2147483648 or a > 2147483647 or b < -2147483648 or b > 2147483647 or c != 0 or count == MAX_ITEMS: return -1
             item: i32 = a.i32()
             if table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], item) != MAP_CAPACITY: return -1
-            heap[count] <- item
+            heap_value[count] <- item
             if table_heap_insert(map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], item, b.i32(), count) == MAP_CAPACITY: return -1
-            count <- count + 1; table_heap_up(heap[0:MAX_ITEMS], map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], count - 1); answers[operation] <- NIL_VALUE
-        else if opcode == 1:
+            count <- count + 1
+            table_heap_up(heap_value[0:MAX_ITEMS], map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], count - 1)
+            answers[operation] <- NIL_VALUE
+        elif opcode == 1:
             if a != 0 or b != 0 or c != 0: return -1
-            answers[operation] <- if count == 0: NIL_VALUE else: heap[0].i64()
-        else if opcode == 2:
+            answers[operation] <- NIL_VALUE if count == 0 else heap_value[0].i64()
+        elif opcode == 2:
             if a != 0 or b != 0 or c != 0 or count == 0: return -1
-            removed: i32 = heap[0]; slot: usize = table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], removed); answers[operation] <- removed.i64()
-            table_heap_swap(heap[0:MAX_ITEMS], map_ids[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], 0, count - 1, true); count <- count - 1; map_state[slot] <- 2
-            if count > 0: table_heap_down(heap[0:MAX_ITEMS], count, map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], 0, true)
-        else if opcode == 3 or opcode == 4:
+            removed: i32 = heap_value[0]
+            slot: usize = table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], removed)
+            answers[operation] <- removed.i64()
+            table_heap_swap(heap_value[0:MAX_ITEMS], map_ids[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], 0, count - 1, true)
+            count <- count - 1
+            map_state[slot] <- 2
+            if count > 0: table_heap_down(heap_value[0:MAX_ITEMS], count, map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], 0, true)
+        elif opcode == 3 or opcode == 4:
             if a != 0 or b != 0 or c != 0: return -1
-            answers[operation] <- if opcode == 3: count.i64() else if count == 0: 1 else: 0
-        else if opcode == 5:
+            answers[operation] <- count.i64() if opcode == 3 else (1 if count == 0 else 0)
+        elif opcode == 5:
             if a < -2147483648 or a > 2147483647 or b != 0 or c != 0: return -1
             slot: usize = table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], a.i32())
-            answers[operation] <- if slot == MAP_CAPACITY: NIL_VALUE else: (map_index[slot] + 1).i64()
-        else if opcode == 6 or opcode == 7:
+            answers[operation] <- NIL_VALUE if slot == MAP_CAPACITY else (map_index[slot] + 1).i64()
+        elif opcode == 6 or opcode == 7:
             if a < -2147483648 or a > 2147483647 or b < -2147483648 or b > 2147483647 or c != 0: return -1
             slot: usize = table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], a.i32())
             if slot == MAP_CAPACITY or (opcode == 6 and b > map_priority[slot]) or (opcode == 7 and b < map_priority[slot]): return -1
             map_priority[slot] <- b.i32()
-            if opcode == 6: table_heap_up(heap[0:MAX_ITEMS], map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], map_index[slot])
-            else: table_heap_down(heap[0:MAX_ITEMS], count, map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], map_index[slot], true)
+            if opcode == 6: table_heap_up(heap_value[0:MAX_ITEMS], map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], map_index[slot])
+            else: table_heap_down(heap_value[0:MAX_ITEMS], count, map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], map_index[slot], true)
             answers[operation] <- NIL_VALUE
-        else if opcode == 8:
+        elif opcode == 8:
             if a < -2147483648 or a > 2147483647 or b < -2147483648 or b > 2147483647 or c < -2147483648 or c > 2147483647: return -1
-            old_slot: usize = table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], a.i32()); new_slot: usize = table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], b.i32())
+            old_slot: usize = table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], a.i32())
+            new_slot: usize = table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], b.i32())
             if old_slot == MAP_CAPACITY or (new_slot != MAP_CAPACITY and (a != b or c != map_priority[old_slot])): return -1
             if new_slot == MAP_CAPACITY:
-                position: usize = map_index[old_slot]; old_priority: i32 = map_priority[old_slot]; map_state[old_slot] <- 2
+                position: usize = map_index[old_slot]
+                old_priority: i32 = map_priority[old_slot]
+                map_state[old_slot] <- 2
                 if table_heap_insert(map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], b.i32(), c.i32(), position) == MAP_CAPACITY: return -1
-                heap[position] <- b.i32()
-                if c.i32() < old_priority: table_heap_up(heap[0:MAX_ITEMS], map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], position)
-                else: table_heap_down(heap[0:MAX_ITEMS], count, map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], position, true)
+                heap_value[position] <- b.i32()
+                if c.i32() < old_priority: table_heap_up(heap_value[0:MAX_ITEMS], map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], position)
+                else: table_heap_down(heap_value[0:MAX_ITEMS], count, map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], position, true)
             answers[operation] <- NIL_VALUE
         else:
             if a < -2147483648 or a > 2147483647 or b != 0 or c != 0: return -1
             slot: usize = table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], a.i32())
             if slot == MAP_CAPACITY: return -1
-            position: usize = map_index[slot]; old_priority: i32 = map_priority[slot]; count <- count - 1
+            position: usize = map_index[slot]
+            old_priority: i32 = map_priority[slot]
+            count <- count - 1
             if position != count:
-                heap[position] <- heap[count]
-                moved: usize = table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], heap[position]); map_index[moved] <- position
-                if map_priority[moved] < old_priority: table_heap_up(heap[0:MAX_ITEMS], map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], position)
-                else: table_heap_down(heap[0:MAX_ITEMS], count, map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], position, true)
-            map_state[slot] <- 2; answers[operation] <- NIL_VALUE
+                heap_value[position] <- heap_value[count]
+                moved: usize = table_heap_find(map_ids[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], heap_value[position])
+                map_index[moved] <- position
+                if map_priority[moved] < old_priority: table_heap_up(heap_value[0:MAX_ITEMS], map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], position)
+                else: table_heap_down(heap_value[0:MAX_ITEMS], count, map_ids[0:MAP_CAPACITY], map_priority[0:MAP_CAPACITY], map_index[0:MAP_CAPACITY], map_state[0:MAP_CAPACITY], position, true)
+            map_state[slot] <- 2
+            answers[operation] <- NIL_VALUE
     output_bytes: usize = operation_count * 8
     if output == null or capacity < output_bytes: return -2
-    for index in 0..<operation_count: table_heap_store(output[0:capacity], index * 8, answers[index])
+    for index in 0..<operation_count:
+        table_heap_store(output, index * 8, answers[index])
     output_bytes.i64()
 
 export fn table_heap(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = table_heap_impl

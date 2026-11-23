@@ -5,8 +5,8 @@ const PIS_MAX_WEIGHT: i64 = 12
 const PIS_MAX_PARSEABLE_LENGTH: usize = 35
 const PIS_MAX_STATES: usize = 24
 
-def pisinger_bounded_subset_sum_impl(values: view[i64], length: usize) -> i64:
-    if length < 2 or length > PIS_MAX_PARSEABLE_LENGTH or values.len() != length: return -1
+def pisinger_bounded_subset_sum_impl(values: i64&, values_length: usize, length: usize) -> i64:
+    if length < 2 or length > PIS_MAX_PARSEABLE_LENGTH or values_length != length: return -1
     n_value: i64 = values[0]
     target_value: i64 = values[1]
     if n_value < 0 or n_value > PIS_MAX_ITEMS.i64() or target_value < 0 or target_value > PIS_MAX_TARGET: return -1
@@ -76,7 +76,10 @@ def pisinger_bounded_subset_sum_impl(values: view[i64], length: usize) -> i64:
         mass <- mass - 1
     0
 
-export fn pisinger_bounded_weight_subset_sum(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > PIS_MAX_PARSEABLE_LENGTH: return -1
-    let values: view[i64] = input[0:length]
-    pisinger_bounded_subset_sum_impl(values, length)
+def pisinger_bounded_weight_subset_sum_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > PIS_MAX_PARSEABLE_LENGTH: return -1
+    values: i64& = input
+    values_length: usize = length
+    pisinger_bounded_subset_sum_impl(values, values_length, length)
+
+export fn pisinger_bounded_weight_subset_sum(input: i64&, length: usize) -> i64 = pisinger_bounded_weight_subset_sum_impl

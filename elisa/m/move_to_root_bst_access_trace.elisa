@@ -1,12 +1,12 @@
-fn move_to_root_solve(values: view[i64]) -> i64:
-    if values.length < 2 or values.length > 51: return -1
+def move_to_root_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 2 or values_length > 51: return -1
     initial_count: i64 = values[0]
     if initial_count < 0 or initial_count > 16: return -1
     query_count_index: i64 = 1 + initial_count
-    if values.length < query_count_index + 1: return -1
+    if values_length < query_count_index + 1: return -1
     access_count: i64 = values[query_count_index]
     if access_count < 0 or access_count > 32: return -1
-    if values.length != query_count_index + 1 + access_count: return -1
+    if values_length != query_count_index + 1 + access_count: return -1
 
     keys: mutable i64[16] = zeroed
     left: mutable i64[16] = zeroed
@@ -78,7 +78,10 @@ fn move_to_root_solve(values: view[i64]) -> i64:
         result <- result + query_number * comparisons
     result
 
-export fn move_to_root_bst_access_trace(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 51: return -1
-    values: view[i64] = input[0:length]
-    move_to_root_solve(values)
+def move_to_root_bst_access_trace_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 51: return -1
+    values: i64& = input
+    values_length: usize = length
+    move_to_root_solve(values, values_length)
+
+export fn move_to_root_bst_access_trace(input: i64&, length: usize) -> i64 = move_to_root_bst_access_trace_impl

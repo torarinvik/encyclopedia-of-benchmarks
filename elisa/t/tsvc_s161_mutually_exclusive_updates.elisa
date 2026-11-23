@@ -7,13 +7,13 @@ const TSVC_S161_MAX_VALUE: i64 = 2
 def tsvc_s161_bounded(value: i64) -> bool:
     value >= -TSVC_S161_MAX_VALUE and value <= TSVC_S161_MAX_VALUE
 
-def tsvc_s161_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+def tsvc_s161_store(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
-    for byte in 0..8:
+    for byte in 0..<8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
 
 def tsvc_s161_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 11 or length > TSVC_S161_MAX_INPUT_LENGTH:
+    if input == null or length < 11 or length > TSVC_S161_MAX_INPUT_LENGTH:
         return -1
     n_value: i64 = input[0]
     if n_value < 2 or n_value > 64:
@@ -29,25 +29,23 @@ def tsvc_s161_impl(input: i64&, length: usize, output: mutable u8&, capacity: us
     e_start: usize = d_start + n
     a: mutable i64[64] = zeroed
     c: mutable i64[64] = zeroed
-    for i in 0..n:
+    for i in 0..<n:
         a[i] <- input[a_start + i]
         c[i] <- input[c_start + i]
-        if not tsvc_s161_bounded(a[i]) or not tsvc_s161_bounded(input[b_start + i]) or
-            not tsvc_s161_bounded(c[i]) or not tsvc_s161_bounded(input[d_start + i]) or
-            not tsvc_s161_bounded(input[e_start + i]):
+        if not tsvc_s161_bounded(a[i]) or not tsvc_s161_bounded(input[b_start + i]) or not tsvc_s161_bounded(c[i]) or not tsvc_s161_bounded(input[d_start + i]) or not tsvc_s161_bounded(input[e_start + i]):
             return -1
-    if output.is_null() or capacity < 16 * n:
+    if output == null or capacity < 16 * n:
         return -2
 
-    for i in 0..n - 1:
+    for i in 0..<n - 1:
         if input[b_start + i] < 0:
             d: i64 = input[d_start + i]
             c[i + 1] <- a[i] + d * d
         else:
             a[i] <- c[i] + input[d_start + i] * input[e_start + i]
-    for i in 0..n:
-        tsvc_s161_store(a[i], output[0:capacity], 8 * i)
-        tsvc_s161_store(c[i], output[0:capacity], 8 * (n + i))
+    for i in 0..<n:
+        tsvc_s161_store(a[i], output, 8 * i)
+        tsvc_s161_store(c[i], output, 8 * (n + i))
     (2 * n).i64()
 
 export fn tsvc_s161_mutually_exclusive_updates(input: i64&, length: usize,

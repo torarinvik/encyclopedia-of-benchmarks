@@ -8,8 +8,8 @@ def tc_find_root(parent: mutable view[usize], item: usize) -> usize:
         node <- parent[node]
     node
 
-def tc_compute(input: view[i64], centers: mutable view[i64]) -> i64:
-    length: usize = input.len()
+def tc_compute(input: i64&, input_length: usize, centers: mutable view[i64]) -> i64:
+    length: usize = input_length
     if length < 1 or length > TC_MAX_INPUT_LENGTH: return -1
     n_value: i64 = input[0]
     if n_value < 1 or n_value > TC_MAX_N.i64(): return -1
@@ -31,12 +31,11 @@ def tc_compute(input: view[i64], centers: mutable view[i64]) -> i64:
         offset: usize = 1 + 2 * edge
         left_value: i64 = input[offset]
         right_value: i64 = input[offset + 1]
-        if left_value < 0 or left_value >= n_value or right_value < 0 or
-            right_value >= n_value or left_value == right_value: return -1
+        if left_value < 0 or left_value >= n_value or right_value < 0 or right_value >= n_value or left_value == right_value: return -1
         left: usize = left_value.usize()
         right: usize = right_value.usize()
-        root_left: usize = tc_find_root(parent[0:TC_MAX_N], left)
-        root_right: usize = tc_find_root(parent[0:TC_MAX_N], right)
+        root_left: mutable usize = tc_find_root(parent[0:TC_MAX_N], left)
+        root_right: mutable usize = tc_find_root(parent[0:TC_MAX_N], right)
         if root_left == root_right: return -1
         if component_size[root_left] < component_size[root_right]:
             temporary: usize = root_left
@@ -97,24 +96,27 @@ def tc_compute(input: view[i64], centers: mutable view[i64]) -> i64:
         vertex <- vertex + 1
     center_count.i64()
 
-def tc_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def tc_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-export fn tree_center(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > TC_MAX_INPUT_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
+def tree_center_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > TC_MAX_INPUT_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
     centers: mutable i64[2] = zeroed
-    center_count: i64 = tc_compute(input_view, centers[0:2])
+    center_count: i64 = tc_compute(input_view, input_view_length, centers[0:2])
     if center_count < 0: return center_count
     required: usize = center_count.usize() * 8
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     index: mutable usize = 0
     while index < center_count.usize():
         tc_store_i64_le(centers[index], output_view, 8 * index)
         index <- index + 1
     required.i64()
+
+export fn tree_center(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = tree_center_impl

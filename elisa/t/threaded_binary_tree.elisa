@@ -1,20 +1,20 @@
 const MAX_NODES: usize = 128
 
-def threaded_binary_tree_put_i32_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def threaded_binary_tree_put_i32_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<4:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def threaded_binary_tree_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 1 or input[0] < 0 or input[0] > MAX_NODES.i64(): return -1
+    if input == null or length < 1 or input[0] < 0 or input[0] > MAX_NODES.i64(): return -1
     count: usize = input[0].usize()
     if length != 1 + count: return -1
     for index in 0..<count:
         if input[index + 1] < -2147483648 or input[index + 1] > 2147483647: return -1
 
     required: usize = count * 4
-    if required > 0 and (output.is_null() or output_capacity < required): return -2
+    if required > 0 and (output == null or output_capacity < required): return -2
 
     keys: mutable i64[128] = zeroed
     lefts: mutable i64[128] = zeroed
@@ -73,7 +73,7 @@ def threaded_binary_tree_impl(input: i64&, length: usize, output: mutable u8&, o
     written: mutable usize = 0
     while current != -1:
         index: usize = current.usize()
-        threaded_binary_tree_put_i32_le(output[0:output_capacity], written, keys[index])
+        threaded_binary_tree_put_i32_le(output, written, keys[index])
         written <- written + 4
         if right_is_thread[index]:
             current <- rights[index]

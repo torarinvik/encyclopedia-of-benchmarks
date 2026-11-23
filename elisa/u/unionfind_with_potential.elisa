@@ -15,7 +15,7 @@ def find_root(parent: mutable view[usize], difference: mutable view[i64], item: 
         parent[item] <- root
     parent[item]
 
-def put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def put_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -25,8 +25,8 @@ def put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
 
 def unionfind_with_potential_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 6 or length > 2 + 4 * MAX_Q: return -1
-    frame: view[i64] = input[0:length]
+    if input == null or length < 6 or length > 2 + 4 * MAX_Q: return -1
+    frame: i64& = input
     n_value: i64 = frame[0]
     q_value: i64 = frame[1]
     if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
@@ -50,13 +50,13 @@ def unionfind_with_potential_impl(input: i64&, length: usize,
             return -1
         operation <- operation + 1
     required: usize = 8 * q
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
 
     parent: mutable usize[MAX_N] = zeroed
     set_size: mutable usize[MAX_N] = zeroed
     difference: mutable i64[MAX_N] = zeroed
-    for item in 0..n:
+    for item in 0..<n:
         parent[item] <- item
         set_size[item] <- 1
     operation <- 0
@@ -73,7 +73,7 @@ def unionfind_with_potential_impl(input: i64&, length: usize,
             if root_u == root_v: answer <- normalize(difference[u] - difference[v])
             else: answer <- -1
         elif root_u == root_v:
-            answer <- if normalize(difference[u] - difference[v]) == x: 1 else: 0
+            answer <- 1 if normalize(difference[u] - difference[v]) == x else 0
         elif set_size[root_u] < set_size[root_v]:
             parent[root_u] <- root_v
             difference[root_u] <- normalize(x - difference[u] + difference[v])

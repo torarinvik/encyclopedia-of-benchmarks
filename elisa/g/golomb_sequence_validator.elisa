@@ -1,8 +1,8 @@
 # Check whether the packed values match the generated Golomb prefix.
 const MAX_N: usize = 1024
 
-def golomb_sequence_validator_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def golomb_sequence_validator_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 1 or length > MAX_N:
         return -1
     if input[0] < 1 or input[0] > 1024:
@@ -32,6 +32,8 @@ def golomb_sequence_validator_impl(input: view[i64]) -> i64:
         index <- index + 1
     1
 
-export fn golomb_sequence_validator(input: i64&, length: usize) -> i64:
+def golomb_sequence_validator_entry(input: i64&, length: usize) -> i64:
     if input == null or length < 1 or length > MAX_N: return -1
-    golomb_sequence_validator_impl(input[0:length])
+    golomb_sequence_validator_impl(input, length)
+
+export fn golomb_sequence_validator(input: i64&, length: usize) -> i64 = golomb_sequence_validator_entry

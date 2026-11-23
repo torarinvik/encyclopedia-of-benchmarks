@@ -1,14 +1,16 @@
 # Find the least digit sum using a 0-1 deque over residues modulo n.
 def small_multiple_cost(n: i64) -> i64:
-    distance: mutable [16]i64 = [1000; 16]
-    deque: mutable [512]usize = [0; 512]
+    distance: mutable i64[16] = zeroed
+    for distance_index in 0..<16:
+        distance[distance_index] <- 1000
+    deque: mutable usize[512] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     queued: mutable usize = 0
     start: usize = (1 % n).usize()
     distance[start] <- 1
-    deque[tail] <- start
-    tail <- (tail + 1) % 512
+    deque[tail_value] <- start
+    tail_value <- (tail_value + 1) % 512
     queued <- queued + 1
     while queued > 0:
         residue: usize = deque[head]
@@ -24,17 +26,19 @@ def small_multiple_cost(n: i64) -> i64:
         one_next: usize = ((base + 1) % n).usize()
         if distance[one_next] > distance[residue] + 1:
             distance[one_next] <- distance[residue] + 1
-            deque[tail] <- one_next
-            tail <- (tail + 1) % 512
+            deque[tail_value] <- one_next
+            tail_value <- (tail_value + 1) % 512
             queued <- queued + 1
     distance[0]
 
-def shortest_path_modulo_small_multiple_impl(input: view[i64]) -> i64:
-    if input.length != 1: return -1
+def shortest_path_modulo_small_multiple_impl(input: i64&, input_length: usize) -> i64:
+    if input_length != 1: return -1
     n: i64 = input[0]
     if n < 1 or n > 16: return -1
     small_multiple_cost(n)
 
-export fn shortest_path_modulo_small_multiple(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 1: return -1
-    shortest_path_modulo_small_multiple_impl(input[0:length])
+def shortest_path_modulo_small_multiple_entry(input: i64&, length: usize) -> i64:
+    if input == null or length != 1: return -1
+    shortest_path_modulo_small_multiple_impl(input, length)
+
+export fn shortest_path_modulo_small_multiple(input: i64&, length: usize) -> i64 = shortest_path_modulo_small_multiple_entry

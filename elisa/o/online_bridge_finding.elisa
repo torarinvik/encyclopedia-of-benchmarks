@@ -106,9 +106,9 @@ def online_bridge_add_edge(left_input: i64, right_input: i64, dsu_2ecc: mutable 
     else:
         online_bridge_merge_path(left, right, dsu_2ecc, parent, last_visit, bridges, iteration)
 
-def online_bridge_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
+def online_bridge_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
     bits: u64 = value.u64()
-    byte: usize = 0
+    byte: mutable usize = 0
     while byte < 8:
         output[position + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
@@ -116,7 +116,7 @@ def online_bridge_store_i64(value: i64, output: mutable view[u8], position: usiz
 def online_bridge_finding_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     raw_vertices: i64 = values[0]
     raw_edges: i64 = values[1]
     if raw_vertices < 1 or raw_vertices > i64(MAX_VERTICES) or raw_edges < 0 or raw_edges > i64(MAX_EDGES):
@@ -150,7 +150,7 @@ def online_bridge_finding_impl(input: i64&, length: usize, output: mutable u8&, 
         online_bridge_add_edge(values[2 + 2 * edge], values[3 + 2 * edge],
             dsu_2ecc[0:MAX_VERTICES], dsu_cc[0:MAX_VERTICES], dsu_cc_size[0:MAX_VERTICES],
             parent[0:MAX_VERTICES], last_visit[0:MAX_VERTICES], bridges, iteration)
-        online_bridge_store_i64(bridges, output[0:output_bytes], edge * 8)
+        online_bridge_store_i64(bridges, output, edge * 8)
     output_bytes.i64()
 
 export fn online_bridge_finding(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = online_bridge_finding_impl

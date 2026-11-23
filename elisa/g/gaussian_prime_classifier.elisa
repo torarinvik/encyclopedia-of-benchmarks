@@ -4,28 +4,29 @@ const GP_MAX_PARSEABLE_LENGTH: usize = 3
 def gp_is_rational_prime(value: i64) -> bool:
     if value < 2: return false
     if value % 2 == 0: return value == 2
-    let divisor: mutable i64 = 3
+    divisor:  mutable i64 = 3
     while divisor <= value / divisor:
         if value % divisor == 0: return false
         divisor <- divisor + 2
     true
 
-def gp_classify(input: view[i64]) -> i64:
-    if input.len() != 2: return -1
-    let real: i64 = input[0]
-    let imaginary: i64 = input[1]
-    if real < -GP_MAX_COORDINATE or real > GP_MAX_COORDINATE or
-       imaginary < -GP_MAX_COORDINATE or imaginary > GP_MAX_COORDINATE: return -1
+def gp_classify(input: i64&, input_length: usize) -> i64:
+    if input_length != 2: return -1
+    real:  i64 = input[0]
+    imaginary:  i64 = input[1]
+    if real < -GP_MAX_COORDINATE or real > GP_MAX_COORDINATE or imaginary < -GP_MAX_COORDINATE or imaginary > GP_MAX_COORDINATE: return -1
     if real == 0 and imaginary == 0: return 0
     if real == 0 or imaginary == 0:
-        let axis: i64 = if real == 0: imaginary else: real
-        let rational: i64 = if axis < 0: -axis else: axis
+        axis:  i64 = imaginary if real == 0 else real
+        rational:  i64 = -axis if axis < 0 else axis
         if rational % 4 == 3 and gp_is_rational_prime(rational): return 1
         return 0
-    let norm: i64 = real * real + imaginary * imaginary
+    norm:  i64 = real * real + imaginary * imaginary
     if gp_is_rational_prime(norm): return 1
     0
 
-export fn gaussian_prime_classifier(input: i64&, input_length: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > GP_MAX_PARSEABLE_LENGTH: return -1
-    gp_classify(input[0:input_length])
+def gaussian_prime_classifier_impl(input: i64&, input_length: usize) -> i64:
+    if input == null or input_length < 1 or input_length > GP_MAX_PARSEABLE_LENGTH: return -1
+    gp_classify(input, input_length)
+
+export fn gaussian_prime_classifier(input: i64&, input_length: usize) -> i64 = gaussian_prime_classifier_impl

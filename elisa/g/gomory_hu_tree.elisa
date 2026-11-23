@@ -78,9 +78,9 @@ def gomory_hu_maxflow(capacity: view[i64], vertex_count: usize, source: usize, s
     total
 
 def gomory_hu_tree_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length < 2 or length > 65:
+    if values == null or length < 2 or length > 65:
         return -1
-    input: view[i64] = values[0:length]
+    input: i64& = values
     n_value: i64 = input[0]
     if n_value < 1 or n_value > 8 or length != (1 + n_value * n_value).usize():
         return -1

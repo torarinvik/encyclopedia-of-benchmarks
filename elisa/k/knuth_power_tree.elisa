@@ -8,10 +8,10 @@ def knuth_build_path(target: usize, parent: mutable view[usize], seen: mutable v
         path_length <- 1
         return true
     head: mutable usize = 0
-    tail: mutable usize = 1
+    tail_value: mutable usize = 1
     queue[0] <- 1
     seen[1] <- true
-    while head < tail:
+    while head < tail_value:
         current: usize = queue[head]
         head <- head + 1
         chain_length: mutable usize = 0
@@ -44,12 +44,12 @@ def knuth_build_path(target: usize, parent: mutable view[usize], seen: mutable v
                         right <- right - 1
                     path_length <- count
                     return true
-                queue[tail] <- child
-                tail <- tail + 1
+                queue[tail_value] <- child
+                tail_value <- tail_value + 1
             offset <- offset + 1
     false
 
-def knuth_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def knuth_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -58,7 +58,7 @@ def knuth_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void
 
 def knuth_power_tree_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length != 1:
+    if input == null or length != 1:
         return -1
     target_value: i64 = input[0]
     if target_value < 1 or target_value > 127:
@@ -74,11 +74,11 @@ def knuth_power_tree_impl(input: i64&, length: usize,
             queue[0:MAX_TARGET + 1], reverse[0:MAX_TARGET + 1], path[0:MAX_TARGET], path_length):
         return -1
     required: usize = (path_length + 1) * 8
-    if output.is_null() or output_capacity < required:
+    if output == null or output_capacity < required:
         return -2
-    output_view: mutable view[u8] = output[0:required]
+    output_view: mutable u8& = output
     knuth_store_i64((path_length - 1).i64(), output_view, 0)
-    index: usize = 0
+    index: mutable usize = 0
     while index < path_length:
         knuth_store_i64(path[index].i64(), output_view, 8 * (index + 1))
         index <- index + 1

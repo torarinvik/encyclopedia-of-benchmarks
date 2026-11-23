@@ -1,4 +1,4 @@
-def put_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def put_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -30,8 +30,7 @@ def cpu_scheduling_algorithms_impl(input: i64&, length: usize, output: mutable u
         arrival[i] <- input[base+1]
         burst[i] <- input[base+2]
         priority[i] <- input[base+3]
-        if ids[i] < 0 or ids[i] >= 32 or arrival[i] < 0 or arrival[i] > 256 or
-            burst[i] < 1 or burst[i] > 32 or priority[i] < -32 or priority[i] > 32: return -1
+        if ids[i] < 0 or ids[i] >= 32 or arrival[i] < 0 or arrival[i] > 256 or burst[i] < 1 or burst[i] > 32 or priority[i] < -32 or priority[i] > 32: return -1
         j: mutable usize = 0
         while j < i:
             if ids[j] == ids[i]: return -1
@@ -76,8 +75,7 @@ def cpu_scheduling_algorithms_impl(input: i64&, length: usize, output: mutable u
                     continue
                 better: mutable bool = best == count
                 if not better and mode == 1:
-                    better <- burst[i] < burst[best] or (burst[i] == burst[best] and
-                        (arrival[i] < arrival[best] or (arrival[i] == arrival[best] and i < best)))
+                    better <- burst[i] < burst[best] or (burst[i] == burst[best] and (arrival[i] < arrival[best] or (arrival[i] == arrival[best] and i < best)))
                 elif not better:
                     better <- priority[i] < priority[best] or (priority[i] == priority[best] and i < best)
                 if better: best <- i
@@ -100,8 +98,7 @@ def cpu_scheduling_algorithms_impl(input: i64&, length: usize, output: mutable u
                     continue
                 better: mutable bool = best == count
                 if not better and mode == 2:
-                    better <- remaining[i] < remaining[best] or (remaining[i] == remaining[best] and
-                        (arrival[i] < arrival[best] or (arrival[i] == arrival[best] and i < best)))
+                    better <- remaining[i] < remaining[best] or (remaining[i] == remaining[best] and (arrival[i] < arrival[best] or (arrival[i] == arrival[best] and i < best)))
                 elif not better:
                     better <- priority[i] < priority[best] or (priority[i] == priority[best] and i < best)
                 if better: best <- i
@@ -162,7 +159,7 @@ def cpu_scheduling_algorithms_impl(input: i64&, length: usize, output: mutable u
                           turnaround-burst[i], first_run[i]-arrival[i]]
         field: mutable usize = 0
         while field < 7:
-            put_i64_le(fields[field], output[0:bytes], i*56+field*8)
+            put_i64_le(fields[field], output, i*56+field*8)
             field <- field + 1
         i <- i + 1
     bytes.i64()

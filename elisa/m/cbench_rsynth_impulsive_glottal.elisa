@@ -1,14 +1,14 @@
-/* Clean-room RSynth impulsive glottal/resonator profile; modified implementation. */
+  # Clean-room RSynth impulsive glottal/resonator profile; modified implementation.
 extern exp(value: f64) -> f64
 extern cos(value: f64) -> f64
 
 def cbench_rsynth_impulsive_sample_impl(input: f64&, input_length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > 3:
+    if input == null or input_length < 1 or input_length > 3:
         return -1
     if input_length != 2:
         return -1
-    values: view[f64] = input[0:2]
+    values: f64& = input
     open_value: f64 = values[0]
     sample_value: f64 = values[1]
     if open_value != open_value or sample_value != sample_value:
@@ -34,7 +34,7 @@ def cbench_rsynth_impulsive_sample_impl(input: f64&, input_length: usize,
     result: mutable f32 = 0.0
     i: mutable i64 = 0
     while i <= target:
-        impulse: f32 = if i == 1: 13000000.0.f32() else: if i == 2: -13000000.0.f32() else: 0.0.f32()
+        impulse: f32 = 13000000.0.f32() if i == 1 else (-13000000.0.f32() if i == 2 else 0.0.f32())
         x: mutable f32 = (a * impulse).f32()
         x <- (x + (b * p1).f32()).f32()
         x <- (x + (c * p2).f32()).f32()
@@ -42,9 +42,9 @@ def cbench_rsynth_impulsive_sample_impl(input: f64&, input_length: usize,
         p1 <- x
         result <- x
         i <- i + 1
-    if output.is_null() or output_capacity < 1:
+    if output == null or output_capacity < 1:
         return -2
-    out: mutable view[f64] = output[0:1]
+    out: mutable f64& = output
     out[0] <- result.f64()
     return 1
 

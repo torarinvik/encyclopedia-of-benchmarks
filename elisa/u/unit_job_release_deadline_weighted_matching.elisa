@@ -10,17 +10,18 @@ def ujs_assign(job: usize, starts: view[i64], ends: view[i64], slots: mutable vi
         slot <- slot + 1
     false
 
-def ujs_solve(values: view[i64]) -> i64:
-    if values.len() < 1 or values.len() > 98: return -1
+def ujs_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 1 or values_length > 98: return -1
     if values[0] < 0 or values[0] > 32: return -1
     n: usize = values[0].usize()
-    if values.len() != 1 + 3 * n: return -1
+    if values_length != 1 + 3 * n: return -1
     starts: mutable i64[32] = zeroed
     ends: mutable i64[32] = zeroed
     weights: mutable i64[32] = zeroed
     order: mutable i64[32] = zeroed
     slots: mutable i64[32] = zeroed
-    for i in 0..<32: slots[i] <- -1
+    for i in 0..<32:
+        slots[i] <- -1
     for i in 0..<n:
         r: i64 = values[1 + 3 * i]
         d: i64 = values[2 + 3 * i]
@@ -41,6 +42,8 @@ def ujs_solve(values: view[i64]) -> i64:
         if ujs_assign(job, starts[0:32], ends[0:32], slots[0:32], seen[0:32]): total <- total + weights[job]
     total
 
-export fn unit_job_release_deadline_weighted_matching(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > 98: return -1
-    ujs_solve(input[0:length])
+def unit_job_release_deadline_weighted_matching_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 98: return -1
+    ujs_solve(input, length)
+
+export fn unit_job_release_deadline_weighted_matching(input: i64&, length: usize) -> i64 = unit_job_release_deadline_weighted_matching_impl

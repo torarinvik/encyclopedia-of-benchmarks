@@ -11,12 +11,12 @@ def aitken_gcd(left_value: u64, right_value: u64) -> u64:
         right <- remainder
     left
 
-def aitken_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def aitken_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
 
-def aitken_validate(input: view[i64], length: usize) -> bool:
+def aitken_validate(input: i64&, length: usize) -> bool:
     if length < 3 or length > MAX_WORDS:
         return false
     n_value: i64 = input[0]
@@ -30,8 +30,8 @@ def aitken_validate(input: view[i64], length: usize) -> bool:
             return false
     true
 
-def aitken_delta_squared_sequence_transform_impl(input: view[i64],
-        output: mutable view[u8], output_capacity: usize) -> i64:
+def aitken_delta_squared_sequence_transform_impl(input: i64&,
+        output: mutable u8&, output_capacity: usize) -> i64:
     n: usize = input[0].usize()
     output_length: usize = 16 * (n - 2)
     if output_capacity < output_length:
@@ -53,7 +53,7 @@ def aitken_delta_squared_sequence_transform_impl(input: view[i64],
             if denominator < 0:
                 numerator <- -numerator
                 denominator <- -denominator
-            magnitude: u64 = if numerator < 0 then (-numerator).u64() else numerator.u64()
+            magnitude: u64 = (-numerator).u64() if numerator < 0 else numerator.u64()
             divisor: u64 = aitken_gcd(magnitude, denominator.u64())
             numerator <- numerator / divisor.i64()
             denominator <- denominator / divisor.i64()
@@ -62,16 +62,18 @@ def aitken_delta_squared_sequence_transform_impl(input: view[i64],
         aitken_store_i64(output, offset + 8, denominator)
     output_length.i64()
 
-export fn aitken_delta_squared_sequence_transform(input: i64&, length: usize,
+def aitken_delta_squared_sequence_transform_entry(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_WORDS:
+    if input == null or length < 3 or length > MAX_WORDS:
         return -1
-    if not aitken_validate(input[0:length], length):
+    if not aitken_validate(input, length):
         return -1
-    if output.is_null():
+    if output == null:
         return -2
-    writable_length: usize = output_capacity
+    writable_length: mutable usize = output_capacity
     if writable_length > 992:
         writable_length <- 992
     aitken_delta_squared_sequence_transform_impl(
-        input[0:length], output[0:writable_length], output_capacity)
+        input, output, output_capacity)
+
+export fn aitken_delta_squared_sequence_transform(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = aitken_delta_squared_sequence_transform_entry

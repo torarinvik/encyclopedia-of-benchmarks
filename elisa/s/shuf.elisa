@@ -1,4 +1,4 @@
-def write_i32_le(output: mutable view[u8], index: usize, value: i32) -> void:
+def write_i32_le(output: mutable u8&, index: usize, value: i32) -> void:
     bits: mutable u32 = value.u32()
     offset: usize = index * 4
     byte: mutable usize = 0
@@ -8,7 +8,7 @@ def write_i32_le(output: mutable view[u8], index: usize, value: i32) -> void:
         byte <- byte + 1
 
 def shuf_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 67: return -1
+    if input == null or length < 2 or length > 67: return -1
     count_raw: i64 = input[0]
     sample_size_raw: i64 = input[1]
     if count_raw < 0 or count_raw > 32 or sample_size_raw < 1 or sample_size_raw > 32: return -1
@@ -24,7 +24,7 @@ def shuf_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) 
         if value < -2147483648 or value > 2147483647: return -1
         items[index] <- value.i32()
         index <- index + 1
-    initial_count: usize = count
+    initial_count: mutable usize = count
     if initial_count > sample_size: initial_count <- sample_size
     index <- 0
     while index < initial_count:
@@ -46,11 +46,11 @@ def shuf_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) 
             index <- index + 1
     output_count: mutable usize = 0
     output_bytes: usize = initial_count * 4
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     slot: mutable usize = 0
     while slot < sample_size:
         if occupied[slot]:
-            write_i32_le(output[0:output_bytes], output_count, sample[slot])
+            write_i32_le(output, output_count, sample[slot])
             output_count <- output_count + 1
         slot <- slot + 1
     output_count.i64()

@@ -1,6 +1,6 @@
 # Solve the unknown resistance in a balanced Wheatstone bridge.
-def wheatstone_bridge_impl(values: view[i64]) -> f64:
-    if values.len() != 3:
+def wheatstone_bridge_impl(values: i64&, values_length: usize) -> f64:
+    if values_length != 3:
         return -1.0e300
     resistance_1: i64 = values[0]
     resistance_2: i64 = values[1]
@@ -9,6 +9,8 @@ def wheatstone_bridge_impl(values: view[i64]) -> f64:
         return -1.0e300
     (resistance_2.f64() / resistance_1.f64()) * resistance_3.f64()
 
-export fn wheatstone_bridge(values: i64&, length: usize) -> f64:
+def wheatstone_bridge_entry(values: i64&, length: usize) -> f64:
     if values == null or length != 3: return -1.0e300
-    wheatstone_bridge_impl(values[0:length])
+    wheatstone_bridge_impl(values, length)
+
+export fn wheatstone_bridge(values: i64&, length: usize) -> f64 = wheatstone_bridge_entry

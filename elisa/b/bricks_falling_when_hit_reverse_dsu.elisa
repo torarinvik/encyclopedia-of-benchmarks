@@ -47,7 +47,7 @@ def bfh_build_dsu(grid: view[u8], rows: usize, columns: usize,
             bfh_unite(parent, component_size, cell, cell - 1)
         cell <- cell + 1
 
-def bfh_store_i64_le(output: mutable view[u8], offset: usize, value: i32) -> void:
+def bfh_store_i64_le(output: mutable u8&, offset: usize, value: i32) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -55,11 +55,11 @@ def bfh_store_i64_le(output: mutable view[u8], offset: usize, value: i32) -> voi
         bits <- bits >> 8
         byte <- byte + 1
 
-export fn bricks_falling_when_hit_reverse_dsu(input: i64&, length: usize,
+def bricks_falling_when_hit_reverse_dsu_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     rows_value: i64 = values[0]
     columns_value: i64 = values[1]
     hit_value: i64 = values[2]
@@ -105,11 +105,11 @@ export fn bricks_falling_when_hit_reverse_dsu(input: i64&, length: usize,
         cell <- cell + 1
 
     required: usize = hits * 8
-    if capacity < required or (required != 0 and output.is_null()):
+    if capacity < required or (required != 0 and output == null):
         return -2
     if hits == 0:
         return 0
-    result: mutable view[u8] = output[0:required]
+    result: mutable u8& = output
     index <- 0
     while index < hits:
         row: usize = values[hit_start + 2 * index].usize()
@@ -142,6 +142,8 @@ export fn bricks_falling_when_hit_reverse_dsu(input: i64&, length: usize,
         if column + 1 < columns and grid[cell + 1] != 0:
             bfh_unite(parent[0:cells + 1], component_size[0:cells + 1], cell, cell + 1)
         after: i32 = component_size[bfh_find_root(parent[0:cells + 1], cells)]
-        fallen: i32 = if after > before + 1 then after - before - 1 else 0
+        fallen: i32 = after - before - 1 if after > before + 1 else 0
         bfh_store_i64_le(result, reverse * 8, fallen)
     required.i64()
+
+export fn bricks_falling_when_hit_reverse_dsu(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = bricks_falling_when_hit_reverse_dsu_impl

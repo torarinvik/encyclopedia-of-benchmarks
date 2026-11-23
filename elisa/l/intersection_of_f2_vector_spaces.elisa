@@ -129,7 +129,7 @@ def ivs_intersection_basis(left: view[u32], n: usize, right: view[u32], m: usize
         bit <- bit - 1
     output_count
 
-def ivs_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def ivs_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -138,7 +138,7 @@ def ivs_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> voi
 
 def intersection_of_f2_vector_spaces_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 1 or length > MAX_INPUT_VALUES: return -1
     case_count_value: i64 = input[0]
     if case_count_value < 1 or case_count_value > MAX_CASES.i64(): return -1
     case_count: usize = case_count_value.usize()
@@ -196,8 +196,8 @@ def intersection_of_f2_vector_spaces_impl(input: i64&, length: usize,
         case_index <- case_index + 1
     if cursor != length: return -1
     required: usize = 8 * used
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     index: mutable usize = 0
     while index < used:
         ivs_store_i64_le(staged[index], output_view, 8 * index)

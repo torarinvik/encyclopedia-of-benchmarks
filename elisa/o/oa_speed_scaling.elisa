@@ -47,15 +47,15 @@ def oa_cmp(a_n: i64, a_d: i64, b_n: i64, b_d: i64) -> i64:
     if left < right: return -1
     0
 
-def oa_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+def oa_store(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset+byte] <- ((bits>>(8*byte))&255).u8()
         byte <- byte+1
 
-def oa_speed_scaling_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+def oa_speed_scaling_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input_length
     if length < 2 or length > OA_MAX_INPUT: return -1
     n64: i64 = input[0]
     if n64 < 1 or n64 > OA_MAX_JOBS.i64(): return -1
@@ -119,8 +119,7 @@ def oa_speed_scaling_impl(input: view[i64], output: mutable u8&, capacity: usize
             while i < used:
                 value: usize = order[i]
                 k: mutable usize = i
-                while k > 0 and (deadline[order[k-1]] > deadline[value] or
-                    (deadline[order[k-1]] == deadline[value] and order[k-1] > value)):
+                while k > 0 and (deadline[order[k-1]] > deadline[value] or (deadline[order[k-1]] == deadline[value] and order[k-1] > value)):
                     order[k] <- order[k-1]
                     k <- k-1
                 order[k] <- value
@@ -149,10 +148,9 @@ def oa_speed_scaling_impl(input: view[i64], output: mutable u8&, capacity: usize
                         best_count <- k
                     k <- k+1
                 right: i64 = deadline[order[best_count-1]]
-                stop: i64 = if right < next_release: right else: next_release
+                stop: i64 = right if right < next_release else next_release
                 if stop > left:
-                    if seg_count > 0 and seg_end[seg_count-1] == left and
-                        oa_cmp(best_n,best_d,seg_speed_n[seg_count-1],seg_speed_d[seg_count-1]) == 0:
+                    if seg_count > 0 and seg_end[seg_count-1] == left and oa_cmp(best_n,best_d,seg_speed_n[seg_count-1],seg_speed_d[seg_count-1]) == 0:
                         seg_end[seg_count-1] <- stop
                     else:
                         seg_start[seg_count] <- left
@@ -244,15 +242,17 @@ def oa_speed_scaling_impl(input: view[i64], output: mutable u8&, capacity: usize
         fields <- fields+2
         j <- j+1
     output_bytes: usize = 8*fields
-    if output.is_null() or capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
+    if output == null or capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     i: mutable usize = 0
     while i < fields:
         oa_store(values[i],output_view,8*i)
         i <- i+1
     output_bytes.i64()
 
-export fn oa_speed_scaling(input: i64&, length: usize,
+def oa_speed_scaling_entry(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > OA_MAX_INPUT: return -1
-    oa_speed_scaling_impl(input[0:length],output,capacity)
+    if input == null or length < 2 or length > OA_MAX_INPUT: return -1
+    oa_speed_scaling_impl(input, length,output,capacity)
+
+export fn oa_speed_scaling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = oa_speed_scaling_entry

@@ -3,16 +3,15 @@ const MAX_EDGE_COUNT: usize = 2046
 const MAX_INPUT_LENGTH: usize = 4 + 2 * MAX_EDGE_COUNT
 
 def bfs_queue_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 4 or length > MAX_INPUT_LENGTH:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 1 or values[0] > i64(MAX_VERTEX_COUNT) or values[3] < 0 or values[3] > i64(MAX_EDGE_COUNT): return -1
     vertex_count: usize = values[0].usize()
     source_arg: i64 = values[1]
     target_arg: i64 = values[2]
     edge_count: usize = values[3].usize()
-    if (source_arg < 0 or source_arg >= vertex_count.i64() or target_arg < 0 or
-            target_arg >= vertex_count.i64() or length != 4 + 2 * edge_count):
+    if (source_arg < 0 or source_arg >= vertex_count.i64() or target_arg < 0 or target_arg >= vertex_count.i64() or length != 4 + 2 * edge_count):
         return -1
 
     adjacency: mutable usize[MAX_VERTEX_COUNT] = zeroed
@@ -23,8 +22,8 @@ def bfs_queue_impl(input: i64&, length: usize, output: mutable u8&, output_capac
             return -1
         left: usize = left_arg.usize()
         right: usize = right_arg.usize()
-        adjacency[left] <- adjacency[left] | (1usize << right)
-        adjacency[right] <- adjacency[right] | (1usize << left)
+        adjacency[left] <- adjacency[left] | (1 << right)
+        adjacency[right] <- adjacency[right] | (1 << left)
 
     source: usize = source_arg.usize()
     target: usize = target_arg.usize()
@@ -44,7 +43,7 @@ def bfs_queue_impl(input: i64&, length: usize, output: mutable u8&, output_capac
         head <- head + 1
         neighbor: mutable usize = 0
         while neighbor < vertex_count |neighbor, adjacency, visited, predecessor, found, queue, queue_end, current|:
-            if (adjacency[current] & (1usize << neighbor)) == 0 or visited[neighbor]:
+            if (adjacency[current] & (1 << neighbor)) == 0 or visited[neighbor]:
                 neighbor <- neighbor + 1
                 continue
             visited[neighbor] <- true
@@ -56,9 +55,9 @@ def bfs_queue_impl(input: i64&, length: usize, output: mutable u8&, output_capac
             queue_end <- queue_end + 1
             neighbor <- neighbor + 1
     if not found:
-        if output.is_null() or output_capacity < 1:
+        if output == null or output_capacity < 1:
             return -2
-        target_view: mutable view[u8] = output[0:1]
+        target_view: mutable u8& = output
         target_view[0] <- 0
         return 1
 
@@ -71,9 +70,9 @@ def bfs_queue_impl(input: i64&, length: usize, output: mutable u8&, output_capac
         current <- predecessor[current].usize()
     path[path_length] <- source.u8()
     path_length <- path_length + 1
-    if output.is_null() or output_capacity < path_length + 1:
+    if output == null or output_capacity < path_length + 1:
         return -2
-    target_view: mutable view[u8] = output[0:path_length + 1]
+    target_view: mutable u8& = output
     target_view[0] <- 1
     for index in 0..<path_length |target_view, path|:
         target_view[index + 1] <- path[index]

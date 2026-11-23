@@ -14,14 +14,13 @@ def smallest_circle_contains_all(cx: f64, cy: f64, radius: f64,
 def smallest_circle_consider(cx: f64, cy: f64, radius: f64,
         values: i64&, count: usize, best_x: mutable f64&, best_y: mutable f64&,
         best_radius: mutable f64&, best_valid: mutable u8&) -> void:
-    if (smallest_circle_contains_all(cx, cy, radius, values, count) and
-            (best_valid[0] == 0 or radius <= best_radius[0])):
+    if (smallest_circle_contains_all(cx, cy, radius, values, count) and (best_valid[0] == 0 or radius <= best_radius[0])):
         best_x <- cx
         best_y <- cy
         best_radius[0] <- radius
         best_valid[0] <- 1.u8()
 
-def smallest_circle_write_f64(output: mutable view[u8], position: usize, value: f64) -> void:
+def smallest_circle_write_f64(output: mutable u8&, position: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
@@ -60,10 +59,8 @@ def smallest_circle_impl(values: i64&, length: usize, output: mutable u8&,
                     a_squared: f64 = ax * ax + ay * ay
                     b_squared: f64 = bx * bx + by * by
                     c_squared: f64 = cx * cx + cy * cy
-                    center_x: f64 = (a_squared * (by - cy) + b_squared * (cy - ay) +
-                            c_squared * (ay - by)) / denominator
-                    center_y: f64 = (a_squared * (cx - bx) + b_squared * (ax - cx) +
-                            c_squared * (bx - ax)) / denominator
+                    center_x: f64 = (a_squared * (by - cy) + b_squared * (cy - ay) + c_squared * (ay - by)) / denominator
+                    center_y: f64 = (a_squared * (cx - bx) + b_squared * (ax - cx) + c_squared * (bx - ax)) / denominator
                     dx: f64 = center_x - ax
                     dy: f64 = center_y - ay
                     smallest_circle_consider(center_x, center_y, sqrt(dx * dx + dy * dy), values,
@@ -85,9 +82,9 @@ def smallest_circle_impl(values: i64&, length: usize, output: mutable u8&,
         return -1
     if output == null or output_capacity < 24:
         return -2
-    smallest_circle_write_f64(output[0:24], 0, best_x)
-    smallest_circle_write_f64(output[0:24], 8, best_y)
-    smallest_circle_write_f64(output[0:24], 16, best_radius)
+    smallest_circle_write_f64(output, 0, best_x)
+    smallest_circle_write_f64(output, 8, best_y)
+    smallest_circle_write_f64(output, 16, best_radius)
     1
 
 export fn smallest_circle(values: i64&, length: usize, output: mutable u8&,

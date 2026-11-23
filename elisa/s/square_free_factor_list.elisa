@@ -3,7 +3,7 @@ def square_free_factor_list_impl(values: i64&, length: usize) -> i64:
     if length > 256 or (length > 0 and values == null):
         return -1
     if length == 0: return 1
-    input: view[i64] = values[0:length]
+    input: i64& = values
     i: mutable usize = 0
     while i < length:
         value: i64 = input[i]

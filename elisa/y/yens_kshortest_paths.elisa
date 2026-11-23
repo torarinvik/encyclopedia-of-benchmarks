@@ -1,12 +1,12 @@
 const NMAX: usize = 8
 const KMAX: usize = 8
 
-def yen_put(output: mutable view[u8], offset: usize, value: i64) -> void:
+def yen_put(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for index in 0..<8:
         output[offset + index] <- ((bits >> (index * 8)) & 255).u8()
 
-def yen_shortest(graph: view[i64], n: usize, src: usize, dst: usize, blocked_nodes: u64, blocked_edges: u64) -> i64:
+def yen_shortest(graph: i64&, n: usize, src: usize, dst: usize, blocked_nodes: u64, blocked_edges: u64) -> i64:
     current: mutable i64[8] = zeroed
     next_vertex: mutable usize[8] = zeroed
     path_cost: mutable i64[8] = zeroed
@@ -97,7 +97,7 @@ def yens_kshortest_paths_impl(input: i64&, length: usize, output: mutable u8&, o
     candidate_costs: mutable i64[64] = zeroed
     accepted_count: mutable usize = 0
     candidate_count: mutable usize = 0
-    graph: view[i64] = input[4:length]
+    graph: i64& = &input[4]
     first_code: i64 = yen_shortest(graph, n, src, dst, 0, 0)
     first_length: usize = ((first_code.u64() >> 24) & 15).usize()
     if first_code >= 0:
@@ -202,15 +202,15 @@ def yens_kshortest_paths_impl(input: i64&, length: usize, output: mutable u8&, o
         required <- required + (accepted_lengths[i] + 2) * 8
     if output_capacity < required:
         return -2
-    yen_put(output[0:output_capacity], 0, accepted_count.i64())
+    yen_put(output, 0, accepted_count.i64())
     position: mutable usize = 8
     for i in 0..<accepted_count:
-        yen_put(output[0:output_capacity], position, accepted_lengths[i].i64())
+        yen_put(output, position, accepted_lengths[i].i64())
         position <- position + 8
         for j in 0..<accepted_lengths[i]:
-            yen_put(output[0:output_capacity], position, accepted[i * NMAX + j])
+            yen_put(output, position, accepted[i * NMAX + j])
             position <- position + 8
-        yen_put(output[0:output_capacity], position, accepted_costs[i])
+        yen_put(output, position, accepted_costs[i])
         position <- position + 8
     required.i64()
 

@@ -1,11 +1,13 @@
 # Uncompiled suffix-automaton minimum-rotation draft.
-def sam_rotation_solve(input: view[i64], output: mutable view[u8]) -> i64:
+def sam_rotation_solve(input: i64&, output: mutable u8&) -> i64:
     n: usize = input[0].usize()
     transitions: mutable i64[262144] = zeroed
     links: mutable i64[1024] = zeroed
     lengths: mutable i64[1024] = zeroed
-    for i in 0..<262144: transitions[i] <- -1
-    for i in 0..<1024: links[i] <- -1
+    for i in 0..<262144:
+        transitions[i] <- -1
+    for i in 0..<1024:
+        links[i] <- -1
     count: mutable usize = 1
     last: mutable usize = 0
     for i in 0..<(2*n):
@@ -25,7 +27,8 @@ def sam_rotation_solve(input: view[i64], output: mutable view[u8]) -> i64:
             else:
                 clone: usize = count
                 count <- count + 1
-                for c in 0..<256: transitions[clone*256+c] <- transitions[q*256+c]
+                for c in 0..<256:
+                    transitions[clone*256+c] <- transitions[q*256+c]
                 links[clone] <- links[q]
                 lengths[clone] <- lengths[p.usize()] + 1
                 while p >= 0 and transitions[p.usize()*256+symbol] == q.i64():
@@ -37,18 +40,21 @@ def sam_rotation_solve(input: view[i64], output: mutable view[u8]) -> i64:
     state: mutable usize = 0
     for i in 0..<n:
         symbol: mutable usize = 0
-        while transitions[state*256+symbol] < 0: symbol <- symbol + 1
+        while transitions[state*256+symbol] < 0:
+            symbol <- symbol + 1
         output[i] <- symbol.u8()
         state <- transitions[state*256+symbol].usize()
     n.i64()
 
-export fn suffix_automaton_minimum_rotation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+def suffix_automaton_minimum_rotation_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input == null or length < 2 or length > 258: return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 1 or values[0] > 256: return -1
     n: usize = values[0].usize()
     if length != n + 1: return -1
     for i in 1..<length:
         if values[i] < 0 or values[i] > 255: return -1
     if output == null or capacity < n: return -2
-    sam_rotation_solve(values, output[0:n])
+    sam_rotation_solve(values, output)
+
+export fn suffix_automaton_minimum_rotation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = suffix_automaton_minimum_rotation_impl

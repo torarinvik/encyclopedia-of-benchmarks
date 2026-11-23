@@ -5,7 +5,7 @@ const TSVC_S256_MAX_CELLS: usize = 256
 const TSVC_S256_MAX_INPUT_LENGTH: usize = 530
 const TSVC_S256_MAX_OUTPUT_BYTES: usize = 2176
 
-def tsvc_s256_array_expansion_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def tsvc_s256_array_expansion_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -14,7 +14,7 @@ def tsvc_s256_array_expansion_store_i64(value: i64, output: mutable view[u8], of
 
 def tsvc_s256_array_expansion_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 5 or length > TSVC_S256_MAX_INPUT_LENGTH:
+    if input == null or length < 5 or length > TSVC_S256_MAX_INPUT_LENGTH:
         return -1
     n_value: i64 = input[0]
     a0: i64 = input[1]
@@ -34,12 +34,11 @@ def tsvc_s256_array_expansion_impl(input: i64&, length: usize,
         i <- i + 1
     i <- 0
     while i < cells:
-        if input[b_start + i] < -1000 or input[b_start + i] > 1000 or
-                input[c_start + i] < -1000000 or input[c_start + i] > 1000000:
+        if input[b_start + i] < -1000 or input[b_start + i] > 1000 or input[c_start + i] < -1000000 or input[c_start + i] > 1000000:
             return -1
         i <- i + 1
     output_values: usize = n + cells
-    if output.is_null() or output_capacity < output_values * 8:
+    if output == null or output_capacity < output_values * 8:
         return -2
 
     a: mutable i64[16] = zeroed
@@ -60,11 +59,11 @@ def tsvc_s256_array_expansion_impl(input: i64&, length: usize,
         column <- column + 1
     row: mutable usize = 0
     while row < n:
-        tsvc_s256_array_expansion_store_i64(a[row], output[0:output_capacity], row * 8)
+        tsvc_s256_array_expansion_store_i64(a[row], output, row * 8)
         row <- row + 1
     cell: mutable usize = 0
     while cell < cells:
-        tsvc_s256_array_expansion_store_i64(c[cell], output[0:output_capacity], (n + cell) * 8)
+        tsvc_s256_array_expansion_store_i64(c[cell], output, (n + cell) * 8)
         cell <- cell + 1
     output_values.i64()
 

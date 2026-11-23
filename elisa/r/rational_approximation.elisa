@@ -7,9 +7,9 @@ def rational_approximation_gcd(left_input: i64, right_input: i64) -> i64:
         right <- remainder
     left
 
-def rational_approximation_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
+def rational_approximation_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
     bits: u64 = value.u64()
-    byte: usize = 0
+    byte: mutable usize = 0
     while byte < 8:
         output[position + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
@@ -53,7 +53,7 @@ def rational_approximation_impl(values: i64&, length: usize, output: mutable u8&
                     c <- middle_num
                     d <- middle_den
                     searching <- false
-                else if target_side < middle_side:
+                elif target_side < middle_side:
                     lower_gap: i64 = b * x - a * y
                     upper_gap: i64 = c * y - d * x
                     step: mutable i64 = lower_gap / upper_gap
@@ -80,10 +80,10 @@ def rational_approximation_impl(values: i64&, length: usize, output: mutable u8&
                     c <- c + step * a
                     d <- d + step * b
 
-    rational_approximation_store_i64(a, output[0:32], 0)
-    rational_approximation_store_i64(b, output[0:32], 8)
-    rational_approximation_store_i64(c, output[0:32], 16)
-    rational_approximation_store_i64(d, output[0:32], 24)
+    rational_approximation_store_i64(a, output, 0)
+    rational_approximation_store_i64(b, output, 8)
+    rational_approximation_store_i64(c, output, 16)
+    rational_approximation_store_i64(d, output, 24)
     32
 
 export fn rational_approximation(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = rational_approximation_impl

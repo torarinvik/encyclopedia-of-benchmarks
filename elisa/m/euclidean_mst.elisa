@@ -23,9 +23,7 @@ def emst_incircle(a: EuclideanPoint, b: EuclideanPoint, c: EuclideanPoint, d: Eu
     by: i64 = b.y - d.y
     cx: i64 = c.x - d.x
     cy: i64 = c.y - d.y
-    (ax * ax + ay * ay) * (bx * cy - by * cx) -
-        (bx * bx + by * by) * (ax * cy - ay * cx) +
-        (cx * cx + cy * cy) * (ax * by - ay * bx)
+    (ax * ax + ay * ay) * (bx * cy - by * cx) - (bx * bx + by * by) * (ax * cy - ay * cx) + (cx * cx + cy * cy) * (ax * by - ay * bx)
 
 def emst_find_root(parent: mutable view[i64], vertex: usize) -> usize:
     current: mutable usize = vertex
@@ -34,7 +32,7 @@ def emst_find_root(parent: mutable view[i64], vertex: usize) -> usize:
         current <- parent[current].usize()
     current
 
-def emst_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def emst_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -43,11 +41,11 @@ def emst_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> vo
 
 def euclidean_mst_impl(input: i64&, length: usize, output: mutable u8&,
         output_capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > EMST_MAX_INPUT_LENGTH:
+    if input == null or length < 1 or length > EMST_MAX_INPUT_LENGTH:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     raw_count: i64 = values[0]
-    if raw_count < 1 || raw_count > 8:
+    if raw_count < 1 or raw_count > 8:
         return -1
     point_count: usize = raw_count.usize()
     if length != 1 + 2 * point_count:
@@ -55,11 +53,11 @@ def euclidean_mst_impl(input: i64&, length: usize, output: mutable u8&,
     points: mutable EuclideanPoint[EMST_MAX_POINTS] = zeroed
     for i in 0..<point_count |values, points|:
         points[i] <- EuclideanPoint{x: values[1 + 2 * i], y: values[2 + 2 * i]}
-        if points[i].x < -10 || points[i].x > 10 || points[i].y < -10 || points[i].y > 10:
+        if points[i].x < -10 or points[i].x > 10 or points[i].y < -10 or points[i].y > 10:
             return -1
     for a in 0..<point_count |points|:
         for b in a + 1..<point_count |points|:
-            if points[a].x == points[b].x && points[a].y == points[b].y:
+            if points[a].x == points[b].x and points[a].y == points[b].y:
                 return -1
     for a in 0..<point_count |points|:
         for b in a + 1..<point_count |points|:
@@ -67,13 +65,13 @@ def euclidean_mst_impl(input: i64&, length: usize, output: mutable u8&,
                 if emst_orientation(points[a], points[b], points[c]) == 0:
                     return -1
                 for d in 0..<point_count |points|:
-                    if d != a && d != b && d != c && emst_incircle(points[a], points[b], points[c], points[d]) == 0:
+                    if d != a and d != b and d != c and emst_incircle(points[a], points[b], points[c], points[d]) == 0:
                         return -1
     output_words: usize = 2 * point_count - 1
     output_bytes: usize = 8 * output_words
-    if output.is_null() or output_capacity < output_bytes:
+    if output == null or output_capacity < output_bytes:
         return -2
-    target: mutable view[u8] = output[0:output_bytes]
+    target: mutable u8& = output
 
     candidate: mutable bool[EMST_MAX_POINTS * EMST_MAX_POINTS] = zeroed
     if point_count == 2:
@@ -89,7 +87,7 @@ def euclidean_mst_impl(input: i64&, length: usize, output: mutable u8&,
                 empty: mutable bool = true
                 d: mutable usize = 0
                 while d < point_count:
-                    if d != a && d != b && d != c:
+                    if d != a and d != b and d != c:
                         determinant: i64 = emst_incircle(points[a], points[b], points[c], points[d])
                         if (determinant > 0) == (turn > 0):
                             empty <- false
@@ -120,8 +118,7 @@ def euclidean_mst_impl(input: i64&, length: usize, output: mutable u8&,
                 edge_count <- edge_count + 1
                 while position > 0:
                     previous: EuclideanEdge = edges[position - 1]
-                    if previous.weight < edge.weight || (previous.weight == edge.weight &&
-                            (previous.u < edge.u || (previous.u == edge.u && previous.v <= edge.v))):
+                    if previous.weight < edge.weight or (previous.weight == edge.weight and (previous.u < edge.u or (previous.u == edge.u and previous.v <= edge.v))):
                         break
                     edges[position] <- previous
                     position <- position - 1
@@ -138,7 +135,7 @@ def euclidean_mst_impl(input: i64&, length: usize, output: mutable u8&,
     words[0] <- (point_count - 1).i64()
     selected: mutable usize = 0
     edge_index: mutable usize = 0
-    while edge_index < edge_count && selected < point_count - 1:
+    while edge_index < edge_count and selected < point_count - 1:
         left: mutable usize = emst_find_root(parent[0:EMST_MAX_POINTS], edges[edge_index].u)
         right: mutable usize = emst_find_root(parent[0:EMST_MAX_POINTS], edges[edge_index].v)
         if left != right:

@@ -6,7 +6,8 @@ const FACTOR_MAX_OUTPUT_BYTES: usize = 216
 
 def factor_power_small(base: usize, exponent: usize) -> usize:
     value: mutable usize = 1
-    for _ in 0..<exponent: value <- value * base
+    for _ in 0..<exponent:
+        value <- value * base
     value
 
 def factor_monic_from_code(polynomial: mutable view[i64], degree: usize,
@@ -22,9 +23,11 @@ def factor_exact_quotient(polynomial: view[i64], degree: usize,
     quotient: mutable view[i64]) -> bool:
     if degree < divisor_degree: return false
     remainder: mutable i64[FACTOR_MAX_POLY] = zeroed
-    for i in 0..=degree: remainder[i] <- polynomial[i]
+    for i in 0..=degree:
+        remainder[i] <- polynomial[i]
     quotient_degree: usize = degree - divisor_degree
-    for i in 0..<FACTOR_MAX_POLY: quotient[i] <- 0
+    for i in 0..<FACTOR_MAX_POLY:
+        quotient[i] <- 0
     shift_plus_one: mutable usize = quotient_degree + 1
     while shift_plus_one > 0:
         shift: usize = shift_plus_one - 1
@@ -63,11 +66,12 @@ def factor_swap(factors: mutable view[i64], degrees: mutable view[i64],
     multiplicities[left] <- multiplicities[right]
     multiplicities[right] <- saved_multiplicity
 
-def factorize(coefficients: view[i64], degree: usize, prime: usize,
+def factorize(coefficients: i64&, degree: usize, prime: usize,
     factors: mutable view[i64], degrees: mutable view[i64],
     multiplicities: mutable view[i64]) -> usize:
     work: mutable i64[FACTOR_MAX_POLY] = zeroed
-    for i in 0..=degree: work[i] <- coefficients[i]
+    for i in 0..=degree:
+        work[i] <- coefficients[i]
     work_degree: mutable usize = degree
     factor_count: mutable usize = 0
     for candidate_degree in 1..=(degree / 2):
@@ -84,7 +88,8 @@ def factorize(coefficients: view[i64], degree: usize, prime: usize,
                         quotient[0:FACTOR_MAX_POLY]): break
                     multiplicity <- multiplicity + 1
                     work_degree <- work_degree - candidate_degree
-                    for i in 0..=work_degree: work[i] <- quotient[i]
+                    for i in 0..=work_degree:
+                        work[i] <- quotient[i]
                 if multiplicity > 0:
                     for i in 0..=candidate_degree:
                         factors[factor_count * FACTOR_MAX_POLY + i] <- candidate[i]
@@ -92,7 +97,8 @@ def factorize(coefficients: view[i64], degree: usize, prime: usize,
                     multiplicities[factor_count] <- multiplicity.i64()
                     factor_count <- factor_count + 1
     if work_degree > 0:
-        for i in 0..=work_degree: factors[factor_count * FACTOR_MAX_POLY + i] <- work[i]
+        for i in 0..=work_degree:
+            factors[factor_count * FACTOR_MAX_POLY + i] <- work[i]
         degrees[factor_count] <- work_degree.i64()
         multiplicities[factor_count] <- 1
         factor_count <- factor_count + 1
@@ -111,19 +117,18 @@ def factorize(coefficients: view[i64], degree: usize, prime: usize,
             if after: factor_swap(factors, degrees, multiplicities, i, j)
     factor_count
 
-def factor_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def factor_store_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def factorization_of_polynomials_impl(input: view[i64], length: usize,
-    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+def factorization_of_polynomials_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize, output_is_null: bool) -> i64:
     if length < 3 or length > FACTOR_MAX_INPUT: return -1
     degree_value: i64 = input[0]
     prime_value: i64 = input[1]
-    if degree_value < 0 or degree_value > FACTOR_MAX_N.i64() or
-        (prime_value != 2 and prime_value != 3 and prime_value != 5): return -1
+    if degree_value < 0 or degree_value > FACTOR_MAX_N.i64() or (prime_value != 2 and prime_value != 3 and prime_value != 5): return -1
     degree: usize = degree_value.usize()
     prime: usize = prime_value.usize()
     if length != degree + 3 or input[degree + 2] != 1: return -1
@@ -133,11 +138,12 @@ def factorization_of_polynomials_impl(input: view[i64], length: usize,
     factors: mutable i64[FACTOR_MAX_FACTORS * FACTOR_MAX_POLY] = zeroed
     degrees: mutable i64[FACTOR_MAX_FACTORS] = zeroed
     multiplicities: mutable i64[FACTOR_MAX_FACTORS] = zeroed
-    factor_count: usize = factorize(input[2:length], degree, prime,
+    factor_count: usize = factorize(&input[2], degree, prime,
         factors[0:FACTOR_MAX_FACTORS * FACTOR_MAX_POLY],
         degrees[0:FACTOR_MAX_FACTORS], multiplicities[0:FACTOR_MAX_FACTORS])
     words: mutable usize = 1
-    for i in 0..<factor_count: words <- words + degrees[i].usize() + 3
+    for i in 0..<factor_count:
+        words <- words + degrees[i].usize() + 3
     output_bytes: usize = words * 8
     if output_bytes > FACTOR_MAX_OUTPUT_BYTES: return -1
     if output_is_null or capacity < output_bytes: return -2
@@ -155,14 +161,16 @@ def factorization_of_polynomials_impl(input: view[i64], length: usize,
             word <- word + 1
     output_bytes.i64()
 
-export fn factorization_of_polynomials(input: i64&, length: usize,
+def factorization_of_polynomials_entry(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > FACTOR_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+    if input == null or length < 3 or length > FACTOR_MAX_INPUT: return -1
+    input_view: i64& = input
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return factorization_of_polynomials_impl(input_view, length, scratch[0:1], 0, true)
+        return factorization_of_polynomials_impl(input_view, length, &scratch[0], 0, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > FACTOR_MAX_OUTPUT_BYTES: safe_capacity <- FACTOR_MAX_OUTPUT_BYTES
-    output_view: mutable view[u8] = output[0:safe_capacity]
+    output_view: mutable u8& = output
     factorization_of_polynomials_impl(input_view, length, output_view, capacity, false)
+
+export fn factorization_of_polynomials(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = factorization_of_polynomials_entry

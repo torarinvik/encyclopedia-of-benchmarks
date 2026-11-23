@@ -2,8 +2,8 @@
 def fenwick_kth_lowbit(index: usize) -> usize:
     index & (~index + 1)
 
-def fenwick_kth_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def fenwick_kth_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 3 or length > 163:
         return -1
     n_value: i64 = input[0]
@@ -74,7 +74,9 @@ def fenwick_kth_impl(input: view[i64]) -> i64:
             return -1
     result
 
-export fn fenwick_kth(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > 163:
+def fenwick_kth_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > 163:
         return -1
-    fenwick_kth_impl(input[0:length])
+    fenwick_kth_impl(input, length)
+
+export fn fenwick_kth(input: i64&, length: usize) -> i64 = fenwick_kth_entry

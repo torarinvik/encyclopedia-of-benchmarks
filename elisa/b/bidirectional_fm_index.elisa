@@ -20,8 +20,8 @@ def bfm_rank_before(bwt: view[i64], end_at: usize, symbol: usize) -> usize:
         i <- i + 1
     count
 
-def bidirectional_fm_index_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def bidirectional_fm_index_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 2 or length > MAX_LENGTH: return -1
     if input[0] < 0 or input[0] > 64 or input[1] < 0 or input[1] > 64: return -1
     n: usize = input[0].usize()
@@ -55,7 +55,7 @@ def bidirectional_fm_index_impl(input: view[i64]) -> i64:
         i <- i + 1
     i <- 1
     while i < total:
-        key: usize = forward_sa[i]
+        key: mutable usize = forward_sa[i]
         j: mutable usize = i
         while j > 0 and bfm_suffix_less(forward_text[0:total], total, key, forward_sa[j - 1]):
             forward_sa[j] <- forward_sa[j - 1]
@@ -134,6 +134,8 @@ def bidirectional_fm_index_impl(input: view[i64]) -> i64:
         op <- op + 1
     checksum
 
-export fn bidirectional_fm_index(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > MAX_LENGTH: return -1
-    bidirectional_fm_index_impl(input[0:length])
+def bidirectional_fm_index_entry(input: i64&, length: usize) -> i64:
+    if input == null or length > MAX_LENGTH: return -1
+    bidirectional_fm_index_impl(input, length)
+
+export fn bidirectional_fm_index(input: i64&, length: usize) -> i64 = bidirectional_fm_index_entry

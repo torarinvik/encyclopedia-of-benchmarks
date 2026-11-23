@@ -1,16 +1,16 @@
 # Independent bounded maximum-area triangle draft; uncompiled and unrun.
-def maximum_triangle_cross(points: view[i64], a: usize, b: usize, c: usize) -> i64:
+def maximum_triangle_cross(points: i64&, a: usize, b: usize, c: usize) -> i64:
     ax: i64 = points[2 * a]
     ay: i64 = points[2 * a + 1]
     (points[2 * b] - ax) * (points[2 * c + 1] - ay) - (points[2 * b + 1] - ay) * (points[2 * c] - ax)
 
-export fn maximum_area_triangle_convex(input: i64&, length: usize) -> i64:
+def maximum_area_triangle_convex_impl(input: i64&, length: usize) -> i64:
     if input == null or length == 0: return -1
-    header: view[i64] = input[0:1]
+    header: i64& = input
     if header[0] < 3 or header[0] > 1024: return -1
     n: usize = header[0].usize()
     if length != 1 + 2 * n: return -1
-    points: view[i64] = input[1:length]
+    points: i64& = &input[1]
     for i in 0..<(2 * n):
         if points[i] < -1000000 or points[i] > 1000000: return -1
     for i in 0..<n:
@@ -32,3 +32,5 @@ export fn maximum_area_triangle_convex(input: i64&, length: usize) -> i64:
             area: i64 = maximum_triangle_cross(points, i, j, lo)
             if area > best: best <- area
     best
+
+export fn maximum_area_triangle_convex(input: i64&, length: usize) -> i64 = maximum_area_triangle_convex_impl

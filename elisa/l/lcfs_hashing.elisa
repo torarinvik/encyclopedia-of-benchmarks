@@ -1,8 +1,8 @@
 const MAX_CAPACITY: usize = 32
 const MAX_KEY: i64 = 1000000
 
-def lcfs_hashing_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def lcfs_hashing_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 2 or length > 35: return -1
     capacity_value: i64 = input[0]
     count_value: i64 = input[1]
@@ -43,7 +43,10 @@ def lcfs_hashing_impl(input: view[i64]) -> i64:
         i <- i + 1
     displacements
 
-export fn lcfs_hashing(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 35: return -1
-    input_view: view[i64] = input[0:length]
-    lcfs_hashing_impl(input_view)
+def lcfs_hashing_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 35: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    lcfs_hashing_impl(input_view, input_view_length)
+
+export fn lcfs_hashing(input: i64&, length: usize) -> i64 = lcfs_hashing_entry

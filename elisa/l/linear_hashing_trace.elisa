@@ -1,13 +1,14 @@
-fn linear_hashing_solve(values: view[i64]) -> i64:
-    if values.length < 1 or values.length > 128: return -1
+def linear_hashing_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 1 or values_length > 128: return -1
     operation_count: i64 = values[0]
     if operation_count < 0 or operation_count > 63: return -1
-    if values.length != 1 + 2 * operation_count: return -1
+    if values_length != 1 + 2 * operation_count: return -1
 
     heads: mutable i64[32] = zeroed
     keys: mutable i64[63] = zeroed
     links: mutable i64[63] = zeroed
-    for bucket in 0..<32: heads[bucket] <- -1
+    for bucket in 0..<32:
+        heads[bucket] <- -1
 
     level: mutable i64 = 1
     split: mutable i64 = 0
@@ -75,7 +76,10 @@ fn linear_hashing_solve(values: view[i64]) -> i64:
         result <- (result << 1) | succeeded
     result
 
-export fn linear_hashing_trace(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > 128: return -1
-    values: view[i64] = input[0:length]
-    linear_hashing_solve(values)
+def linear_hashing_trace_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 128: return -1
+    values: i64& = input
+    values_length: usize = length
+    linear_hashing_solve(values, values_length)
+
+export fn linear_hashing_trace(input: i64&, length: usize) -> i64 = linear_hashing_trace_impl

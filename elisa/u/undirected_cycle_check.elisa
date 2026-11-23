@@ -4,9 +4,9 @@ const MAX_EDGES: usize = 256
 const MAX_MATRIX: usize = MAX_VERTICES * MAX_VERTICES
 
 def undirected_cycle_check_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 2 + 2 * MAX_EDGES:
+    if input == null or length < 2 or length > 2 + 2 * MAX_EDGES:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 0 or values[0] > MAX_VERTICES.i64() or values[1] < 0 or values[1] > MAX_EDGES.i64():
         return -1
     vertices: usize = values[0].usize()

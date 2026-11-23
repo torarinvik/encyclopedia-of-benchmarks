@@ -2,8 +2,8 @@ const LEC_MAX_N: usize = 12
 const LEC_MAX_LENGTH: usize = 14
 const LEC_MAX_STATES: usize = 4096
 
-def linear_extension_count_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def linear_extension_count_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 1 or length > LEC_MAX_LENGTH: return -1
     if input[0] < 0: return -1
     if input[0] > LEC_MAX_N.i64(): return -1
@@ -35,6 +35,8 @@ def linear_extension_count_impl(input: view[i64]) -> i64:
         prefix <- prefix+1
     ways[full]
 
-export fn linear_extension_count(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > LEC_MAX_LENGTH: return -1
-    linear_extension_count_impl(input[0:length])
+def linear_extension_count_entry(input: i64&, length: usize) -> i64:
+    if input == null or length > LEC_MAX_LENGTH: return -1
+    linear_extension_count_impl(input, length)
+
+export fn linear_extension_count(input: i64&, length: usize) -> i64 = linear_extension_count_entry

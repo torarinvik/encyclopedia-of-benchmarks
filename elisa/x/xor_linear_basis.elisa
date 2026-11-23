@@ -36,7 +36,7 @@ def xlb_contains(basis: view[u64], initial: u64) -> bool:
         value <- value ^ basis[bit]
     value == 0
 
-def xlb_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+def xlb_store(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -44,7 +44,7 @@ def xlb_store(value: i64, output: mutable view[u8], offset: usize) -> void:
 
 def xor_linear_basis_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > XLB_MAX_INPUT_VALUES:
+    if input == null or length < 2 or length > XLB_MAX_INPUT_VALUES:
         return -1
     q_value: i64 = input[0]
     if q_value < 1 or q_value > XLB_MAX_OPERATIONS.i64():
@@ -75,7 +75,7 @@ def xor_linear_basis_impl(input: i64&, length: usize,
                     return -1
                 xlb_insert(basis[0:XLB_BIT_COUNT], value)
             else:
-                results[result_count] <- if xlb_contains(basis[0:XLB_BIT_COUNT], value): 1 else: 0
+                results[result_count] <- 1 if xlb_contains(basis[0:XLB_BIT_COUNT], value) else 0
                 result_count <- result_count + 1
         elif kind == 1:
             results[result_count] <- xlb_maximum(basis[0:XLB_BIT_COUNT]).i64()
@@ -88,9 +88,9 @@ def xor_linear_basis_impl(input: i64&, length: usize,
     output_bytes: usize = result_count * 8
     if output_bytes == 0:
         return 0
-    if output.is_null() or capacity < output_bytes:
+    if output == null or capacity < output_bytes:
         return -2
-    output_view: mutable view[u8] = output[0:capacity]
+    output_view: mutable u8& = output
     for result in 0..<result_count:
         xlb_store(results[result], output_view, result * 8)
     output_bytes.i64()

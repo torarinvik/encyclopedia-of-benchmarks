@@ -1,4 +1,4 @@
-def edmonds_blossom_algorithm_impl(input: view[i64], length: usize) -> i64:
+def edmonds_blossom_algorithm_impl(input: i64&, length: usize) -> i64:
     if length < 2:
         return -1
     n64: i64 = input[0]
@@ -103,7 +103,7 @@ def edmonds_blossom_algorithm_impl(input: view[i64], length: usize) -> i64:
                             queue[queue_tail] <- mate_next
                             queue_tail <- queue_tail + 1
                     u <- u + 1
-                
+
             if endpoint != -1:
                 v: mutable usize = endpoint.usize()
                 while true:
@@ -122,7 +122,9 @@ def edmonds_blossom_algorithm_impl(input: view[i64], length: usize) -> i64:
         root <- root + 1
     answer
 
-export fn edmonds_blossom_algorithm(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 382:
+def edmonds_blossom_algorithm_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 382:
         return -1
-    edmonds_blossom_algorithm_impl(input[0:length], length)
+    edmonds_blossom_algorithm_impl(input, length)
+
+export fn edmonds_blossom_algorithm(input: i64&, length: usize) -> i64 = edmonds_blossom_algorithm_entry

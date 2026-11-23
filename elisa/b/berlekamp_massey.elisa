@@ -4,7 +4,7 @@ const MAX_TERMS: usize = 2 * MAX_ORDER
 const MAX_INPUT_VALUES: usize = 1 + MAX_TERMS + 1
 
 def berlekamp_massey_normalize(value: i64) -> i64:
-    remainder: i64 = value % MODULUS
+    remainder: mutable i64 = value % MODULUS
     if remainder < 0: remainder <- remainder + MODULUS
     remainder
 
@@ -22,8 +22,8 @@ def berlekamp_massey_power(base_value: i64, exponent_value: i64) -> i64:
         exponent <- exponent >> 1
     result
 
-def berlekamp_massey_store(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
+def berlekamp_massey_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
@@ -93,7 +93,7 @@ def berlekamp_massey_infer(sequence: view[i64], term_count: usize,
 
 def berlekamp_massey_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 2 or length > MAX_INPUT_VALUES: return -1
     bound_value: i64 = input[0]
     if bound_value < 1 or bound_value > MAX_ORDER.i64(): return -1
     bound: usize = bound_value.usize()
@@ -112,11 +112,11 @@ def berlekamp_massey_impl(input: i64&, length: usize,
     if order > bound: return -1
 
     output_bytes: usize = 8 * (order + 1)
-    if output.is_null() or capacity < output_bytes: return -2
-    berlekamp_massey_store(order.i64(), output[0:output_bytes], 0)
+    if output == null or capacity < output_bytes: return -2
+    berlekamp_massey_store(order.i64(), output, 0)
     index <- 0
     while index < order:
-        berlekamp_massey_store(coefficients[index], output[0:output_bytes], 8 * (index + 1))
+        berlekamp_massey_store(coefficients[index], output, 8 * (index + 1))
         index <- index + 1
     output_bytes.i64()
 

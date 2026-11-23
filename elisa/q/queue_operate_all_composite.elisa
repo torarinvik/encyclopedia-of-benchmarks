@@ -4,8 +4,8 @@ const MAX_INPUT_LENGTH: usize = 193
 const MODULUS: i64 = 998244353
 
 struct Affine:
-    a: i64
-    b: i64
+    a: mutable i64
+    b: mutable i64
 
 def compose(first: Affine, second: Affine) -> Affine:
     result: Affine
@@ -46,7 +46,7 @@ def pop_front(back_functions: view[Affine], back_size: mutable usize&,
 
 def aggregate(front_aggregates: view[Affine], front_size: usize,
               back_aggregates: view[Affine], back_size: usize) -> Affine:
-    result: Affine
+    result:mutable  mutable Affine
     result.a <- 1
     result.b <- 0
     if front_size > 0:
@@ -59,8 +59,8 @@ def aggregate(front_aggregates: view[Affine], front_size: usize,
     result
 
 def queue_operate_all_composite_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
-    frame: view[i64] = input[0:length]
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    frame: i64& = input
     operation_value: i64 = frame[0]
     if operation_value < 0 or operation_value > 64: return -1
     operation_count: usize = operation_value.usize()
@@ -84,10 +84,10 @@ def queue_operate_all_composite_impl(input: i64&, length: usize) -> i64:
             position <- position + 2
             if a < 1 or a >= MODULUS or b < 0 or b >= MODULUS: return -1
             push_back(back_functions[0:64], back_aggregates[0:64], back_size, a, b)
-        else if opcode == 1:
+        elif opcode == 1:
             if not pop_front(back_functions[0:64], back_size, front_aggregates[0:64], front_size):
                 return -1
-        else if opcode == 2:
+        elif opcode == 2:
             if position >= length: return -1
             x: i64 = frame[position]
             position <- position + 1

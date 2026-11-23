@@ -12,7 +12,7 @@ def store_word(value: i64, output: mutable view[u8], word: usize) -> void:
         bits <- bits >> 8
         byte <- byte + 1
 
-def pattern_pair_matches(pattern: view[i64], previous: view[i64],
+def pattern_pair_matches(pattern: i64&, previous: view[i64],
         previous_at: view[i64], current: usize, prefix_position: usize) -> bool:
     prior: i64 = previous[current]
     if prior < 0 or current.i64() - prior > prefix_position.i64():
@@ -20,7 +20,7 @@ def pattern_pair_matches(pattern: view[i64], previous: view[i64],
     distance: usize = current - prior.usize()
     return pattern[prefix_position] == pattern[prefix_position - distance]
 
-def text_symbol_matches(text: view[i64], text_position: usize,
+def text_symbol_matches(text: i64&, text_position: usize,
         pattern_position: usize, previous: view[i64], last_text: view[i64]) -> bool:
     prior: i64 = previous[pattern_position]
     symbol: usize = text[text_position].usize()
@@ -31,14 +31,12 @@ def text_symbol_matches(text: view[i64], text_position: usize,
 
 def parameterized_pattern_matching_kmp_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_PARSEABLE_INPUT: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 3 or length > MAX_PARSEABLE_INPUT: return -1
+    values: i64& = input
     n_value: i64 = values[0]
     m_value: i64 = values[1]
     alphabet_value: i64 = values[2]
-    if n_value < 0 or n_value > MAX_TEXT.i64() or m_value < 1 or
-            m_value > MAX_PATTERN.i64() or alphabet_value < 1 or
-            alphabet_value > MAX_ALPHABET.i64(): return -1
+    if n_value < 0 or n_value > MAX_TEXT.i64() or m_value < 1 or m_value > MAX_PATTERN.i64() or alphabet_value < 1 or alphabet_value > MAX_ALPHABET.i64(): return -1
     n: usize = n_value.usize()
     m: usize = m_value.usize()
     alphabet_size: i64 = alphabet_value
@@ -47,8 +45,8 @@ def parameterized_pattern_matching_kmp_impl(input: i64&, length: usize,
     while index < length:
         if values[index] < 0 or values[index] >= alphabet_size: return -1
         index <- index + 1
-    text: view[i64] = values[3:3 + n]
-    pattern: view[i64] = values[3 + n:3 + n + m]
+    text: i64& = &values[3]
+    pattern: i64& = &values[3 + n]
 
     previous: mutable i64[MAX_PATTERN] = zeroed
     previous_at: mutable i64[MAX_PATTERN] = zeroed
@@ -103,7 +101,7 @@ def parameterized_pattern_matching_kmp_impl(input: i64&, length: usize,
             text_position <- text_position + 1
 
     output_bytes: usize = 8 * (match_count + 1)
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     store_word(match_count.i64(), staged[0:MAX_OUTPUT_BYTES], 0)
     index <- 0

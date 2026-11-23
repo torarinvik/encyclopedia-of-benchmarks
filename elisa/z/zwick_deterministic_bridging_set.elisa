@@ -7,20 +7,20 @@ def zwick_popcount(mask: u16) -> usize:
         value <- value >> 1
     count
 
-def zwick_subpath(witness: view[u8], n: usize, from: usize, to: usize,
+def zwick_subpath(witness: view[u8], n: usize, from: usize, to_value: usize,
                   limit: usize, output: mutable view[u8], offset: usize) -> usize:
-    if limit == 0 or witness[from * n + to] == 0: return 0
-    middle: usize = (witness[from * n + to] - 1).usize()
+    if limit == 0 or witness[from * n + to_value] == 0: return 0
+    middle: usize = (witness[from * n + to_value] - 1).usize()
     count: mutable usize = zwick_subpath(witness, n, from, middle, limit - 1, output, offset)
     output[offset + count] <- middle.u8()
     count <- count + 1
     remaining: usize = limit - count
     if remaining > 0:
-        count <- count + zwick_subpath(witness, n, middle, to, remaining, output, offset + count)
+        count <- count + zwick_subpath(witness, n, middle, to_value, remaining, output, offset + count)
     count
 
-def zwick_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def zwick_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 2 or length > 131: return -1
     if input[0] < 2 or input[0] > 8: return -1
     n: usize = input[0].usize()
@@ -38,7 +38,7 @@ def zwick_impl(input: view[i64]) -> i64:
     for i in 0..<n:
         if edge[i * n + i] != 0: return -1
         for j in 0..<n:
-            distance[i * n + j] <- if i == j: 0 else: (if edge[i * n + j] != 0: 1 else: 9)
+            distance[i * n + j] <- 0 if i == j else ((1 if edge[i * n + j] != 0 else 9))
     for k in 0..<n:
         for i in 0..<n:
             for j in 0..<n:
@@ -66,7 +66,8 @@ def zwick_impl(input: view[i64]) -> i64:
             internal: mutable u8[8] = zeroed
             count: usize = zwick_subpath(witness[0:64], n, i, j, threshold, internal[0:8], 0)
             mask: mutable u16 = (1.u16() << i) | (1.u16() << j)
-            for k in 0..<count: mask <- mask | (1.u16() << internal[k].usize())
+            for k in 0..<count:
+                mask <- mask | (1.u16() << internal[k].usize())
             if zwick_popcount(mask) >= threshold:
                 duplicate: mutable bool = false
                 for c in 0..<constraint_count:
@@ -75,7 +76,8 @@ def zwick_impl(input: view[i64]) -> i64:
                     constraints[constraint_count] <- mask
                     constraint_count <- constraint_count + 1
     unhit: mutable bool[64] = zeroed
-    for c in 0..<constraint_count: unhit[c] <- true
+    for c in 0..<constraint_count:
+        unhit[c] <- true
     remaining: mutable usize = constraint_count
     selected: mutable u16 = 0
     while remaining > 0:
@@ -96,6 +98,8 @@ def zwick_impl(input: view[i64]) -> i64:
                 remaining <- remaining - 1
     selected.i64()
 
-export fn zwick_deterministic_bridging_set(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 131: return -1
-    zwick_impl(input[0:length])
+def zwick_deterministic_bridging_set_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 131: return -1
+    zwick_impl(input, length)
+
+export fn zwick_deterministic_bridging_set(input: i64&, length: usize) -> i64 = zwick_deterministic_bridging_set_impl

@@ -58,18 +58,22 @@ def x_multiply(point: view[i64], scalar: i64, a24: i64, modulus: i64,
         if (scalar & (1 << bit)) != 0:
             x_add(r0[0:2], r1[0:2], point, modulus, sum_point[0:2])
             x_double(r1[0:2], a24, modulus, doubled[0:2])
-            r0[0] <- sum_point[0]; r0[1] <- sum_point[1]
-            r1[0] <- doubled[0]; r1[1] <- doubled[1]
+            r0[0] <- sum_point[0]
+            r0[1] <- sum_point[1]
+            r1[0] <- doubled[0]
+            r1[1] <- doubled[1]
         else:
             x_add(r0[0:2], r1[0:2], point, modulus, sum_point[0:2])
             x_double(r0[0:2], a24, modulus, doubled[0:2])
-            r1[0] <- sum_point[0]; r1[1] <- sum_point[1]
-            r0[0] <- doubled[0]; r0[1] <- doubled[1]
+            r1[0] <- sum_point[0]
+            r1[1] <- sum_point[1]
+            r0[0] <- doubled[0]
+            r0[1] <- doubled[1]
         bit <- bit - 1
     output[0] <- r0[0]
     output[1] <- r0[1]
 
-def elliptic_curve_method_stage1_impl(input: view[i64], length: usize) -> i64:
+def elliptic_curve_method_stage1_impl(input: i64&, length: usize) -> i64:
     if length != 5: return -1
     number: i64 = input[0]
     curve_a: i64 = input[1]
@@ -109,7 +113,9 @@ def elliptic_curve_method_stage1_impl(input: view[i64], length: usize) -> i64:
         prime_index <- prime_index + 1
     0
 
-export fn elliptic_curve_method_stage1(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 5: return -1
-    input_view: view[i64] = input[0:length]
+def elliptic_curve_method_stage1_entry(input: i64&, length: usize) -> i64:
+    if input == null or length != 5: return -1
+    input_view: i64& = input
     elliptic_curve_method_stage1_impl(input_view, length)
+
+export fn elliptic_curve_method_stage1(input: i64&, length: usize) -> i64 = elliptic_curve_method_stage1_entry

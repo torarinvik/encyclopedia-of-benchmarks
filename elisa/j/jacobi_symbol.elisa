@@ -17,14 +17,16 @@ def jacobi_reciprocity(numerator: i64, denominator: i64) -> i64:
     if n == 1: sign
     else: 0
 
-def jacobi_symbol_impl(input: view[i64]) -> i64:
-    let length: usize = input.len()
+def jacobi_symbol_impl(input: i64&, input_length: usize) -> i64:
+    length:  usize = input_length
     if length < 2 or length > JACOBI_MAX_LENGTH or length != 2: return -1
-    let numerator: i64 = input[0]
-    let denominator: i64 = input[1]
+    numerator:  i64 = input[0]
+    denominator:  i64 = input[1]
     if denominator < 1 or denominator > JACOBI_MAX_MODULUS or (denominator & 1) == 0 or numerator < 0 or numerator >= denominator: return -1
     jacobi_reciprocity(numerator, denominator)+1
 
-export fn jacobi_symbol(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > JACOBI_MAX_LENGTH: return -1
-    jacobi_symbol_impl(input[0:length])
+def jacobi_symbol_entry(input: i64&, length: usize) -> i64:
+    if input == null or length > JACOBI_MAX_LENGTH: return -1
+    jacobi_symbol_impl(input, length)
+
+export fn jacobi_symbol(input: i64&, length: usize) -> i64 = jacobi_symbol_entry

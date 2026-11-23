@@ -1,7 +1,7 @@
 const MAX_NODE_COUNT: usize = 63
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 65
 
-def store_i32_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def store_i32_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u32 = value.u32()
     output[offset] <- (bits & 255).u8()
     output[offset + 1] <- ((bits >> 8) & 255).u8()
@@ -10,7 +10,7 @@ def store_i32_le(value: i64, output: mutable view[u8], offset: usize) -> void:
 
 # Bounded Morris inorder traversal over a complete level-order tree.
 def morrisinorder_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if values.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH:
+    if values == null or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
     raw_count: i64 = values[0]
     if raw_count < 0 or raw_count > MAX_NODE_COUNT.i64():
@@ -18,7 +18,7 @@ def morrisinorder_impl(values: i64&, length: usize, output: mutable u8&, output_
     count: usize = raw_count.usize()
     if length != count + 1:
         return -1
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < count:
         node: i64 = values[index + 1]
         if node < -2147483648 or node > 2147483647:
@@ -26,9 +26,9 @@ def morrisinorder_impl(values: i64&, length: usize, output: mutable u8&, output_
         index <- index + 1
 
     byte_count: usize = 4 * count
-    if output.is_null() or output_capacity < byte_count:
+    if output == null or output_capacity < byte_count:
         return -2
-    output_view: mutable view[u8] = output[0:byte_count]
+    output_view: mutable u8& = output
 
     left_nodes: mutable i64[MAX_NODE_COUNT] = zeroed
     right_nodes: mutable i64[MAX_NODE_COUNT] = zeroed

@@ -1,17 +1,17 @@
-// Clean-room fixed-rational-scale geometric 2D pattern matching profile.
+# Clean-room fixed-rational-scale geometric 2D pattern matching profile.
 const MAX_H: usize = 12
 const MAX_W: usize = 12
 const MAX_PATTERN: usize = 6
 const MAX_FIELDS: usize = 289
 const MAX_INPUT: usize = 186
-def scaled_put(value: i64, output: mutable view[u8], offset: usize) -> void:
+def scaled_put(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset+byte] <- ((bits >> (8*byte)) & 255).u8()
         byte <- byte+1
-def two_dimensional_scaled_pattern_matching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("two_dimensional_scaled_pattern_matching"):
-    if input.is_null() or length < 6 or length > MAX_INPUT: return -1
+def two_dimensional_scaled_pattern_matching_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 6 or length > MAX_INPUT: return -1
     h0: i64 = input[0]
     w0: i64 = input[1]
     ph0: i64 = input[2]
@@ -35,7 +35,9 @@ def two_dimensional_scaled_pattern_matching(input: i64&, length: usize, output: 
     while row < h:
         column: mutable usize = 0
         while column < w:
-            if p*ph0 > q*(h-row).i64() or p*pw0 > q*(w-column).i64(): column <- column+1; continue
+            if p*ph0 > q*(h-row).i64() or p*pw0 > q*(w-column).i64():
+                column <- column+1
+                continue
             matched: mutable bool = true
             y: mutable usize = 0
             while y < h-row and matched:
@@ -45,7 +47,9 @@ def two_dimensional_scaled_pattern_matching(input: i64&, length: usize, output: 
                     while x < w-column:
                         if (2*x.i64()+1)*q < 2*p*pw0:
                             px: usize = (((2*x.i64()+1)*q)/(2*p)).usize()
-                            if input[6+(row+y)*w+column+x] != input[6+h*w+py*pw+px]: matched <- false; break
+                            if input[6+(row+y)*w+column+x] != input[6+h*w+py*pw+px]:
+                                matched <- false
+                                break
                         x <- x+1
                 y <- y+1
             if matched:
@@ -56,9 +60,11 @@ def two_dimensional_scaled_pattern_matching(input: i64&, length: usize, output: 
         row <- row+1
     fields[0] <- ((count-1)/2).i64()
     bytes: usize = 8*count
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     index <- 0
     while index < count:
-        scaled_put(fields[index], output[0:capacity], 8*index)
+        scaled_put(fields[index], output, 8*index)
         index <- index+1
     bytes.i64()
+
+export fn two_dimensional_scaled_pattern_matching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = two_dimensional_scaled_pattern_matching_impl

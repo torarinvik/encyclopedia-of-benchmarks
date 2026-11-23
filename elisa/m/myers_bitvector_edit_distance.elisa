@@ -1,20 +1,21 @@
 # Uncompiled multiword bit-vector global edit-distance draft.
-def myers_solve(values: view[i64]) -> i64:
-    if values.len() < 2 or values.len() > 515: return -1
+def myers_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 2 or values_length > 515: return -1
     nr: i64 = values[0]
     mr: i64 = values[1]
     if nr < 0 or nr > 256 or mr < 0 or mr > 256: return -1
     n: usize = nr.usize()
     m: usize = mr.usize()
-    if values.len() != 2 + n + m: return -1
-    for i in 2..<values.len():
+    if values_length != 2 + n + m: return -1
+    for i in 2..<values_length:
         if values[i] < 0 or values[i] > 255: return -1
     if n == 0: return mr
     masks: mutable u64[1024] = zeroed
     pv: mutable u64[4] = zeroed
     mv: mutable u64[4] = zeroed
     words: usize = (n + 63) / 64
-    for j in 0..<words: pv[j] <- ~0.u64()
+    for j in 0..<words:
+        pv[j] <- ~0.u64()
     for i in 0..<n:
         slot: usize = values[2+i].usize() * 4 + i / 64
         masks[slot] <- masks[slot] | (1.u64() << (i % 64))
@@ -39,7 +40,7 @@ def myers_solve(values: view[i64]) -> i64:
             carry2: bool = add_carry != 0 and first == maximum
             if carry2: sum <- 0
             else: sum <- first + add_carry
-            add_carry <- if carry1 or carry2: 1 else: 0
+            add_carry <- 1 if carry1 or carry2 else 0
             xh: u64 = (sum ^ p) | eq
             xv: u64 = eq | v
             ph: mutable u64 = v | ~(xh | p)
@@ -57,6 +58,8 @@ def myers_solve(values: view[i64]) -> i64:
             mv[j] <- ph & xv
     score
 
-export fn myers_bitvector_edit_distance(input: i64&, length: usize) -> i64:
+def myers_bitvector_edit_distance_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 2 or length > 515: return -1
-    myers_solve(input[0:length])
+    myers_solve(input, length)
+
+export fn myers_bitvector_edit_distance(input: i64&, length: usize) -> i64 = myers_bitvector_edit_distance_impl

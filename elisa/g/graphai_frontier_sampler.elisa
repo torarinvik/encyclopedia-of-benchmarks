@@ -1,9 +1,9 @@
 extern trunc(value: f64) -> f64
 const MAX_INPUT: usize = 124
 
-def graphai_frontier_sampler_impl(input: view[f64],
+def graphai_frontier_sampler_impl(input: f64&, input_length: usize,
                                   output: mutable f64&, capacity: usize) -> i64:
-    length: usize = input.len()
+    length: usize = input_length
     if length < 3 or length > MAX_INPUT: return -1
     for q in 0..<length:
         value: f64 = input[q]
@@ -43,9 +43,9 @@ def graphai_frontier_sampler_impl(input: view[f64],
         if trunc(value) != value or value < 0.0 or value >= n.f64(): return -1
         colind[e] <- value.usize()
     fanouts: usize[3] = [3,2,2]
-    front_size: usize = r
-    choice: usize = 0
-    out_at: usize = r
+    front_size: mutable usize = r
+    choice: mutable usize = 0
+    out_at: mutable usize = r
     for round in 0..<3:
         next_size: usize = front_size*fanouts[round]
         for i in 0..<front_size:
@@ -61,15 +61,19 @@ def graphai_frontier_sampler_impl(input: view[f64],
                 next[i*fanouts[round]+j] <- vertex
                 staged[out_at] <- vertex.f64()
                 out_at <- out_at+1
-        for i in 0..<next_size: front[i] <- next[i]
+        for i in 0..<next_size:
+            front[i] <- next[i]
         front_size <- next_size
     if choice != 21*r or out_at != required: return -1
-    if output.is_null() or capacity < required: return -2
-    result: mutable view[f64] = output[0:required]
-    for q in 0..<required: result[q] <- staged[q]
+    if output == null or capacity < required: return -2
+    result: mutable f64& = output
+    for q in 0..<required:
+        result[q] <- staged[q]
     required.i64()
 
-export fn graphai_frontier_sampler(input: f64&, length: usize,
+def graphai_frontier_sampler_entry(input: f64&, length: usize,
                                    output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
-    graphai_frontier_sampler_impl(input[0:length], output, capacity)
+    if input == null or length < 3 or length > MAX_INPUT: return -1
+    graphai_frontier_sampler_impl(input, length, output, capacity)
+
+export fn graphai_frontier_sampler(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = graphai_frontier_sampler_entry

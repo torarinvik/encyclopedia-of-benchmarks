@@ -48,14 +48,16 @@ def reduce_order(base: i64, modulus: i64, initial_order: i64) -> i64:
             order <- order / remaining
     order
 
-def multiplicative_order_impl(input: view[i64]) -> i64:
-    if input.len() != 2: return -1
-    let base: i64 = input[0]
-    let modulus: i64 = input[1]
+def multiplicative_order_impl(input: i64&, input_length: usize) -> i64:
+    if input_length != 2: return -1
+    base:  i64 = input[0]
+    modulus:  i64 = input[1]
     if modulus < 2 or modulus > 1000 or base < 0 or base >= modulus: return -1
     if gcd_i64(base, modulus) != 1: return 0
     reduce_order(base, modulus, totient_i64(modulus))
 
-export fn multiplicative_order(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 2: return -1
-    multiplicative_order_impl(input[0:length])
+def multiplicative_order_entry(input: i64&, length: usize) -> i64:
+    if input == null or length != 2: return -1
+    multiplicative_order_impl(input, length)
+
+export fn multiplicative_order(input: i64&, length: usize) -> i64 = multiplicative_order_entry

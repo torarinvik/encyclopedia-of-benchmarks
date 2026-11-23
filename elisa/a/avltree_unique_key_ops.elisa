@@ -103,14 +103,14 @@ def avltree_delete(root: i64, key: i64, keys: mutable view[i64], left: mutable v
         left[node] <- avltree_delete(left[node], keys[node], keys, left, right, heights)
     avltree_rebalance(root, keys, left, right, heights)
 
-def avltree_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def avltree_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def avltree_unique_key_ops_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1:
+    if input == null or length < 1:
         return -1
     operation_count_value: i64 = input[0]
     if operation_count_value < 0 or operation_count_value > 128 or length != (1 + 2 * operation_count_value).usize():
@@ -160,33 +160,33 @@ def avltree_unique_key_ops_impl(input: i64&, length: usize, output: mutable u8&,
         if operation == 0:
             root <- avltree_insert(root, key, keys[0:operation_count], left[0:operation_count], right[0:operation_count], heights[0:operation_count], next)
         elif operation == 1:
-            results[result_count] <- if avltree_contains(root, key, keys[0:operation_count], left[0:operation_count], right[0:operation_count]) then 1 else 0
+            results[result_count] <- 1 if avltree_contains(root, key, keys[0:operation_count], left[0:operation_count], right[0:operation_count]) else 0
             result_count <- result_count + 1
         else:
             root <- avltree_delete(root, key, keys[0:operation_count], left[0:operation_count], right[0:operation_count], heights[0:operation_count])
 
     output_bytes: usize = (2 + active_count + search_count) * 8
-    if output.is_null() or capacity < output_bytes:
+    if output == null or capacity < output_bytes:
         return -2
-    avltree_put_i64(output[0:output_bytes], 0, active_count.i64())
-    stack: mutable usize[MAX_NODES] = zeroed
+    avltree_put_i64(output, 0, active_count.i64())
+    stack_value: mutable usize[MAX_NODES] = zeroed
     top: mutable usize = 0
     cursor: mutable i64 = root
     output_index: mutable usize = 1
     while cursor >= 0 or top > 0:
         while cursor >= 0:
-            stack[top] <- cursor.usize()
+            stack_value[top] <- cursor.usize()
             top <- top + 1
             cursor <- left[cursor.usize()]
         top <- top - 1
-        cursor <- stack[top].i64()
-        avltree_put_i64(output[0:output_bytes], output_index * 8, keys[cursor.usize()])
+        cursor <- stack_value[top].i64()
+        avltree_put_i64(output, output_index * 8, keys[cursor.usize()])
         output_index <- output_index + 1
         cursor <- right[cursor.usize()]
-    avltree_put_i64(output[0:output_bytes], output_index * 8, search_count.i64())
+    avltree_put_i64(output, output_index * 8, search_count.i64())
     output_index <- output_index + 1
     for index in 0..<search_count:
-        avltree_put_i64(output[0:output_bytes], output_index * 8, results[index])
+        avltree_put_i64(output, output_index * 8, results[index])
         output_index <- output_index + 1
     output_bytes.i64()
 

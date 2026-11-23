@@ -113,7 +113,7 @@ def inverse_of_matrix_invert(matrix: mutable view[f64], dimension: usize) -> f64
         rhs <- rhs + 1
     inverse
 
-def inverse_of_matrix_put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
+def inverse_of_matrix_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -122,7 +122,7 @@ def inverse_of_matrix_put_f64(output: mutable view[u8], offset: usize, value: f6
         byte <- byte + 1
 
 def inverse_of_matrix_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > 11: return -1
+    if input == null or length < 1 or length > 11: return -1
     if input[0] != 2 and input[0] != 3: return -1
     dimension: usize = input[0].usize()
     if length != 1 + dimension * dimension: return -1
@@ -140,10 +140,10 @@ def inverse_of_matrix_impl(input: i64&, length: usize, output: mutable u8&, capa
         if inverse[index] != inverse[index] or inverse_of_matrix_abs(inverse[index]) > 32768.0: return -1
         index <- index + 1
     output_bytes: usize = dimension * dimension * 8
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     index <- 0
     while index < dimension * dimension:
-        inverse_of_matrix_put_f64(output[0:output_bytes], index * 8, inverse[index])
+        inverse_of_matrix_put_f64(output, index * 8, inverse[index])
         index <- index + 1
     output_bytes.i64()
 

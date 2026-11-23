@@ -50,7 +50,7 @@ def mds_search(closed: view[u64], n: usize, full: u64, covered: u64,
         best <- mds_search(closed, n, full, covered | closed[v], chosen + 1, best)
     best
 
-def mds_impl(input: view[i64], length: usize) -> i64:
+def mds_impl(input: i64&, length: usize) -> i64:
     if length < 2 or length > MDS_MAX_INPUT: return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]
@@ -71,7 +71,8 @@ def mds_impl(input: view[i64], length: usize) -> i64:
         adjacency[u] <- adjacency[u] | bit
         adjacency[v] <- adjacency[v] | (u64(1) << u)
     closed: mutable u64[MDS_MAX_N] = zeroed
-    for v in 0..<n: closed[v] <- adjacency[v] | (u64(1) << v)
+    for v in 0..<n:
+        closed[v] <- adjacency[v] | (u64(1) << v)
     full: u64 = (u64(1) << n) - u64(1)
     covered: mutable u64 = 0
     greedy: mutable usize = 0
@@ -87,6 +88,8 @@ def mds_impl(input: view[i64], length: usize) -> i64:
         greedy <- greedy + 1
     mds_search(closed[0:MDS_MAX_N], n, full, 0, 0, greedy).i64()
 
-export fn minimum_dominating_set_branch_bound(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > MDS_MAX_INPUT: return -1
-    mds_impl(input[0:length], length)
+def minimum_dominating_set_branch_bound_impl(input: i64&, length: usize) -> i64:
+    if input == null or length > MDS_MAX_INPUT: return -1
+    mds_impl(input, length)
+
+export fn minimum_dominating_set_branch_bound(input: i64&, length: usize) -> i64 = minimum_dominating_set_branch_bound_impl

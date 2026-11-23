@@ -13,25 +13,25 @@ def td_find_root(parent: mutable view[usize], item: usize) -> usize:
 
 def td_traverse(n: usize, start: usize, adjacent: view[bool], weights: view[i64],
     distance: mutable view[i64], path_parent: mutable view[i64]) -> void:
-    stack: mutable usize[MAX_N] = zeroed
+    stack_value: mutable usize[MAX_N] = zeroed
     vertex: mutable usize = 0
     while vertex < n:
         distance[vertex] <- -1
         path_parent[vertex] <- -1
         vertex <- vertex + 1
     top: mutable usize = 1
-    stack[0] <- start
+    stack_value[0] <- start
     distance[start] <- 0
     while top > 0:
         top <- top - 1
-        current: usize = stack[top]
+        current: usize = stack_value[top]
         neighbor: mutable usize = 0
         while neighbor < n:
             cell: usize = current * MAX_N + neighbor
             if adjacent[cell] and distance[neighbor] < 0:
                 distance[neighbor] <- distance[current] + weights[cell]
                 path_parent[neighbor] <- current.i64()
-                stack[top] <- neighbor
+                stack_value[top] <- neighbor
                 top <- top + 1
             neighbor <- neighbor + 1
 
@@ -39,13 +39,12 @@ def td_farthest(n: usize, distance: view[i64]) -> usize:
     best: mutable usize = 0
     vertex: mutable usize = 1
     while vertex < n:
-        if distance[vertex] > distance[best] or
-            (distance[vertex] == distance[best] and vertex < best):
+        if distance[vertex] > distance[best] or (distance[vertex] == distance[best] and vertex < best):
             best <- vertex
         vertex <- vertex + 1
     best
 
-def td_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def td_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -53,7 +52,7 @@ def td_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void
         byte <- byte + 1
 
 def tree_diameter_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 1 or length > MAX_INPUT_VALUES: return -1
     n_value: i64 = input[0]
     if n_value < 1 or n_value > MAX_N.i64(): return -1
     n: usize = n_value.usize()
@@ -75,13 +74,11 @@ def tree_diameter_impl(input: i64&, length: usize, output: mutable u8&, capacity
         left_value: i64 = input[offset]
         right_value: i64 = input[offset + 1]
         edge_weight: i64 = input[offset + 2]
-        if left_value < 0 or left_value >= n_value or right_value < 0 or
-            right_value >= n_value or left_value == right_value or
-            edge_weight < 1 or edge_weight > MAX_EDGE_WEIGHT: return -1
+        if left_value < 0 or left_value >= n_value or right_value < 0 or right_value >= n_value or left_value == right_value or edge_weight < 1 or edge_weight > MAX_EDGE_WEIGHT: return -1
         left: usize = left_value.usize()
         right: usize = right_value.usize()
-        root_left: usize = td_find_root(dsu_parent[0:MAX_N], left)
-        root_right: usize = td_find_root(dsu_parent[0:MAX_N], right)
+        root_left: mutable usize = td_find_root(dsu_parent[0:MAX_N], left)
+        root_right: mutable usize = td_find_root(dsu_parent[0:MAX_N], right)
         if root_left == root_right: return -1
         if dsu_size[root_left] < dsu_size[root_right]:
             temporary: usize = root_left
@@ -127,8 +124,8 @@ def tree_diameter_impl(input: i64&, length: usize, output: mutable u8&, capacity
         position <- position + 1
 
     required: usize = 8 * used
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     index: mutable usize = 0
     while index < used:
         td_store_i64_le(staged[index], output_view, 8 * index)

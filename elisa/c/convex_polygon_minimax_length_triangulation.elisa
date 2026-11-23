@@ -15,8 +15,8 @@ def cpmt_squared_length(points: view[CpmtPoint], left: usize, right: usize) -> i
     dy: i64 = points[left].y - points[right].y
     dx * dx + dy * dy
 
-def cpmt_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def cpmt_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 1 or length > CPMT_MAX_PARSEABLE_LENGTH:
         return -1
     if input[0] < CPMT_MIN_VERTICES.i64() or input[0] > CPMT_MAX_VERTICES.i64():
@@ -41,7 +41,7 @@ def cpmt_impl(input: view[i64]) -> i64:
         i <- i + 1
     if area2 == 0:
         return -1
-    orientation: i64 = if area2 > 0: 1 else: -1
+    orientation: i64 = 1 if area2 > 0 else -1
     i <- 0
     while i < n:
         next: usize = (i + 1) % n
@@ -79,7 +79,9 @@ def cpmt_impl(input: view[i64]) -> i64:
         span <- span + 1
     best[0][n - 1]
 
-export fn convex_polygon_minimax_length_triangulation(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > CPMT_MAX_PARSEABLE_LENGTH:
+def convex_polygon_minimax_length_triangulation_impl(input: i64&, length: usize) -> i64:
+    if input == null or length > CPMT_MAX_PARSEABLE_LENGTH:
         return -1
-    cpmt_impl(input[0:length])
+    cpmt_impl(input, length)
+
+export fn convex_polygon_minimax_length_triangulation(input: i64&, length: usize) -> i64 = convex_polygon_minimax_length_triangulation_impl

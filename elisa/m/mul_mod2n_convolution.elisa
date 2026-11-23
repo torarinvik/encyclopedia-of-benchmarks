@@ -4,8 +4,8 @@ const M2_MAX_INPUT: usize = 66
 const M2_MAX_OUTPUT: usize = 256
 const M2_MOD: i64 = 998244353
 
-def m2_store(value: i64, output: mutable view[u8], position: usize) -> void:
-    bits: u64 = value.u64()
+def m2_store(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[position + byte] <- (bits & 255).u8()
@@ -14,11 +14,11 @@ def m2_store(value: i64, output: mutable view[u8], position: usize) -> void:
 
 def mul_mod2n_convolution_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > M2_MAX_INPUT: return -1
+    if input == null or length < 3 or length > M2_MAX_INPUT: return -1
     n_value: i64 = input[0]
     if n_value < 0 or n_value > M2_MAX_N.i64(): return -1
     n: usize = n_value.usize()
-    p: usize = 1
+    p: mutable usize = 1
     step: mutable usize = 0
     while step < n:
         p <- p * 2
@@ -35,7 +35,7 @@ def mul_mod2n_convolution_impl(input: i64&, length: usize,
         index <- index + 1
     bytes: usize = 8 * p
     if bytes > M2_MAX_OUTPUT: return -1
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     result: mutable i64[32] = zeroed
     mask: usize = p - 1
     i: mutable usize = 0
@@ -46,7 +46,7 @@ def mul_mod2n_convolution_impl(input: i64&, length: usize,
             result[slot] <- (result[slot] + a[i] * b[j]) % M2_MOD
             j <- j + 1
         i <- i + 1
-    output_view: mutable view[u8] = output[0:bytes]
+    output_view: mutable u8& = output
     i <- 0
     while i < p:
         m2_store(result[i], output_view, 8 * i)

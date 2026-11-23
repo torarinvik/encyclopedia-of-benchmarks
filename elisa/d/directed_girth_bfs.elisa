@@ -1,4 +1,4 @@
-def directed_girth_bfs_impl(input: view[i64], length: usize) -> i64:
+def directed_girth_bfs_impl(input: i64&, length: usize) -> i64:
     n_value: i64 = input[0]
     m_value: i64 = input[1]
     if n_value < 1 or n_value > 16 or m_value < 0 or m_value > 64: return -1
@@ -15,12 +15,13 @@ def directed_girth_bfs_impl(input: view[i64], length: usize) -> i64:
     for start in 0..<n:
         distance: mutable i64[16] = zeroed
         queue: mutable usize[16] = zeroed
-        for i in 0..<n: distance[i] <- -1
+        for i in 0..<n:
+            distance[i] <- -1
         distance[start] <- 0
         queue[0] <- start
         head: mutable usize = 0
-        tail: mutable usize = 1
-        while head < tail:
+        tail_value: mutable usize = 1
+        while head < tail_value:
             u: usize = queue[head]
             head <- head + 1
             for v in 0..<n:
@@ -29,11 +30,13 @@ def directed_girth_bfs_impl(input: view[i64], length: usize) -> i64:
                         if distance[u] + 1 < best: best <- distance[u] + 1
                     elif distance[v] < 0:
                         distance[v] <- distance[u] + 1
-                        queue[tail] <- v
-                        tail <- tail + 1
+                        queue[tail_value] <- v
+                        tail_value <- tail_value + 1
     if best == 17: return 0
     best
 
-export fn directed_girth_bfs(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 131: return -1
-    directed_girth_bfs_impl(input[0:length], length)
+def directed_girth_bfs_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 131: return -1
+    directed_girth_bfs_impl(input, length)
+
+export fn directed_girth_bfs(input: i64&, length: usize) -> i64 = directed_girth_bfs_entry

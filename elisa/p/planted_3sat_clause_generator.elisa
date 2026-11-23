@@ -1,6 +1,6 @@
 def planted_3sat_clause_generator_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 5 or length > 83: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 5 or length > 83: return -1
+    values: i64& = input
     n_raw: i64 = values[0]
     m_raw: i64 = values[1]
     if n_raw < 3 or n_raw > 16 or m_raw < 0 or m_raw > 32: return -1
@@ -35,8 +35,8 @@ def planted_3sat_clause_generator_impl(input: i64&, length: usize, output: mutab
                 break
     bytes: usize = 24 * m
     if bytes == 0: return 0
-    if output.is_null() or capacity < bytes: return -2
-    target: mutable view[u8] = output[0:bytes]
+    if output == null or capacity < bytes: return -2
+    target: mutable u8& = output
     for i in 0..<(3 * m):
         bits: mutable u64 = literals[i].u64()
         for b in 0..<8:

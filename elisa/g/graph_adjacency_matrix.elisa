@@ -4,7 +4,7 @@ const GRAPH_ADJACENCY_MATRIX_MAX_EDGES: i64 = 64
 const GRAPH_ADJACENCY_MATRIX_MAX_OPERATIONS: usize = 24
 const GRAPH_ADJACENCY_MATRIX_MAX_OPERATION_COUNT: i64 = 24
 
-def graph_adjacency_matrix_put(output: mutable view[u8], word: usize, value: i64) -> void:
+def graph_adjacency_matrix_put(output: mutable u8&, word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -35,15 +35,15 @@ def graph_adjacency_matrix_remove(vertices: mutable view[i64], matrix: mutable v
             matrix[row * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + column] <- matrix[row * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + column + 1]
             column <- column + 1
         row <- row + 1
-    tail: mutable usize = 0
-    while tail < old_count:
-        matrix[(old_count - 1) * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + tail] <- 0
-        matrix[tail * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + old_count - 1] <- 0
-        tail <- tail + 1
+    tail_value: mutable usize = 0
+    while tail_value < old_count:
+        matrix[(old_count - 1) * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + tail_value] <- 0
+        matrix[tail_value * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + old_count - 1] <- 0
+        tail_value <- tail_value + 1
     count <- old_count - 1
 
-def graph_adjacency_matrix(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("graph_adjacency_matrix"):
-    if input.is_null() or length < 4: return -1
+def graph_adjacency_matrix_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4: return -1
     directed_value: i64 = input[0]
     vertex_count_value: i64 = input[1]
     if (directed_value != 0 and directed_value != 1) or vertex_count_value < 0 or vertex_count_value > 8: return -1
@@ -137,22 +137,24 @@ def graph_adjacency_matrix(input: i64&, length: usize, output: mutable u8&, capa
         index <- index + 1
 
     words: usize = 2 + operation_count + vertex_count + vertex_count * vertex_count
-    if output.is_null() or capacity < words * 8: return -2
-    graph_adjacency_matrix_put(output[0:words * 8], 0, operation_count.i64())
+    if output == null or capacity < words * 8: return -2
+    graph_adjacency_matrix_put(output, 0, operation_count.i64())
     index <- 0
     while index < operation_count:
-        graph_adjacency_matrix_put(output[0:words * 8], index + 1, results[index])
+        graph_adjacency_matrix_put(output, index + 1, results[index])
         index <- index + 1
-    graph_adjacency_matrix_put(output[0:words * 8], operation_count + 1, vertex_count.i64())
+    graph_adjacency_matrix_put(output, operation_count + 1, vertex_count.i64())
     index <- 0
     while index < vertex_count:
-        graph_adjacency_matrix_put(output[0:words * 8], operation_count + 2 + index, vertices[index])
+        graph_adjacency_matrix_put(output, operation_count + 2 + index, vertices[index])
         index <- index + 1
-    row: usize = 0
+    row: mutable usize = 0
     while row < vertex_count:
-        column: usize = 0
+        column: mutable usize = 0
         while column < vertex_count:
-            graph_adjacency_matrix_put(output[0:words * 8], operation_count + 2 + vertex_count + row * vertex_count + column, matrix[row * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + column])
+            graph_adjacency_matrix_put(output, operation_count + 2 + vertex_count + row * vertex_count + column, matrix[row * GRAPH_ADJACENCY_MATRIX_MAX_VERTICES + column])
             column <- column + 1
         row <- row + 1
     (words * 8).i64()
+
+export fn graph_adjacency_matrix(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = graph_adjacency_matrix_impl

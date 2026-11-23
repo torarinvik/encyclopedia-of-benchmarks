@@ -33,15 +33,15 @@ def bkp_consider(release: view[i64], deadline: view[i64], work: view[i64],
         best_num <- numerator
         best_den <- delta
 
-def bkp_put(value: i64, output: mutable view[u8], offset: usize) -> void:
+def bkp_put(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     b: mutable usize = 0
     while b < 8:
         output[offset+b] <- ((bits>>(8*b))&255).u8()
         b <- b+1
 
-def bkp_speed_scaling_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+def bkp_speed_scaling_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input_length
     if length < 2 or length > BKP_MAX_INPUT: return -1
     n64: i64 = input[0]
     samples64: i64 = input[1]
@@ -65,10 +65,10 @@ def bkp_speed_scaling_impl(input: view[i64], output: mutable u8&, capacity: usiz
     while s < samples:
         t: i64 = input[2+3*n+2*s]
         mask: i64 = input[3+3*n+2*s]
-        if t < 0 or t > 8 or mask < 0 or mask >= (1i64<<n): return -1
+        if t < 0 or t > 8 or mask < 0 or mask >= (1<<n): return -1
         j <- 0
         while j < n:
-            if (mask&(1i64<<j)) != 0 and release[j] > t: return -1
+            if (mask&(1<<j)) != 0 and release[j] > t: return -1
             j <- j+1
         best_num: mutable i64 = 0
         best_den: mutable i64 = 1
@@ -86,15 +86,17 @@ def bkp_speed_scaling_impl(input: view[i64], output: mutable u8&, capacity: usiz
         values[2+2*s] <- best_den/divisor
         s <- s+1
     output_bytes: usize = 8*(1+2*samples)
-    if output.is_null() or capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
+    if output == null or capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     i: mutable usize = 0
     while i < 1+2*samples:
         bkp_put(values[i],output_view,8*i)
         i <- i+1
     output_bytes.i64()
 
-export fn bkp_speed_scaling_trace(input: i64&, length: usize,
+def bkp_speed_scaling_trace_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > BKP_MAX_INPUT: return -1
-    bkp_speed_scaling_impl(input[0:length],output,capacity)
+    if input == null or length < 2 or length > BKP_MAX_INPUT: return -1
+    bkp_speed_scaling_impl(input, length,output,capacity)
+
+export fn bkp_speed_scaling_trace(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = bkp_speed_scaling_trace_impl

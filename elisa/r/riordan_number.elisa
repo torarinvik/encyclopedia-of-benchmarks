@@ -1,9 +1,9 @@
 const RN_MAX_N: i64 = 30
 const RN_MAX_PARSEABLE_LENGTH: usize = 2
 
-def riordan_number_impl(input: view[i64]) -> i64:
-    if input.length < 1 or input.length > RN_MAX_PARSEABLE_LENGTH: return -1
-    if input.length != 1: return -1
+def riordan_number_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 1 or input_length > RN_MAX_PARSEABLE_LENGTH: return -1
+    if input_length != 1: return -1
     n_value: i64 = input[0]
     if n_value < 0 or n_value > RN_MAX_N: return -1
     n: usize = n_value.usize()
@@ -18,7 +18,10 @@ def riordan_number_impl(input: view[i64]) -> i64:
         size <- size + 1
     values[n]
 
-export fn riordan_number(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > RN_MAX_PARSEABLE_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
-    riordan_number_impl(input_view)
+def riordan_number_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > RN_MAX_PARSEABLE_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    riordan_number_impl(input_view, input_view_length)
+
+export fn riordan_number(input: i64&, length: usize) -> i64 = riordan_number_entry

@@ -1,12 +1,12 @@
-def abelian_sandpile_stabilization_impl(input: view[i64]) -> i64:
-    if input.length < 2 or input.length > 19: return -1
+def abelian_sandpile_stabilization_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 2 or input_length > 19: return -1
     rows_word: i64 = input[0]
     cols_word: i64 = input[1]
     if rows_word < 1 or rows_word > 4 or cols_word < 1 or cols_word > 4: return -1
     rows: usize = rows_word.usize()
     cols: usize = cols_word.usize()
     cells: usize = rows * cols
-    if input.length != 2 + cells: return -1
+    if input_length != 2 + cells: return -1
 
     board: mutable i64[16] = zeroed
     site: mutable usize = 0
@@ -19,13 +19,13 @@ def abelian_sandpile_stabilization_impl(input: view[i64]) -> i64:
     queue: mutable usize[16] = zeroed
     queued: mutable bool[16] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     queue_count: mutable usize = 0
     site <- 0
     while site < cells:
         if board[site] >= 4:
-            queue[tail] <- site
-            tail <- (tail + 1) % cells
+            queue[tail_value] <- site
+            tail_value <- (tail_value + 1) % cells
             queue_count <- queue_count + 1
             queued[site] <- true
         site <- site + 1
@@ -47,37 +47,37 @@ def abelian_sandpile_stabilization_impl(input: view[i64]) -> i64:
             next: usize = current - cols
             board[next] <- board[next] + 1
             if board[next] >= 4 and not queued[next]:
-                queue[tail] <- next
-                tail <- (tail + 1) % cells
+                queue[tail_value] <- next
+                tail_value <- (tail_value + 1) % cells
                 queue_count <- queue_count + 1
                 queued[next] <- true
         if col + 1 < cols:
             next: usize = current + 1
             board[next] <- board[next] + 1
             if board[next] >= 4 and not queued[next]:
-                queue[tail] <- next
-                tail <- (tail + 1) % cells
+                queue[tail_value] <- next
+                tail_value <- (tail_value + 1) % cells
                 queue_count <- queue_count + 1
                 queued[next] <- true
         if row + 1 < rows:
             next: usize = current + cols
             board[next] <- board[next] + 1
             if board[next] >= 4 and not queued[next]:
-                queue[tail] <- next
-                tail <- (tail + 1) % cells
+                queue[tail_value] <- next
+                tail_value <- (tail_value + 1) % cells
                 queue_count <- queue_count + 1
                 queued[next] <- true
         if col > 0:
             next: usize = current - 1
             board[next] <- board[next] + 1
             if board[next] >= 4 and not queued[next]:
-                queue[tail] <- next
-                tail <- (tail + 1) % cells
+                queue[tail_value] <- next
+                tail_value <- (tail_value + 1) % cells
                 queue_count <- queue_count + 1
                 queued[next] <- true
         if board[current] >= 4 and not queued[current]:
-            queue[tail] <- current
-            tail <- (tail + 1) % cells
+            queue[tail_value] <- current
+            tail_value <- (tail_value + 1) % cells
             queue_count <- queue_count + 1
             queued[current] <- true
 
@@ -90,7 +90,10 @@ def abelian_sandpile_stabilization_impl(input: view[i64]) -> i64:
         site <- site + 1
     result
 
-export fn abelian_sandpile_stabilization(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 19: return -1
-    input_view: view[i64] = input[0:length]
-    abelian_sandpile_stabilization_impl(input_view)
+def abelian_sandpile_stabilization_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 19: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    abelian_sandpile_stabilization_impl(input_view, input_view_length)
+
+export fn abelian_sandpile_stabilization(input: i64&, length: usize) -> i64 = abelian_sandpile_stabilization_entry

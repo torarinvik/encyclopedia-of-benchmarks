@@ -105,16 +105,18 @@ def rbst_kth(keys: view[i64], sizes: view[usize], lefts: view[usize], rights: vi
 def rbst_minimum(keys: view[i64], lefts: view[usize], root_input: usize) -> i64:
     if root_input == 0: return -1
     root: mutable usize = root_input
-    while lefts[root] != 0: root <- lefts[root]
+    while lefts[root] != 0:
+        root <- lefts[root]
     keys[root]
 
 def rbst_maximum(keys: view[i64], rights: view[usize], root_input: usize) -> i64:
     if root_input == 0: return -1
     root: mutable usize = root_input
-    while rights[root] != 0: root <- rights[root]
+    while rights[root] != 0:
+        root <- rights[root]
     keys[root]
 
-def rbst_valid_op(input: view[i64], offset: usize) -> bool:
+def rbst_valid_op(input: i64&, offset: usize) -> bool:
     op: i64 = input[offset]
     a: i64 = input[offset + 1]
     b: i64 = input[offset + 2]
@@ -125,15 +127,15 @@ def rbst_valid_op(input: view[i64], offset: usize) -> bool:
     if op == 4: return (a == 0 or a == 1) and (b == 0 or b == 1) and a != b and c == 0
     false
 
-def randomized_binary_search_tree_order_statistics_split_join_impl(input: view[i64]) -> i64:
-    if input.len() < 3 or input.len() > RBST_MAX_INPUT_LENGTH: return -1
+def randomized_binary_search_tree_order_statistics_split_join_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 3 or input_length > RBST_MAX_INPUT_LENGTH: return -1
     n_value: i64 = input[0]
     q_value: i64 = input[1]
     seed: i64 = input[2]
     if n_value < 0 or n_value > 32 or q_value < 0 or q_value > 32 or seed < 0 or seed > 4294967295: return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
-    if input.len() != 3 + n + 4 * q: return -1
+    if input_length != 3 + n + 4 * q: return -1
     i: mutable usize = 0
     while i < n:
         key: i64 = input[3 + i]
@@ -192,6 +194,8 @@ def randomized_binary_search_tree_order_statistics_split_join_impl(input: view[i
         i <- i + 1
     checksum
 
-export fn randomized_binary_search_tree_order_statistics_split_join(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > RBST_MAX_INPUT_LENGTH: return -1
-    randomized_binary_search_tree_order_statistics_split_join_impl(input[0:length])
+def randomized_binary_search_tree_order_statistics_split_join_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > RBST_MAX_INPUT_LENGTH: return -1
+    randomized_binary_search_tree_order_statistics_split_join_impl(input, length)
+
+export fn randomized_binary_search_tree_order_statistics_split_join(input: i64&, length: usize) -> i64 = randomized_binary_search_tree_order_statistics_split_join_entry

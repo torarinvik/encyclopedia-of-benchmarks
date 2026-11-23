@@ -3,15 +3,15 @@ const MAX_HIGH_BITS: usize = 96
 const MAX_INPUT_LENGTH: usize = 35
 const MAX_UNIVERSE: i64 = 1000000
 
-def elias_fano_monotone_sequence_impl(values: view[i64]) -> i64:
-    if values.len() < 3 or values.len() > MAX_INPUT_LENGTH:
+def elias_fano_monotone_sequence_impl(values: i64&, values_length: usize) -> i64:
+    if values_length < 3 or values_length > MAX_INPUT_LENGTH:
         return -1
     count_value: i64 = values[0]
     upper: i64 = values[1]
     if count_value < 1 or count_value > MAX_VALUES.i64() or upper < 0 or upper > MAX_UNIVERSE:
         return -1
     count: usize = count_value.usize()
-    if count_value > upper + 1 or values.len() != count + 2:
+    if count_value > upper + 1 or values_length != count + 2:
         return -1
 
     source: mutable i64[MAX_VALUES] = zeroed
@@ -61,7 +61,9 @@ def elias_fano_monotone_sequence_impl(values: view[i64]) -> i64:
         return -1
     checksum
 
-export fn elias_fano_monotone_sequence(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+def elias_fano_monotone_sequence_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
         return -1
-    elias_fano_monotone_sequence_impl(input[0:length])
+    elias_fano_monotone_sequence_impl(input, length)
+
+export fn elias_fano_monotone_sequence(input: i64&, length: usize) -> i64 = elias_fano_monotone_sequence_entry

@@ -1,12 +1,12 @@
-def graph_peripherality_put(output: mutable view[u8], word: usize, value: i64) -> void:
+def graph_peripherality_put(output: mutable u8&, word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[word * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def graph_peripherality(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("graph_peripherality"):
-    if input.is_null() or length < 2: return -1
+def graph_peripherality_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2: return -1
     n_value: i64 = input[0]
     edge_value: i64 = input[1]
     if n_value < 1 or n_value > 8 or edge_value < 0 or edge_value > 56 or edge_value > n_value * (n_value - 1): return -1
@@ -101,9 +101,11 @@ def graph_peripherality(input: i64&, length: usize, output: mutable u8&, capacit
         else:
             if peripheral_infinite: best_eccentricity <- -1
             if far_infinite: best_farness <- -1
-    if output.is_null() or capacity < 32: return -2
-    graph_peripherality_put(output[0:32], 0, peripheral)
-    graph_peripherality_put(output[0:32], 1, best_eccentricity)
-    graph_peripherality_put(output[0:32], 2, far)
-    graph_peripherality_put(output[0:32], 3, best_farness)
+    if output == null or capacity < 32: return -2
+    graph_peripherality_put(output, 0, peripheral)
+    graph_peripherality_put(output, 1, best_eccentricity)
+    graph_peripherality_put(output, 2, far)
+    graph_peripherality_put(output, 3, best_farness)
     32
+
+export fn graph_peripherality(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = graph_peripherality_impl

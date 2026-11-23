@@ -17,8 +17,8 @@ def month_offset(month: i64) -> i64:
     if month == 12: return 4
     -1
 
-def weekday_by_month_offsets_impl(values: view[i64]) -> i64:
-    if values.len() != 3:
+def weekday_by_month_offsets_impl(values: i64&, values_length: usize) -> i64:
+    if values_length != 3:
         return -1
     year: i64 = values[0]
     month: i64 = values[1]
@@ -31,17 +31,19 @@ def weekday_by_month_offsets_impl(values: view[i64]) -> i64:
         days_in_month <- 28
         if leap:
             days_in_month <- 29
-    else if month == 4 or month == 6 or month == 9 or month == 11:
+    elif month == 4 or month == 6 or month == 9 or month == 11:
         days_in_month <- 30
     if day < 1 or day > days_in_month:
         return -1
 
-    adjusted_year: i64 = year
+    adjusted_year: mutable i64 = year
     if month < 3:
         adjusted_year <- adjusted_year - 1
     (adjusted_year + adjusted_year / 4 - adjusted_year / 100
         + adjusted_year / 400 + month_offset(month) + day) % 7
 
-export fn weekday_by_month_offsets(values: i64&, length: usize) -> i64:
+def weekday_by_month_offsets_entry(values: i64&, length: usize) -> i64:
     if values == null or length != 3: return -1
-    weekday_by_month_offsets_impl(values[0:length])
+    weekday_by_month_offsets_impl(values, length)
+
+export fn weekday_by_month_offsets(values: i64&, length: usize) -> i64 = weekday_by_month_offsets_entry

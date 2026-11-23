@@ -1,13 +1,13 @@
 # Uncompiled exact-length shortest-walk draft.
-def flw_solve(values: view[i64]) -> i64:
-    if values.len() < 4 or values.len() > 261: return -100000002
+def flw_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 4 or values_length > 261: return -100000002
     nv: i64 = values[0]
     k: mutable i64 = values[1]
     sv: i64 = values[2]
     tv: i64 = values[3]
     if nv < 1 or nv > 16 or k < 0 or k > 1000000 or sv < 0 or sv >= nv or tv < 0 or tv >= nv: return -100000002
     n: usize = nv.usize()
-    if values.len() != 4 + n * n: return -100000002
+    if values_length != 4 + n * n: return -100000002
     inf: i64 = 1000000000000000
     matrix: mutable i64[256] = zeroed
     next: mutable i64[256] = zeroed
@@ -29,7 +29,8 @@ def flw_solve(values: view[i64]) -> i64:
                     edge: i64 = matrix[i * 16 + j]
                     if distance[i] != inf and edge != inf and distance[i] + edge < temp[j]:
                         temp[j] <- distance[i] + edge
-            for i in 0..<n: distance[i] <- temp[i]
+            for i in 0..<n:
+                distance[i] <- temp[i]
         k <- k / 2
         if k > 0:
             for i in 0..<n:
@@ -41,10 +42,13 @@ def flw_solve(values: view[i64]) -> i64:
                         b: i64 = matrix[p * 16 + j]
                         if a != inf and b != inf and a + b < next[index]: next[index] <- a + b
             for i in 0..<n:
-                for j in 0..<n: matrix[i * 16 + j] <- next[i * 16 + j]
+                for j in 0..<n:
+                    matrix[i * 16 + j] <- next[i * 16 + j]
     if distance[tv.usize()] == inf: return -100000001
     distance[tv.usize()]
 
-export fn fixed_length_walk_minplus(input: i64&, length: usize) -> i64:
+def fixed_length_walk_minplus_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 4 or length > 261: return -100000002
-    flw_solve(input[0:length])
+    flw_solve(input, length)
+
+export fn fixed_length_walk_minplus(input: i64&, length: usize) -> i64 = fixed_length_walk_minplus_impl

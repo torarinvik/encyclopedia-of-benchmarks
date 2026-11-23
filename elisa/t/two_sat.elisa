@@ -19,8 +19,8 @@ def two_sat_visit_component(graph: view[u8], n: usize, vertex: usize, component:
         neighbor <- neighbor + 1
 
 def two_sat_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 4096: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 2 or length > 4096: return -1
+    values: i64& = input
     if values[0] < 0 or values[0] > 40 or values[1] < 0 or values[1] > 2047: return -1
     variables: usize = values[0].usize()
     clauses: usize = values[1].usize()
@@ -74,8 +74,8 @@ def two_sat_impl(input: i64&, length: usize, output: mutable u8&, capacity: usiz
         index <- index + 1
     output_length: mutable usize = 1
     if satisfiable: output_length <- variables + 1
-    if output.is_null() or capacity < output_length: return -2
-    target: mutable view[u8] = output[0:output_length]
+    if output == null or capacity < output_length: return -2
+    target: mutable u8& = output
     target[0] <- 0.u8()
     if satisfiable: target[0] <- 1.u8()
     if satisfiable:

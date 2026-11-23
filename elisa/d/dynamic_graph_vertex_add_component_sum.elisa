@@ -97,7 +97,7 @@ def dg_visit(node: usize, left: usize, right: usize,
     dg_rollback(mark, parent, size, total, history_kind, history_a, history_b,
         history_size, history_sum, history_len)
 
-def dg_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+def dg_store(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -106,7 +106,7 @@ def dg_store(value: i64, output: mutable view[u8], offset: usize) -> void:
 
 def dynamic_graph_vertex_add_component_sum_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 2 + MAX_N + 3 * MAX_Q + 1: return -1
+    if input == null or length < 2 or length > 2 + MAX_N + 3 * MAX_Q + 1: return -1
     if input[0] < 1 or input[0] > MAX_N.i64() or input[1] < 0 or input[1] > MAX_Q.i64(): return -1
     n: usize = input[0].usize()
     q: usize = input[1].usize()
@@ -141,8 +141,8 @@ def dynamic_graph_vertex_add_component_sum_impl(input: i64&, length: usize,
         event_b[time] <- b
         if op == 0 or op == 1:
             if a < 0 or a >= n.i64() or b < 0 or b >= n.i64() or a == b: return -1
-            u: usize = a.usize()
-            v: usize = b.usize()
+            u: mutable usize = a.usize()
+            v: mutable usize = b.usize()
             if u > v:
                 tmp: usize = u
                 u <- v
@@ -201,7 +201,7 @@ def dynamic_graph_vertex_add_component_sum_impl(input: i64&, length: usize,
                 interval_right[op_count] <- q
                 op_count <- op_count + 1
             vertex <- vertex + 1
-    if output.is_null() or capacity < 8 * query_count: return -2
+    if output == null or capacity < 8 * query_count: return -2
     bucket_count: mutable usize[TREE_NODES] = zeroed
     buckets: mutable usize[TREE_NODES * MAX_OPS] = zeroed
     if q != 0:
@@ -231,7 +231,7 @@ def dynamic_graph_vertex_add_component_sum_impl(input: i64&, length: usize,
             bucket_count[0:TREE_NODES], buckets[0:TREE_NODES * MAX_OPS], event_op[0:MAX_Q], event_a[0:MAX_Q],
             parent[0:MAX_N], set_size[0:MAX_N], total[0:MAX_N], history_kind[0:MAX_OPS], history_a[0:MAX_OPS],
             history_b[0:MAX_OPS], history_size[0:MAX_OPS], history_sum[0:MAX_OPS], history_len, answer[0:MAX_Q])
-    output_view: mutable view[u8] = output[0:8 * query_count]
+    output_view: mutable u8& = output
     written: mutable usize = 0
     time <- 0
     while time < q:

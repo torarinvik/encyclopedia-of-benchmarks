@@ -8,9 +8,9 @@ def lawler_ratio_precedes(left: usize, right: usize, weight: view[i64], profit: 
     if left_product != right_product: return left_product > right_product
     left < right
 
-def lawler_knapsack_profit_scaling_fptas(input: i64&, length: usize) -> i64 @export("lawler_knapsack_profit_scaling_fptas"):
-    if input.is_null() or length < 2 or length > LAWLER_MAX_INPUT: return -1
-    values: view[i64] = input[0:length]
+def lawler_knapsack_profit_scaling_fptas_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > LAWLER_MAX_INPUT: return -1
+    values: i64& = input
     capacity: i64 = values[0]
     n64: i64 = values[1]
     if capacity < 1 or capacity > 30 or n64 < 4 or n64 > 8: return -1
@@ -118,7 +118,8 @@ def lawler_knapsack_profit_scaling_fptas(input: i64&, length: usize) -> i64 @exp
     dp_profit: mutable i64[33] = zeroed
     dp_mask: mutable i64[33] = zeroed
     dp_valid: mutable bool[33] = zeroed
-    for q in 0..<(LAWLER_MAX_Q + 1): dp_weight[q] <- capacity + 1
+    for q in 0..<(LAWLER_MAX_Q + 1):
+        dp_weight[q] <- capacity + 1
     dp_weight[0] <- 0
     dp_valid[0] <- true
 
@@ -144,10 +145,7 @@ def lawler_knapsack_profit_scaling_fptas(input: i64&, length: usize) -> i64 @exp
                 if new_q <= LAWLER_MAX_Q and candidate_weight <= capacity:
                     candidate_profit: i64 = dp_profit[old_q] + added_profit
                     candidate_mask: i64 = dp_mask[old_q] | added_mask
-                    if not next_valid[new_q] or candidate_weight < next_weight[new_q] or
-                       (candidate_weight == next_weight[new_q] and
-                        (candidate_profit > next_profit[new_q] or
-                         (candidate_profit == next_profit[new_q] and candidate_mask < next_mask[new_q]))):
+                    if not next_valid[new_q] or candidate_weight < next_weight[new_q] or (candidate_weight == next_weight[new_q] and (candidate_profit > next_profit[new_q] or (candidate_profit == next_profit[new_q] and candidate_mask < next_mask[new_q]))):
                         next_weight[new_q] <- candidate_weight
                         next_profit[new_q] <- candidate_profit
                         next_mask[new_q] <- candidate_mask
@@ -194,11 +192,11 @@ def lawler_knapsack_profit_scaling_fptas(input: i64&, length: usize) -> i64 @exp
         total_profit: i64 = dp_profit[q] + small_profit
         total_weight: i64 = dp_weight[q] + small_weight
         score: i64 = lower_bound * q.i64() + 16 * small_profit
-        if score > best_score or (score == best_score and
-           (total_profit > best_profit or (total_profit == best_profit and
-            (total_weight < best_weight or (total_weight == best_weight and mask < best_mask))))):
+        if score > best_score or (score == best_score and (total_profit > best_profit or (total_profit == best_profit and (total_weight < best_weight or (total_weight == best_weight and mask < best_mask))))):
             best_score <- score
             best_profit <- total_profit
             best_weight <- total_weight
             best_mask <- mask
     (best_profit << 8) | best_mask
+
+export fn lawler_knapsack_profit_scaling_fptas(input: i64&, length: usize) -> i64 = lawler_knapsack_profit_scaling_fptas_impl

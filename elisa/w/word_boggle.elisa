@@ -3,7 +3,7 @@ def word_boggle_letter(code: i64) -> i64:
     if code >= 97 and code <= 122: return code - 97 + 26
     -1
 
-def word_boggle_visit(board: view[i64], rows: i64, cols: i64, pos: i64, node: i64,
+def word_boggle_visit(board: i64&, rows: i64, cols: i64, pos: i64, node: i64,
                       children: view[i64], terminal: view[i64],
                       visited: mutable view[bool], found: mutable view[bool]) -> void:
     visited[pos.usize()] <- true
@@ -40,8 +40,8 @@ def word_boggle_less(words: view[i64], lengths: view[i64], a: i64, b: i64) -> bo
         i <- i + 1
     lengths[a.usize()] < lengths[b.usize()]
 
-def word_boggle_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+def word_boggle_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input_length
     if length < 4 or length > 551: return -1
     if input[0] < 1 or input[0] > 6 or input[1] < 1 or input[1] > 6: return -1
     rows: i64 = input[0]
@@ -148,7 +148,7 @@ def word_boggle_impl(input: view[i64], output: mutable u8&, capacity: usize) -> 
     if output_size > capacity: return -2
     if output_size > 0 and output == null: return -2
     if output_size == 0: return 0
-    result: mutable view[u8] = output[0:output_size]
+    result: mutable u8& = output
     pos: mutable usize = 0
     i <- 0
     while i < found_count:
@@ -163,6 +163,8 @@ def word_boggle_impl(input: view[i64], output: mutable u8&, capacity: usize) -> 
         i <- i + 1
     output_size.i64()
 
-export fn word_boggle(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+def word_boggle_entry(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input == null or length < 4 or length > 551: return -1
-    word_boggle_impl(input[0:length], output, capacity)
+    word_boggle_impl(input, length, output, capacity)
+
+export fn word_boggle(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = word_boggle_entry

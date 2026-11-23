@@ -128,11 +128,10 @@ def dlm_extended_log(x: u64, initial_y: u64, initial_modulus: u64) -> i64:
     added.i64() + remaining
 
 def discrete_logarithm_mod_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length != 3:
+    if values == null or length != 3:
         return -1
-    frame: view[i64] = values[0:3]
-    if frame[0] < 0 or frame[1] < 0 or frame[2] < 1 or frame[2].u64() > MAX_MODULUS or
-        frame[0] >= frame[2] or frame[1] >= frame[2]:
+    frame: i64& = values
+    if frame[0] < 0 or frame[1] < 0 or frame[2] < 1 or frame[2].u64() > MAX_MODULUS or frame[0] >= frame[2] or frame[1] >= frame[2]:
         return -1
     dlm_extended_log(frame[0].u64(), frame[1].u64(), frame[2].u64())
 

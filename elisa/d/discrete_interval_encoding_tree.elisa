@@ -4,10 +4,10 @@ const DIET_MIN_KEY: i64 = -15
 const DIET_MAX_KEY: i64 = 15
 
 struct DietNode:
-    lo: i64
-    hi: i64
-    left: i64
-    right: i64
+    lo: mutable i64
+    hi: mutable i64
+    left: mutable i64
+    right: mutable i64
 
 def diet_new(nodes: mutable view[DietNode], used: mutable usize&, lo: i64, hi: i64,
              left: i64, right: i64) -> i64:
@@ -140,8 +140,8 @@ def diet_contains(nodes: view[DietNode], root_input: i64, key: i64) -> bool:
             return true
     false
 
-def diet_valid(input: view[i64]) -> bool:
-    length: usize = input.len()
+def diet_valid(input: i64&, input_length: usize) -> bool:
+    length: usize = input_length
     if length < 1 or length > 2 + 2 * DIET_MAX_Q: return false
     if input[0] < 0 or input[0] > DIET_MAX_Q.i64(): return false
     q: usize = input[0].usize()
@@ -153,7 +153,7 @@ def diet_valid(input: view[i64]) -> bool:
             return false
     true
 
-def diet_impl(input: view[i64], output: mutable view[u8]) -> i64:
+def diet_impl(input: i64&, output: mutable u8&) -> i64:
     q: usize = input[0].usize()
     nodes: mutable DietNode[DIET_ARENA] = zeroed
     used: mutable usize = 0
@@ -171,22 +171,25 @@ def diet_impl(input: view[i64], output: mutable view[u8]) -> i64:
         elif opcode == 1:
             root <- diet_delete(nodes[0:DIET_ARENA], used, root, key, interval_count, changed)
             if changed: cardinality <- cardinality - 1
-        present: i64 = if diet_contains(nodes[0:DIET_ARENA], root, key): 1 else: 0
+        present: i64 = 1 if diet_contains(nodes[0:DIET_ARENA], root, key) else 0
         staged[op] <- 64 * cardinality.i64() + 2 * interval_count.i64() + present
     for op in 0..<q:
-        word: u64 = staged[op].u64()
+        word: mutable u64 = staged[op].u64()
         for byte in 0..<8:
             output[8 * op + byte] <- (word & 255).u8()
             word <- word >> 8
     (8 * q).i64()
 
-export fn discrete_interval_encoding_tree(input: i64&, length: usize,
+def discrete_interval_encoding_tree_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > 2 + 2 * DIET_MAX_Q: return -1
-    input_view: view[i64] = input[0:length]
-    if not diet_valid(input_view): return -1
+    if input == null or length < 1 or length > 2 + 2 * DIET_MAX_Q: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    if not diet_valid(input_view, input_view_length): return -1
     q: usize = input_view[0].usize()
     required: usize = 8 * q
-    if required > 0 and (output.is_null() or capacity < required): return -2
+    if required > 0 and (output == null or capacity < required): return -2
     if required == 0: return 0
-    diet_impl(input_view, output[0:required])
+    diet_impl(input_view, output)
+
+export fn discrete_interval_encoding_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = discrete_interval_encoding_tree_impl

@@ -1,9 +1,9 @@
 extern cos(value: f64) -> f64
 extern sin(value: f64) -> f64
 
-def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
-    byte: usize = 0
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
@@ -17,7 +17,7 @@ def quantize(value: f64) -> i64:
 
 def transform(real: mutable view[f64], imag: mutable view[f64], n: usize) -> void:
     reverse: mutable usize = 0
-    position: usize = 1
+    position: mutable usize = 1
     while position < n:
         bit: mutable usize = n >> 1
         while (reverse & bit) != 0:
@@ -61,19 +61,19 @@ def transform(real: mutable view[f64], imag: mutable view[f64], n: usize) -> voi
         block <- block * 2
 
 def fast_fourier_transform_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if length < 2 or length > 65 or values.is_null():
+    if length < 2 or length > 65 or values == null:
         return -1
     raw_n: i64 = values[0]
     if raw_n < 1 or raw_n > 64 or (raw_n & (raw_n - 1)) != 0 or length != raw_n.usize() + 1:
         return -1
     n: usize = raw_n.usize()
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < n:
         if values[index + 1] < -1000 or values[index + 1] > 1000:
             return -1
         index <- index + 1
     byte_count: usize = 16 * n
-    if output.is_null() or capacity < byte_count:
+    if output == null or capacity < byte_count:
         return -2
     real: mutable f64[64] = zeroed
     imag: mutable f64[64] = zeroed
@@ -84,8 +84,8 @@ def fast_fourier_transform_impl(values: i64&, length: usize, output: mutable u8&
     transform(real[0:n], imag[0:n], n)
     index <- 0
     while index < n:
-        store_i64_le(quantize(real[index]), output[0:capacity], 16 * index)
-        store_i64_le(quantize(imag[index]), output[0:capacity], 16 * index + 8)
+        store_i64_le(quantize(real[index]), output, 16 * index)
+        store_i64_le(quantize(imag[index]), output, 16 * index + 8)
         index <- index + 1
     byte_count.i64()
 

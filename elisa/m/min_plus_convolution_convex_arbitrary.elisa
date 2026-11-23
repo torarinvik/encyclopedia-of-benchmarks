@@ -1,8 +1,8 @@
 const MPCA_MAX_INPUT: usize = 67
 const MPCA_MAX_OUTPUT: usize = 504
 
-def mpca_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
-    bits: u64 = value.u64()
+def mpca_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[position + byte] <- (bits & 255).u8()
@@ -11,7 +11,7 @@ def mpca_store_i64(value: i64, output: mutable view[u8], position: usize) -> voi
 
 def min_plus_convolution_convex_arbitrary_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 4 or length > MPCA_MAX_INPUT: return -1
+    if input == null or length < 4 or length > MPCA_MAX_INPUT: return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]
     if n_value < 1 or n_value > 32 or m_value < 1 or m_value > 32: return -1
@@ -34,7 +34,7 @@ def min_plus_convolution_convex_arbitrary_impl(input: i64&, length: usize,
     count: usize = n + m - 1
     bytes: usize = 8 * count
     if bytes > MPCA_MAX_OUTPUT: return -1
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     result: mutable i64[63] = zeroed
     stack_left: mutable usize[128]
     stack_right: mutable usize[128]
@@ -80,7 +80,7 @@ def min_plus_convolution_convex_arbitrary_impl(input: i64&, length: usize,
                 stack_opt_left[top] <- opt_left
                 stack_opt_right[top] <- best_j
                 top <- top + 1
-    output_view: mutable view[u8] = output[0:bytes]
+    output_view: mutable u8& = output
     index <- 0
     while index < count:
         mpca_store_i64(result[index], output_view, index * 8)

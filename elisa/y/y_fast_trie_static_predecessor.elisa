@@ -47,8 +47,8 @@ def yfast_upper_bound(keys: view[i64], start: usize, end: usize, query: i64) -> 
         else: high <- middle
     low
 
-def y_fast_trie_static_predecessor_impl(values: view[i64]) -> i64:
-    length: usize = values.len()
+def y_fast_trie_static_predecessor_impl(values: i64&, values_length: usize) -> i64:
+    length: usize = values_length
     if length < 2 or length > YFAST_MAX_INPUT: return -1
     n_value: i64 = values[0]
     q_value: i64 = values[1]
@@ -99,7 +99,7 @@ def y_fast_trie_static_predecessor_impl(values: view[i64]) -> i64:
     node_count: mutable usize = 1
     bucket: mutable usize = 0
     while bucket < bucket_count:
-        end: usize = (bucket + 1) * YFAST_BUCKET_SIZE
+        end: mutable usize = (bucket + 1) * YFAST_BUCKET_SIZE
         if end > n: end <- n
         separator: i64 = keys[end - 1]
         trie_node: mutable usize = 0
@@ -108,7 +108,7 @@ def y_fast_trie_static_predecessor_impl(values: view[i64]) -> i64:
             shift: usize = YFAST_UNIVERSE_BITS - 1 - bit_position
             branch: usize = ((separator.u64() >> shift) & 1.u64()).usize()
             slot: usize = trie_node * 2 + branch
-            child: i64 = children[slot]
+            child: mutable i64 = children[slot]
             if child < 0:
                 child <- node_count.i64()
                 children[slot] <- child
@@ -117,7 +117,7 @@ def y_fast_trie_static_predecessor_impl(values: view[i64]) -> i64:
                 min_rank[node_count] <- bucket.i64()
                 leaf_rank[node_count] <- -1
                 node_count <- node_count + 1
-            else if min_rank[child.usize()] < 0 or bucket.i64() < min_rank[child.usize()]:
+            elif min_rank[child.usize()] < 0 or bucket.i64() < min_rank[child.usize()]:
                 min_rank[child.usize()] <- bucket.i64()
             trie_node <- child.usize()
             bit_position <- bit_position + 1
@@ -139,14 +139,16 @@ def y_fast_trie_static_predecessor_impl(values: view[i64]) -> i64:
         predecessor: mutable i64 = -1
         successor: mutable i64 = -1
         if lower > start: predecessor <- keys[lower - 1]
-        else if selected_bucket > 0: predecessor <- keys[start - 1]
+        elif selected_bucket > 0: predecessor <- keys[start - 1]
         if upper < end: successor <- keys[upper]
-        else if selected_bucket + 1 < bucket_count: successor <- keys[end]
+        elif selected_bucket + 1 < bucket_count: successor <- keys[end]
         term: i64 = (predecessor + 1) + 65537 * (successor + 1)
         checksum <- checksum + (index.i64() + 1) * term
         index <- index + 1
     checksum
 
-export fn y_fast_trie_static_predecessor(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > YFAST_MAX_INPUT: return -1
-    y_fast_trie_static_predecessor_impl(input[0:length])
+def y_fast_trie_static_predecessor_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > YFAST_MAX_INPUT: return -1
+    y_fast_trie_static_predecessor_impl(input, length)
+
+export fn y_fast_trie_static_predecessor(input: i64&, length: usize) -> i64 = y_fast_trie_static_predecessor_entry

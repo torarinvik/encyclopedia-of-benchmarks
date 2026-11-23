@@ -59,14 +59,14 @@ def erase_node(keys: view[i64], priorities: view[i64], lefts: mutable view[usize
         return root
     merge_nodes(priorities, lefts, rights, lefts[root], rights[root])
 
-def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def treap_unique_key_set_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or input[0] < 0 or input[0] > 128 or length != (1 + 2 * input[0]).usize(): return -1
+    if input == null or length < 1 or input[0] < 0 or input[0] > 128 or length != (1 + 2 * input[0]).usize(): return -1
     operations: usize = input[0].usize()
     for index in 0..<operations:
         operation: i64 = input[1 + 2 * index]
@@ -87,24 +87,25 @@ def treap_unique_key_set_impl(input: i64&, length: usize, output: mutable u8&, c
             root <- insert_node(keys[0:129], priorities[0:129], lefts[0:129], rights[0:129], next, root, key)
         else:
             root <- erase_node(keys[0:129], priorities[0:129], lefts[0:129], rights[0:129], root, key)
-    stack: mutable usize[128] = zeroed
+    stack_value: mutable usize[128] = zeroed
     sorted: mutable i64[128] = zeroed
     top: mutable usize = 0
     current: mutable usize = root
     count: mutable usize = 0
     while current != 0 or top > 0:
         while current != 0:
-            stack[top] <- current
+            stack_value[top] <- current
             top <- top + 1
             current <- lefts[current]
         top <- top - 1
-        current <- stack[top]
+        current <- stack_value[top]
         sorted[count] <- keys[current]
         count <- count + 1
         current <- rights[current]
     required: usize = count * 8
-    if output.is_null() or capacity < required: return -2
-    for index in 0..<count: put_i64(output[0:capacity], index * 8, sorted[index])
+    if output == null or capacity < required: return -2
+    for index in 0..<count:
+        put_i64(output, index * 8, sorted[index])
     count.i64()
 
 export fn treap_unique_key_set(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = treap_unique_key_set_impl

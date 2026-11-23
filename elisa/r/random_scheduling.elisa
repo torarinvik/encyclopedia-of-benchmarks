@@ -21,7 +21,7 @@ def random_scheduling_next_int(random: mutable JavaRandom&, bound: u32) -> u32:
         if bits.u64() - value.u64() + (bound - 1).u64() <= 2147483647: return value
     0
 
-def random_scheduling_put_i64_le(output: mutable view[u8], offset: usize, value: i64):
+def random_scheduling_put_i64_le(output: mutable u8&, offset: usize, value: i64):
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -30,7 +30,7 @@ def random_scheduling_put_i64_le(output: mutable view[u8], offset: usize, value:
 
 def random_scheduling_impl(input: i64&, input_length: usize,
                            output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
+    if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
     if input[1] < 0 or input[1] > MAX_TASK_COUNT.i64(): return -1
     task_count: usize = input[1].usize()
     if input_length != task_count + 2: return -1
@@ -54,8 +54,8 @@ def random_scheduling_impl(input: i64&, input_length: usize,
 
     output_bytes: usize = task_count * 8
     if output_bytes > MAX_OUTPUT_BYTES: return -1
-    if output.is_null() or capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
+    if output == null or capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     index <- 0
     while index < task_count:
         random_scheduling_put_i64_le(output_view, index * 8, tasks[index])

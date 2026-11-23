@@ -1,6 +1,6 @@
 # Clean-room row recurrence for the Entringer triangle.
-def entringer_number_impl(input: view[i64]) -> i64:
-    if input.len() != 2: return -1
+def entringer_number_impl(input: i64&, input_length: usize) -> i64:
+    if input_length != 2: return -1
     n_value: i64 = input[0]
     target_value: i64 = input[1]
     if n_value < 0 or n_value > 12 or target_value < 0 or target_value > n_value: return -1
@@ -24,6 +24,8 @@ def entringer_number_impl(input: view[i64]) -> i64:
         row <- row + 1
     previous[target]
 
-export fn entringer_number(values: i64&, length: usize) -> i64:
-    if values.is_null() or length != 2: return -1
-    entringer_number_impl(values[0:length])
+def entringer_number_entry(values: i64&, length: usize) -> i64:
+    if values == null or length != 2: return -1
+    entringer_number_impl(values, length)
+
+export fn entringer_number(values: i64&, length: usize) -> i64 = entringer_number_entry

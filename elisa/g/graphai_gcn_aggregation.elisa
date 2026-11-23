@@ -4,9 +4,9 @@ const MAX_M: usize = 24
 const MAX_D: usize = 4
 const MAX_INPUT: usize = 84
 
-def graphai_gcn_aggregation_impl(input: view[f64],
+def graphai_gcn_aggregation_impl(input: f64&, input_length: usize,
                                  output: mutable f64&, capacity: usize) -> i64:
-    length: usize = input.len()
+    length: usize = input_length
     if length < 7 or length > MAX_INPUT: return -1
     n_value: f64 = input[0]
     m_value: f64 = input[1]
@@ -47,8 +47,8 @@ def graphai_gcn_aggregation_impl(input: view[f64],
     for q in 0..<(n * d):
         if input[features_at + q] < -8.0 or input[features_at + q] > 8.0: return -1
     required: usize = n * d
-    if output.is_null() or capacity < required: return -2
-    result: mutable view[f64] = output[0:required]
+    if output == null or capacity < required: return -2
+    result: mutable f64& = output
     staged: mutable f64[32] = zeroed
     for src in 0..<n:
         for e in rowptr[src]..<rowptr[src + 1]:
@@ -56,10 +56,13 @@ def graphai_gcn_aggregation_impl(input: view[f64],
             weight: f64 = input[left_at + src] * input[right_at + dst]
             for k in 0..<d:
                 staged[src * d + k] <- staged[src * d + k] + weight * input[features_at + dst * d + k]
-    for q in 0..<required: result[q] <- staged[q]
+    for q in 0..<required:
+        result[q] <- staged[q]
     required.i64()
 
-export fn graphai_gcn_aggregation(input: f64&, length: usize,
+def graphai_gcn_aggregation_entry(input: f64&, length: usize,
                                   output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length < 7 or length > MAX_INPUT: return -1
-    graphai_gcn_aggregation_impl(input[0:length], output, capacity)
+    if input == null or length < 7 or length > MAX_INPUT: return -1
+    graphai_gcn_aggregation_impl(input, length, output, capacity)
+
+export fn graphai_gcn_aggregation(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = graphai_gcn_aggregation_entry

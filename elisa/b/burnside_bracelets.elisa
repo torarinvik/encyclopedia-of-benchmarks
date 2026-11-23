@@ -30,8 +30,8 @@ def burnside_bracelets_fixed_colorings(n: usize, shift: usize,
         cycle <- cycle + 1
     result
 
-def burnside_bracelets_store(value: i64, output: mutable view[u8]) -> void:
-    bits: u64 = value.u64()
+def burnside_bracelets_store(value: i64, output: mutable u8&) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < OUTPUT_BYTES:
         output[byte] <- (bits & 255).u8()
@@ -40,7 +40,7 @@ def burnside_bracelets_store(value: i64, output: mutable view[u8]) -> void:
 
 def burnside_bracelets(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 1 or length > MAX_INPUT_VALUES: return -1
     if length != 2: return -1
     n_value: i64 = input[0]
     colors: i64 = input[1]
@@ -54,8 +54,8 @@ def burnside_bracelets(input: i64&, length: usize,
         fixed_sum <- fixed_sum + burnside_bracelets_fixed_colorings(n, shift, true, colors)
         shift <- shift + 1
     answer: i64 = fixed_sum / (2 * n).i64()
-    if output.is_null() or capacity < OUTPUT_BYTES: return -2
-    burnside_bracelets_store(answer, output[0:OUTPUT_BYTES])
+    if output == null or capacity < OUTPUT_BYTES: return -2
+    burnside_bracelets_store(answer, output)
     OUTPUT_BYTES.i64()
 
 export fn burnside_bracelets(input: i64&, length: usize,

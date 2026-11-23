@@ -59,8 +59,8 @@ def bk_remove_active(queue: mutable view[usize], count: mutable usize&,
     count <- kept_count
     is_active[vertex] <- false
 
-def boykov_kolmogorov_impl(values: view[i64]) -> i64:
-    if values.len() < 4 or values.len() > MAX_INPUT_LENGTH:
+def boykov_kolmogorov_impl(values: i64&, values_length: usize) -> i64:
+    if values_length < 4 or values_length > MAX_INPUT_LENGTH:
         return -1
     nv: i64 = values[0]
     mv: i64 = values[1]
@@ -72,7 +72,7 @@ def boykov_kolmogorov_impl(values: view[i64]) -> i64:
     m: usize = mv.usize()
     source: usize = sv.usize()
     sink: usize = tv.usize()
-    if values.len() != 4 + 3 * m:
+    if values_length != 4 + 3 * m:
         return -1
 
     residual: mutable i64[MAX_VERTICES * MAX_VERTICES] = zeroed
@@ -258,7 +258,9 @@ def boykov_kolmogorov_impl(values: view[i64]) -> i64:
 
     total_flow
 
-export fn boykov_kolmogorov_maxflow(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+def boykov_kolmogorov_maxflow_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT_LENGTH:
         return -1
-    boykov_kolmogorov_impl(input[0:length])
+    boykov_kolmogorov_impl(input, length)
+
+export fn boykov_kolmogorov_maxflow(input: i64&, length: usize) -> i64 = boykov_kolmogorov_maxflow_impl

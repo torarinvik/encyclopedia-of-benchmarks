@@ -1,12 +1,12 @@
-const MODULUS: i64 = 1_000_000_007
+const MODULUS: i64 = 1000000007
 const MAX_N: usize = 32
 const MAX_Q: usize = 32
 const MAX_LEVELS: usize = 5
 const MAX_INPUT: usize = 130
 
 struct AffineMap:
-    a: i64
-    b: i64
+    a: mutable i64
+    b: mutable i64
 
 def dst_combine(left: AffineMap, right: AffineMap) -> AffineMap:
     result: AffineMap
@@ -14,7 +14,7 @@ def dst_combine(left: AffineMap, right: AffineMap) -> AffineMap:
     result.b <- (right.a * left.b + right.b) % MODULUS
     result
 
-def dst_put(output: mutable view[u8], offset: usize, value: i64) -> void:
+def dst_put(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -22,9 +22,9 @@ def dst_put(output: mutable view[u8], offset: usize, value: i64) -> void:
         bits <- bits >> 8
         byte <- byte + 1
 
-def dst_impl(input: view[i64], output: mutable view[u8], capacity: usize,
+def dst_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize,
              output_is_null: bool) -> i64:
-    length: usize = input.len()
+    length: usize = input_length
     if length < 2 or length > MAX_INPUT: return -1
     n_value: i64 = input[0]
     q_value: i64 = input[1]
@@ -107,12 +107,14 @@ def dst_impl(input: view[i64], output: mutable view[u8], capacity: usize,
         dst_put(output, query * 16 + 8, answer.b)
     output_bytes.i64()
 
-def disjoint_sparse_table_affine_composition(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 @export("disjoint_sparse_table_affine_composition"):
-    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
-    if output.is_null():
+def disjoint_sparse_table_affine_composition_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return dst_impl(input[0:length], scratch[0:1], capacity, true)
+        return dst_impl(input, length, &scratch[0], capacity, true)
     output_length: mutable usize = capacity
     if output_length > 16 * MAX_Q: output_length <- 16 * MAX_Q
-    dst_impl(input[0:length], output[0:output_length], capacity, false)
+    dst_impl(input, length, output, capacity, false)
+
+export fn disjoint_sparse_table_affine_composition(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = disjoint_sparse_table_affine_composition_impl

@@ -1,14 +1,14 @@
 const LCIS_MAX_INPUT_LENGTH = 67
 const LCIS_MAX_SIDE = 32
 
-def longest_common_increasing_subsequence_impl(input: view[i64]) -> i64:
-    if input.len() < 2 or input.len() > LCIS_MAX_INPUT_LENGTH: return -1
+def longest_common_increasing_subsequence_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 2 or input_length > LCIS_MAX_INPUT_LENGTH: return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]
     if n_value < 0 or n_value > LCIS_MAX_SIDE or m_value < 0 or m_value > LCIS_MAX_SIDE: return -1
     n: usize = n_value.usize()
     m: usize = m_value.usize()
-    if input.len() != 2 + n + m: return -1
+    if input_length != 2 + n + m: return -1
     index: mutable usize = 0
     while index < n + m:
         value: i64 = input[2 + index]
@@ -37,6 +37,8 @@ def longest_common_increasing_subsequence_impl(input: view[i64]) -> i64:
         j <- j + 1
     answer
 
-export fn longest_common_increasing_subsequence(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > LCIS_MAX_INPUT_LENGTH: return -1
-    longest_common_increasing_subsequence_impl(input[0:length])
+def longest_common_increasing_subsequence_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > LCIS_MAX_INPUT_LENGTH: return -1
+    longest_common_increasing_subsequence_impl(input, length)
+
+export fn longest_common_increasing_subsequence(input: i64&, length: usize) -> i64 = longest_common_increasing_subsequence_entry

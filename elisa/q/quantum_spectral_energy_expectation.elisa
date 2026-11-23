@@ -9,14 +9,14 @@ const TAU: f64 = 6.283185307179586476925286766559005768
 def quantum_spectral_fft(real: mutable view[f64], imag: mutable view[f64], n: usize,
                          inverse: bool) -> void:
     reverse: mutable usize = 0
-    for position in 1..n:
+    for position in 1..<n:
         bit: mutable usize = n >> 1
         while bit != 0 and (reverse & bit) != 0:
             reverse <- reverse ^ bit
             bit <- bit >> 1
         reverse <- reverse ^ bit
         if position < reverse:
-            temporary: f64 = real[position]
+            temporary: mutable f64 = real[position]
             real[position] <- real[reverse]
             real[reverse] <- temporary
             temporary <- imag[position]
@@ -24,7 +24,7 @@ def quantum_spectral_fft(real: mutable view[f64], imag: mutable view[f64], n: us
             imag[reverse] <- temporary
     block: mutable usize = 2
     while block <= n:
-        direction: f64 = if inverse: 1.0 else: -1.0
+        direction: f64 = 1.0 if inverse else -1.0
         angle: f64 = direction * TAU / block.f64()
         step_real: f64 = cos(angle)
         step_imag: f64 = sin(angle)
@@ -32,7 +32,7 @@ def quantum_spectral_fft(real: mutable view[f64], imag: mutable view[f64], n: us
         while start < n:
             weight_real: mutable f64 = 1.0
             weight_imag: mutable f64 = 0.0
-            for offset in 0..(block / 2):
+            for offset in 0..<(block / 2):
                 first: usize = start + offset
                 second: usize = first + block / 2
                 product_real: f64 = weight_real * real[second] - weight_imag * imag[second]
@@ -49,36 +49,35 @@ def quantum_spectral_fft(real: mutable view[f64], imag: mutable view[f64], n: us
             start <- start + block
         block <- block * 2
     if inverse:
-        for index in 0..n:
+        for index in 0..<n:
             real[index] <- real[index] / n.f64()
             imag[index] <- imag[index] / n.f64()
 
-def quantum_spectral_energy_expectation_impl(values: view[i64]) -> f64:
-    length: usize = values.len()
-    if values.is_null() or length < 1 or length > 98: return INVALID_RESULT
+def quantum_spectral_energy_expectation_impl(values: i64&, values_length: usize) -> f64:
+    length: usize = values_length
+    if values == null or length < 1 or length > 98: return INVALID_RESULT
     n_value: i64 = values[0]
     if n_value < 2 or n_value > MAX_N.i64() or (n_value & (n_value - 1)) != 0:
         return INVALID_RESULT
     n: usize = n_value.usize()
     if length != 1 + 3 * n: return INVALID_RESULT
     norm: mutable i64 = 0
-    for i in 0..n:
+    for i in 0..<n:
         potential: i64 = values[1 + i]
         real_q: i64 = values[1 + n + i]
         imag_q: i64 = values[1 + 2 * n + i]
-        if potential < -2048 or potential > 2048 or real_q < -2048 or real_q > 2048 or
-           imag_q < -2048 or imag_q > 2048: return INVALID_RESULT
+        if potential < -2048 or potential > 2048 or real_q < -2048 or real_q > 2048 or imag_q < -2048 or imag_q > 2048: return INVALID_RESULT
         norm <- norm + real_q * real_q + imag_q * imag_q
     if norm != SCALE * SCALE * n_value: return INVALID_RESULT
 
     real: mutable f64[MAX_N] = zeroed
     imag: mutable f64[MAX_N] = zeroed
-    for i in 0..n:
+    for i in 0..<n:
         real[i] <- values[1 + n + i].f64() / SCALE.f64()
         imag[i] <- values[1 + 2 * n + i].f64() / SCALE.f64()
     quantum_spectral_fft(real[0:n], imag[0:n], n, false)
-    for i in 0..n:
-        frequency: i64 = if i <= n / 2: i.i64() else: i.i64() - n_value
+    for i in 0..<n:
+        frequency: i64 = i.i64() if i <= n / 2 else i.i64() - n_value
         wave_number: f64 = TAU * frequency.f64()
         multiplier: f64 = 0.5 * wave_number * wave_number
         real[i] <- real[i] * multiplier
@@ -86,14 +85,15 @@ def quantum_spectral_energy_expectation_impl(values: view[i64]) -> f64:
     quantum_spectral_fft(real[0:n], imag[0:n], n, true)
 
     total: mutable f64 = 0.0
-    for i in 0..n:
+    for i in 0..<n:
         psi_real: f64 = values[1 + n + i].f64() / SCALE.f64()
         psi_imag: f64 = values[1 + 2 * n + i].f64() / SCALE.f64()
         potential: f64 = values[1 + i].f64() / SCALE.f64()
-        total <- total + psi_real * (real[i] + potential * psi_real) +
-                 psi_imag * (imag[i] + potential * psi_imag)
+        total <- total + psi_real * (real[i] + potential * psi_real) + psi_imag * (imag[i] + potential * psi_imag)
     total / n.f64()
 
-export fn quantum_spectral_energy_expectation(input: i64&, length: usize) -> f64:
-    if input.is_null() or length < 1 or length > 98: return INVALID_RESULT
-    quantum_spectral_energy_expectation_impl(input[0:length])
+def quantum_spectral_energy_expectation_entry(input: i64&, length: usize) -> f64:
+    if input == null or length < 1 or length > 98: return INVALID_RESULT
+    quantum_spectral_energy_expectation_impl(input, length)
+
+export fn quantum_spectral_energy_expectation(input: i64&, length: usize) -> f64 = quantum_spectral_energy_expectation_entry

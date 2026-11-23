@@ -3,14 +3,14 @@ const ORS_MAX_Q: usize = 32
 const ORS_MAX_TAGS: usize = 64
 const ORS_MAX_INPUT: usize = 129
 
-def ors_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def ors_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 1 or length > ORS_MAX_INPUT: return -1
     q_value: i64 = input[0]
     if q_value < 0 or q_value > ORS_MAX_Q.i64(): return -1
     q: usize = q_value.usize()
     if length != 1 + 4 * q: return -1
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < q:
         opcode: i64 = input[1 + 4 * i]
         replica: i64 = input[2 + 4 * i]
@@ -68,8 +68,7 @@ def ors_impl(input: view[i64]) -> i64:
             result <- true
             tag: mutable usize = 0
             while tag < ORS_MAX_TAGS:
-                if (additions[base + tag] and not additions[peer_base + tag]) or
-                    (removals[base + tag] and not removals[peer_base + tag]): result <- false
+                if (additions[base + tag] and not additions[peer_base + tag]) or (removals[base + tag] and not removals[peer_base + tag]): result <- false
                 tag <- tag + 1
         if opcode == 2 or opcode == 4:
             if result: answer <- answer | (1.u64() << read_count)
@@ -77,7 +76,10 @@ def ors_impl(input: view[i64]) -> i64:
         i <- i + 1
     answer.i64()
 
-export fn observed_remove_set(input: i64&, length: usize) -> i64 @export("observed_remove_set"):
-    if input.is_null() or length > ORS_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    ors_impl(input_view)
+def observed_remove_set_impl(input: i64&, length: usize) -> i64:
+    if input == null or length > ORS_MAX_INPUT: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    ors_impl(input_view, input_view_length)
+
+export fn observed_remove_set(input: i64&, length: usize) -> i64 = observed_remove_set_impl

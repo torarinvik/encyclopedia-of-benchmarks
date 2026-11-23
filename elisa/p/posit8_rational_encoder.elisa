@@ -13,7 +13,7 @@ def posit8_positive_units(code: u8) -> u64:
     while cursor >= 0 and posit8_bit(code, cursor) == regime_bit:
         run <- run + 1
         cursor <- cursor - 1
-    regime: i64 = if regime_bit == 1.u8(): run - 1 else: -run
+    regime: i64 = run - 1 if regime_bit == 1.u8() else -run
     if cursor >= 0:
         cursor <- cursor - 1
     exponent: mutable i64 = 0
@@ -25,7 +25,7 @@ def posit8_positive_units(code: u8) -> u64:
             cursor <- cursor - 1
         i <- i + 1
     width: i64 = cursor + 1
-    fraction: u64 = 0
+    fraction: mutable u64 = 0
     if width > 0:
         fraction <- (code & ((1.u64() << width.usize()) - 1).u8()).u64()
     significand: u64 = (1.u64() << width.usize()) + fraction
@@ -47,7 +47,7 @@ def posit8_encode_one(numerator: i64, denominator: i64) -> u8:
     if numerator == 0:
         return 0.u8()
     negative: bool = numerator < 0
-    magnitude: u64 = if negative: (-numerator).u64() else: numerator.u64()
+    magnitude: u64 = (-numerator).u64() if negative else numerator.u64()
     scaled: u64 = magnitude << 24
     chosen: mutable u8 = 0.u8()
     if posit8_compare_ratio_to_unit(scaled, denominator.u64(), 1.u64()) <= 0:
@@ -80,7 +80,7 @@ def posit8_encode_one(numerator: i64, denominator: i64) -> u8:
         return (256.u64() - chosen.u64()).u8()
     chosen
 
-def posit8_impl(input: view[i64], output: mutable view[u8], count: usize) -> i64:
+def posit8_impl(input: i64&, output: mutable u8&, count: usize) -> i64:
     staged: mutable u8[POSIT8_MAX_COUNT] = zeroed
     i: mutable usize = 0
     while i < count:
@@ -92,11 +92,11 @@ def posit8_impl(input: view[i64], output: mutable view[u8], count: usize) -> i64
         i <- i + 1
     count.i64()
 
-export fn posit8_rational_encoder(input: i64&, length: usize,
+def posit8_rational_encoder_impl(input: i64&, length: usize,
                                   output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > POSIT8_MAX_WORDS:
+    if input == null or length < 1 or length > POSIT8_MAX_WORDS:
         return -1
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     raw_count: i64 = input_view[0]
     if raw_count < 0 or raw_count > POSIT8_MAX_COUNT.i64() or length != 1 + raw_count.usize() * 2:
         return -1
@@ -108,7 +108,9 @@ export fn posit8_rational_encoder(input: i64&, length: usize,
         if numerator < -2147483648 or numerator > 2147483648 or denominator < 1 or denominator > 2147483648:
             return -1
         i <- i + 1
-    if output.is_null() or capacity < count:
+    if output == null or capacity < count:
         return -2
-    output_view: mutable view[u8] = output[0:capacity]
+    output_view: mutable u8& = output
     posit8_impl(input_view, output_view, count)
+
+export fn posit8_rational_encoder(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = posit8_rational_encoder_impl

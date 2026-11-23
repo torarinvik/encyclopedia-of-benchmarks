@@ -1,5 +1,5 @@
 # Middle-column elimination, then binary search of one row slice.
-def search_row(values: view[i64], low: i64, high: i64, target: i64) -> i64:
+def search_row(values: i64&, low: i64, high: i64, target: i64) -> i64:
     lo: mutable i64 = low
     hi: mutable i64 = high
     while lo <= hi:
@@ -42,21 +42,21 @@ def binary_search2d_array_impl(values: i64&, length: usize) -> i64:
     row_start: mutable usize = 0
     if target <= values[3 + start_row * cols + middle_col - 1]:
         row_start <- (3 + start_row * cols).usize()
-        col: i64 = search_row(values[row_start:row_start + cols.usize()], 0, middle_col - 1, target)
+        col: i64 = search_row(&values[row_start], 0, middle_col - 1, target)
         if col < 0: return -1
         return start_row * cols + col
     if target >= values[3 + start_row * cols + middle_col + 1] and target <= values[3 + start_row * cols + cols - 1]:
         row_start <- (3 + start_row * cols).usize()
-        col: i64 = search_row(values[row_start:row_start + cols.usize()], middle_col + 1, cols - 1, target)
+        col: i64 = search_row(&values[row_start], middle_col + 1, cols - 1, target)
         if col < 0: return -1
         return start_row * cols + col
     if target <= values[3 + end_row * cols + middle_col - 1]:
         row_start <- (3 + end_row * cols).usize()
-        col: i64 = search_row(values[row_start:row_start + cols.usize()], 0, middle_col - 1, target)
+        col: i64 = search_row(&values[row_start], 0, middle_col - 1, target)
         if col < 0: return -1
         return end_row * cols + col
     row_start <- (3 + end_row * cols).usize()
-    col: i64 = search_row(values[row_start:row_start + cols.usize()], middle_col + 1, cols - 1, target)
+    col: i64 = search_row(&values[row_start], middle_col + 1, cols - 1, target)
     if col < 0: return -1
     end_row * cols + col
 

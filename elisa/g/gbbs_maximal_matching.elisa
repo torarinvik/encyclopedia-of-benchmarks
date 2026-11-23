@@ -2,16 +2,16 @@ const GBBS_MM_MAX_N: usize = 16
 const GBBS_MM_MAX_M: usize = 64
 const GBBS_MM_MAX_INPUT: usize = 194
 
-def gbbs_mm_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def gbbs_mm_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def gbbs_maximal_matching(input: i64&, length: usize,
-                          output: mutable u8&, capacity: usize) -> i64 @export("gbbs_maximal_matching"):
-    if input.is_null() or length < 2 or length > GBBS_MM_MAX_INPUT: return -1
+def gbbs_maximal_matching_impl(input: i64&, length: usize,
+                          output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > GBBS_MM_MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 64 or length != 2 + 3 * m64.usize(): return -1
@@ -36,7 +36,7 @@ def gbbs_maximal_matching(input: i64&, length: usize,
             prior <- prior + 1
         edge <- edge + 1
     output_bytes: usize = 8 * m
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     matched: mutable bool[16] = zeroed
     selected: mutable i64[64] = zeroed
     rank: mutable usize = 0
@@ -51,6 +51,8 @@ def gbbs_maximal_matching(input: i64&, length: usize,
         rank <- rank + 1
     edge <- 0
     while edge < m:
-        gbbs_mm_store_i64_le(selected[edge], output[0:output_bytes], 8 * edge)
+        gbbs_mm_store_i64_le(selected[edge], output, 8 * edge)
         edge <- edge + 1
     output_bytes.i64()
+
+export fn gbbs_maximal_matching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = gbbs_maximal_matching_impl

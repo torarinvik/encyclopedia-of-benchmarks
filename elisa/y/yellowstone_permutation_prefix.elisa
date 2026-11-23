@@ -12,9 +12,9 @@ def ypp_gcd(left_value: i64, right_value: i64) -> i64:
         right <- remainder
     left
 
-def yellowstone_permutation_prefix_impl(input: view[i64]) -> i64:
-    if input.length < 1 or input.length > YPP_MAX_PARSEABLE_LENGTH: return -1
-    if input.length != 2: return -1
+def yellowstone_permutation_prefix_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 1 or input_length > YPP_MAX_PARSEABLE_LENGTH: return -1
+    if input_length != 2: return -1
     requested: i64 = input[0]
     candidate_cap: i64 = input[1]
     if requested < 1 or requested > YPP_MAX_N
@@ -45,7 +45,10 @@ def yellowstone_permutation_prefix_impl(input: view[i64]) -> i64:
         used[candidate.usize()] <- true
     terms[requested.usize() - 1]
 
-export fn yellowstone_permutation_prefix(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > YPP_MAX_PARSEABLE_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
-    yellowstone_permutation_prefix_impl(input_view)
+def yellowstone_permutation_prefix_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > YPP_MAX_PARSEABLE_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    yellowstone_permutation_prefix_impl(input_view, input_view_length)
+
+export fn yellowstone_permutation_prefix(input: i64&, length: usize) -> i64 = yellowstone_permutation_prefix_entry

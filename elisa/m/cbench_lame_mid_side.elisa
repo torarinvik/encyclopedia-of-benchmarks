@@ -4,9 +4,9 @@ const CBENCH_LAME_MID_SIDE_SQRT2: f64 = 1.414213562373095048801688724209698079
 
 def cbench_lame_mid_side_impl(input: f64&, input_length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > CBENCH_LAME_MID_SIDE_MAX_INPUT + 1:
+    if input == null or input_length < 1 or input_length > CBENCH_LAME_MID_SIDE_MAX_INPUT + 1:
         return -1
-    values: view[f64] = input[0:input_length]
+    values: f64& = input
     index: mutable usize = 0
     while index < input_length:
         value: f64 = values[index]
@@ -34,9 +34,9 @@ def cbench_lame_mid_side_impl(input: f64&, input_length: usize,
         staged[2 * index + 1] <- (left - right) * factor
         index <- index + 1
     needed: usize = 2 * count
-    if output.is_null() or output_capacity < needed:
+    if output == null or output_capacity < needed:
         return -2
-    result: mutable view[f64] = output[0:needed]
+    result: mutable f64& = output
     index <- 0
     while index < needed:
         result[index] <- staged[index]

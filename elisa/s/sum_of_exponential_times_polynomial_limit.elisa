@@ -13,7 +13,7 @@ def seppl_mod_pow(base_input: i64, exponent_input: i64) -> i64:
         exponent <- exponent / 2
     result
 
-def seppl_evaluate(input: view[i64], length: usize) -> i64:
+def seppl_evaluate(input: i64&, length: usize) -> i64:
     if length != 2:
         return -1
     r: i64 = input[0]
@@ -55,8 +55,10 @@ def seppl_evaluate(input: view[i64], length: usize) -> i64:
     denominator_power: i64 = seppl_mod_pow(inverse, degree_value + 1)
     (r * eulerian_value % SEPPL_MODULUS * denominator_power) % SEPPL_MODULUS
 
-def sum_of_exponential_times_polynomial_limit(input: i64&, length: usize) -> i64 @export("sum_of_exponential_times_polynomial_limit"):
-    if input.is_null() or length != 2:
+def sum_of_exponential_times_polynomial_limit_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 2:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     seppl_evaluate(values, length)
+
+export fn sum_of_exponential_times_polynomial_limit(input: i64&, length: usize) -> i64 = sum_of_exponential_times_polynomial_limit_impl

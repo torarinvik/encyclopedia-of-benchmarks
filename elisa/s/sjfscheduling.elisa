@@ -1,4 +1,4 @@
-def write_i32_le(output: mutable view[u8], offset: usize, value: i32) -> void:
+def write_i32_le(output: mutable u8&, offset: usize, value: i32) -> void:
     bits: mutable u32 = value.u32()
     byte: mutable usize = 0
     while byte < 4:
@@ -8,10 +8,9 @@ def write_i32_le(output: mutable view[u8], offset: usize, value: i32) -> void:
 
 def sjfscheduling_impl(input: i32&, length: usize, output: mutable u8&,
                        capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > 130: return -1
+    if input == null or length < 1 or length > 130: return -1
     process_count_value: i32 = input[0]
-    if process_count_value < 0 or process_count_value > 64 or
-       length != (1 + 2 * process_count_value).usize(): return -1
+    if process_count_value < 0 or process_count_value > 64 or length != (1 + 2 * process_count_value).usize(): return -1
     process_count: usize = process_count_value.usize()
 
     arrivals: mutable i32[64] = zeroed
@@ -36,10 +35,7 @@ def sjfscheduling_impl(input: i32&, length: usize, output: mutable u8&,
         index <- 0
         while index < process_count:
             if not completed[index] and arrivals[index] <= current_time:
-                if best == process_count or bursts[index] < bursts[best] or
-                   (bursts[index] == bursts[best] and
-                    (arrivals[index] < arrivals[best] or
-                     (arrivals[index] == arrivals[best] and index < best))):
+                if best == process_count or bursts[index] < bursts[best] or (bursts[index] == bursts[best] and (arrivals[index] < arrivals[best] or (arrivals[index] == arrivals[best] and index < best))):
                     best <- index
             index <- index + 1
         if best == process_count:
@@ -51,10 +47,10 @@ def sjfscheduling_impl(input: i32&, length: usize, output: mutable u8&,
             current_time <- current_time + bursts[best]
 
     output_bytes: usize = process_count * 4
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     index <- 0
     while index < process_count:
-        write_i32_le(output[0:output_bytes], index * 4, order[index])
+        write_i32_le(output, index * 4, order[index])
         index <- index + 1
     output_bytes.i64()
 

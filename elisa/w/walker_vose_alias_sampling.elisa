@@ -1,7 +1,7 @@
 def walker_vose_alias_sampling_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > 83: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 3 or length > 83: return -1
+    values: i64& = input
     nr: i64 = values[0]
     qr: i64 = values[1]
     if nr < 1 or nr > 16 or qr < 0 or qr > 32: return -1
@@ -20,8 +20,8 @@ def walker_vose_alias_sampling_impl(input: i64&, length: usize,
         if column < 0 or column >= nr or ticket < 0 or ticket >= total: return -1
     if q == 0: return 0
     output_bytes: usize = 8 * q
-    if output.is_null() or capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
+    if output == null or capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     mass: mutable i64[16] = zeroed
     threshold: mutable i64[16] = zeroed
     aliases: mutable usize[16] = zeroed
@@ -62,7 +62,8 @@ def walker_vose_alias_sampling_impl(input: i64&, length: usize,
         for b in 0..<8:
             staged[8 * i + b] <- (bits & 255).u8()
             bits <- bits >> 8
-    for i in 0..<output_bytes: output_view[i] <- staged[i]
+    for i in 0..<output_bytes:
+        output_view[i] <- staged[i]
     output_bytes.i64()
 
 export fn walker_vose_alias_sampling(input: i64&, length: usize,

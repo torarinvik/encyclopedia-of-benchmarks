@@ -1,7 +1,9 @@
-def parentheses_generate(pairs: usize, opens: usize, closes: usize, path: mutable view[u8], output: mutable view[u8], index: mutable usize&):
+def parentheses_generate(pairs: usize, opens: usize, closes: usize, path: mutable view[u8], output: mutable u8&, index: mutable usize&):
     if opens + closes == pairs * 2:
         i: mutable usize = 0
-        while i < pairs * 2: output[2 + index * pairs * 2 + i] <- path[i]; i <- i + 1
+        while i < pairs * 2:
+            output[2 + index * pairs * 2 + i] <- path[i]
+            i <- i + 1
         index <- index + 1
         return
     if opens < pairs:
@@ -11,14 +13,17 @@ def parentheses_generate(pairs: usize, opens: usize, closes: usize, path: mutabl
         path[opens + closes] <- 41.u8()
         parentheses_generate(pairs, opens, closes + 1, path, output, index)
 
-export fn parentheses_generator(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length != 1 or input[0] < 0 or input[0] > 6: return -1
+def parentheses_generator_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length != 1 or input[0] < 0 or input[0] > 6: return -1
     pair_counts: usize[7] = [1, 1, 2, 5, 14, 42, 132]
     pairs: usize = input[0].usize()
     needed: usize = 2 + pair_counts[pairs] * 2 * pairs
-    if output.is_null() or capacity < needed: return -2
-    output[0] <- pair_counts[pairs].u8(); output[1] <- (pair_counts[pairs] >> 8).u8()
+    if output == null or capacity < needed: return -2
+    output[0] <- pair_counts[pairs].u8()
+    output[1] <- (pair_counts[pairs] >> 8).u8()
     path: mutable u8[12]
     index: mutable usize = 0
-    parentheses_generate(pairs, 0, 0, path[0:12], output[0:capacity], index)
+    parentheses_generate(pairs, 0, 0, path[0:12], output, index)
     needed.i64()
+
+export fn parentheses_generator(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = parentheses_generator_impl

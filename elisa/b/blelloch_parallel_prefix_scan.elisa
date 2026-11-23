@@ -1,8 +1,8 @@
 # Exclusive integer scan using bounded upsweep and downsweep levels.
-export fn blelloch_parallel_prefix_scan(input: i64&, length: usize,
+def blelloch_parallel_prefix_scan_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
     if input == null or length < 2 or length > 66: return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     n64: i64 = values[0]
     if n64 < 1 or n64 > 64: return -1
     n: usize = n64.usize()
@@ -10,13 +10,14 @@ export fn blelloch_parallel_prefix_scan(input: i64&, length: usize,
 
     tree: mutable i64[64] = zeroed
     padded: mutable usize = 1
-    while padded < n: padded <- padded << 1
+    while padded < n:
+        padded <- padded << 1
     for i in 0..<n:
         value: i64 = values[i + 1]
         if value < -1000000 or value > 1000000: return -1
         tree[i] <- value
     output_bytes: usize = n * 8
-    if output.is_null() or output_capacity < output_bytes: return -2
+    if output == null or output_capacity < output_bytes: return -2
 
     stride: mutable usize = 2
     while stride <= padded:
@@ -39,9 +40,11 @@ export fn blelloch_parallel_prefix_scan(input: i64&, length: usize,
             right <- right + stride
         stride <- stride >> 1
 
-    result: mutable view[u8] = output[0:output_bytes]
+    result: mutable u8& = output
     for i in 0..<n:
         bits: u64 = tree[i].u64()
         for byte in 0..<8:
             result[i * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
     output_bytes.i64()
+
+export fn blelloch_parallel_prefix_scan(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = blelloch_parallel_prefix_scan_impl

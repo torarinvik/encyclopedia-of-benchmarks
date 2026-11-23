@@ -2,7 +2,7 @@ const LPF_MAX_TEXT: usize = 32
 const LPF_MAX_INPUT: usize = 34
 const LPF_MAX_OUTPUT: usize = 512
 
-def lpf_suffix_less(text: view[i64], n: usize, a0: usize, b0: usize) -> bool:
+def lpf_suffix_less(text: i64&, n: usize, a0: usize, b0: usize) -> bool:
     a: mutable usize = a0
     b: mutable usize = b0
     while a < n and b < n:
@@ -11,7 +11,7 @@ def lpf_suffix_less(text: view[i64], n: usize, a0: usize, b0: usize) -> bool:
         b <- b + 1
     a == n and b != n
 
-def lpf_match_length(text: view[i64], n: usize, source: i64, target: usize) -> usize:
+def lpf_match_length(text: i64&, n: usize, source: i64, target: usize) -> usize:
     if source < 0: return 0
     source_index: usize = source.usize()
     length: mutable usize = 0
@@ -26,7 +26,7 @@ def lpf_store(staged: mutable view[u8], offset: usize, value: i64) -> void:
         staged[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def lpf_impl(input: view[i64], length: usize, staged: mutable view[u8]) -> i64:
+def lpf_impl(input: i64&, length: usize, staged: mutable view[u8]) -> i64:
     if length < 1 or length > LPF_MAX_INPUT: return -1
     n64: i64 = input[0]
     if n64 < 0 or n64 > LPF_MAX_TEXT.i64(): return -1
@@ -39,7 +39,7 @@ def lpf_impl(input: view[i64], length: usize, staged: mutable view[u8]) -> i64:
 
     sa: mutable usize[LPF_MAX_TEXT] = zeroed
     inverse: mutable usize[LPF_MAX_TEXT] = zeroed
-    stack: mutable usize[LPF_MAX_TEXT] = zeroed
+    stack_value: mutable usize[LPF_MAX_TEXT] = zeroed
     previous: mutable i64[LPF_MAX_TEXT] = zeroed
     following: mutable i64[LPF_MAX_TEXT] = zeroed
     i <- 0
@@ -52,7 +52,7 @@ def lpf_impl(input: view[i64], length: usize, staged: mutable view[u8]) -> i64:
     while i < n:
         value: usize = sa[i]
         j: mutable usize = i
-        while j > 0 and lpf_suffix_less(input[1:1 + n], n, value, sa[j - 1]):
+        while j > 0 and lpf_suffix_less(&input[1], n, value, sa[j - 1]):
             sa[j] <- sa[j - 1]
             j <- j - 1
         sa[j] <- value
@@ -65,46 +65,50 @@ def lpf_impl(input: view[i64], length: usize, staged: mutable view[u8]) -> i64:
     top: mutable usize = 0
     i <- 0
     while i < n:
-        while top > 0 and sa[stack[top - 1]] > sa[i]: top <- top - 1
-        if top > 0: previous[i] <- stack[top - 1].i64()
-        stack[top] <- i
+        while top > 0 and sa[stack_value[top - 1]] > sa[i]:
+            top <- top - 1
+        if top > 0: previous[i] <- stack_value[top - 1].i64()
+        stack_value[top] <- i
         top <- top + 1
         i <- i + 1
     top <- 0
     rank_cursor: mutable usize = n
     while rank_cursor > 0:
         rank_cursor <- rank_cursor - 1
-        while top > 0 and sa[stack[top - 1]] > sa[rank_cursor]: top <- top - 1
-        if top > 0: following[rank_cursor] <- stack[top - 1].i64()
-        stack[top] <- rank_cursor
+        while top > 0 and sa[stack_value[top - 1]] > sa[rank_cursor]:
+            top <- top - 1
+        if top > 0: following[rank_cursor] <- stack_value[top - 1].i64()
+        stack_value[top] <- rank_cursor
         top <- top + 1
 
     pairs: mutable usize = 0
     pos: mutable usize = 0
     while pos < n:
         rank: usize = inverse[pos]
-        psv: i64 = if previous[rank] >= 0: sa[previous[rank].usize()].i64() else: -1
-        nsv: i64 = if following[rank] >= 0: sa[following[rank].usize()].i64() else: -1
-        lp: usize = lpf_match_length(input[1:1 + n], n, psv, pos)
-        ln: usize = lpf_match_length(input[1:1 + n], n, nsv, pos)
-        source: mutable i64 = if ln > lp: nsv else: psv
-        matched: usize = if ln > lp: ln else: lp
+        psv: i64 = sa[previous[rank].usize()].i64() if previous[rank] >= 0 else -1
+        nsv: i64 = sa[following[rank].usize()].i64() if following[rank] >= 0 else -1
+        lp: usize = lpf_match_length(&input[1], n, psv, pos)
+        ln: usize = lpf_match_length(&input[1], n, nsv, pos)
+        source: mutable i64 = nsv if ln > lp else psv
+        matched: usize = ln if ln > lp else lp
         if matched == 0: source <- -1
         lpf_store(staged, pairs * 16, source)
         lpf_store(staged, pairs * 16 + 8, matched.i64())
         pairs <- pairs + 1
-        pos <- pos + (if matched > 0: matched else: 1)
+        pos <- pos + ((matched if matched > 0 else 1))
     (pairs * 16).i64()
 
-export fn lz77_lpf_suffix_array(input: i64&, length: usize,
+def lz77_lpf_suffix_array_impl(input: i64&, length: usize,
                                 output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > LPF_MAX_INPUT: return -1
+    if input == null or length < 1 or length > LPF_MAX_INPUT: return -1
     staged: mutable u8[LPF_MAX_OUTPUT] = zeroed
-    bytes: i64 = lpf_impl(input[0:length], length, staged[0:LPF_MAX_OUTPUT])
+    bytes: i64 = lpf_impl(input, length, staged[0:LPF_MAX_OUTPUT])
     if bytes < 0: return bytes
-    if output.is_null() or capacity < bytes.usize(): return -2
+    if output == null or capacity < bytes.usize(): return -2
     i: mutable usize = 0
     while i < bytes.usize():
         output[i] <- staged[i]
         i <- i + 1
     bytes
+
+export fn lz77_lpf_suffix_array(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = lz77_lpf_suffix_array_impl

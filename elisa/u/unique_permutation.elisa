@@ -1,11 +1,11 @@
 const MAX_LENGTH: usize = 6
 
 def unique_permutation_generate(values: view[i64], n: usize, depth: usize,
-        current: mutable view[i64], used: mutable view[bool], output: mutable view[u8],
+        current: mutable view[i64], used: mutable view[bool], output: mutable u8&,
         result_count: mutable usize&) -> void:
     if depth == n:
         row: usize = result_count * n
-        index: usize = 0
+        index: mutable usize = 0
         while index < n:
             output[row + index] <- current[index].u8()
             index <- index + 1
@@ -57,7 +57,7 @@ def unique_permutation_impl(input: i64&, length: usize, output: mutable u8&, out
     used: mutable bool[MAX_LENGTH] = zeroed
     result_count: mutable usize = 0
     unique_permutation_generate(values[0:n], n, 0, current[0:n], used[0:n],
-            output[0:output_capacity], result_count)
+            output, result_count)
     result_count.i64()
 
 export fn unique_permutation(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = unique_permutation_impl

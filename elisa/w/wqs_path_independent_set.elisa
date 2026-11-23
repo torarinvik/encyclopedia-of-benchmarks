@@ -1,9 +1,9 @@
 # Uncompiled and unexecuted weighted-binary-search draft.
 struct WqsState:
-    score: i64
-    count: i64
+    score: mutable i64
+    count: mutable i64
 
-def wqs_evaluate(weights: view[i64], count: usize, penalty: i64) -> WqsState:
+def wqs_evaluate(weights: i64&, count: usize, penalty: i64) -> WqsState:
     two: mutable WqsState
     one: mutable WqsState
     two.score <- 0
@@ -19,15 +19,15 @@ def wqs_evaluate(weights: view[i64], count: usize, penalty: i64) -> WqsState:
         one <- current
     one
 
-export fn wqs_path_independent_set(input: i64&, length: usize) -> i64:
+def wqs_path_independent_set_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 2 or length > 130: return -1000000000
-    frame: view[i64] = input[0:length]
+    frame: i64& = input
     if frame[0] < 0 or frame[0] > 128 or frame[1] < 0 or frame[1] > (frame[0]+1)/2: return -1000000000
     n: usize = frame[0].usize()
     if length != n+2: return -1000000000
     for i in 0..<n:
         if frame[2+i] < -1000 or frame[2+i] > 1000: return -1000000000
-    weights: view[i64] = frame[2:length]
+    weights: i64& = &frame[2]
     low: mutable i64 = -256001
     high: mutable i64 = 256001
     while low < high:
@@ -37,3 +37,5 @@ export fn wqs_path_independent_set(input: i64&, length: usize) -> i64:
         else: high <- middle-1
     result: WqsState = wqs_evaluate(weights, n, low)
     result.score+low*frame[1]
+
+export fn wqs_path_independent_set(input: i64&, length: usize) -> i64 = wqs_path_independent_set_impl

@@ -2,24 +2,24 @@ const CMN_MAX_SOURCE: usize = 6
 const CMN_MAX_INPUT: usize = 16
 const CMN_MAX_OUTPUT: usize = 12
 
-def cmn_subsequence(source: view[i64], requested: usize,
+def cmn_subsequence(source: i64&, source_length: usize, requested: usize,
                     selected: mutable view[u8]) -> usize:
-    stack: mutable u8[CMN_MAX_SOURCE] = zeroed
+    stack_value: mutable u8[CMN_MAX_SOURCE] = zeroed
     stack_length: mutable usize = 0
-    deletions: mutable usize = source.len() - requested
+    deletions: mutable usize = source_length - requested
     i: mutable usize = 0
-    while i < source.len():
+    while i < source_length:
         digit: u8 = source[i].u8()
-        while deletions > 0 and stack_length > 0 and stack[stack_length - 1] < digit:
+        while deletions > 0 and stack_length > 0 and stack_value[stack_length - 1] < digit:
             stack_length <- stack_length - 1
             deletions <- deletions - 1
-        stack[stack_length] <- digit
+        stack_value[stack_length] <- digit
         stack_length <- stack_length + 1
         i <- i + 1
     stack_length <- stack_length - deletions
     i <- 0
     while i < stack_length:
-        selected[i] <- stack[i]
+        selected[i] <- stack_value[i]
         i <- i + 1
     stack_length
 
@@ -27,14 +27,14 @@ def cmn_compare_suffix(first: view[u8], first_at: usize,
                        second: view[u8], second_at: usize) -> i64:
     i: mutable usize = first_at
     j: mutable usize = second_at
-    while i < first.len() and j < second.len():
+    while i < first.len and j < second.len:
         if first[i] != second[j]:
             if first[i] > second[j]: return 1
             return -1
         i <- i + 1
         j <- j + 1
-    if i == first.len() and j == second.len(): return 0
-    if i == first.len(): return -1
+    if i == first.len and j == second.len: return 0
+    if i == first.len: return -1
     1
 
 def cmn_merge(first: view[u8], first_length: usize,
@@ -62,13 +62,12 @@ def cmn_greater(candidate: view[u8], best: view[u8], length: usize) -> bool:
         i <- i + 1
     false
 
-def cmn_impl(input: view[i64], length: usize,
+def cmn_impl(input: i64&, length: usize,
              staged: mutable view[u8]) -> i64:
     if length < 3 or length > CMN_MAX_INPUT: return -1
     first_value: i64 = input[0]
     second_value: i64 = input[1]
-    if first_value < 0 or first_value > CMN_MAX_SOURCE.i64() or
-        second_value < 0 or second_value > CMN_MAX_SOURCE.i64(): return -1
+    if first_value < 0 or first_value > CMN_MAX_SOURCE.i64() or second_value < 0 or second_value > CMN_MAX_SOURCE.i64(): return -1
     first_length: usize = first_value.usize()
     second_length: usize = second_value.usize()
     requested_value: i64 = input[2]
@@ -80,8 +79,8 @@ def cmn_impl(input: view[i64], length: usize,
         if input[3 + i] < 0 or input[3 + i] > 9: return -1
         i <- i + 1
 
-    minimum_first: usize = if requested > second_length: requested - second_length else: 0
-    maximum_first: usize = if requested < first_length: requested else: first_length
+    minimum_first: usize = requested - second_length if requested > second_length else 0
+    maximum_first: usize = requested if requested < first_length else first_length
     best: mutable u8[CMN_MAX_OUTPUT] = zeroed
     candidate: mutable u8[CMN_MAX_OUTPUT] = zeroed
     selected_a: mutable u8[CMN_MAX_SOURCE] = zeroed
@@ -90,9 +89,9 @@ def cmn_impl(input: view[i64], length: usize,
     take_first: mutable usize = minimum_first
     while take_first <= maximum_first:
         first_length_selected: usize = cmn_subsequence(
-            input[3:3 + first_length], take_first, selected_a[0:CMN_MAX_SOURCE])
+            &input[3], (3 + first_length) - 3, take_first, selected_a[0:CMN_MAX_SOURCE])
         second_length_selected: usize = cmn_subsequence(
-            input[3 + first_length:3 + first_length + second_length],
+            &input[3 + first_length], (3 + first_length + second_length) - (3 + first_length),
             requested - take_first, selected_b[0:CMN_MAX_SOURCE])
         candidate_length: usize = cmn_merge(
             selected_a[0:first_length_selected], first_length_selected,
@@ -111,17 +110,19 @@ def cmn_impl(input: view[i64], length: usize,
         i <- i + 1
     requested.i64()
 
-export fn create_maximum_number(input: i64&, length: usize,
+def create_maximum_number_impl(input: i64&, length: usize,
                                 output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > CMN_MAX_INPUT: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 3 or length > CMN_MAX_INPUT: return -1
+    values: i64& = input
     staged: mutable u8[CMN_MAX_OUTPUT] = zeroed
     answer: i64 = cmn_impl(values, length, staged[0:CMN_MAX_OUTPUT])
     if answer < 0: return answer
-    if output.is_null() or capacity < answer.usize(): return -2
-    output_view: mutable view[u8] = output[0:answer.usize()]
+    if output == null or capacity < answer.usize(): return -2
+    output_view: mutable u8& = output
     i: mutable usize = 0
     while i < answer.usize():
         output_view[i] <- staged[i]
         i <- i + 1
     answer
+
+export fn create_maximum_number(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = create_maximum_number_impl

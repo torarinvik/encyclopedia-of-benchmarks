@@ -4,8 +4,8 @@ const MAX_INPUT: usize = 92
 const MAX_DN: usize = 20
 
 def vertex_connectivity_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    values: i64& = input
     if values[0] < 0 or values[0] > 10 or values[1] < 0 or values[1] > 45: return -1
     n: usize = values[0].usize()
     m: usize = values[1].usize()
@@ -56,20 +56,21 @@ def vertex_connectivity_impl(input: i64&, length: usize) -> i64:
             flow: mutable i64 = 0
             while flow < best:
                 parent: mutable i64[20] = zeroed
-                for v in 0..<nodes: parent[v] <- -1
+                for v in 0..<nodes:
+                    parent[v] <- -1
                 queue: mutable usize[20] = zeroed
                 parent[start] <- start.i64()
                 head: mutable usize = 0
-                tail: mutable usize = 1
+                tail_value: mutable usize = 1
                 queue[0] <- start
-                while head < tail and parent[sink] < 0:
+                while head < tail_value and parent[sink] < 0:
                     u: usize = queue[head]
                     head <- head + 1
                     for v in 0..<nodes:
                         if parent[v] < 0 and residual[u*MAX_DN+v] > 0:
                             parent[v] <- u.i64()
-                            queue[tail] <- v
-                            tail <- tail + 1
+                            queue[tail_value] <- v
+                            tail_value <- tail_value + 1
                             if v == sink: break
                 if parent[sink] < 0: break
                 amount: mutable i64 = best - flow

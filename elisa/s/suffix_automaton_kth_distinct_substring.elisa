@@ -1,13 +1,15 @@
 # Independently authored draft; not compiled or run.
-def kth_substring_solve(input: view[i64], result: mutable view[u8]) -> i64:
+def kth_substring_solve(input: i64&, result: mutable view[u8]) -> i64:
     n: usize = input[0].usize()
     k: mutable i64 = input[1]
     transitions: mutable i64[131072] = zeroed
     links: mutable i64[512] = zeroed
     lengths: mutable usize[512] = zeroed
     paths: mutable i64[512] = zeroed
-    for i in 0..<131072: transitions[i] <- -1
-    for i in 0..<512: links[i] <- -1
+    for i in 0..<131072:
+        transitions[i] <- -1
+    for i in 0..<512:
+        links[i] <- -1
     count: mutable usize = 1
     last: mutable usize = 0
     for i in 0..<n:
@@ -26,7 +28,8 @@ def kth_substring_solve(input: view[i64], result: mutable view[u8]) -> i64:
             else:
                 clone: usize = count
                 count <- count + 1
-                for c in 0..<256: transitions[clone*256+c] <- transitions[q*256+c]
+                for c in 0..<256:
+                    transitions[clone*256+c] <- transitions[q*256+c]
                 links[clone] <- links[q]
                 lengths[clone] <- lengths[p.usize()] + 1
                 while p >= 0 and transitions[p.usize()*256+symbol] == q.i64():
@@ -37,8 +40,10 @@ def kth_substring_solve(input: view[i64], result: mutable view[u8]) -> i64:
         last <- current
     buckets: mutable usize[257] = zeroed
     order: mutable usize[512] = zeroed
-    for i in 0..<count: buckets[lengths[i]] <- buckets[lengths[i]] + 1
-    for i in 1..<(n+1): buckets[i] <- buckets[i] + buckets[i-1]
+    for i in 0..<count:
+        buckets[lengths[i]] <- buckets[lengths[i]] + 1
+    for i in 1..<(n+1):
+        buckets[i] <- buckets[i] + buckets[i-1]
     idx: mutable usize = count
     while idx > 0:
         idx <- idx - 1
@@ -75,9 +80,9 @@ def kth_substring_solve(input: view[i64], result: mutable view[u8]) -> i64:
         else: k <- k - 1
     used.i64()
 
-export fn suffix_automaton_kth_distinct_substring(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+def suffix_automaton_kth_distinct_substring_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input == null or length < 3 or length > 259: return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 1 or values[0] > 256 or values[1] < 1: return -1
     n: usize = values[0].usize()
     if length != n + 2: return -1
@@ -87,6 +92,9 @@ export fn suffix_automaton_kth_distinct_substring(input: i64&, length: usize, ou
     used: i64 = kth_substring_solve(values, result[0:256])
     if used < 0: return -1
     if output == null or capacity < used.usize(): return -2
-    out: mutable view[u8] = output[0:used.usize()]
-    for i in 0..<used.usize(): out[i] <- result[i]
+    out: mutable u8& = output
+    for i in 0..<used.usize():
+        out[i] <- result[i]
     used
+
+export fn suffix_automaton_kth_distinct_substring(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = suffix_automaton_kth_distinct_substring_impl

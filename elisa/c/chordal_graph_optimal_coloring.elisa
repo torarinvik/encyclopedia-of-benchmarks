@@ -1,10 +1,10 @@
 # Uncompiled chordal-graph optimal coloring draft.
-def cgoc_solve(values: view[i64]) -> i64:
-    if values.len() < 2 or values.len() > 18: return -1
+def cgoc_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 2 or values_length > 18: return -1
     nv: i64 = values[0]
     if nv < 1 or nv > 16: return -1
     n: usize = nv.usize()
-    if values.len() != n + 1: return -1
+    if values_length != n + 1: return -1
     rows: mutable i64[16] = zeroed
     weights: mutable i64[16] = zeroed
     colors: mutable i64[16] = zeroed
@@ -22,7 +22,7 @@ def cgoc_solve(values: view[i64]) -> i64:
         for u in 0..<n:
             if (selected & (1 << u)) == 0:
                 if vertex == n: vertex <- u
-                else if weights[u] > weights[vertex]: vertex <- u
+                elif weights[u] > weights[vertex]: vertex <- u
         earlier: i64 = rows[vertex] & selected
         for j in 0..<i:
             u: usize = order[j]
@@ -40,11 +40,14 @@ def cgoc_solve(values: view[i64]) -> i64:
             if (rows[v] & (1 << u)) != 0 and colors[u] >= 0:
                 used <- used | (1 << colors[u].usize())
         color: mutable i64 = 0
-        while (used & (1 << color.usize())) != 0: color <- color + 1
+        while (used & (1 << color.usize())) != 0:
+            color <- color + 1
         colors[v] <- color
         if color + 1 > maximum: maximum <- color + 1
     maximum
 
-export fn chordal_graph_optimal_coloring(input: i64&, length: usize) -> i64:
+def chordal_graph_optimal_coloring_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 2 or length > 18: return -1
-    cgoc_solve(input[0:length])
+    cgoc_solve(input, length)
+
+export fn chordal_graph_optimal_coloring(input: i64&, length: usize) -> i64 = chordal_graph_optimal_coloring_impl

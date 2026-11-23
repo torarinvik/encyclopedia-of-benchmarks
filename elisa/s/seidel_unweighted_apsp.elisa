@@ -1,10 +1,10 @@
-def seidel_unweighted_apsp_impl(input: view[i64], length: usize,
-    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+def seidel_unweighted_apsp_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize, output_is_null: bool) -> i64:
     if length < 2 or length > 66: return -1
     if input[0] < 1 or input[0] > 8: return -1
     n: usize = input[0].usize()
     if length != 1 + n * n: return -1
-    levels: mutable [256]i64 = [0; 256]
+    levels: mutable i64[256] = zeroed
     for i in 0..<n:
         for j in 0..<n:
             value: i64 = input[1 + i * n + j]
@@ -13,20 +13,20 @@ def seidel_unweighted_apsp_impl(input: view[i64], length: usize,
     for i in 0..<n:
         for j in 0..<i:
             if levels[i * 8 + j] != levels[j * 8 + i]: return -1
-    seen: mutable [8]bool = [false; 8]
-    queue: mutable [8]usize = [0; 8]
+    seen: mutable bool[8] = zeroed
+    queue: mutable usize[8] = zeroed
     seen[0] <- true
     head: mutable usize = 0
-    tail: mutable usize = 1
-    while head < tail:
+    tail_value: mutable usize = 1
+    while head < tail_value:
         vertex: usize = queue[head]
         head <- head + 1
         for other in 0..<n:
             if levels[vertex * 8 + other] != 0 and not seen[other]:
                 seen[other] <- true
-                queue[tail] <- other
-                tail <- tail + 1
-    if tail != n: return -1
+                queue[tail_value] <- other
+                tail_value <- tail_value + 1
+    if tail_value != n: return -1
     bytes: usize = 8 * n * n
     if output_is_null or capacity < bytes: return -2
     level: mutable usize = 0
@@ -45,8 +45,8 @@ def seidel_unweighted_apsp_impl(input: view[i64], length: usize,
                     if i != j and (levels[level * 64 + i * 8 + j] != 0 or paths > 0):
                         levels[(level + 1) * 64 + i * 8 + j] <- 1
             level <- level + 1
-    result: mutable [64]i64 = [0; 64]
-    next: mutable [64]i64 = [0; 64]
+    result: mutable i64[64] = zeroed
+    next: mutable i64[64] = zeroed
     for i in 0..<n:
         for j in 0..<n:
             if i != j: result[i * 8 + j] <- 1
@@ -67,7 +67,8 @@ def seidel_unweighted_apsp_impl(input: view[i64], length: usize,
                     if neighbor_sum < result[i * 8 + j] * degree: distance <- distance - 1
                     next[i * 8 + j] <- distance
         for i in 0..<n:
-            for j in 0..<n: result[i * 8 + j] <- next[i * 8 + j]
+            for j in 0..<n:
+                result[i * 8 + j] <- next[i * 8 + j]
     for i in 0..<n:
         for j in 0..<n:
             bits: mutable u64 = result[i * 8 + j].u64()
@@ -76,14 +77,16 @@ def seidel_unweighted_apsp_impl(input: view[i64], length: usize,
                 bits <- bits >> 8
     bytes.i64()
 
-export fn seidel_unweighted_apsp(input: i64&, length: usize,
+def seidel_unweighted_apsp_entry(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 66: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
-        scratch: mutable [1]u8 = [0; 1]
-        return seidel_unweighted_apsp_impl(input_view, length, scratch[0:1], 0, true)
+    if input == null or length < 2 or length > 66: return -1
+    input_view: i64& = input
+    if output == null:
+        scratch: mutable u8[1] = zeroed
+        return seidel_unweighted_apsp_impl(input_view, length, &scratch[0], 0, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > 512: safe_capacity <- 512
-    output_view: mutable view[u8] = output[0:safe_capacity]
+    output_view: mutable u8& = output
     seidel_unweighted_apsp_impl(input_view, length, output_view, capacity, false)
+
+export fn seidel_unweighted_apsp(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = seidel_unweighted_apsp_entry

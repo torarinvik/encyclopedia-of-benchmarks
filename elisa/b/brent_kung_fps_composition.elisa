@@ -1,22 +1,23 @@
-const FPS_MODULUS: i64 = 998_244_353
+const FPS_MODULUS: i64 = 998244353
 const FPS_MAX_N: usize = 32
 const FPS_MAX_INPUT: usize = 66
 const FPS_MAX_BLOCKS: usize = 6
 const FPS_MAX_POWERS: usize = 7
 
 def brent_kung_multiply(left: view[i64], right: view[i64], product: mutable view[i64], n: usize) -> void:
-    for degree in 0..<n: product[degree] <- 0
+    for degree in 0..<n:
+        product[degree] <- 0
     for i in 0..<n:
         for j in 0..<(n - i):
             product[i + j] <- (product[i + j] + left[i] * right[j]) % FPS_MODULUS
 
-def brent_kung_store_le(value: i64, output: mutable view[u8], position: usize) -> void:
+def brent_kung_store_le(value: i64, output: mutable u8&, position: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[position + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def brent_kung_compose_impl(input: view[i64], length: usize, output: mutable view[u8],
+def brent_kung_compose_impl(input: i64&, length: usize, output: mutable u8&,
     capacity: usize, output_is_null: bool) -> i64:
     if length < 3 or length > FPS_MAX_INPUT: return -1
     n_value: i64 = input[0]
@@ -30,7 +31,8 @@ def brent_kung_compose_impl(input: view[i64], length: usize, output: mutable vie
     if output_is_null or capacity < bytes: return -2
 
     block_size: mutable usize = 1
-    while block_size * block_size < n: block_size <- block_size + 1
+    while block_size * block_size < n:
+        block_size <- block_size + 1
     block_count: usize = (n + block_size - 1) / block_size
     powers: mutable i64[7 * 32] = zeroed
     blocks: mutable i64[6 * 32] = zeroed
@@ -38,13 +40,16 @@ def brent_kung_compose_impl(input: view[i64], length: usize, output: mutable vie
     left: mutable i64[32] = zeroed
     product: mutable i64[32] = zeroed
     composed: mutable i64[32] = zeroed
-    for degree in 0..<n: inner[degree] <- input[1 + n + degree]
+    for degree in 0..<n:
+        inner[degree] <- input[1 + n + degree]
     powers[0] <- 1
     exponent: mutable usize = 1
     while exponent <= block_size:
-        for degree in 0..<n: left[degree] <- powers[(exponent - 1) * FPS_MAX_N + degree]
+        for degree in 0..<n:
+            left[degree] <- powers[(exponent - 1) * FPS_MAX_N + degree]
         brent_kung_multiply(left[0:n], inner[0:n], product[0:n], n)
-        for degree in 0..<n: powers[exponent * FPS_MAX_N + degree] <- product[degree]
+        for degree in 0..<n:
+            powers[exponent * FPS_MAX_N + degree] <- product[degree]
         exponent <- exponent + 1
     block: mutable usize = 0
     while block < block_count:
@@ -59,26 +64,32 @@ def brent_kung_compose_impl(input: view[i64], length: usize, output: mutable vie
                     (blocks[block_index] + coefficient * powers[offset * FPS_MAX_N + degree]) % FPS_MODULUS
             offset <- offset + 1
         block <- block + 1
-    for degree in 0..<n: composed[degree] <- blocks[(block_count - 1) * FPS_MAX_N + degree]
+    for degree in 0..<n:
+        composed[degree] <- blocks[(block_count - 1) * FPS_MAX_N + degree]
     block <- block_count - 1
     while block > 0:
-        for degree in 0..<n: left[degree] <- composed[degree]
-        for degree in 0..<n: inner[degree] <- powers[block_size * FPS_MAX_N + degree]
+        for degree in 0..<n:
+            left[degree] <- composed[degree]
+        for degree in 0..<n:
+            inner[degree] <- powers[block_size * FPS_MAX_N + degree]
         brent_kung_multiply(left[0:n], inner[0:n], product[0:n], n)
         for degree in 0..<n:
             composed[degree] <- (product[degree] + blocks[(block - 1) * FPS_MAX_N + degree]) % FPS_MODULUS
         block <- block - 1
-    for degree in 0..<n: brent_kung_store_le(composed[degree], output, 8 * degree)
+    for degree in 0..<n:
+        brent_kung_store_le(composed[degree], output, 8 * degree)
     bytes.i64()
 
-export fn brent_kung_fps_composition(input: i64&, length: usize,
+def brent_kung_fps_composition_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > FPS_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+    if input == null or length < 3 or length > FPS_MAX_INPUT: return -1
+    input_view: i64& = input
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return brent_kung_compose_impl(input_view, length, scratch[0:1], 0, true)
+        return brent_kung_compose_impl(input_view, length, &scratch[0], 0, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > FPS_MAX_N * 8: safe_capacity <- FPS_MAX_N * 8
-    output_view: mutable view[u8] = output[0:safe_capacity]
+    output_view: mutable u8& = output
     brent_kung_compose_impl(input_view, length, output_view, capacity, false)
+
+export fn brent_kung_fps_composition(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = brent_kung_fps_composition_impl

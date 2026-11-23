@@ -1,7 +1,7 @@
 const MAX_CELLS: usize = 256
 const MAX_INPUT_LENGTH: usize = 259
 
-def spiral_print_put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def spiral_print_put_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -9,7 +9,7 @@ def spiral_print_put_i64_le(output: mutable view[u8], offset: usize, value: i64)
         byte <- byte + 1
 
 def spiral_print_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
     rows_value: i64 = input[0]
     columns_value: i64 = input[1]
@@ -32,7 +32,7 @@ def spiral_print_impl(input: i64&, length: usize, output: mutable u8&, capacity:
         index <- index + 1
 
     required_bytes: usize = 8 * cell_count
-    if output.is_null() or capacity < required_bytes:
+    if output == null or capacity < required_bytes:
         return -2
 
     order: mutable i64[256] = zeroed
@@ -78,7 +78,7 @@ def spiral_print_impl(input: i64&, length: usize, output: mutable u8&, capacity:
 
     index <- 0
     while index < order_length:
-        spiral_print_put_i64_le(output[0:capacity], 8 * index, order[index])
+        spiral_print_put_i64_le(output, 8 * index, order[index])
         index <- index + 1
     required_bytes.i64()
 

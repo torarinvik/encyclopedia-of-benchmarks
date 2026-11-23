@@ -31,7 +31,7 @@ def merge_pass(source: view[i64], destination: mutable view[i64], length: usize,
             output_index <- output_index + 1
         start <- start + width * 2
 
-def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
+def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -40,10 +40,10 @@ def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
 
 def external_merge_sorter_impl(input: i64&, length: usize, output: mutable u8&,
         output_capacity: usize) -> i64:
-    if length > MAX_VALUES or (length != 0 and input.is_null()):
+    if length > MAX_VALUES or (length != 0 and input == null):
         return -1
     output_bytes: usize = length * 8
-    if output.is_null() or output_capacity < output_bytes:
+    if output == null or output_capacity < output_bytes:
         return -2
 
     primary: mutable i64[MAX_VALUES] = zeroed
@@ -67,9 +67,9 @@ def external_merge_sorter_impl(input: i64&, length: usize, output: mutable u8&,
     index <- 0
     while index < length:
         if source_is_primary:
-            store_i64_le(primary[index], output[0:output_capacity], index * 8)
+            store_i64_le(primary[index], output, index * 8)
         else:
-            store_i64_le(temporary[index], output[0:output_capacity], index * 8)
+            store_i64_le(temporary[index], output, index * 8)
         index <- index + 1
     output_bytes.i64()
 

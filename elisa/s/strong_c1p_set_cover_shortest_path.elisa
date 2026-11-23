@@ -3,7 +3,7 @@ const SC1P_MAX_COLUMNS: usize = 10
 const SC1P_MAX_INPUT: usize = 21
 const SC1P_INF: i64 = 1000000000
 
-def sc1p_store_i64_le(value: i64, output: mutable view[u8]) -> void:
+def sc1p_store_i64_le(value: i64, output: mutable u8&) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[byte] <- ((bits >> (8 * byte)) & 255).u8()
@@ -11,7 +11,8 @@ def sc1p_store_i64_le(value: i64, output: mutable view[u8]) -> void:
 def sc1p_solve(rows: usize, columns: usize, weights: view[i64],
                row_left: view[i64], row_right: view[i64]) -> i64:
     order: mutable i64[SC1P_MAX_ROWS] = zeroed
-    for row in 0..<rows: order[row] <- row.i64()
+    for row in 0..<rows:
+        order[row] <- row.i64()
     for i in 1..<rows:
         value: i64 = order[i]
         j: mutable usize = i
@@ -68,20 +69,19 @@ def sc1p_solve(rows: usize, columns: usize, weights: view[i64],
         if distance[from] == SC1P_INF: continue
         if column_end[from] == retained.i64() - 1 and distance[from] + weights[from] < best:
             best <- distance[from] + weights[from]
-        for to in from + 1..<columns:
-            if column_start[to] >= 0 and column_start[to] <= column_end[from] + 1:
+        for to_value in from + 1..<columns:
+            if column_start[to_value] >= 0 and column_start[to_value] <= column_end[from] + 1:
                 candidate: i64 = distance[from] + weights[from]
-                if candidate < distance[to]: distance[to] <- candidate
+                if candidate < distance[to_value]: distance[to_value] <- candidate
     if best == SC1P_INF: return -1
     best
 
-export fn strong_c1p_set_cover_shortest_path(input: i64&, length: usize,
+def strong_c1p_set_cover_shortest_path_impl(input: i64&, length: usize,
                                              output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 4 or length > SC1P_MAX_INPUT: return -1
+    if input == null or length < 4 or length > SC1P_MAX_INPUT: return -1
     rows_raw: i64 = input[0]
     columns_raw: i64 = input[1]
-    if rows_raw < 1 or rows_raw > SC1P_MAX_ROWS.i64() or
-       columns_raw < 1 or columns_raw > SC1P_MAX_COLUMNS.i64(): return -1
+    if rows_raw < 1 or rows_raw > SC1P_MAX_ROWS.i64() or columns_raw < 1 or columns_raw > SC1P_MAX_COLUMNS.i64(): return -1
     rows: usize = rows_raw.usize()
     columns: usize = columns_raw.usize()
     if length != 2 + rows + columns: return -1
@@ -112,9 +112,11 @@ export fn strong_c1p_set_cover_shortest_path(input: i64&, length: usize,
             elif seen_one:
                 seen_zero_after <- true
         if masks[row] == 0: infeasible <- true
-    result: i64 = -1
+    result: mutable i64 = -1
     if not infeasible:
         result <- sc1p_solve(rows, columns, weights[0:columns], row_left[0:rows], row_right[0:rows])
-    if output.is_null() or capacity < 8: return -2
-    sc1p_store_i64_le(result, output[0:8])
+    if output == null or capacity < 8: return -2
+    sc1p_store_i64_le(result, output)
     8
+
+export fn strong_c1p_set_cover_shortest_path(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = strong_c1p_set_cover_shortest_path_impl

@@ -4,29 +4,29 @@ const JOHNSON_MAX_INPUT: usize = 51
 const JOHNSON_COUNT_SCALE: i64 = 1000000000000
 
 struct JohnsonState:
-    n: usize
-    start: usize
-    depth: usize
+    n: mutable usize
+    start: mutable usize
+    depth: mutable usize
     edge: bool[64]
     inside: bool[8]
     blocked: bool[8]
     dependency: bool[64]
     path: usize[8]
-    count: i64
-    code_sum: i64
+    count: mutable i64
+    code_sum: mutable i64
 
 struct JohnsonSccState:
-    n: usize
-    lower_bound: usize
-    next_index: usize
-    component_count: usize
-    stack_length: usize
+    n: mutable usize
+    lower_bound: mutable usize
+    next_index: mutable usize
+    component_count: mutable usize
+    stack_length: mutable usize
     edge: bool[64]
     index: i64[8]
     low_link: i64[8]
     component_id: i64[8]
     on_stack: bool[8]
-    stack: usize[8]
+    stack_value: usize[8]
     component_size: usize[8]
     component_minimum: usize[8]
 
@@ -34,7 +34,7 @@ def johnson_strong_connect(state: mutable JohnsonSccState&, vertex: usize) -> vo
     state.index[vertex] <- state.next_index.i64()
     state.low_link[vertex] <- state.next_index.i64()
     state.next_index <- state.next_index + 1
-    state.stack[state.stack_length] <- vertex
+    state.stack_value[state.stack_length] <- vertex
     state.stack_length <- state.stack_length + 1
     state.on_stack[vertex] <- true
 
@@ -55,7 +55,7 @@ def johnson_strong_connect(state: mutable JohnsonSccState&, vertex: usize) -> vo
     minimum: mutable usize = state.n
     while true:
         state.stack_length <- state.stack_length - 1
-        member: usize = state.stack[state.stack_length]
+        member: usize = state.stack_value[state.stack_length]
         state.on_stack[member] <- false
         state.component_id[member] <- component.i64()
         size <- size + 1
@@ -112,9 +112,9 @@ def johnson_circuit(state: mutable JohnsonState&, vertex: usize) -> bool:
     found
 
 def johnson_elementary_circuit_enumeration_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > JOHNSON_MAX_INPUT:
+    if input == null or length < 2 or length > JOHNSON_MAX_INPUT:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 1 or values[0] > JOHNSON_MAX_VERTICES.i64() or values[1] < 0 or values[1] > JOHNSON_MAX_EDGES.i64():
         return -1
     n: usize = values[0].usize()
@@ -122,7 +122,7 @@ def johnson_elementary_circuit_enumeration_impl(input: i64&, length: usize) -> i
     if length != 2 + 2 * m:
         return -1
 
-    edge: mutable bool[64] = [false; 64]
+    edge: mutable bool[64] = zeroed
     for e in 0..<m:
         u_value: i64 = values[2 + 2 * e]
         v_value: i64 = values[3 + 2 * e]

@@ -2,11 +2,11 @@ const RSYNTH_MAX_OPEN: usize = 263
 
 def cbench_rsynth_glottal_impl(input: f64&, input_length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > 3:
+    if input == null or input_length < 1 or input_length > 3:
         return -1
     if input_length != 2:
         return -1
-    values: view[f64] = input[0:2]
+    values: f64& = input
     nopen_value: f64 = values[0]
     sample_value: f64 = values[1]
     if nopen_value != nopen_value or sample_value != sample_value:
@@ -30,9 +30,9 @@ def cbench_rsynth_glottal_impl(input: f64&, input_length: usize,
             wave <- (wave + a).f32()
             i <- i + 1
         result <- (wave.f64() * 0.028).f32()
-    if output.is_null() or output_capacity < 1:
+    if output == null or output_capacity < 1:
         return -2
-    out: mutable view[f64] = output[0:1]
+    out: mutable f64& = output
     out[0] <- result.f64()
     1
 

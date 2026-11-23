@@ -10,7 +10,7 @@ def second_mst_merge(first: i64, second: i64, candidate: i64, other: i64, result
         elif value < result[0] and value > result[1]:
             result[1] <- value
 
-def second_mst_lifting_impl(input: view[i64], length: usize) -> i64:
+def second_mst_lifting_impl(input: i64&, length: usize) -> i64:
     nv: i64 = input[0]
     mv: i64 = input[1]
     if nv < 1 or nv > 8 or mv < nv - 1 or mv > 20: return -1
@@ -48,15 +48,18 @@ def second_mst_lifting_impl(input: view[i64], length: usize) -> i64:
     adjacent: mutable usize[64] = zeroed
     tree_weight: mutable i64[64] = zeroed
     selected: mutable bool[20] = zeroed
-    for i in 0..<n: parent[i] <- i
+    for i in 0..<n:
+        parent[i] <- i
     count: mutable usize = 0
     total: mutable i64 = 0
     for i in 0..<m:
         edge: usize = order[i]
         a: mutable usize = edge_u[edge]
         b: mutable usize = edge_v[edge]
-        while parent[a] != a: a <- parent[a]
-        while parent[b] != b: b <- parent[b]
+        while parent[a] != a:
+            a <- parent[a]
+        while parent[b] != b:
+            b <- parent[b]
         if a != b:
             parent[a] <- b
             selected[edge] <- true
@@ -81,12 +84,13 @@ def second_mst_lifting_impl(input: view[i64], length: usize) -> i64:
     for i in 0..<32:
         maximum[i] <- -1
         runner_up[i] <- -1
-    for i in 0..<n: depth[i] <- -1
+    for i in 0..<n:
+        depth[i] <- -1
     depth[0] <- 0
     queue[0] <- 0
     head: mutable usize = 0
-    tail: mutable usize = 1
-    while head < tail:
+    tail_value: mutable usize = 1
+    while head < tail_value:
         vertex: usize = queue[head]
         head <- head + 1
         for i in 0..<degree[vertex]:
@@ -96,8 +100,8 @@ def second_mst_lifting_impl(input: view[i64], length: usize) -> i64:
                 depth[next] <- depth[vertex] + 1
                 up[next] <- vertex
                 maximum[next] <- tree_weight[pos]
-                queue[tail] <- next
-                tail <- tail + 1
+                queue[tail_value] <- next
+                tail_value <- tail_value + 1
     pair: mutable i64[2] = zeroed
     for level in 1..<4:
         for vertex in 0..<n:
@@ -157,6 +161,8 @@ def second_mst_lifting_impl(input: view[i64], length: usize) -> i64:
     if increase < 0: return 0
     total + increase + 1
 
-export fn second_best_mst_binary_lifting(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 63: return -1
-    second_mst_lifting_impl(input[0:length], length)
+def second_best_mst_binary_lifting_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 63: return -1
+    second_mst_lifting_impl(input, length)
+
+export fn second_best_mst_binary_lifting(input: i64&, length: usize) -> i64 = second_best_mst_binary_lifting_impl

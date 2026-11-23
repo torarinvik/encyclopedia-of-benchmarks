@@ -28,8 +28,8 @@ def mwm_query_before(a_left: i64, a_right: i64, a_time: i64, a_index: i64,
 def mwm_apply_update(position: i64, old_value: i64, new_value: i64, forward: bool,
                      values: mutable view[i64], window_left: i64, window_right: i64,
                      frequency: mutable view[i64], distinct: mutable view[i64]) -> void:
-    from_value: i64 = old_value
-    to_value: i64 = new_value
+    from_value: mutable i64 = old_value
+    to_value: mutable i64 = new_value
     if not forward:
         from_value <- new_value
         to_value <- old_value
@@ -42,7 +42,7 @@ def mwm_apply_update(position: i64, old_value: i64, new_value: i64, forward: boo
         frequency[to_value.usize()] <- frequency[to_value.usize()] + 1
     values[position.usize()] <- to_value
 
-def mo_with_modifications_impl(input: view[i64], length: usize) -> i64:
+def mo_with_modifications_impl(input: i64&, length: usize) -> i64:
     if length < 2 or length > 258:
         return -1
     raw_n: i64 = input[0]
@@ -90,7 +90,7 @@ def mo_with_modifications_impl(input: view[i64], length: usize) -> i64:
             update_new_values[update_count] <- second
             simulated[position] <- second
             update_count <- update_count + 1
-        else if operation == 1:
+        elif operation == 1:
             if first < 0 or second < first or second >= raw_n:
                 return -1
             query_lefts[query_count] <- first
@@ -191,8 +191,10 @@ def mo_with_modifications_impl(input: view[i64], length: usize) -> i64:
         i <- i + 1
     checksum
 
-export fn mo_with_modifications(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 258:
+def mo_with_modifications_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 258:
         return -1
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     mo_with_modifications_impl(input_view, length)
+
+export fn mo_with_modifications(input: i64&, length: usize) -> i64 = mo_with_modifications_entry

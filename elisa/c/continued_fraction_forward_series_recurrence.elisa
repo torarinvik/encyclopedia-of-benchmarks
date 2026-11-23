@@ -2,9 +2,9 @@ const MODULUS: i64 = 998244353
 const MAX_INPUT_LENGTH: usize = 11
 
 def mod_pow(base_value: i64, exponent_value: i64) -> i64:
-    let base: mutable i64 = base_value
-    let exponent: mutable i64 = exponent_value
-    let result: mutable i64 = 1
+    base:  mutable i64 = base_value
+    exponent:  mutable i64 = exponent_value
+    result:  mutable i64 = 1
     while exponent > 0:
         if (exponent & 1) != 0: result <- (result * base) % MODULUS
         base <- (base * base) % MODULUS
@@ -14,51 +14,53 @@ def mod_pow(base_value: i64, exponent_value: i64) -> i64:
 def next_numerator(coefficient: i64, rho: i64) -> i64:
     (coefficient * ((rho + 1) % MODULUS)) % MODULUS
 
-def divisors_are_nonzero(input: view[i64], count: usize) -> bool:
-    let rho: mutable i64 = 0
+def divisors_are_nonzero(input: i64&, count: usize) -> bool:
+    rho:  mutable i64 = 0
     for index in 1..<count:
-        let numerator: i64 = next_numerator(input[index + 1], rho)
-        let denominator: i64 = (1 + MODULUS - numerator) % MODULUS
+        numerator:  i64 = next_numerator(input[index + 1], rho)
+        denominator:  i64 = (1 + MODULUS - numerator) % MODULUS
         if denominator == 0: return false
         rho <- (numerator * mod_pow(denominator, MODULUS - 2)) % MODULUS
     true
 
-def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
-    let bits: mutable u64 = value.u64()
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits:  mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def continued_fraction_forward_series_impl(input: view[i64], output: mutable u8&,
+def continued_fraction_forward_series_impl(input: i64&, input_length: usize, output: mutable u8&,
                                             capacity: usize) -> i64:
-    let length: usize = input.len()
+    length:  usize = input_length
     if length < 3 or length > MAX_INPUT_LENGTH: return -1
-    let count_value: i64 = input[0]
+    count_value:  i64 = input[0]
     if count_value < 2 or count_value > 9: return -1
-    let count: usize = count_value.usize()
+    count:  usize = count_value.usize()
     if length != count + 1: return -1
     for index in 1..<length:
         if input[index] < 0 or input[index] >= MODULUS: return -1
     if not divisors_are_nonzero(input, count): return -1
 
-    let required: usize = 8 * (count + 1)
+    required:  usize = 8 * (count + 1)
     if output == null or capacity < required: return -2
-    let bytes: mutable view[u8] = output[0:required]
+    bytes: mutable u8& = output
     store_i64_le(count_value, bytes, 0)
-    let rho: mutable i64 = 0
-    let term: mutable i64 = input[1]
-    let sum: mutable i64 = term
+    rho:  mutable i64 = 0
+    term:  mutable i64 = input[1]
+    sum:  mutable i64 = term
     store_i64_le(sum, bytes, 8)
     for index in 1..<count:
-        let numerator: i64 = next_numerator(input[index + 1], rho)
-        let denominator: i64 = (1 + MODULUS - numerator) % MODULUS
+        numerator:  i64 = next_numerator(input[index + 1], rho)
+        denominator:  i64 = (1 + MODULUS - numerator) % MODULUS
         rho <- (numerator * mod_pow(denominator, MODULUS - 2)) % MODULUS
         term <- (rho * term) % MODULUS
         sum <- (sum + term) % MODULUS
         store_i64_le(sum, bytes, 8 * (index + 1))
     required.i64()
 
-export fn continued_fraction_forward_series_recurrence(input: i64&, length: usize,
+def continued_fraction_forward_series_recurrence_impl(input: i64&, length: usize,
                                                          output: mutable u8&, capacity: usize) -> i64:
     if input == null or length < 3 or length > MAX_INPUT_LENGTH: return -1
-    continued_fraction_forward_series_impl(input[0:length], output, capacity)
+    continued_fraction_forward_series_impl(input, length, output, capacity)
+
+export fn continued_fraction_forward_series_recurrence(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = continued_fraction_forward_series_recurrence_impl

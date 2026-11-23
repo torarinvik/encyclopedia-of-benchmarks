@@ -1,20 +1,20 @@
 const MAX_ORDER: i64 = 8
 
 def hilbert_index(order: i64, x: i64, y: i64) -> i64:
-    let current_x: mutable i64 = x
-    let current_y: mutable i64 = y
-    let distance: mutable i64 = 0
-    let bit_index: mutable i64 = order - 1
+    current_x:  mutable i64 = x
+    current_y:  mutable i64 = y
+    distance:  mutable i64 = 0
+    bit_index:  mutable i64 = order - 1
     while bit_index >= 0:
-        let bit: i64 = 1 << bit_index
-        let x_bit: mutable i64 = 0
-        let y_bit: mutable i64 = 0
+        bit:  i64 = 1 << bit_index
+        x_bit:  mutable i64 = 0
+        y_bit:  mutable i64 = 0
         if (current_x & bit) != 0: x_bit <- 1
         if (current_y & bit) != 0: y_bit <- 1
         distance <- distance + bit * bit * ((3 * x_bit) ^ y_bit)
-        let mask: i64 = bit - 1
-        let low_x: mutable i64 = current_x & mask
-        let low_y: mutable i64 = current_y & mask
+        mask:  i64 = bit - 1
+        low_x:  mutable i64 = current_x & mask
+        low_y:  mutable i64 = current_y & mask
         if y_bit == 0:
             if x_bit != 0:
                 low_x <- mask - low_x
@@ -27,27 +27,29 @@ def hilbert_index(order: i64, x: i64, y: i64) -> i64:
         bit_index <- bit_index - 1
     distance
 
-def store_i64_le(value: i64, output: mutable view[u8]) -> void:
-    let bits: mutable u64 = value.u64()
+def store_i64_le(value: i64, output: mutable u8&) -> void:
+    bits:  mutable u64 = value.u64()
     for byte in 0..<8:
         output[byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def hilbert_curve_index_encode_impl(input: view[i64], output: mutable u8&,
+def hilbert_curve_index_encode_impl(input: i64&, input_length: usize, output: mutable u8&,
                                     capacity: usize) -> i64:
-    if input.len() != 3: return -1
-    let order: i64 = input[0]
+    if input_length != 3: return -1
+    order:  i64 = input[0]
     if order < 1 or order > MAX_ORDER: return -1
-    let side: i64 = 1 << order
-    let x: i64 = input[1]
-    let y: i64 = input[2]
+    side:  i64 = 1 << order
+    x:  i64 = input[1]
+    y:  i64 = input[2]
     if x < 0 or x >= side or y < 0 or y >= side: return -1
     if output == null or capacity < 8: return -2
-    let bytes: mutable view[u8] = output[0:8]
+    bytes: mutable u8& = output
     store_i64_le(hilbert_index(order, x, y), bytes)
     8
 
-export fn hilbert_curve_index_encode(input: i64&, length: usize,
+def hilbert_curve_index_encode_entry(input: i64&, length: usize,
                                      output: mutable u8&, capacity: usize) -> i64:
     if input == null or length != 3: return -1
-    hilbert_curve_index_encode_impl(input[0:length], output, capacity)
+    hilbert_curve_index_encode_impl(input, length, output, capacity)
+
+export fn hilbert_curve_index_encode(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = hilbert_curve_index_encode_entry

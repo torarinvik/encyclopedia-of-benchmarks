@@ -4,8 +4,8 @@ const T_Q: usize = 4
 const T_P: usize = 7
 const T_NEG: i64 = -2305843009213693952
 
-def t_validate(input: view[i64]) -> bool:
-    if input.length < 4 or input.length > 68: return false
+def t_validate(input: i64&, input_length: usize) -> bool:
+    if input_length < 4 or input_length > 68: return false
     n64: i64 = input[0]
     f64: i64 = input[1]
     q64: i64 = input[2]
@@ -15,7 +15,7 @@ def t_validate(input: view[i64]) -> bool:
     f: usize = f64.usize()
     q: usize = q64.usize()
     points: usize = n + f
-    if input.length != 4 + points * points + 2 * f + q + n: return false
+    if input_length != 4 + points * points + 2 * f + q + n: return false
     i: mutable usize = 0
     while i < points:
         j: mutable usize = 0
@@ -66,7 +66,7 @@ def t_validate(input: view[i64]) -> bool:
         i <- i + 1
     return true
 
-def t_compute(input: view[i64], output: mutable view[u8]) -> void:
+def t_compute(input: i64&, output: mutable u8&) -> void:
     n: usize = input[0].usize()
     f: usize = input[1].usize()
     q: usize = input[2].usize()
@@ -151,7 +151,7 @@ def t_compute(input: view[i64], output: mutable view[u8]) -> void:
                 if dp[w] != T_NEG:
                     nw: usize = w + iw
                     value: i64 = dp[w] + profits[item]
-                    mask: u32 = masks[w] | (1u32 << item)
+                    mask: u32 = masks[w] | (1 << item)
                     if value > next_dp[nw] or (value == next_dp[nw] and mask < next_masks[nw]):
                         next_dp[nw] <- value
                         next_masks[nw] <- mask
@@ -179,7 +179,7 @@ def t_compute(input: view[i64], output: mutable view[u8]) -> void:
         copies <- copies + 1
     t_write(result[0:5], output)
 
-def t_write(words: view[i64], output: mutable view[u8]) -> void:
+def t_write(words: view[i64], output: mutable u8&) -> void:
     i: mutable usize = 0
     while i < 5:
         bits: u64 = words[i].u64()
@@ -189,10 +189,12 @@ def t_write(words: view[i64], output: mutable view[u8]) -> void:
             byte <- byte + 1
         i <- i + 1
 
-def capacitated_facility_location_t_hunt(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 @export("capacitated_facility_location_t_hunt"):
-    if input.is_null() or length < 4 or length > 68: return -1
-    if not t_validate(input[0:length]): return -1
-    if output.is_null() or capacity < 40: return -2
-    t_compute(input[0:length], output[0:40])
+def capacitated_facility_location_t_hunt_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > 68: return -1
+    if not t_validate(input, length): return -1
+    if output == null or capacity < 40: return -2
+    t_compute(input, output)
     return 40
+
+export fn capacitated_facility_location_t_hunt(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = capacitated_facility_location_t_hunt_impl

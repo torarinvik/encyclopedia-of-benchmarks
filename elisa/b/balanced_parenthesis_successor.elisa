@@ -3,8 +3,8 @@ const BP_SUCCESSOR_MAX_PAIRS: usize = 10
 const BP_SUCCESSOR_MAX_INPUT: usize = 21
 const BP_SUCCESSOR_MAX_OUTPUT: usize = 20
 
-def balanced_parenthesis_successor_impl(values: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = values.len()
+def balanced_parenthesis_successor_impl(values: i64&, values_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    length: usize = values_length
     if length < 1 or length > BP_SUCCESSOR_MAX_INPUT: return -1
     pair_value: i64 = values[0]
     if pair_value < 1 or pair_value > 10: return -1
@@ -23,7 +23,7 @@ def balanced_parenthesis_successor_impl(values: view[i64], output: mutable u8&, 
         if balance < 0: return -1
         i <- i + 1
     if balance != 0: return -1
-    if output.is_null() or capacity < sequence_length: return -2
+    if output == null or capacity < sequence_length: return -2
 
     staged: mutable u8[20] = zeroed
     reverse_depth: mutable i64 = 0
@@ -39,7 +39,7 @@ def balanced_parenthesis_successor_impl(values: view[i64], output: mutable u8&, 
             closing_count: usize = suffix_length - opening_count
             j: mutable usize = 0
             while j < cursor:
-                staged[j] <- if symbols[j] == 0: 40.u8() else: 41.u8()
+                staged[j] <- 40.u8() if symbols[j] == 0 else 41.u8()
                 j <- j + 1
             staged[cursor] <- 41.u8()
             position: mutable usize = cursor + 1
@@ -53,7 +53,7 @@ def balanced_parenthesis_successor_impl(values: view[i64], output: mutable u8&, 
                 staged[position] <- 41.u8()
                 position <- position + 1
                 j <- j + 1
-            result: mutable view[u8] = output[0:sequence_length]
+            result: mutable u8& = output
             j <- 0
             while j < sequence_length:
                 result[j] <- staged[j]
@@ -61,7 +61,9 @@ def balanced_parenthesis_successor_impl(values: view[i64], output: mutable u8&, 
             return sequence_length.i64()
     -3
 
-export fn balanced_parenthesis_successor(input: i64&, length: usize,
+def balanced_parenthesis_successor_entry(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > BP_SUCCESSOR_MAX_INPUT: return -1
-    balanced_parenthesis_successor_impl(input[0:length], output, capacity)
+    if input == null or length < 1 or length > BP_SUCCESSOR_MAX_INPUT: return -1
+    balanced_parenthesis_successor_impl(input, length, output, capacity)
+
+export fn balanced_parenthesis_successor(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = balanced_parenthesis_successor_entry

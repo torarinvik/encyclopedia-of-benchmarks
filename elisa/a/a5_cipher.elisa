@@ -60,7 +60,7 @@ def next_frame(frame: u32) -> u32:
         result <- result & ~mask
     result
 
-def store_bit(output: mutable view[u8], bit: usize, value: u32) -> void:
+def store_bit(output: mutable u8&, bit: usize, value: u32) -> void:
     position: usize = bit / 8
     output[position] <- output[position] | (value.u8() << (bit % 8))
 
@@ -86,7 +86,7 @@ def a5_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_capac
         while cycle < 100:
             ignored <- tick(r1, r2, r3)
             cycle <- cycle + 1
-        block_output: mutable view[u8] = output[block * 32:(block + 1) * 32]
+        block_output: mutable u8& = &output[block * 32]
         byte: mutable usize = 0
         while byte < 32:
             block_output[byte] <- 0

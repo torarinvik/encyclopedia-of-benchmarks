@@ -1,9 +1,9 @@
-def dcth_cross(values: view[i64], a: usize, b: usize, c: usize) -> i64:
+def dcth_cross(values: i64&, a: usize, b: usize, c: usize) -> i64:
     ax: i64 = values[1 + 2 * a]
     ay: i64 = values[2 + 2 * a]
     (values[1 + 2 * b] - ax) * (values[2 + 2 * c] - ay) - (values[2 + 2 * b] - ay) * (values[1 + 2 * c] - ax)
 
-def dcth_chain(values: view[i64], order: view[usize], output: mutable view[usize],
+def dcth_chain(values: i64&, order: view[usize], output: mutable view[usize],
         lo: usize, hi: usize, base: usize, upper: bool) -> usize:
     if hi - lo == 1:
         output[base] <- order[lo]
@@ -28,12 +28,13 @@ def dcth_chain(values: view[i64], order: view[usize], output: mutable view[usize
             j <- j + 1
             changed <- true
     suffix: usize = right_count - j
-    for k in 0..<suffix: output[base + i + 1 + k] <- output[base + left_capacity + j + k]
+    for k in 0..<suffix:
+        output[base + i + 1 + k] <- output[base + left_capacity + j + k]
     i + 1 + suffix
 
 def divide_conquer_tangent_hull_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 7 or length > 66: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 7 or length > 66: return -1
+    values: i64& = input
     raw: i64 = values[0]
     if raw < 3 or raw > 32: return -1
     n: usize = raw.usize()
@@ -50,7 +51,8 @@ def divide_conquer_tangent_hull_impl(input: i64&, length: usize, output: mutable
                 if dcth_cross(values, i, j, k) == 0: return -1
     order: mutable usize[32] = zeroed
     scratch: mutable usize[32] = zeroed
-    for i in 0..<n: order[i] <- i
+    for i in 0..<n:
+        order[i] <- i
     width: mutable usize = 1
     while width < n:
         begin: mutable usize = 0
@@ -79,7 +81,8 @@ def divide_conquer_tangent_hull_impl(input: i64&, length: usize, output: mutable
                 right <- right + 1
                 dest <- dest + 1
             begin <- begin + 2 * width
-        for i in 0..<n: order[i] <- scratch[i]
+        for i in 0..<n:
+            order[i] <- scratch[i]
         width <- width * 2
     lower: mutable usize[32] = zeroed
     upper: mutable usize[32] = zeroed
@@ -96,8 +99,8 @@ def divide_conquer_tangent_hull_impl(input: i64&, length: usize, output: mutable
         hull[count] <- upper[i]
         count <- count + 1
     bytes: usize = 16 * count
-    if output.is_null() or capacity < bytes: return -2
-    target: mutable view[u8] = output[0:bytes]
+    if output == null or capacity < bytes: return -2
+    target: mutable u8& = output
     for index in 0..<count:
         for axis in 0..<2:
             bits: mutable u64 = values[1 + 2 * hull[index] + axis].u64()

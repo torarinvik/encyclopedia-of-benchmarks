@@ -1,8 +1,8 @@
 # Sparse Prim with an indexed decrease-key frontier; only the ABI boundary is pointer-backed.
 def prim_sparse_heap_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length < 2 or length > 12290:
+    if values == null or length < 2 or length > 12290:
         return -2
-    input: view[i64] = values[0:length]
+    input: i64& = values
     if input[0] < 0 or input[0] > 64 or input[1] < 0 or input[1] > 4096:
         return -2
     vertices: usize = input[0].usize()
@@ -53,13 +53,13 @@ def prim_sparse_heap_impl(values: i64&, length: usize) -> i64:
     best: mutable i64[64] = zeroed
     has_best: mutable bool[64] = zeroed
     selected: mutable bool[64] = zeroed
-    heap: mutable usize[64] = zeroed
+    heap_value: mutable usize[64] = zeroed
     position: mutable usize[64] = zeroed
     vertex <- 0
     while vertex < vertices:
         position[vertex] <- 64
         vertex <- vertex + 1
-    heap[0] <- 0
+    heap_value[0] <- 0
     position[0] <- 0
     has_best[0] <- true
     heap_count: mutable usize = 1
@@ -67,22 +67,22 @@ def prim_sparse_heap_impl(values: i64&, length: usize) -> i64:
     total: mutable i64 = 0
 
     while heap_count > 0:
-        origin: usize = heap[0]
+        origin: usize = heap_value[0]
         position[origin] <- 64
         heap_count <- heap_count - 1
         if heap_count > 0:
-            last_vertex: usize = heap[heap_count]
+            last_vertex: usize = heap_value[heap_count]
             at: mutable usize = 0
             while 2 * at + 1 < heap_count:
                 child: mutable usize = 2 * at + 1
-                if child + 1 < heap_count and (best[heap[child + 1]] < best[heap[child]] or (best[heap[child + 1]] == best[heap[child]] and heap[child + 1] < heap[child])):
+                if child + 1 < heap_count and (best[heap_value[child + 1]] < best[heap_value[child]] or (best[heap_value[child + 1]] == best[heap_value[child]] and heap_value[child + 1] < heap_value[child])):
                     child <- child + 1
-                if best[heap[child]] > best[last_vertex] or (best[heap[child]] == best[last_vertex] and heap[child] >= last_vertex):
+                if best[heap_value[child]] > best[last_vertex] or (best[heap_value[child]] == best[last_vertex] and heap_value[child] >= last_vertex):
                     break
-                heap[at] <- heap[child]
-                position[heap[at]] <- at
+                heap_value[at] <- heap_value[child]
+                position[heap_value[at]] <- at
                 at <- child
-            heap[at] <- last_vertex
+            heap_value[at] <- last_vertex
             position[last_vertex] <- at
         selected[origin] <- true
         selected_count <- selected_count + 1
@@ -96,20 +96,20 @@ def prim_sparse_heap_impl(values: i64&, length: usize) -> i64:
                 best[destination] <- weight
                 has_best[destination] <- true
                 if position[destination] == 64:
-                    heap[heap_count] <- destination
+                    heap_value[heap_count] <- destination
                     position[destination] <- heap_count
                     heap_count <- heap_count + 1
                 at: mutable usize = position[destination]
                 while at > 0:
                     parent: usize = (at - 1) / 2
-                    current_vertex: usize = heap[at]
-                    parent_vertex: usize = heap[parent]
+                    current_vertex: usize = heap_value[at]
+                    parent_vertex: usize = heap_value[parent]
                     if best[current_vertex] > best[parent_vertex] or (best[current_vertex] == best[parent_vertex] and current_vertex >= parent_vertex):
                         break
-                    heap[at] <- parent_vertex
+                    heap_value[at] <- parent_vertex
                     position[parent_vertex] <- at
                     at <- parent
-                heap[at] <- destination
+                heap_value[at] <- destination
                 position[destination] <- at
             arc <- next[arc]
 

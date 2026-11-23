@@ -1,7 +1,7 @@
 # Uncompiled and unexecuted next-occurrence automaton draft.
-export fn subsequence_automaton(input: i64&, length: usize) -> i64:
+def subsequence_automaton_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 2 or length > 354: return -1
-    frame: view[i64] = input[0:length]
+    frame: i64& = input
     if frame[0] < 0 or frame[0] > 64 or frame[1] < 0 or frame[1] > 32: return -1
     n: usize = frame[0].usize()
     queries: usize = frame[1].usize()
@@ -9,11 +9,13 @@ export fn subsequence_automaton(input: i64&, length: usize) -> i64:
     for i in 0..<n:
         if frame[2+i] < 0 or frame[2+i] > 3: return -1
     next: mutable usize[260] = zeroed
-    for symbol in 0..<4: next[4*n+symbol] <- n
+    for symbol in 0..<4:
+        next[4*n+symbol] <- n
     row: mutable usize = n
     while row > 0:
         row <- row-1
-        for symbol in 0..<4: next[4*row+symbol] <- next[4*(row+1)+symbol]
+        for symbol in 0..<4:
+            next[4*row+symbol] <- next[4*(row+1)+symbol]
         next[4*row+frame[2+row].usize()] <- row
     position: mutable usize = 2+n
     total: mutable usize = 0
@@ -37,3 +39,5 @@ export fn subsequence_automaton(input: i64&, length: usize) -> i64:
         total <- total+count
     if position != length: return -1
     answer
+
+export fn subsequence_automaton(input: i64&, length: usize) -> i64 = subsequence_automaton_impl

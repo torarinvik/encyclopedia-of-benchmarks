@@ -22,21 +22,21 @@ def ccec_connected(adjacent: view[i64], n: usize, mask: usize) -> bool:
     seen: mutable bool[8] = zeroed
     queue: mutable usize[8] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 1
+    tail_value: mutable usize = 1
     seen[start.usize()] <- true
     queue[0] <- start.usize()
-    while head < tail:
+    while head < tail_value:
         u: usize = queue[head]
         head <- head + 1
         for v in 0..<n:
             if ((mask >> v) & 1) != 0 and adjacent[u * 8 + v] != 0 and not seen[v]:
                 seen[v] <- true
-                queue[tail] <- v
-                tail <- tail + 1
-    tail == expected
+                queue[tail_value] <- v
+                tail_value <- tail_value + 1
+    tail_value == expected
 
-def ccec_solve(values: view[i64]) -> i64:
-    length: usize = values.len()
+def ccec_solve(values: i64&, values_length: usize) -> i64:
+    length: usize = values_length
     if length < 4 or length > CCEC_INPUT_MAX: return -1
     n0: i64 = values[0]
     c0: i64 = values[1]
@@ -88,7 +88,8 @@ def ccec_solve(values: view[i64]) -> i64:
         if raw <= 0 or raw >= full.i64(): return -1
         mask: usize = raw.usize()
         bits: mutable usize = 0
-        for v in 0..<n: bits <- bits + ((mask >> v) & 1)
+        for v in 0..<n:
+            bits <- bits + ((mask >> v) & 1)
         if bits < 2: return -1
         for j in 0..<i:
             prior: usize = masks[j].usize()
@@ -100,12 +101,13 @@ def ccec_solve(values: view[i64]) -> i64:
     if not ccec_connected(adjacent[0:64], n, full): return -1
 
     face_of: mutable i64[64] = zeroed
-    for i in 0..<64: face_of[i] <- -1
+    for i in 0..<64:
+        face_of[i] <- -1
     face_count: mutable usize = 0
     for e in 0..<m:
         for side in 0..<2:
-            su: usize = if side == 0: edge_u[e].usize() else: edge_v[e].usize()
-            sv: usize = if side == 0: edge_v[e].usize() else: edge_u[e].usize()
+            su: usize = edge_u[e].usize() if side == 0 else edge_v[e].usize()
+            sv: usize = edge_v[e].usize() if side == 0 else edge_u[e].usize()
             if face_of[su * 8 + sv] >= 0: continue
             if face_count >= CCEC_F: return -1
             local: mutable bool[64] = zeroed
@@ -136,7 +138,8 @@ def ccec_solve(values: view[i64]) -> i64:
     for ci in 0..<c:
         mask: usize = masks[ci].usize()
         parent: mutable i64[12] = zeroed
-        for f in 0..<face_count: parent[f] <- f.i64()
+        for f in 0..<face_count:
+            parent[f] <- f.i64()
         for e in 0..<m:
             u: usize = edge_u[e].usize()
             v: usize = edge_v[e].usize()
@@ -160,7 +163,10 @@ def ccec_solve(values: view[i64]) -> i64:
             if ccec_find_root(parent[0:12], face_of[u * 8 + v].usize()) != outside: return 0
     1
 
-export fn c_connected_clustered_embedding_condition(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > CCEC_INPUT_MAX: return -1
-    let values: view[i64] = input[0:length]
-    ccec_solve(values)
+def c_connected_clustered_embedding_condition_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > CCEC_INPUT_MAX: return -1
+    values: i64& = input
+    values_length: usize = length
+    ccec_solve(values, values_length)
+
+export fn c_connected_clustered_embedding_condition(input: i64&, length: usize) -> i64 = c_connected_clustered_embedding_condition_impl

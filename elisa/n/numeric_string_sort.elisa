@@ -1,5 +1,5 @@
 # Sort bounded decimal strings by normalized length and lexicographic order.
-def numeric_token_less(values: view[i64], left_start: usize, left_length: usize,
+def numeric_token_less(values: i64&, left_start: usize, left_length: usize,
                        right_start: usize, right_length: usize) -> bool:
     if left_length != right_length: return left_length < right_length
     for index in 0..<left_length:
@@ -9,7 +9,7 @@ def numeric_token_less(values: view[i64], left_start: usize, left_length: usize,
 
 def numeric_string_sort_impl(values: i64&, length: usize,
                              output: mutable u8&, output_capacity: usize) -> i64:
-    if values.is_null() or length == 0 or length > 2114: return -1
+    if values == null or length == 0 or length > 2114: return -1
     count_value: i64 = values[0]
     if count_value < 0 or count_value > 64: return -1
     count: usize = count_value.usize()
@@ -19,7 +19,7 @@ def numeric_string_sort_impl(values: i64&, length: usize,
     normalized_lengths: mutable usize[64] = zeroed
     order: mutable usize[64] = zeroed
     cursor: mutable usize = 1
-    output_length: mutable usize = if count == 0: 0 else: count - 1
+    output_length: mutable usize = 0 if count == 0 else count - 1
 
     for item in 0..<count:
         if cursor >= length: return -1
@@ -58,14 +58,14 @@ def numeric_string_sort_impl(values: i64&, length: usize,
     for index in 1..<count:
         key: usize = order[index]
         position: mutable usize = index
-        while position > 0 and numeric_token_less(values[0:length],
+        while position > 0 and numeric_token_less(values,
               normalized_starts[key], normalized_lengths[key],
               normalized_starts[order[position - 1]], normalized_lengths[order[position - 1]]):
             order[position] <- order[position - 1]
             position <- position - 1
         order[position] <- key
 
-    if (output.is_null() and output_length != 0) or output_capacity < output_length: return -2
+    if (output == null and output_length != 0) or output_capacity < output_length: return -2
     written: mutable usize = 0
     for index in 0..<count:
         if index != 0:

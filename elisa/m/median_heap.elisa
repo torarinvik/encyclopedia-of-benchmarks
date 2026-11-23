@@ -3,58 +3,58 @@ const MAX_INPUT_LENGTH: usize = 514
 const MAX_LIVE_VALUES: usize = 64
 const NIL_SENTINEL: i64 = -9223372036854775807 - 1
 
-def median_heap_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def median_heap_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255.u64()).u8()
         bits <- bits >> 8
 
-def median_heap_push_max(heap: mutable view[i32], count: mutable usize&, value: i32) -> void:
+def median_heap_push_max(heap_value: mutable view[i32], count: mutable usize&, value: i32) -> void:
     position: mutable usize = count
     count <- count + 1
-    while position > 0 and heap[(position - 1) / 2] < value:
+    while position > 0 and heap_value[(position - 1) / 2] < value:
         parent: usize = (position - 1) / 2
-        heap[position] <- heap[parent]
+        heap_value[position] <- heap_value[parent]
         position <- parent
-    heap[position] <- value
+    heap_value[position] <- value
 
-def median_heap_pop_max(heap: mutable view[i32], count: mutable usize&) -> i32:
-    result: i32 = heap[0]
+def median_heap_pop_max(heap_value: mutable view[i32], count: mutable usize&) -> i32:
+    result: i32 = heap_value[0]
     count <- count - 1
-    value: i32 = heap[count]
+    value: i32 = heap_value[count]
     if count == 0: return result
     position: mutable usize = 0
     while 2 * position + 1 < count:
         child: mutable usize = 2 * position + 1
-        if child + 1 < count and heap[child + 1] > heap[child]: child <- child + 1
-        if heap[child] <= value: break
-        heap[position] <- heap[child]
+        if child + 1 < count and heap_value[child + 1] > heap_value[child]: child <- child + 1
+        if heap_value[child] <= value: break
+        heap_value[position] <- heap_value[child]
         position <- child
-    heap[position] <- value
+    heap_value[position] <- value
     result
 
-def median_heap_push_min(heap: mutable view[i32], count: mutable usize&, value: i32) -> void:
+def median_heap_push_min(heap_value: mutable view[i32], count: mutable usize&, value: i32) -> void:
     position: mutable usize = count
     count <- count + 1
-    while position > 0 and heap[(position - 1) / 2] > value:
+    while position > 0 and heap_value[(position - 1) / 2] > value:
         parent: usize = (position - 1) / 2
-        heap[position] <- heap[parent]
+        heap_value[position] <- heap_value[parent]
         position <- parent
-    heap[position] <- value
+    heap_value[position] <- value
 
-def median_heap_pop_min(heap: mutable view[i32], count: mutable usize&) -> i32:
-    result: i32 = heap[0]
+def median_heap_pop_min(heap_value: mutable view[i32], count: mutable usize&) -> i32:
+    result: i32 = heap_value[0]
     count <- count - 1
-    value: i32 = heap[count]
+    value: i32 = heap_value[count]
     if count == 0: return result
     position: mutable usize = 0
     while 2 * position + 1 < count:
         child: mutable usize = 2 * position + 1
-        if child + 1 < count and heap[child + 1] < heap[child]: child <- child + 1
-        if heap[child] >= value: break
-        heap[position] <- heap[child]
+        if child + 1 < count and heap_value[child + 1] < heap_value[child]: child <- child + 1
+        if heap_value[child] >= value: break
+        heap_value[position] <- heap_value[child]
         position <- child
-    heap[position] <- value
+    heap_value[position] <- value
     result
 
 def median_heap_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
@@ -75,7 +75,7 @@ def median_heap_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
             value: i32 = argument.i32()
             if lower_count == 0:
                 median_heap_push_max(lower[0:64], &lower_count, value)
-            else if value < lower[0]:
+            elif value < lower[0]:
                 median_heap_push_max(lower[0:64], &lower_count, value)
                 if lower_count > upper_count + 1:
                     median_heap_push_min(upper[0:64], &upper_count, median_heap_pop_max(lower[0:64], &lower_count))
@@ -84,27 +84,27 @@ def median_heap_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
                 if lower_count < upper_count:
                     median_heap_push_max(lower[0:64], &lower_count, median_heap_pop_min(upper[0:64], &upper_count))
             results[index] <- NIL_SENTINEL
-        else if opcode >= 1 and opcode <= 4:
+        elif opcode >= 1 and opcode <= 4:
             if argument != 0: return -1
             if opcode == 1:
-                results[index] <- if lower_count > 0: lower[0].i64() else: NIL_SENTINEL
-            else if opcode == 2:
+                results[index] <- lower[0].i64() if lower_count > 0 else NIL_SENTINEL
+            elif opcode == 2:
                 if lower_count == 0:
                     results[index] <- NIL_SENTINEL
                 else:
                     results[index] <- median_heap_pop_max(lower[0:64], &lower_count).i64()
                     if lower_count < upper_count:
                         median_heap_push_max(lower[0:64], &lower_count, median_heap_pop_min(upper[0:64], &upper_count))
-            else if opcode == 3:
+            elif opcode == 3:
                 results[index] <- (lower_count + upper_count).i64()
             else:
-                results[index] <- if lower_count == 0: 1 else: 0
+                results[index] <- 1 if lower_count == 0 else 0
         else:
             return -1
     output_bytes: usize = operation_count * 8
     if output == null or capacity < output_bytes: return -2
     for index in 0..<operation_count:
-        median_heap_store_i64(output[0:output_bytes], index * 8, results[index])
+        median_heap_store_i64(output, index * 8, results[index])
     output_bytes.i64()
 
 export fn median_heap(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = median_heap_impl

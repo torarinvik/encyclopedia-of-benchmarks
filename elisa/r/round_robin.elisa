@@ -2,8 +2,8 @@ const MAX_JOBS: usize = 32
 const MAX_OUTPUT_BYTES: usize = 520
 const QUANTUM: i64 = 2
 
-def round_robin_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
-    bits: u64 = value.u64()
+def round_robin_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
@@ -11,19 +11,19 @@ def round_robin_put_i64(output: mutable view[u8], offset: usize, value: i64) -> 
         byte <- byte + 1
 
 def round_robin_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input == null || length < 1: return -1
+    if input == null or length < 1: return -1
     raw_count: i64 = input[0]
-    if raw_count < 0 || raw_count > 32 || length != (raw_count + 1).usize(): return -1
+    if raw_count < 0 or raw_count > 32 or length != (raw_count + 1).usize(): return -1
     count: usize = raw_count.usize()
     remaining: mutable i64[32] = zeroed
     waiting: mutable i64[32] = zeroed
     for i in 0..<count:
         burst: i64 = input[i + 1]
-        if burst < 0 || burst > 4096: return -1
+        if burst < 0 or burst > 4096: return -1
         remaining[i] <- burst
     bytes: usize = (1 + 2 * count) * 8
-    if output == null || capacity < bytes: return -2
-    output_view: mutable view[u8] = output[0:capacity]
+    if output == null or capacity < bytes: return -2
+    output_view: mutable u8& = output
     elapsed: mutable i64 = 0
     while true:
         done: mutable bool = true
@@ -39,8 +39,10 @@ def round_robin_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
                     remaining[i] <- 0
         if done: break
     round_robin_put_i64(output_view, 0, raw_count)
-    for i in 0..<count: round_robin_put_i64(output_view, 8 * (1 + i), waiting[i])
-    for i in 0..<count: round_robin_put_i64(output_view, 8 * (1 + count + i), input[i + 1] + waiting[i])
+    for i in 0..<count:
+        round_robin_put_i64(output_view, 8 * (1 + i), waiting[i])
+    for i in 0..<count:
+        round_robin_put_i64(output_view, 8 * (1 + count + i), input[i + 1] + waiting[i])
     bytes.i64()
 
 export fn round_robin(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = round_robin_impl

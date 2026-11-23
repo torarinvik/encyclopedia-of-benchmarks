@@ -23,7 +23,7 @@ def vrm_round_half_up(numerator: i64, denominator: i64) -> i64:
 def vrm_to_byte(value: i64) -> u8:
     ((value * 255 + VRM_Q16 / 2) / VRM_Q16).u8()
 
-def splash2_volrend_raymarch_impl(input: view[i64], length: usize,
+def splash2_volrend_raymarch_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
     if length < 3 or length > VRM_MAX_PARSEABLE: return -1
     side_raw: i64 = input[0]
@@ -63,7 +63,7 @@ def splash2_volrend_raymarch_impl(input: view[i64], length: usize,
                 if q < 0 or q > coord_max: return -1
 
     output_bytes: usize = 5 * ray_count
-    if output.is_null(): return -2
+    if output == null: return -2
     if capacity < output_bytes: return -3
 
     support: mutable u8[VRM_MAX_MASKS] = zeroed
@@ -74,17 +74,17 @@ def splash2_volrend_raymarch_impl(input: view[i64], length: usize,
                 for dz in 0..<2:
                     for dy in 0..<2:
                         for dx in 0..<2:
-                            nx: usize = x
-                            ny: usize = y
-                            nz: usize = z
+                            nx: mutable usize = x
+                            ny: mutable usize = y
+                            nz: mutable usize = z
                             if dx != 0 and x + 1 < side: nx <- x + 1
                             if dy != 0 and y + 1 < side: ny <- y + 1
                             if dz != 0 and z + 1 < side: nz <- z + 1
                             if alpha[vrm_voxel_index(side, nx, ny, nz)] != 0: occupied <- 1
                 support[vrm_mask_index(0, x, y, z)] <- occupied
 
-    levels: usize = 0
-    dimension: usize = side
+    levels: mutable usize = 0
+    dimension: mutable usize = side
     while dimension > 1:
         dimension <- dimension / 2
         levels <- levels + 1
@@ -125,26 +125,32 @@ def splash2_volrend_raymarch_impl(input: view[i64], length: usize,
                 frac_x: usize = (xq % VRM_Q8).usize()
                 frac_y: usize = (yq % VRM_Q8).usize()
                 frac_z: usize = (zq % VRM_Q8).usize()
-                high_x: usize = low_x
-                high_y: usize = low_y
-                high_z: usize = low_z
+                high_x: mutable usize = low_x
+                high_y: mutable usize = low_y
+                high_z: mutable usize = low_z
                 if low_x + 1 < side: high_x <- low_x + 1
                 if low_y + 1 < side: high_y <- low_y + 1
                 if low_z + 1 < side: high_z <- low_z + 1
                 opacity_sum: mutable i64 = 0
                 premul_sum: mutable i64 = 0
                 for dz in 0..<2:
-                    iz: usize = low_z
-                    wz: i64 = VRM_Q8 - frac_z.i64()
-                    if dz != 0: iz <- high_z; wz <- frac_z.i64()
+                    iz: mutable usize = low_z
+                    wz: mutable i64 = VRM_Q8 - frac_z.i64()
+                    if dz != 0:
+                        iz <- high_z
+                        wz <- frac_z.i64()
                     for dy in 0..<2:
-                        iy: usize = low_y
-                        wy: i64 = VRM_Q8 - frac_y.i64()
-                        if dy != 0: iy <- high_y; wy <- frac_y.i64()
+                        iy: mutable usize = low_y
+                        wy: mutable i64 = VRM_Q8 - frac_y.i64()
+                        if dy != 0:
+                            iy <- high_y
+                            wy <- frac_y.i64()
                         for dx in 0..<2:
-                            ix: usize = low_x
-                            wx: i64 = VRM_Q8 - frac_x.i64()
-                            if dx != 0: ix <- high_x; wx <- frac_x.i64()
+                            ix: mutable usize = low_x
+                            wx: mutable i64 = VRM_Q8 - frac_x.i64()
+                            if dx != 0:
+                                ix <- high_x
+                                wx <- frac_x.i64()
                             at_voxel: usize = vrm_voxel_index(side, ix, iy, iz)
                             weight: i64 = wx * wy * wz
                             opacity_sum <- opacity_sum + alpha[at_voxel].i64() * weight
@@ -167,7 +173,9 @@ def splash2_volrend_raymarch_impl(input: view[i64], length: usize,
         output[at + 4] <- used.u8()
     output_bytes.i64()
 
-export fn splash2_volrend_raymarch(input: i64&, length: usize,
+def splash2_volrend_raymarch_entry(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > VRM_MAX_PARSEABLE: return -1
-    splash2_volrend_raymarch_impl(input[0:length], length, output, capacity)
+    if input == null or length < 3 or length > VRM_MAX_PARSEABLE: return -1
+    splash2_volrend_raymarch_impl(input, length, output, capacity)
+
+export fn splash2_volrend_raymarch(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = splash2_volrend_raymarch_entry

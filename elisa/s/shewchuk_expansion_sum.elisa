@@ -32,8 +32,8 @@ def ses_grow_expansion(expansion: view[f64], count: usize, value: f64,
         grown_count <- grown_count+1
     grown_count
 
-def ses_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def ses_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 1 or length > SES_MAX_LENGTH: return -1
     if input[0] < 0 or input[0] > SES_MAX_TERMS.i64(): return -1
     n: usize = input[0].usize()
@@ -69,6 +69,8 @@ def ses_impl(input: view[i64]) -> i64:
         i <- i+1
     result
 
-export fn shewchuk_expansion_sum(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > SES_MAX_LENGTH: return -1
-    ses_impl(input[0:length])
+def shewchuk_expansion_sum_impl(input: i64&, length: usize) -> i64:
+    if input == null or length > SES_MAX_LENGTH: return -1
+    ses_impl(input, length)
+
+export fn shewchuk_expansion_sum(input: i64&, length: usize) -> i64 = shewchuk_expansion_sum_impl

@@ -13,7 +13,7 @@ def append(words: mutable view[i64], count: mutable usize&, value: i64):
     words[count] <- value
     count <- count + 1
 
-def put_i64_le(output: mutable view[u8], offset: usize, value: i64):
+def put_i64_le(output: mutable u8&, offset: usize, value: i64):
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -21,7 +21,7 @@ def put_i64_le(output: mutable view[u8], offset: usize, value: i64):
         byte <- byte + 1
 
 def lfu_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 98: return -1
+    if input == null or length < 2 or length > 98: return -1
     if input[0] < 2 or input[0] > 16 or input[1] < 0 or input[1] > 32: return -1
 
     cache_capacity: usize = input[0].usize()
@@ -43,11 +43,11 @@ def lfu_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: u
             key_arg: i64 = input[position]
             value_arg: i64 = input[position + 1]
             position <- position + 2
-            if key_arg < -2147483648 or key_arg > 2147483647 or
-                value_arg < -2147483648 or value_arg > 2147483647: return -1
+            if key_arg < -2147483648 or key_arg > 2147483647 or value_arg < -2147483648 or value_arg > 2147483647: return -1
             key: i32 = key_arg.i32()
             index: mutable usize = 0
-            while index < size and keys[index] != key: index <- index + 1
+            while index < size and keys[index] != key:
+                index <- index + 1
             if index < size:
                 # The pinned Put mutates a copied item; the old value remains.
                 move_to_front(keys[0:cache_capacity], values[0:cache_capacity], index)
@@ -69,7 +69,8 @@ def lfu_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: u
             if key_arg < -2147483648 or key_arg > 2147483647: return -1
             key: i32 = key_arg.i32()
             index: mutable usize = 0
-            while index < size and keys[index] != key: index <- index + 1
+            while index < size and keys[index] != key:
+                index <- index + 1
             append(words[0:96], word_count, 1)
             if index == size:
                 append(words[0:96], word_count, 1)
@@ -85,10 +86,10 @@ def lfu_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: u
 
     if position != length or word_count > 96: return -1
     output_length: usize = word_count * 8
-    if output.is_null() or output_capacity < output_length: return -2
+    if output == null or output_capacity < output_length: return -2
     index: mutable usize = 0
     while index < word_count:
-        put_i64_le(output[0:output_length], index * 8, words[index])
+        put_i64_le(output, index * 8, words[index])
         index <- index + 1
     output_length.i64()
 

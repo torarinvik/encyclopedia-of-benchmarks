@@ -2,8 +2,8 @@ const PILE_COUNT: i64 = 13
 const CARDS_PER_PILE: i64 = 4
 const CARD_COUNT: i64 = 52
 
-def clock_patience_solve(values: view[i64]) -> i64:
-    if values.length != 52: return -1
+def clock_patience_solve(values: i64&, values_length: usize) -> i64:
+    if values_length != 52: return -1
     rank_counts: mutable i64[14] = zeroed
     for index in 0..<52:
         rank: i64 = values[index]
@@ -23,7 +23,10 @@ def clock_patience_solve(values: view[i64]) -> i64:
     if revealed == 52: return 1
     0
 
-export fn clock_patience_simulation(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 52: return -1
-    values: view[i64] = input[0:length]
-    clock_patience_solve(values)
+def clock_patience_simulation_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 52: return -1
+    values: i64& = input
+    values_length: usize = length
+    clock_patience_solve(values, values_length)
+
+export fn clock_patience_simulation(input: i64&, length: usize) -> i64 = clock_patience_simulation_impl

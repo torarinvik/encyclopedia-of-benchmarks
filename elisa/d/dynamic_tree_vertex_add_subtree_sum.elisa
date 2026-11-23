@@ -40,7 +40,7 @@ def lct_rotate(nodes: mutable view[i64], x: usize) -> void:
     p: usize = nodes[PARENT + x].usize()
     g_value: i64 = nodes[PARENT + p]
     right_child: bool = nodes[RIGHT + p] == x.i64()
-    middle: i64 = if right_child then nodes[LEFT + x] else nodes[RIGHT + x]
+    middle: i64 = nodes[LEFT + x] if right_child else nodes[RIGHT + x]
     if not lct_aux_root(nodes, p):
         g: usize = g_value.usize()
         if nodes[LEFT + g] == p.i64(): nodes[LEFT + g] <- x.i64()
@@ -58,23 +58,23 @@ def lct_rotate(nodes: mutable view[i64], x: usize) -> void:
     lct_pull(nodes, x)
 
 def lct_splay(nodes: mutable view[i64], x: usize) -> void:
-    stack: mutable usize[MAX_N] = zeroed
+    stack_value: mutable usize[MAX_N] = zeroed
     count: mutable usize = 1
     y: mutable usize = x
-    stack[0] <- y
+    stack_value[0] <- y
     while not lct_aux_root(nodes, y):
         y <- nodes[PARENT + y].usize()
-        stack[count] <- y
+        stack_value[count] <- y
         count <- count + 1
     while count > 0:
         count <- count - 1
-        lct_push(nodes, stack[count])
+        lct_push(nodes, stack_value[count])
     while not lct_aux_root(nodes, x):
         p: usize = nodes[PARENT + x].usize()
         if not lct_aux_root(nodes, p):
             g: usize = nodes[PARENT + p].usize()
             zigzig: bool = (nodes[LEFT + p] == x.i64()) == (nodes[LEFT + g] == p.i64())
-            lct_rotate(nodes, if zigzig then p else x)
+            lct_rotate(nodes, (p if zigzig else x))
         lct_rotate(nodes, x)
 
 def lct_access(nodes: mutable view[i64], x: usize) -> void:
@@ -133,16 +133,16 @@ def lct_subtree_sum(nodes: mutable view[i64], vertex: usize, parent: usize) -> i
     if nodes[LEFT + vertex] != parent.i64() or nodes[RIGHT + parent] >= 0: return -1
     nodes[VALUE + vertex] + nodes[VIRTUAL + vertex]
 
-def lct_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def lct_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def dynamic_tree_vertex_add_subtree_sum(input: i64&, input_length: usize,
-    output: mutable u8&, capacity: usize) -> i64 @export("dynamic_tree_vertex_add_subtree_sum"):
-    if input.is_null() or input_length < 3 or input_length > MAX_INPUT: return -1
+def dynamic_tree_vertex_add_subtree_sum_impl(input: i64&, input_length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input == null or input_length < 3 or input_length > MAX_INPUT: return -1
     n64: i64 = input[0]
     q64: i64 = input[1]
     if n64 < 1 or n64 > MAX_N.i64() or q64 < 0 or q64 > MAX_Q.i64(): return -1
@@ -171,9 +171,9 @@ def dynamic_tree_vertex_add_subtree_sum(input: i64&, input_length: usize,
         d: i64 = input[at + 4]
         if kind == 0:
             if a < 0 or a >= n64 or b < 0 or b >= n64 or c < 0 or c >= n64 or d < 0 or d >= n64 or a == b or c == d: return -1
-        else if kind == 1:
+        elif kind == 1:
             if a < 0 or a >= n64 or b < 0 or b > MAX_VALUE or c != 0 or d != 0: return -1
-        else if kind == 2:
+        elif kind == 2:
             if a < 0 or a >= n64 or b < 0 or b >= n64 or c != 0 or d != 0: return -1
         else: return -1
         i <- i + 1
@@ -207,7 +207,7 @@ def dynamic_tree_vertex_add_subtree_sum(input: i64&, input_length: usize,
             c: usize = input[at + 3].usize()
             d: usize = input[at + 4].usize()
             if not lct_cut(nodes[0:NODE_FIELDS], a, b) or not lct_link(nodes[0:NODE_FIELDS], c, d): return -1
-        else if kind == 1:
+        elif kind == 1:
             lct_access(nodes[0:NODE_FIELDS], a)
             nodes[VALUE + a] <- nodes[VALUE + a] + b.i64()
             lct_pull(nodes[0:NODE_FIELDS], a)
@@ -218,9 +218,11 @@ def dynamic_tree_vertex_add_subtree_sum(input: i64&, input_length: usize,
             answer_count <- answer_count + 1
         i <- i + 1
     output_bytes: usize = 8 * answer_count
-    if output_bytes > 0 and (output.is_null() or capacity < output_bytes): return -2
+    if output_bytes > 0 and (output == null or capacity < output_bytes): return -2
     i <- 0
     while i < answer_count:
-        lct_put_i64(answers[i], output[0:output_bytes], 8 * i)
+        lct_put_i64(answers[i], output, 8 * i)
         i <- i + 1
     output_bytes.i64()
+
+export fn dynamic_tree_vertex_add_subtree_sum(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64 = dynamic_tree_vertex_add_subtree_sum_impl

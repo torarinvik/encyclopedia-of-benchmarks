@@ -1,6 +1,6 @@
 const MAX_N: usize = 7
 
-def heaps_emit_row(items: mutable view[u8], n: usize, output: mutable view[u8], rows: mutable usize&) -> void:
+def heaps_emit_row(items: mutable view[u8], n: usize, output: mutable u8&, rows: mutable usize&) -> void:
     offset: usize = rows * n
     index: mutable usize = 0
     while index < n:
@@ -9,21 +9,21 @@ def heaps_emit_row(items: mutable view[u8], n: usize, output: mutable view[u8], 
     rows <- rows + 1
 
 def heaps_generate(items: mutable view[u8], n: usize, size: usize,
-                   output: mutable view[u8], rows: mutable usize&) -> void:
+                   output: mutable u8&, rows: mutable usize&) -> void:
     if size == 1:
         heaps_emit_row(items, n, output, rows)
         return
     index: mutable usize = 0
     while index < size:
         heaps_generate(items, n, size - 1, output, rows)
-        swap_index: usize = if size % 2 == 1: index else: 0
+        swap_index: usize = index if size % 2 == 1 else 0
         temporary: u8 = items[swap_index]
         items[swap_index] <- items[size - 1]
         items[size - 1] <- temporary
         index <- index + 1
 
 def heaps_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if values.is_null() or length != 1 or values[0] < 0 or values[0] > MAX_N.i64():
+    if values == null or length != 1 or values[0] < 0 or values[0] > MAX_N.i64():
         return -1
     n: usize = values[0].usize()
     if n == 0:
@@ -34,7 +34,7 @@ def heaps_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize
         row_count <- row_count * factor
         factor <- factor + 1
     required: usize = row_count * n
-    if output.is_null() or capacity < required:
+    if output == null or capacity < required:
         return -2
     items: mutable u8[7] = zeroed
     index: mutable usize = 0
@@ -42,7 +42,7 @@ def heaps_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize
         items[index] <- (49 + index).u8()
         index <- index + 1
     rows: mutable usize = 0
-    heaps_generate(items[0:n], n, n, output[0:required], rows)
+    heaps_generate(items[0:n], n, n, output, rows)
     rows.i64()
 
 export fn heaps(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = heaps_impl

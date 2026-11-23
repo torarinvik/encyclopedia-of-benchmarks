@@ -18,28 +18,28 @@ def wfc_propagate(domains: mutable view[i64], compatibility: view[i64],
     queue: mutable usize[MAX_CELLS] = zeroed
     in_queue: mutable bool[MAX_CELLS] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     queued: mutable usize = 0
     if seed_all:
-        for cell in 0..<cell_count |cell, queue, tail, queued, in_queue|:
-            queue[tail] <- cell
-            tail <- (tail + 1) % cell_count
+        for cell in 0..<cell_count |cell, queue, tail_value, queued, in_queue|:
+            queue[tail_value] <- cell
+            tail_value <- (tail_value + 1) % cell_count
             queued <- queued + 1
             in_queue[cell] <- true
     else:
-        queue[tail] <- start_cell
-        tail <- (tail + 1) % cell_count
+        queue[tail_value] <- start_cell
+        tail_value <- (tail_value + 1) % cell_count
         queued <- queued + 1
         in_queue[start_cell] <- true
 
-    while queued != 0 |queue, in_queue, head, tail, queued, cell_count, width, height, tile_count, domains, compatibility|:
+    while queued != 0 |queue, in_queue, head, tail_value, queued, cell_count, width, height, tile_count, domains, compatibility|:
         source: usize = queue[head]
         head <- (head + 1) % cell_count
         queued <- queued - 1
         in_queue[source] <- false
         row: usize = source / width
         column: usize = source % width
-        for direction in 0..<4 |direction, row, column, source, width, height, tile_count, domains, compatibility, queue, in_queue, tail, queued, cell_count|:
+        for direction in 0..<4 |direction, row, column, source, width, height, tile_count, domains, compatibility, queue, in_queue, tail_value, queued, cell_count|:
             neighbor: mutable usize = 0
             has_neighbor: mutable bool = false
             if direction == 0 and row != 0:
@@ -67,14 +67,14 @@ def wfc_propagate(domains: mutable view[i64], compatibility: view[i64],
             if reduced == 0:
                 return false
             if not in_queue[neighbor]:
-                queue[tail] <- neighbor
-                tail <- (tail + 1) % cell_count
+                queue[tail_value] <- neighbor
+                tail_value <- (tail_value + 1) % cell_count
                 queued <- queued + 1
                 in_queue[neighbor] <- true
     true
 
-def wave_function_collapse_simple_tiled_impl(values: view[i64]) -> i64:
-    input_length: usize = values.len()
+def wave_function_collapse_simple_tiled_impl(values: i64&, values_length: usize) -> i64:
+    input_length: usize = values_length
     if input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
     if values[0] < 1 or values[0] > 4 or values[1] < 1 or values[1] > 4 or values[2] < 1 or values[2] > 4:
@@ -165,8 +165,11 @@ def wave_function_collapse_simple_tiled_impl(values: view[i64]) -> i64:
         result <- result | (tile.i64() << (2 * cell))
     result
 
-export fn wave_function_collapse_simple_tiled(input: i64&, input_length: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+def wave_function_collapse_simple_tiled_entry(input: i64&, input_length: usize) -> i64:
+    if input == null or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
-    let values: view[i64] = input[0:input_length]
-    wave_function_collapse_simple_tiled_impl(values)
+    values: i64& = input
+    values_length: usize = input_length
+    wave_function_collapse_simple_tiled_impl(values, values_length)
+
+export fn wave_function_collapse_simple_tiled(input: i64&, input_length: usize) -> i64 = wave_function_collapse_simple_tiled_entry

@@ -15,8 +15,8 @@ def dfr_before(a: usize, b: usize, scores: view[i64]) -> bool:
     if scores[a] != scores[b]: return scores[a] > scores[b]
     a < b
 
-def dinkelbach_fixed_cardinality_ratio_impl(values: view[i64]) -> i64:
-    length: usize = values.len()
+def dinkelbach_fixed_cardinality_ratio_impl(values: i64&, values_length: usize) -> i64:
+    length: usize = values_length
     if length < 2 or length > DFR_MAX_PARSEABLE: return -1
     n_value: i64 = values[0]
     k_value: i64 = values[1]
@@ -81,6 +81,8 @@ def dinkelbach_fixed_cardinality_ratio_impl(values: view[i64]) -> i64:
         iteration <- iteration + 1
     -1
 
-export fn dinkelbach_fixed_cardinality_ratio(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > DFR_MAX_PARSEABLE: return -1
-    dinkelbach_fixed_cardinality_ratio_impl(input[0:length])
+def dinkelbach_fixed_cardinality_ratio_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > DFR_MAX_PARSEABLE: return -1
+    dinkelbach_fixed_cardinality_ratio_impl(input, length)
+
+export fn dinkelbach_fixed_cardinality_ratio(input: i64&, length: usize) -> i64 = dinkelbach_fixed_cardinality_ratio_entry

@@ -5,21 +5,21 @@ const MAX_INPUT: usize = 291
 const TREE_N: usize = 4 * MAX_N + 5
 
 struct Affine:
-    a: i64
-    b: i64
+    a: mutable i64
+    b: mutable i64
 
 struct Node:
-    value: Affine
-    lazy_a: i64
-    lazy_b: i64
-    has_lazy: bool
+    value: mutable Affine
+    lazy_a: mutable i64
+    lazy_b: mutable i64
+    has_lazy: mutable bool
 
 struct Operation:
-    kind: i64
-    left: usize
-    right: usize
-    x: i64
-    y: i64
+    kind: mutable i64
+    left: mutable usize
+    right: mutable usize
+    x: mutable i64
+    y: mutable i64
 
 def rsc_identity() -> Affine:
     value: Affine
@@ -100,16 +100,16 @@ def rsc_query(tree: mutable view[Node], node: usize, left: usize, right: usize,
     left_value: Affine = rsc_query(tree, node * 2, left, middle, ql, qr)
     rsc_compose(right_value, left_value)
 
-def rsc_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+def rsc_store(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
 
 def range_set_range_composite_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT:
+    if input == null or length < 2 or length > MAX_INPUT:
         return -1
-    frame: view[i64] = input[0:length]
+    frame: i64& = input
     n_value: i64 = frame[0]
     q_value: i64 = frame[1]
     if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64():
@@ -149,7 +149,7 @@ def range_set_range_composite_impl(input: i64&, length: usize,
             operations[k].right <- r.usize()
             operations[k].x <- a
             operations[k].y <- b
-        else if kind == 1:
+        elif kind == 1:
             if offset + 3 > length:
                 return -1
             l: i64 = frame[offset]
@@ -180,9 +180,9 @@ def range_set_range_composite_impl(input: i64&, length: usize,
             answers[answer_index] <- (z.a * op.x + z.b) % MODULUS
             answer_index <- answer_index + 1
     byte_count: usize = 8 * answer_count
-    if output.is_null() or capacity < byte_count:
+    if output == null or capacity < byte_count:
         return -2
-    output_view: mutable view[u8] = output[0:byte_count]
+    output_view: mutable u8& = output
     for i in 0..<answer_count:
         rsc_store(answers[i], output_view, 8 * i)
     byte_count.i64()

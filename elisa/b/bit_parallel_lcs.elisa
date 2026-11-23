@@ -1,13 +1,13 @@
 # Uncompiled multiword bit-parallel LCS length draft.
-def bplcs_solve(values: view[i64]) -> i64:
-    if values.len() < 2 or values.len() > 515: return -1
+def bplcs_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 2 or values_length > 515: return -1
     nr: i64 = values[0]
     mr: i64 = values[1]
     if nr < 0 or nr > 256 or mr < 0 or mr > 256: return -1
     n: usize = nr.usize()
     m: usize = mr.usize()
-    if values.len() != 2 + n + m: return -1
-    for i in 2..<values.len():
+    if values_length != 2 + n + m: return -1
+    for i in 2..<values_length:
         if values[i] < 0 or values[i] > 255: return -1
     masks: mutable u64[1024] = zeroed
     row: mutable u64[4] = zeroed
@@ -32,7 +32,7 @@ def bplcs_solve(values: view[i64]) -> i64:
             difference: mutable u64 = 0
             if second_borrow: difference <- ~0.u64()
             else: difference <- partial - borrow
-            borrow <- if first_borrow or second_borrow: 1 else: 0
+            borrow <- 1 if first_borrow or second_borrow else 0
             row[j] <- combined & (combined ^ difference)
     result: mutable i64 = 0
     for j in 0..<words:
@@ -42,6 +42,8 @@ def bplcs_solve(values: view[i64]) -> i64:
             result <- result + 1
     result
 
-export fn bit_parallel_lcs(input: i64&, length: usize) -> i64:
+def bit_parallel_lcs_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 2 or length > 515: return -1
-    bplcs_solve(input[0:length])
+    bplcs_solve(input, length)
+
+export fn bit_parallel_lcs(input: i64&, length: usize) -> i64 = bit_parallel_lcs_impl

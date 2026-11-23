@@ -1,7 +1,7 @@
 const MAX_INDEX: i64 = 4096
 const MAX_COUNT: i64 = 128
 
-def write_u64_le(output: mutable view[u8], offset: usize, value: u64) -> void:
+def write_u64_le(output: mutable u8&, offset: usize, value: u64) -> void:
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((value >> (byte * 8)) & 255).u8()
@@ -9,7 +9,7 @@ def write_u64_le(output: mutable view[u8], offset: usize, value: u64) -> void:
 
 def van_der_corput_sequence_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length != 3:
+    if input == null or length != 3:
         return -1
     base: i64 = input[0]
     first_index: i64 = input[1]
@@ -22,9 +22,9 @@ def van_der_corput_sequence_impl(input: i64&, length: usize,
         return -1
 
     output_bytes: usize = count.usize() * 16
-    if output.is_null() or output_capacity < output_bytes:
+    if output == null or output_capacity < output_bytes:
         return -2
-    bytes: mutable view[u8] = output[0:output_bytes]
+    bytes: mutable u8& = output
     offset: mutable i64 = 0
     while offset < count:
         index: mutable i64 = first_index + offset

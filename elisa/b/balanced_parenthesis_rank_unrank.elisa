@@ -4,8 +4,8 @@ const BPRU_MAX_INPUT: usize = 22
 const BPRU_WAYS_STRIDE: usize = 11
 const BPRU_WAYS_COUNT: usize = 231
 
-def balanced_parenthesis_rank_unrank_impl(values: view[i64]) -> i64:
-    length: usize = values.len()
+def balanced_parenthesis_rank_unrank_impl(values: i64&, values_length: usize) -> i64:
+    length: usize = values_length
     if length < 2 or length > BPRU_MAX_INPUT: return -1
     mode: i64 = values[0]
     pair_value: i64 = values[1]
@@ -56,14 +56,14 @@ def balanced_parenthesis_rank_unrank_impl(values: view[i64]) -> i64:
             i <- i + 1
         return rank
 
-    rank: i64 = values[2]
+    rank: mutable i64 = values[2]
     if rank < 0 or rank >= ways[sequence_length * BPRU_WAYS_STRIDE]: return -1
     balance: mutable usize = 0
     code: mutable u64 = 0
     i: mutable usize = 0
     while i < sequence_length:
         suffix: usize = sequence_length - i - 1
-        opening_count: i64 = if balance < pairs: ways[suffix * BPRU_WAYS_STRIDE + balance + 1] else: 0
+        opening_count: i64 = ways[suffix * BPRU_WAYS_STRIDE + balance + 1] if balance < pairs else 0
         symbol: mutable u64 = 0
         if rank < opening_count: balance <- balance + 1
         else:
@@ -74,6 +74,8 @@ def balanced_parenthesis_rank_unrank_impl(values: view[i64]) -> i64:
         i <- i + 1
     code.i64()
 
-export fn balanced_parenthesis_rank_unrank(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > BPRU_MAX_INPUT: return -1
-    balanced_parenthesis_rank_unrank_impl(input[0:length])
+def balanced_parenthesis_rank_unrank_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > BPRU_MAX_INPUT: return -1
+    balanced_parenthesis_rank_unrank_impl(input, length)
+
+export fn balanced_parenthesis_rank_unrank(input: i64&, length: usize) -> i64 = balanced_parenthesis_rank_unrank_entry

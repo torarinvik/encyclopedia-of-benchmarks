@@ -4,12 +4,12 @@ const VEB_MAX_QUERIES: usize = 4
 const VEB_MAX_WORDS: usize = 41
 const VEB_MAX_PARSEABLE: usize = 2 + VEB_MAX_QUERIES + 1
 
-def veb_fill_keys(keys: mutable view[i64], heap: usize, low: i64, high: i64):
+def veb_fill_keys(keys: mutable view[i64], heap_value: usize, low: i64, high: i64):
     if low > high: return
     middle: i64 = low + (high - low) / 2
-    keys[heap] <- middle
-    veb_fill_keys(keys, heap * 2, low, middle - 1)
-    veb_fill_keys(keys, heap * 2 + 1, middle + 1, high)
+    keys[heap_value] <- middle
+    veb_fill_keys(keys, heap_value * 2, low, middle - 1)
+    veb_fill_keys(keys, heap_value * 2 + 1, middle + 1, high)
 
 def veb_emit(order: mutable view[i64], used: mutable usize&, root: usize, height: usize):
     if height == 1:
@@ -23,7 +23,7 @@ def veb_emit(order: mutable view[i64], used: mutable usize&, root: usize, height
     for offset in 0..<bottom_count:
         veb_emit(order, used, root * bottom_count + offset, bottom_height)
 
-def veb_make_words(input: view[i64], order: mutable view[i64],
+def veb_make_words(input: i64&, order: mutable view[i64],
                    keys: mutable view[i64], slots: mutable view[i64],
                    staged: mutable view[i64]) -> usize:
     height: usize = input[0].usize()
@@ -45,33 +45,32 @@ def veb_make_words(input: view[i64], order: mutable view[i64],
     out <- out + 1
     for query in 0..<query_count:
         key: i64 = input[2 + query]
-        heap: mutable usize = 1
+        heap_value: mutable usize = 1
         path_start: usize = out
         out <- out + 1
         path_length: mutable usize = 0
         found: mutable i64 = -1
-        while heap <= node_count:
-            staged[out] <- slots[heap]
+        while heap_value <= node_count:
+            staged[out] <- slots[heap_value]
             out <- out + 1
             path_length <- path_length + 1
-            if key == keys[heap]:
-                found <- heap.i64()
+            if key == keys[heap_value]:
+                found <- heap_value.i64()
                 break
-            if key < keys[heap]: heap <- heap * 2
-            else: heap <- heap * 2 + 1
+            if key < keys[heap_value]: heap_value <- heap_value * 2
+            else: heap_value <- heap_value * 2 + 1
         staged[path_start] <- path_length.i64()
         staged[out] <- found
         out <- out + 1
     out
 
-export fn van_emde_boas_layout_search(input: i64&, length: usize,
+def van_emde_boas_layout_search_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > VEB_MAX_PARSEABLE: return -1
-    input_view: view[i64] = input[0:length]
+    if input == null or length < 2 or length > VEB_MAX_PARSEABLE: return -1
+    input_view: i64& = input
     height_value: i64 = input_view[0]
     query_value: i64 = input_view[1]
-    if height_value < 1 or height_value > VEB_MAX_HEIGHT.i64() or
-       query_value < 0 or query_value > VEB_MAX_QUERIES.i64(): return -1
+    if height_value < 1 or height_value > VEB_MAX_HEIGHT.i64() or query_value < 0 or query_value > VEB_MAX_QUERIES.i64(): return -1
     height: usize = height_value.usize()
     query_count: usize = query_value.usize()
     if length != 2 + query_count: return -1
@@ -88,11 +87,13 @@ export fn van_emde_boas_layout_search(input: i64&, length: usize,
         keys[0:VEB_MAX_NODES + 1], slots[0:VEB_MAX_NODES + 1],
         staged[0:VEB_MAX_WORDS])
     required: usize = word_count * 8
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     for word in 0..<word_count:
         bits: mutable u64 = staged[word].u64()
         for byte in 0..<8:
             output_view[word * 8 + byte] <- (bits & 255).u8()
             bits <- bits >> 8
     required.i64()
+
+export fn van_emde_boas_layout_search(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = van_emde_boas_layout_search_impl

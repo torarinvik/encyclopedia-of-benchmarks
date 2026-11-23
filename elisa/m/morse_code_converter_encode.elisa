@@ -36,7 +36,7 @@ def letter_index(value: i64) -> i64:
     if value >= 97 and value <= 122: return value - 97
     return -1
 
-def append_word(input: view[i64], start: usize, finish: usize, scratch: mutable view[u8], written: mutable usize&) -> void:
+def append_word(input: i64&, start: usize, finish: usize, scratch: mutable view[u8], written: mutable usize&) -> void:
     position: mutable usize = start
     while position < finish:
         letter: i64 = letter_index(input[position])
@@ -47,7 +47,7 @@ def append_word(input: view[i64], start: usize, finish: usize, scratch: mutable 
             bit: mutable usize = 0
             while bit < code_length:
                 shift: usize = code_length - bit - 1
-                symbol: u8 = 45
+                symbol: mutable u8 = 45
                 if ((mask >> shift) & 1) != 0: symbol <- 46
                 scratch[written] <- symbol
                 written <- written + 1
@@ -56,9 +56,10 @@ def append_word(input: view[i64], start: usize, finish: usize, scratch: mutable 
         written <- written + 1
         position <- position + 1
 
-def encode(input: view[i64], length: usize, scratch: mutable view[u8]) -> usize:
+def encode(input: i64&, length: usize, scratch: mutable view[u8]) -> usize:
     finish: mutable usize = length
-    while finish > 0 and input[finish - 1] == 32: finish <- finish - 1
+    while finish > 0 and input[finish - 1] == 32:
+        finish <- finish - 1
     if finish == 0: return 0
     written: mutable usize = 0
     start: mutable usize = 0
@@ -66,27 +67,28 @@ def encode(input: view[i64], length: usize, scratch: mutable view[u8]) -> usize:
     while position <= finish:
         if position == finish:
             append_word(input, start, position, scratch, written)
-        else if input[position] == 32:
+        elif input[position] == 32:
             append_word(input, start, position, scratch, written)
             scratch[written] <- 124
             scratch[written + 1] <- 32
             written <- written + 2
             start <- position + 1
         position <- position + 1
-    while written > 0 and scratch[written - 1] == 32: written <- written - 1
+    while written > 0 and scratch[written - 1] == 32:
+        written <- written - 1
     written
 
 def morse_code_converter_encode_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if (input.is_null() and length > 0) or length > MAX_INPUT_LENGTH: return -1
+    if (input == null and length > 0) or length > MAX_INPUT_LENGTH: return -1
     index: mutable usize = 0
     while index < length:
         if input[index] < 0 or input[index] > 127: return -1
         index <- index + 1
     scratch: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    written: usize = 0
+    written: mutable usize = 0
     if length > 0:
-        written <- encode(input[0:length], length, scratch[0:MAX_OUTPUT_BYTES])
-    if output.is_null() or capacity < written: return -2
+        written <- encode(input, length, scratch[0:MAX_OUTPUT_BYTES])
+    if output == null or capacity < written: return -2
     index <- 0
     while index < written:
         output[index] <- scratch[index]

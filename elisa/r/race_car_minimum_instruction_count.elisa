@@ -1,8 +1,8 @@
 const MAX_TARGET: usize = 127
 const MAX_INPUT_LENGTH: usize = 2
 
-def race_car_minimum_instruction_count_impl(input: view[i64]) -> i64:
-    if input.len() != 1:
+def race_car_minimum_instruction_count_impl(input: i64&, input_length: usize) -> i64:
+    if input_length != 1:
         return -1
     target_value: i64 = input[0]
     if target_value < 0 or target_value > MAX_TARGET.i64():
@@ -36,7 +36,9 @@ def race_car_minimum_instruction_count_impl(input: view[i64]) -> i64:
         position <- position + 1
     distance[target].i64()
 
-export fn race_car_minimum_instruction_count(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+def race_car_minimum_instruction_count_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
         return -1
-    race_car_minimum_instruction_count_impl(input[0:length])
+    race_car_minimum_instruction_count_impl(input, length)
+
+export fn race_car_minimum_instruction_count(input: i64&, length: usize) -> i64 = race_car_minimum_instruction_count_entry

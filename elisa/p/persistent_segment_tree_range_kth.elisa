@@ -5,9 +5,9 @@ const MAX_NODES: usize = 193
 const INVALID_RESULT: i64 = -9223372036854775807 - 1
 
 def persistent_segment_tree_range_kth_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
-    frame: view[i64] = input[0:length]
+    frame: i64& = input
     n_value: i64 = frame[0]
     q_value: i64 = frame[1]
     if n_value < 1 or n_value > 32 or q_value < 0 or q_value > 32:

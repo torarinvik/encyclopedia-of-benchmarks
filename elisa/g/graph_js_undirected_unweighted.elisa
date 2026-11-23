@@ -5,8 +5,8 @@ const MAX_INPUT_LENGTH: usize = 541
 const MAX_OUTPUT_VALUES: usize = 645
 const MAX_QUEUE: usize = 513
 
-def graph_js_undirected_unweighted_store(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
+def graph_js_undirected_unweighted_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
@@ -97,11 +97,11 @@ def graph_js_undirected_unweighted_impl(values: i64&, length: usize,
     bfs_count_slot: usize = result_length
     result_length <- result_length + 1
     head: mutable usize = 0
-    tail: mutable usize = 1
+    tail_value: mutable usize = 1
     queue[0] <- start
     levels[0] <- 0
     bfs_count: mutable usize = 0
-    while head < tail:
+    while head < tail_value:
         vertex: usize = queue[head]
         level: usize = levels[head]
         head <- head + 1
@@ -114,9 +114,9 @@ def graph_js_undirected_unweighted_impl(values: i64&, length: usize,
         bfs_count <- bfs_count + 1
         edge <- 0
         while edge < degree[vertex]:
-            queue[tail] <- adjacency[vertex * MAX_DEGREE + edge].usize()
-            levels[tail] <- level + 1
-            tail <- tail + 1
+            queue[tail_value] <- adjacency[vertex * MAX_DEGREE + edge].usize()
+            levels[tail_value] <- level + 1
+            tail_value <- tail_value + 1
             edge <- edge + 1
     result[bfs_count_slot] <- bfs_count.i64()
 
@@ -158,7 +158,7 @@ def graph_js_undirected_unweighted_impl(values: i64&, length: usize,
         return -2
     index <- 0
     while index < result_length:
-        graph_js_undirected_unweighted_store(result[index], output[0:output_bytes], index * 8)
+        graph_js_undirected_unweighted_store(result[index], output, index * 8)
         index <- index + 1
     output_bytes.i64()
 

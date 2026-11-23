@@ -27,15 +27,15 @@ def heap_sort(values: mutable view[i64], length: usize) -> void:
         values[ending] <- temporary
         sift_down(values, 0, ending)
 
-def store_i32_le(value: i64, output: mutable view[u8], position: usize) -> void:
+def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
     output[position + 2] <- ((bits >> 16) & 255).u8()
     output[position + 3] <- ((bits >> 24) & 255).u8()
 
-def wave_sort_impl(input: view[i64], output: mutable u8&, output_capacity: usize) -> i64:
-    length: usize = input.len()
+def wave_sort_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    length: usize = input_length
     if length > MAX_ARRAY_LENGTH:
         return -1
     values: mutable i64[MAX_ARRAY_LENGTH] = zeroed
@@ -57,14 +57,16 @@ def wave_sort_impl(input: view[i64], output: mutable u8&, output_capacity: usize
         index <- index + 2
     index <- 0
     if byte_count == 0: return 0
-    result: mutable view[u8] = output[0:byte_count]
+    result: mutable u8& = output
     while index < length:
         store_i32_le(values[index], result, index * 4)
         index <- index + 1
     length.i64()
 
-export fn wave_sort(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+def wave_sort_entry(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     if length > MAX_ARRAY_LENGTH: return -1
     if length == 0: return 0
     if input == null: return -1
-    wave_sort_impl(input[0:length], output, output_capacity)
+    wave_sort_impl(input, length, output, output_capacity)
+
+export fn wave_sort(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = wave_sort_entry

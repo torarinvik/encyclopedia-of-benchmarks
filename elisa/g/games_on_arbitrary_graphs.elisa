@@ -3,9 +3,9 @@ const MAX_E: usize = 32
 const MAX_INPUT: usize = 66
 const MAX_OUTPUT: usize = 17
 
-def games_on_arbitrary_graphs_impl(input: view[i64], output: mutable view[u8],
+def games_on_arbitrary_graphs_impl(input: i64&, input_length: usize, output: mutable u8&,
                                    capacity: usize, output_is_null: bool) -> i64:
-    length: usize = input.len()
+    length: usize = input_length
     if length < 2 or length > MAX_INPUT: return -1
     nv: i64 = input[0]
     me: i64 = input[1]
@@ -22,7 +22,8 @@ def games_on_arbitrary_graphs_impl(input: view[i64], output: mutable view[u8],
     status: mutable u8[MAX_V] = zeroed
     queue: mutable usize[MAX_V] = zeroed
     staged: mutable u8[MAX_OUTPUT] = zeroed
-    for v in 0..<n: head[v] <- -1
+    for v in 0..<n:
+        head[v] <- -1
 
     unique_edges: mutable usize = 0
     for i in 0..<m:
@@ -68,18 +69,22 @@ def games_on_arbitrary_graphs_impl(input: view[i64], output: mutable view[u8],
             edge <- edge_next[edge_index]
 
     staged[0] <- n.u8()
-    for v in 0..<n: staged[v + 1] <- status[v]
+    for v in 0..<n:
+        staged[v + 1] <- status[v]
     needed: usize = n + 1
     if output_is_null or capacity < needed: return -2
-    for i in 0..<needed: output[i] <- staged[i]
+    for i in 0..<needed:
+        output[i] <- staged[i]
     needed.i64()
 
-export fn games_on_arbitrary_graphs(input: i64&, length: usize,
+def games_on_arbitrary_graphs_entry(input: i64&, length: usize,
                                     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
-    if output.is_null():
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return games_on_arbitrary_graphs_impl(input[0:length], scratch[0:1], capacity, true)
+        return games_on_arbitrary_graphs_impl(input, length, &scratch[0], capacity, true)
     output_length: mutable usize = capacity
     if output_length > MAX_OUTPUT: output_length <- MAX_OUTPUT
-    games_on_arbitrary_graphs_impl(input[0:length], output[0:output_length], capacity, false)
+    games_on_arbitrary_graphs_impl(input, length, output, capacity, false)
+
+export fn games_on_arbitrary_graphs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = games_on_arbitrary_graphs_entry

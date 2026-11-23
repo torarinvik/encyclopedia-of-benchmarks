@@ -4,12 +4,12 @@ def twt_min(a: i64,b: i64) -> i64:
     b
 def twt_add(a: i64,b: i64) -> i64:
     twt_min(1000000000000,a+b)
-def twt_solve(values: view[i64]) -> i64:
-    if values.len() < 2 or values.len() > 129: return -1
+def twt_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 2 or values_length > 129: return -1
     nv: i64 = values[0]
     if nv < 1 or nv > 64: return -1
     n: usize = nv.usize()
-    if values.len() != 2 * n: return -1
+    if values_length != 2 * n: return -1
     for v in 1..<n:
         if values[v] < 0 or values[v] >= v.i64(): return -1
     weights: mutable i64[64] = zeroed
@@ -45,6 +45,8 @@ def twt_solve(values: view[i64]) -> i64:
     if root == 1000000000000: return -2
     root
 
-export fn tree_weighted_total_dominating_set(input: i64&, length: usize) -> i64:
+def tree_weighted_total_dominating_set_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 2 or length > 129: return -1
-    twt_solve(input[0:length])
+    twt_solve(input, length)
+
+export fn tree_weighted_total_dominating_set(input: i64&, length: usize) -> i64 = tree_weighted_total_dominating_set_impl

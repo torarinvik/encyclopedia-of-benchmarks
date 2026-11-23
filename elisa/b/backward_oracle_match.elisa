@@ -1,17 +1,19 @@
-def bom_solve(values: view[i64]) -> i64:
-    if values.len() < 2 or values.len() > 4161: return -2
+def bom_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 2 or values_length > 4161: return -2
     if values[0] < 0 or values[0] > 4096 or values[1] < 0 or values[1] > 63: return -2
     n: usize = values[0].usize()
     m: usize = values[1].usize()
-    if values.len() != 2 + n + m: return -2
-    for i in 2..<values.len():
+    if values_length != 2 + n + m: return -2
+    for i in 2..<values_length:
         if values[i] < 97 or values[i] > 122: return -2
     if m == 0: return 0
     if m > n: return -1
     next: mutable i64[1664] = zeroed
     suffix: mutable i64[64] = zeroed
-    for i in 0..<1664: next[i] <- -1
-    for i in 0..<64: suffix[i] <- -1
+    for i in 0..<1664:
+        next[i] <- -1
+    for i in 0..<64:
+        suffix[i] <- -1
     for i in 0..<m:
         letter: usize = (values[2 + n + m - 1 - i] - 97).usize()
         next[i * 26 + letter] <- (i + 1).i64()
@@ -38,6 +40,8 @@ def bom_solve(values: view[i64]) -> i64:
         start <- start + shift
     -1
 
-export fn backward_oracle_match(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 4161: return -2
-    bom_solve(input[0:length])
+def backward_oracle_match_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 4161: return -2
+    bom_solve(input, length)
+
+export fn backward_oracle_match(input: i64&, length: usize) -> i64 = backward_oracle_match_impl

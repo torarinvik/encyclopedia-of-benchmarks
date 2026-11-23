@@ -2,16 +2,16 @@ const GBBS_CLIQUE_MAX_N: usize = 24
 const GBBS_CLIQUE_MAX_M: usize = 64
 const GBBS_CLIQUE_MAX_INPUT: usize = 130
 
-def gbbs_clique_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def gbbs_clique_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-// Clean-room GBBS fixed-k clique profile; see package LICENSE.txt.
-def gbbs_k_clique_count(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("gbbs_k_clique_count"):
-    if input.is_null() or length < 2 or length > GBBS_CLIQUE_MAX_INPUT: return -1
+# Clean-room GBBS fixed-k clique profile; see package LICENSE.txt.
+def gbbs_k_clique_count_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > GBBS_CLIQUE_MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     if n64 < 1 or n64 > 24 or m64 < 0 or m64 > 64: return -1
@@ -33,7 +33,7 @@ def gbbs_k_clique_count(input: i64&, length: usize, output: mutable u8&, capacit
         degree[u] <- degree[u] + 1
         degree[v] <- degree[v] + 1
         edge <- edge + 1
-    if output.is_null() or capacity < 8: return -2
+    if output == null or capacity < 8: return -2
 
     directed: mutable bool[576] = zeroed
     u: mutable usize = 0
@@ -61,5 +61,7 @@ def gbbs_k_clique_count(input: i64&, length: usize, output: mutable u8&, capacit
                     c <- c + 1
             b <- b + 1
         a <- a + 1
-    gbbs_clique_store_i64_le(count, output[0:8], 0)
+    gbbs_clique_store_i64_le(count, output, 0)
     return 8
+
+export fn gbbs_k_clique_count(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = gbbs_k_clique_count_impl

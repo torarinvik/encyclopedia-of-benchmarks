@@ -8,12 +8,12 @@ def twd_add(a: i64, b: i64) -> i64:
     if a >= inf or b >= inf or a + b >= inf: return inf
     a + b
 
-def twd_solve(values: view[i64]) -> i64:
-    if values.len() < 2 or values.len() > 129: return -1
+def twd_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 2 or values_length > 129: return -1
     nv: i64 = values[0]
     if nv < 1 or nv > 64: return -1
     n: usize = nv.usize()
-    if values.len() != 2 * n: return -1
+    if values_length != 2 * n: return -1
     for vertex in 1..<n:
         if values[vertex] < 0 or values[vertex] >= vertex.i64(): return -1
     selected: mutable i64[64] = zeroed
@@ -37,6 +37,8 @@ def twd_solve(values: view[i64]) -> i64:
         covered[parent] <- next_covered
     twd_min(selected[0], covered[0])
 
-export fn tree_weighted_dominating_set(input: i64&, length: usize) -> i64:
+def tree_weighted_dominating_set_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 2 or length > 129: return -1
-    twd_solve(input[0:length])
+    twd_solve(input, length)
+
+export fn tree_weighted_dominating_set(input: i64&, length: usize) -> i64 = tree_weighted_dominating_set_impl

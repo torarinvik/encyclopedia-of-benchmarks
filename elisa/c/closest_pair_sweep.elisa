@@ -66,7 +66,8 @@ def cps_erase(nodes: mutable view[i64], root: i64, key: i64) -> i64:
     elif nodes[base + 2] == 0: return nodes[base + 1]
     else:
         successor: mutable i64 = nodes[base + 2]
-        while nodes[successor.usize() * 4 + 1] != 0: successor <- nodes[successor.usize() * 4 + 1]
+        while nodes[successor.usize() * 4 + 1] != 0:
+            successor <- nodes[successor.usize() * 4 + 1]
         replacement: i64 = nodes[successor.usize() * 4]
         nodes[base] <- replacement
         nodes[base + 2] <- cps_erase(nodes, nodes[base + 2], replacement)
@@ -88,12 +89,12 @@ def cps_range(nodes: view[i64], root: i64, low: i64, high: i64, x: i64, y: i64, 
     if key <= high: best <- cps_range(nodes, nodes[base + 2], low, high, x, y, best)
     best
 
-def cps_solve(values: view[i64]) -> i64:
-    if values.len() < 5 or values.len() > 130: return -1
+def cps_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 5 or values_length > 130: return -1
     count: i64 = values[0]
     if count < 2 or count > 64: return -1
     n: usize = count.usize()
-    if values.len() != 1 + 2 * n: return -1
+    if values_length != 1 + 2 * n: return -1
     points: mutable i64[64] = zeroed
     scratch: mutable i64[64] = zeroed
     for i in 0..<n:
@@ -119,7 +120,8 @@ def cps_solve(values: view[i64]) -> i64:
                     scratch[dest] <- points[right]
                     right <- right + 1
             begin <- begin + 2 * width
-        for i in 0..<n: points[i] <- scratch[i]
+        for i in 0..<n:
+            points[i] <- scratch[i]
         width <- width * 2
     for i in 1..<n:
         if points[i] == points[i - 1]: return 0
@@ -156,6 +158,8 @@ def cps_solve(values: view[i64]) -> i64:
         root <- cps_insert(nodes[0:260], root, index)
     best
 
-export fn closest_pair_sweep(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 5 or length > 130: return -1
-    cps_solve(input[0:length])
+def closest_pair_sweep_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 5 or length > 130: return -1
+    cps_solve(input, length)
+
+export fn closest_pair_sweep(input: i64&, length: usize) -> i64 = closest_pair_sweep_impl

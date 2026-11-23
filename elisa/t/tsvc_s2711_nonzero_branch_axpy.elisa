@@ -4,7 +4,7 @@ const TSVC_S2711_MAX_N: usize = 64
 const TSVC_S2711_MAX_PASSES: usize = 8
 const TSVC_S2711_MAX_INPUT_LENGTH: usize = 194
 
-def tsvc_s2711_nonzero_branch_axpy_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def tsvc_s2711_nonzero_branch_axpy_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -13,7 +13,7 @@ def tsvc_s2711_nonzero_branch_axpy_store_i64(value: i64, output: mutable view[u8
 
 def tsvc_s2711_nonzero_branch_axpy_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 5 or length > TSVC_S2711_MAX_INPUT_LENGTH:
+    if input == null or length < 5 or length > TSVC_S2711_MAX_INPUT_LENGTH:
         return -1
     n_value: i64 = input[0]
     passes_value: i64 = input[1]
@@ -28,7 +28,7 @@ def tsvc_s2711_nonzero_branch_axpy_impl(input: i64&, length: usize,
         if input[i] < -2 or input[i] > 2:
             return -1
         i <- i + 1
-    if output.is_null() or output_capacity < 8 * n:
+    if output == null or output_capacity < 8 * n:
         return -2
 
     a_start: usize = 2
@@ -39,17 +39,17 @@ def tsvc_s2711_nonzero_branch_axpy_impl(input: i64&, length: usize,
     while i < n:
         a[i] <- input[a_start + i]
         i <- i + 1
-    pass: mutable usize = 0
-    while pass < passes:
+    pass_value: mutable usize = 0
+    while pass_value < passes:
         i <- 0
         while i < n:
             if input[b_start + i] != 0:
                 a[i] <- a[i] + input[b_start + i] * input[c_start + i]
             i <- i + 1
-        pass <- pass + 1
+        pass_value <- pass_value + 1
     i <- 0
     while i < n:
-        tsvc_s2711_nonzero_branch_axpy_store_i64(a[i], output[0:output_capacity], 8 * i)
+        tsvc_s2711_nonzero_branch_axpy_store_i64(a[i], output, 8 * i)
         i <- i + 1
     (n).i64()
 

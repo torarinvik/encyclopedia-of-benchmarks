@@ -4,8 +4,8 @@ const BP_MAX_INPUT: usize = 129
 const BP_MAX_BITS: usize = 2 * BP_MAX_N
 const BP_MAX_OUTPUT_WORDS: usize = 4 + BP_MAX_Q
 
-def bp_compute(input: view[i64], words: mutable view[i64]) -> i64:
-    length: usize = input.len()
+def bp_compute(input: i64&, input_length: usize, words: mutable view[i64]) -> i64:
+    length: usize = input_length
     if length < 2 or length > BP_MAX_INPUT: return -1
     n_value: i64 = input[0]
     q_value: i64 = input[1]
@@ -51,7 +51,8 @@ def bp_compute(input: view[i64], words: mutable view[i64]) -> i64:
         frame: usize = depth - 1
         node: usize = stack_node[frame]
         child: mutable usize = next_child[frame]
-        while child < n and parent[child] != node: child <- child + 1
+        while child < n and parent[child] != node:
+            child <- child + 1
         if child < n:
             next_child[frame] <- child + 1
             bits[bit_count] <- 1.u8()
@@ -66,10 +67,10 @@ def bp_compute(input: view[i64], words: mutable view[i64]) -> i64:
     if bit_count != bit_length: return -1
 
     excess: mutable i64[BP_MAX_BITS + 1] = zeroed
-    packed: mutable u64 = 0
+    packed_value: mutable u64 = 0
     index <- 0
     while index < bit_length:
-        if bits[index] != 0: packed <- packed | (1.u64() << index)
+        if bits[index] != 0: packed_value <- packed_value | (1.u64() << index)
         if bits[index] != 0: excess[index + 1] <- excess[index] + 1
         else: excess[index + 1] <- excess[index] - 1
         index <- index + 1
@@ -85,7 +86,7 @@ def bp_compute(input: view[i64], words: mutable view[i64]) -> i64:
 
     words[0] <- n_value
     words[1] <- bit_length.i64()
-    words[2] <- packed.i64()
+    words[2] <- packed_value.i64()
     words[3] <- q_value
     index <- 0
     while index < q:
@@ -150,25 +151,28 @@ def bp_compute(input: view[i64], words: mutable view[i64]) -> i64:
         index <- index + 1
     (4 + q).i64()
 
-def bp_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+def bp_store(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-export fn bp_ordered_tree_navigation(input: i64&, length: usize,
+def bp_ordered_tree_navigation_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > BP_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
+    if input == null or length < 2 or length > BP_MAX_INPUT: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
     words: mutable i64[BP_MAX_OUTPUT_WORDS] = zeroed
-    word_count: i64 = bp_compute(input_view, words[0:BP_MAX_OUTPUT_WORDS])
+    word_count: i64 = bp_compute(input_view, input_view_length, words[0:BP_MAX_OUTPUT_WORDS])
     if word_count < 0: return word_count
     required: usize = word_count.usize() * 8
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     index: mutable usize = 0
     while index < word_count.usize():
         bp_store(words[index], output_view, 8 * index)
         index <- index + 1
     required.i64()
+
+export fn bp_ordered_tree_navigation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = bp_ordered_tree_navigation_impl

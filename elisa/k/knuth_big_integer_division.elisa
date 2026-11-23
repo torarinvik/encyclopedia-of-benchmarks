@@ -6,10 +6,11 @@ const KBD_MAX_OUTPUT: usize = 129
 
 def kbd_trim(values: view[i64], count_value: usize) -> usize:
     count: mutable usize = count_value
-    while count > 0 and values[count - 1] == 0: count <- count - 1
+    while count > 0 and values[count - 1] == 0:
+        count <- count - 1
     count
 
-def kbd_parse(text: view[i64], length: usize, limbs: mutable view[i64]) -> usize:
+def kbd_parse(text: i64&, length: usize, limbs: mutable view[i64]) -> usize:
     count: mutable usize = 0
     at: mutable usize = 0
     while at < length:
@@ -141,7 +142,8 @@ def kbd_emit(limbs: view[i64], count_value: usize, output: mutable view[u8], at_
         return at + 1
     value: mutable i64 = limbs[count - 1]
     power: mutable i64 = 1
-    while value / power >= 10: power <- power * 10
+    while value / power >= 10:
+        power <- power * 10
     while power > 0:
         output[at] <- (48 + value / power % 10).u8()
         at <- at + 1
@@ -156,21 +158,20 @@ def kbd_emit(limbs: view[i64], count_value: usize, output: mutable view[u8], at_
             power <- power / 10
     at
 
-def kbd_impl(input: view[i64], length: usize, output: mutable view[u8], capacity: usize,
+def kbd_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize,
              output_is_null: bool) -> i64:
     if length < 4 or length > KBD_MAX_INPUT: return -1
     if input[0] < 1 or input[0] > 64 or input[1] < 1 or input[1] > 64: return -1
     na_text: usize = input[0].usize()
     nb_text: usize = input[1].usize()
     if length != 2 + na_text + nb_text: return -1
-    a_text: view[i64] = input[2:2 + na_text]
-    b_text: view[i64] = input[2 + na_text:2 + na_text + nb_text]
+    a_text: i64& = &input[2]
+    b_text: i64& = &input[2 + na_text]
     for i in 0..<na_text:
         if a_text[i] < 48 or a_text[i] > 57: return -1
     for i in 0..<nb_text:
         if b_text[i] < 48 or b_text[i] > 57: return -1
-    if (na_text > 1 and a_text[0] == 48) or (nb_text > 1 and b_text[0] == 48) or
-       (nb_text == 1 and b_text[0] == 48): return -1
+    if (na_text > 1 and a_text[0] == 48) or (nb_text > 1 and b_text[0] == 48) or (nb_text == 1 and b_text[0] == 48): return -1
 
     a: mutable i64[KBD_MAX_LIMBS] = zeroed
     b: mutable i64[KBD_MAX_LIMBS] = zeroed
@@ -187,17 +188,20 @@ def kbd_impl(input: view[i64], length: usize, output: mutable view[u8], capacity
     bytes <- bytes + 1
     bytes <- kbd_emit(r[0:KBD_MAX_LIMBS], nr, result[0:KBD_MAX_OUTPUT], bytes)
     if output_is_null or capacity < bytes: return -2
-    for i in 0..<bytes: output[i] <- result[i]
+    for i in 0..<bytes:
+        output[i] <- result[i]
     bytes.i64()
 
-export fn knuth_big_integer_division(input: i64&, length: usize,
+def knuth_big_integer_division_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 4 or length > KBD_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+    if input == null or length < 4 or length > KBD_MAX_INPUT: return -1
+    input_view: i64& = input
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return kbd_impl(input_view, length, scratch[0:1], 0, true)
+        return kbd_impl(input_view, length, &scratch[0], 0, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > KBD_MAX_OUTPUT: safe_capacity <- KBD_MAX_OUTPUT
-    output_view: mutable view[u8] = output[0:safe_capacity]
+    output_view: mutable u8& = output
     kbd_impl(input_view, length, output_view, capacity, false)
+
+export fn knuth_big_integer_division(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = knuth_big_integer_division_impl

@@ -11,8 +11,8 @@ def cr_count(n: usize, r: usize) -> usize:
 
 def combinations_with_repetition_lexicographic_impl(input: i64&, length: usize,
                                                       output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length != 2: return -1
-    input_view: view[i64] = input[0:length]
+    if input == null or length != 2: return -1
+    input_view: i64& = input
     n_word: i64 = input_view[0]
     r_word: i64 = input_view[1]
     if n_word < 0 or n_word > 4 or r_word < 0 or r_word > 4: return -1
@@ -20,8 +20,8 @@ def combinations_with_repetition_lexicographic_impl(input: i64&, length: usize,
     r: usize = r_word.usize()
     count: usize = cr_count(n, r)
     byte_count: usize = 2 + count * r
-    if output.is_null() or capacity < byte_count: return -2
-    output_view: mutable view[u8] = output[0:capacity]
+    if output == null or capacity < byte_count: return -2
+    output_view: mutable u8& = output
     output_view[0] <- (count & 255).u8()
     output_view[1] <- ((count >> 8) & 255).u8()
 

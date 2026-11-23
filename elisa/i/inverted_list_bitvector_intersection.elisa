@@ -2,7 +2,7 @@ const MAX_DOMAIN: usize = 1024
 const MAX_LISTS: usize = 16
 const MAX_WORDS: usize = 16
 
-def write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -11,7 +11,7 @@ def write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
 
 def inverted_list_bitvector_intersection_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 258:
+    if input == null or length < 2 or length > 258:
         return -1
     domain_value: i64 = input[0]
     list_count_value: i64 = input[1]
@@ -58,9 +58,9 @@ def inverted_list_bitvector_intersection_impl(input: i64&, length: usize,
         document_id <- document_id + 1
 
     output_bytes: usize = (result_count + 1) * 8
-    if output.is_null() or output_capacity < output_bytes:
+    if output == null or output_capacity < output_bytes:
         return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
+    output_view: mutable u8& = output
     write_i64_le(output_view, 0, result_count.i64())
     index: mutable usize = 0
     while index < result_count:

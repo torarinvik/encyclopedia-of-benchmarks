@@ -31,9 +31,9 @@ def resistance_minor(lap: i64[36], n: usize, first: usize, second: usize) -> i64
         k <- k+1
     matrix[(rows-1)*6+rows-1]
 
-export fn effective_resistance_unit_graph(input: i64&, length: usize) -> i64:
+def effective_resistance_unit_graph_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 4 or length > 35: return -1
-    frame: view[i64] = input[0:length]
+    frame: i64& = input
     nv: i64 = frame[0]
     mv: i64 = frame[1]
     sv: i64 = frame[2]
@@ -69,3 +69,5 @@ export fn effective_resistance_unit_graph(input: i64&, length: usize) -> i64:
         a <- b
         b <- r
     (forests/a)*65536+trees/a
+
+export fn effective_resistance_unit_graph(input: i64&, length: usize) -> i64 = effective_resistance_unit_graph_impl

@@ -48,8 +48,10 @@ def tpm_heap_sort(count: usize, order: mutable view[usize],
 def tpm_lca(a_value: usize, b_value: usize, parent: view[i64], depth: view[usize]) -> usize:
     a: mutable usize = a_value
     b: mutable usize = b_value
-    while depth[a] > depth[b]: a <- parent[a].usize()
-    while depth[b] > depth[a]: b <- parent[b].usize()
+    while depth[a] > depth[b]:
+        a <- parent[a].usize()
+    while depth[b] > depth[a]:
+        b <- parent[b].usize()
     while a != b:
         a <- parent[a].usize()
         b <- parent[b].usize()
@@ -67,8 +69,8 @@ def tpm_toggle(vertex: usize, color_id: view[usize], counts: mutable view[usize]
         if counts[color] == 0: distinct <- distinct + 1
         counts[color] <- counts[color] + 1
 
-def tpm_store(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
+def tpm_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
@@ -77,8 +79,8 @@ def tpm_store(value: i64, output: mutable view[u8], offset: usize) -> void:
 
 def tree_path_distinct_mo_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > TPM_MAX_INPUT + 1: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 3 or length > TPM_MAX_INPUT + 1: return -1
+    values: i64& = input
     n_value: i64 = values[0]
     q_value: i64 = values[1]
     if n_value < 1 or n_value > TPM_MAX_N.i64() or q_value < 0 or q_value > TPM_MAX_Q.i64(): return -1
@@ -109,8 +111,8 @@ def tree_path_distinct_mo_impl(input: i64&, length: usize,
             return -1
         u: usize = u_value.usize()
         v: usize = v_value.usize()
-        root_u: usize = tpm_find_root(dsu_parent[0:TPM_MAX_N], u)
-        root_v: usize = tpm_find_root(dsu_parent[0:TPM_MAX_N], v)
+        root_u: mutable usize = tpm_find_root(dsu_parent[0:TPM_MAX_N], u)
+        root_v: mutable usize = tpm_find_root(dsu_parent[0:TPM_MAX_N], v)
         if root_u == root_v: return -1
         if dsu_size[root_u] < dsu_size[root_v]:
             temporary: usize = root_u
@@ -140,7 +142,8 @@ def tree_path_distinct_mo_impl(input: i64&, length: usize,
     vertex <- 0
     while vertex < n:
         rank: mutable usize = 0
-        while rank < color_count and colors[first_color[rank]] != colors[vertex]: rank <- rank + 1
+        while rank < color_count and colors[first_color[rank]] != colors[vertex]:
+            rank <- rank + 1
         if rank == color_count:
             first_color[color_count] <- vertex
             color_count <- color_count + 1
@@ -194,7 +197,8 @@ def tree_path_distinct_mo_impl(input: i64&, length: usize,
     query_rights: mutable usize[TPM_MAX_Q] = zeroed
     query_extras: mutable i64[TPM_MAX_Q] = zeroed
     block_size: mutable usize = 1
-    while (block_size + 1) * (block_size + 1) <= 2 * n: block_size <- block_size + 1
+    while (block_size + 1) * (block_size + 1) <= 2 * n:
+        block_size <- block_size + 1
     index <- 0
     while index < q:
         u: mutable usize = query_u[index]
@@ -204,7 +208,7 @@ def tree_path_distinct_mo_impl(input: i64&, length: usize,
             u <- v
             v <- temporary
         ancestor: usize = tpm_lca(u, v, parent[0:TPM_MAX_N], depth[0:TPM_MAX_N])
-        left: usize = entry[u]
+        left: mutable usize = entry[u]
         if ancestor != u: left <- leave[u]
         right: usize = entry[v]
         block: usize = left / block_size
@@ -212,7 +216,7 @@ def tree_path_distinct_mo_impl(input: i64&, length: usize,
         blocks[index] <- block
         query_lefts[index] <- left
         query_rights[index] <- right
-        query_extras[index] <- if ancestor == u: -1 else: ancestor.i64()
+        query_extras[index] <- -1 if ancestor == u else ancestor.i64()
         if block % 2 == 0:
             right_keys[index] <- right
         else:
@@ -254,8 +258,8 @@ def tree_path_distinct_mo_impl(input: i64&, length: usize,
         sorted_index <- sorted_index + 1
 
     required: usize = 8 * q
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     index <- 0
     while index < q:
         tpm_store(answers[index].i64(), output_view, 8 * index)

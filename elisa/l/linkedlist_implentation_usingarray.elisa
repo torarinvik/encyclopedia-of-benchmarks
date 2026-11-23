@@ -1,4 +1,4 @@
-def write_i32_le(output: mutable view[u8], index: usize, value: i32) -> void:
+def write_i32_le(output: mutable u8&, index: usize, value: i32) -> void:
     bits: mutable u32 = value.u32()
     offset: usize = index * 4
     byte: mutable usize = 0
@@ -8,7 +8,7 @@ def write_i32_le(output: mutable view[u8], index: usize, value: i32) -> void:
         byte <- byte + 1
 
 def linkedlist_implentation_usingarray_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > 202: return -1
+    if input == null or length < 1 or length > 202: return -1
     operation_count: i64 = input[0]
     if operation_count < 0 or operation_count > 100 or length != (1 + 2 * operation_count).usize(): return -1
     items: mutable i32[100] = zeroed
@@ -36,11 +36,11 @@ def linkedlist_implentation_usingarray_impl(input: i64&, length: usize, output: 
             return -1
         step <- step + 1
     output_bytes: usize = (item_count + 1) * 4
-    if output.is_null() or capacity < output_bytes: return -2
-    write_i32_le(output[0:output_bytes], 0, item_count.i32())
+    if output == null or capacity < output_bytes: return -2
+    write_i32_le(output, 0, item_count.i32())
     index: mutable usize = 0
     while index < item_count:
-        write_i32_le(output[0:output_bytes], index + 1, items[index])
+        write_i32_le(output, index + 1, items[index])
         index <- index + 1
     return output_bytes.i64()
 

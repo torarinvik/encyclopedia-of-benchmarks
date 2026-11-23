@@ -10,8 +10,8 @@ def fp_canonical(xs: view[i64], ys: view[i64], size: usize,
         min_x: mutable i64 = 1000
         min_y: mutable i64 = 1000
         for i in 0..<size:
-            a: mutable i64 = if mode >= 4 then ys[i] else xs[i]
-            b: mutable i64 = if mode >= 4 then xs[i] else ys[i]
+            a: mutable i64 = ys[i] if mode >= 4 else xs[i]
+            b: mutable i64 = xs[i] if mode >= 4 else ys[i]
             if (mode & 1) != 0: a <- -a
             if (mode & 2) != 0: b <- -b
             tx[i] <- a
@@ -33,12 +33,14 @@ def fp_canonical(xs: view[i64], ys: view[i64], size: usize,
                     less <- codes[i] < best[i]
                     break
         if less:
-            for i in 0..<size: best[i] <- codes[i]
+            for i in 0..<size:
+                best[i] <- codes[i]
             have_best <- true
-    for i in 0..<size: result[i] <- best[i]
+    for i in 0..<size:
+        result[i] <- best[i]
 
-def fp_solve(values: view[i64]) -> i64:
-    if values.len() != 1 or values[0] < 1 or values[0] > 8: return -1
+def fp_solve(values: i64&, values_length: usize) -> i64:
+    if values_length != 1 or values[0] < 1 or values[0] > 8: return -1
     n: usize = values[0].usize()
     shapes: mutable i64[8192] = zeroed
     current: mutable usize = 0
@@ -81,12 +83,15 @@ def fp_solve(values: view[i64]) -> i64:
                             if same: duplicate <- true
                     if not duplicate:
                         if next_count >= 512: return -1
-                        for i in 0..<size + 1: shapes[next * 4096 + next_count * 8 + i] <- candidate[i]
+                        for i in 0..<size + 1:
+                            shapes[next * 4096 + next_count * 8 + i] <- candidate[i]
                         next_count <- next_count + 1
         current <- next
         shape_count <- next_count
     shape_count.i64()
 
-export fn free_polyomino_enumeration(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 1: return -1
-    fp_solve(input[0:length])
+def free_polyomino_enumeration_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 1: return -1
+    fp_solve(input, length)
+
+export fn free_polyomino_enumeration(input: i64&, length: usize) -> i64 = free_polyomino_enumeration_impl

@@ -30,14 +30,14 @@ def bpc_fill_color_counts(k: usize, last_diagonal: usize, output: mutable view[i
         output[placed] <- dp[last_diagonal * (BPC_MAX_K + 1) + placed]
         placed <- placed + 1
 
-def bpc_impl(values: view[i64]) -> i64:
-    if values.len() != 2:
+def bpc_impl(values: i64&, values_length: usize) -> i64:
+    if values_length != 2:
         return -1
     if values[0] < 1 or values[0] > i64(BPC_MAX_N) or values[1] < 0 or values[1] > i64(BPC_MAX_K):
         return -1
     n: usize = values[0].usize()
     k: usize = values[1].usize()
-    maximum: usize = if n == 1: 1 else: 2 * n - 2
+    maximum: usize = 1 if n == 1 else 2 * n - 2
     if k > maximum:
         return 0
     black: mutable i64[BPC_MAX_K + 1] = zeroed
@@ -51,7 +51,9 @@ def bpc_impl(values: view[i64]) -> i64:
         left <- left + 1
     result
 
-export fn bishop_placements_count(values: i64&, length: usize) -> i64:
-    if values.is_null() or length != 2:
+def bishop_placements_count_impl(values: i64&, length: usize) -> i64:
+    if values == null or length != 2:
         return -1
-    bpc_impl(values[0:length])
+    bpc_impl(values, length)
+
+export fn bishop_placements_count(values: i64&, length: usize) -> i64 = bishop_placements_count_impl

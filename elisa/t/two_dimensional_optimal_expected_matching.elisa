@@ -3,7 +3,7 @@ const OM_MAX_CELLS: usize = OM_MAX_SIDE * OM_MAX_SIDE
 const OM_MAX_INPUT_LENGTH: usize = 2 + 2 * OM_MAX_CELLS
 const OM_MAX_PARSEABLE_INPUT_LENGTH: usize = OM_MAX_INPUT_LENGTH + 1
 
-def om_sample_code(input: view[i64], base: usize, side: usize, row: usize,
+def om_sample_code(input: i64&, base: usize, side: usize, row: usize,
         column: usize, count: usize, stride: usize) -> usize:
     code: mutable usize = 0
     offset: mutable usize = 0
@@ -13,16 +13,16 @@ def om_sample_code(input: view[i64], base: usize, side: usize, row: usize,
         offset <- offset + 1
     code
 
-def om_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def om_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def two_dimensional_optimal_expected_matching_impl(input: view[i64],
+def two_dimensional_optimal_expected_matching_impl(input: i64&, input_length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+    length: usize = input_length
     if length < 3 or length > OM_MAX_PARSEABLE_INPUT_LENGTH: return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]
@@ -81,8 +81,7 @@ def two_dimensional_optimal_expected_matching_impl(input: view[i64],
                 slot: usize = address.usize()
                 candidate_row: i64 = text_row.i64() - address_row[slot]
                 candidate_column: i64 = text_column.i64() - address_column[slot]
-                if candidate_row >= 0 and candidate_column >= 0 and
-                        candidate_row.usize() < row_starts and candidate_column.usize() < column_starts:
+                if candidate_row >= 0 and candidate_column >= 0 and candidate_row.usize() < row_starts and candidate_column.usize() < column_starts:
                     candidate: usize = candidate_row.usize() * n + candidate_column.usize()
                     if not tested[candidate]:
                         tested[candidate] <- true
@@ -112,13 +111,13 @@ def two_dimensional_optimal_expected_matching_impl(input: view[i64],
             residue <- residue + 1
         row <- row + 1
     output_bytes: usize = 8 * (1 + 2 * match_count)
-    if output.is_null() or capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
+    if output == null or capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     om_put_i64(match_count.i64(), output_view, 0)
     output_word: mutable usize = 1
     row <- 0
     while row < row_starts:
-        residue: usize = 0
+        residue: mutable usize = 0
         while residue < column_starts:
             if matched[row * n + residue]:
                 om_put_i64(row.i64(), output_view, 8 * output_word)
@@ -129,7 +128,9 @@ def two_dimensional_optimal_expected_matching_impl(input: view[i64],
         row <- row + 1
     output_bytes.i64()
 
-export fn two_dimensional_optimal_expected_matching(input: i64&, length: usize,
+def two_dimensional_optimal_expected_matching_entry(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > OM_MAX_PARSEABLE_INPUT_LENGTH: return -1
-    two_dimensional_optimal_expected_matching_impl(input[0:length], output, capacity)
+    if input == null or length < 3 or length > OM_MAX_PARSEABLE_INPUT_LENGTH: return -1
+    two_dimensional_optimal_expected_matching_impl(input, length, output, capacity)
+
+export fn two_dimensional_optimal_expected_matching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = two_dimensional_optimal_expected_matching_entry

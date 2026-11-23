@@ -14,12 +14,12 @@ def set_puzzle_complement_code(a_raw: i8, b_raw: i8) -> usize:
         place <- place * 3
     result
 
-def set_puzzle_put_i64_le(output: mutable view[u8], word: usize, value: i64) -> void:
+def set_puzzle_put_i64_le(output: mutable u8&, word: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[word * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
 
-def set_puzzle_find_sets_impl(input: view[i64], output: mutable view[u8],
+def set_puzzle_find_sets_impl(input: i64&, output: mutable u8&,
         output_capacity: usize) -> i64:
     raw_count: i64 = input[0]
     count: usize = raw_count.usize()
@@ -54,13 +54,12 @@ def set_puzzle_find_sets_impl(input: view[i64], output: mutable view[u8],
                 word <- word + 3
     output_bytes.i64()
 
-export fn set_puzzle_find_sets(input: i64&, length: usize,
+def set_puzzle_find_sets_entry(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_WORDS:
+    if input == null or length < 1 or length > MAX_INPUT_WORDS:
         return -1
     raw_count: i64 = input[0]
-    if raw_count < 0 or raw_count > MAX_CARDS.i64() or
-            length != raw_count.usize() + 1:
+    if raw_count < 0 or raw_count > MAX_CARDS.i64() or length != raw_count.usize() + 1:
         return -1
     count: usize = raw_count.usize()
     for index in 0..<count:
@@ -70,9 +69,11 @@ export fn set_puzzle_find_sets(input: i64&, length: usize,
         for prior in 0..<index:
             if input[prior + 1] == code:
                 return -1
-    if output.is_null():
+    if output == null:
         return -2
     writable_length: mutable usize = output_capacity
     if writable_length > MAX_OUTPUT_BYTES:
         writable_length <- MAX_OUTPUT_BYTES
-    set_puzzle_find_sets_impl(input[0:length], output[0:writable_length], output_capacity)
+    set_puzzle_find_sets_impl(input, output, output_capacity)
+
+export fn set_puzzle_find_sets(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = set_puzzle_find_sets_entry

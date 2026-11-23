@@ -1,13 +1,13 @@
-def chan_turn(values: view[i64], a: usize, b: usize, c: usize) -> i64:
+def chan_turn(values: i64&, a: usize, b: usize, c: usize) -> i64:
     ax: i64 = values[1 + 2 * a]
     ay: i64 = values[2 + 2 * a]
     (values[1 + 2 * b] - ax) * (values[2 + 2 * c] - ay) - (values[2 + 2 * b] - ay) * (values[1 + 2 * c] - ax)
 
-def chan_less(values: view[i64], a: usize, b: usize) -> bool:
+def chan_less(values: i64&, a: usize, b: usize) -> bool:
     values[1 + 2 * a] < values[1 + 2 * b] or (values[1 + 2 * a] == values[1 + 2 * b] and values[2 + 2 * a] < values[2 + 2 * b])
 
-def chan_tangent(values: view[i64], hull: view[usize], query: usize) -> usize:
-    size: usize = hull.len()
+def chan_tangent(values: i64&, hull: view[usize], query: usize) -> usize:
+    size: usize = hull.len
     if size == 1: return hull[0]
     lo: mutable usize = 0
     hi: mutable usize = size - 1
@@ -18,8 +18,8 @@ def chan_tangent(values: view[i64], hull: view[usize], query: usize) -> usize:
     hull[lo]
 
 def chan_output_sensitive_hull_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 7 or length > 66: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 7 or length > 66: return -1
+    values: i64& = input
     raw: i64 = values[0]
     if raw < 3 or raw > 32: return -1
     n: usize = raw.usize()
@@ -86,7 +86,8 @@ def chan_output_sensitive_hull_impl(input: i64&, length: usize, output: mutable 
                         right <- right + 1
                         destination <- destination + 1
                     block <- block + 2 * width
-                for i in 0..<count: order[i] <- scratch[i]
+                for i in 0..<count:
+                    order[i] <- scratch[i]
                 width <- width * 2
             chain: mutable usize[64] = zeroed
             used: mutable usize = 0
@@ -95,14 +96,16 @@ def chan_output_sensitive_hull_impl(input: i64&, length: usize, output: mutable 
                 used <- 1
             else:
                 for i in 0..<count:
-                    while used >= 2 and chan_turn(values, chain[used - 2], chain[used - 1], order[i]) <= 0: used <- used - 1
+                    while used >= 2 and chan_turn(values, chain[used - 2], chain[used - 1], order[i]) <= 0:
+                        used <- used - 1
                     chain[used] <- order[i]
                     used <- used + 1
                 lower: usize = used
                 i: mutable usize = count - 1
                 while i > 0:
                     i <- i - 1
-                    while used > lower and chan_turn(values, chain[used - 2], chain[used - 1], order[i]) <= 0: used <- used - 1
+                    while used > lower and chan_turn(values, chain[used - 2], chain[used - 1], order[i]) <= 0:
+                        used <- used - 1
                     chain[used] <- order[i]
                     used <- used + 1
                 used <- used - 1
@@ -132,8 +135,8 @@ def chan_output_sensitive_hull_impl(input: i64&, length: usize, output: mutable 
             if candidate == 32: return -1
             if candidate == start:
                 bytes: usize = 16 * used
-                if output.is_null() or capacity < bytes: return -2
-                target: mutable view[u8] = output[0:bytes]
+                if output == null or capacity < bytes: return -2
+                target: mutable u8& = output
                 for i in 0..<used:
                     for axis in 0..<2:
                         bits: mutable u64 = values[1 + 2 * result[i] + axis].u64()

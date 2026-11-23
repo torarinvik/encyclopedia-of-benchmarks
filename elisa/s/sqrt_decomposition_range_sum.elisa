@@ -32,7 +32,7 @@ def query_sum(elements: view[i64], blocks: view[i64], block_size: usize, start: 
             index <- index + 1
     sum
 
-def put_i64_le(output: mutable view[u8], position: usize, value: i64) -> void:
+def put_i64_le(output: mutable u8&, position: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -95,7 +95,7 @@ def sqrt_decomposition_range_sum_impl(input: i64&, length: usize, output: mutabl
         second: i64 = input[offset + 2]
         if kind == 0:
             sum: i64 = query_sum(elements[0:n], blocks[0:n], block_size, first.usize(), second.usize())
-            put_i64_le(output[0:capacity], output_offset, sum)
+            put_i64_le(output, output_offset, sum)
             output_offset <- output_offset + 8
         else:
             element_index: usize = first.usize()

@@ -31,13 +31,13 @@ def pow_mod(base: i64, exponent_value: i64, modulus: i64) -> i64:
         exponent <- exponent / 2
     result
 
-def verify_certificate(input: view[i64]) -> i64:
-    let length: usize = input.len()
+def verify_certificate(input: i64&, input_length: usize) -> i64:
+    length:  usize = input_length
     if length < 2 or length > POCKLINGTON_MAX_LENGTH: return -1
-    let n: i64 = input[0]
-    let count_value: i64 = input[1]
+    n:  i64 = input[0]
+    count_value:  i64 = input[1]
     if n < 3 or n > POCKLINGTON_MAX_N or count_value < 1 or count_value > POCKLINGTON_MAX_FACTORS: return -1
-    let count: usize = count_value.usize()
+    count:  usize = count_value.usize()
     if length != 3 + 3 * count: return -1
 
     factored_part: mutable i64 = 1
@@ -73,6 +73,8 @@ def verify_certificate(input: view[i64]) -> i64:
         index <- index + 1
     1
 
-export fn pocklington_primality_certificate(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > POCKLINGTON_MAX_LENGTH: return -1
-    verify_certificate(input[0:length])
+def pocklington_primality_certificate_impl(input: i64&, length: usize) -> i64:
+    if input == null or length > POCKLINGTON_MAX_LENGTH: return -1
+    verify_certificate(input, length)
+
+export fn pocklington_primality_certificate(input: i64&, length: usize) -> i64 = pocklington_primality_certificate_impl

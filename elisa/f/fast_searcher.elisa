@@ -1,7 +1,7 @@
 const MAX_ARRAY_LENGTH: usize = 64
 const MAX_INPUT_LENGTH: usize = 67
 
-def fast_searcher_segment(input: view[i64], begin: usize, length: usize, target: i64, offset: usize) -> i64:
+def fast_searcher_segment(input: i64&, begin: usize, length: usize, target: i64, offset: usize) -> i64:
     if length == 0:
         return -1
     first: i64 = input[begin]
@@ -14,29 +14,29 @@ def fast_searcher_segment(input: view[i64], begin: usize, length: usize, target:
 
     interpolation: usize = ((length - 1).i64() * (target - first) / (last - first)).usize()
     midpoint: usize = length / 2
-    left: usize = interpolation
-    right: usize = midpoint
+    left: mutable usize = interpolation
+    right: mutable usize = midpoint
     if interpolation > midpoint:
         left <- midpoint
         right <- interpolation
     from: mutable usize = 0
-    to: mutable usize = 0
+    to_value: mutable usize = 0
     if target < input[begin + left]:
         if left == 0: return -1
         from <- 0
-        to <- left - 1
+        to_value <- left - 1
     elif target < input[begin + right]:
         from <- left
-        to <- right - 1
+        to_value <- right - 1
     else:
         from <- right
-        to <- length - 1
-    if to < from:
+        to_value <- length - 1
+    if to_value < from:
         return -1
-    fast_searcher_segment(input, begin + from, to - from + 1, target, offset + from)
+    fast_searcher_segment(input, begin + from, to_value - from + 1, target, offset + from)
 
 def fast_searcher_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -2
     count_value: i64 = input[0]
     if count_value < 0 or count_value > 64:
@@ -55,6 +55,6 @@ def fast_searcher_impl(input: i64&, length: usize) -> i64:
     target: i64 = input[length - 1]
     if target < -1000 or target > 1000:
         return -2
-    fast_searcher_segment(input[0:length], 1, count, target, 0)
+    fast_searcher_segment(input, 1, count, target, 0)
 
 export fn fast_searcher(input: i64&, length: usize) -> i64 = fast_searcher_impl

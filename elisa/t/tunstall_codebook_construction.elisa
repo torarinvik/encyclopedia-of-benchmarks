@@ -1,7 +1,7 @@
 const MAX_S: i64 = 4222124650659840
 const RESULT_FACTOR: i64 = MAX_S + 1
 
-def tunstall_impl(input: view[i64], length: usize) -> i64:
+def tunstall_impl(input: i64&, length: usize) -> i64:
     if length < 4 or length > 7: return -1
     if input[0] < 2 or input[0] > 4 or input[1] < 2 or input[1] > 4: return -1
     k: usize = input[0].usize()
@@ -19,14 +19,16 @@ def tunstall_impl(input: view[i64], length: usize) -> i64:
 
     powers: mutable i64[17] = zeroed
     powers[0] <- 1
-    for i in 1..<17: powers[i] <- powers[i - 1] * total
+    for i in 1..<17:
+        powers[i] <- powers[i - 1] * total
     cap: mutable usize = 1
     bit: mutable usize = 0
     while bit < bits:
         cap <- cap * 2
         bit <- bit + 1
     target: mutable usize = cap
-    while (target - 1) % (k - 1) != 0: target <- target - 1
+    while (target - 1) % (k - 1) != 0:
+        target <- target - 1
 
     products: mutable i64[31] = zeroed
     depths: mutable usize[31] = zeroed
@@ -74,6 +76,8 @@ def tunstall_impl(input: view[i64], length: usize) -> i64:
     if scaled_expectation > MAX_S: return -1
     target.i64() * RESULT_FACTOR + scaled_expectation
 
-def tunstall_codebook_construction(input: i64&, length: usize) -> i64 @export("tunstall_codebook_construction"):
-    if input.is_null() or length < 4 or length > 7: return -1
-    tunstall_impl(input[0:length], length)
+def tunstall_codebook_construction_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > 7: return -1
+    tunstall_impl(input, length)
+
+export fn tunstall_codebook_construction(input: i64&, length: usize) -> i64 = tunstall_codebook_construction_impl

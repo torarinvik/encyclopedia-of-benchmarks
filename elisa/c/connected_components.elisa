@@ -8,9 +8,9 @@ def connected_components_visit(vertex: usize, n: usize, adjacency: view[bool], s
         next <- next + 1
 
 def connected_components_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 1026:
+    if input == null or length < 2 or length > 1026:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 0 or values[0] > 256 or values[1] < 0 or values[1] > 512: return -1
     n: usize = values[0].usize()
     m: usize = values[1].usize()

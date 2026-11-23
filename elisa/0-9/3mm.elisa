@@ -2,14 +2,10 @@ const THREE_MM_MAX_DIMENSION: usize = 16
 const THREE_MM_MAX_CELLS: usize = THREE_MM_MAX_DIMENSION * THREE_MM_MAX_DIMENSION
 const THREE_MM_INVALID_RESULT: f64 = -1e300
 
-def three_mm_impl(values: view[i64], length: usize) -> f64:
+def three_mm_impl(values: i64&, length: usize) -> f64:
     if length != 5:
         return THREE_MM_INVALID_RESULT
-    if values[0] < 1 or values[0] > THREE_MM_MAX_DIMENSION.i64() or
-       values[1] < 1 or values[1] > THREE_MM_MAX_DIMENSION.i64() or
-       values[2] < 1 or values[2] > THREE_MM_MAX_DIMENSION.i64() or
-       values[3] < 1 or values[3] > THREE_MM_MAX_DIMENSION.i64() or
-       values[4] < 1 or values[4] > THREE_MM_MAX_DIMENSION.i64():
+    if values[0] < 1 or values[0] > THREE_MM_MAX_DIMENSION.i64() or values[1] < 1 or values[1] > THREE_MM_MAX_DIMENSION.i64() or values[2] < 1 or values[2] > THREE_MM_MAX_DIMENSION.i64() or values[3] < 1 or values[3] > THREE_MM_MAX_DIMENSION.i64() or values[4] < 1 or values[4] > THREE_MM_MAX_DIMENSION.i64():
         return THREE_MM_INVALID_RESULT
     ni: usize = values[0].usize()
     nj: usize = values[1].usize()
@@ -96,6 +92,8 @@ def three_mm_impl(values: view[i64], length: usize) -> f64:
         i <- i + 1
     checksum
 
-export fn three_mm(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 5: return THREE_MM_INVALID_RESULT
-    three_mm_impl(values[0:length], length)
+def three_mm_entry(values: i64&, length: usize) -> f64:
+    if values == null or length != 5: return THREE_MM_INVALID_RESULT
+    three_mm_impl(values, length)
+
+export fn three_mm(values: i64&, length: usize) -> f64 = three_mm_entry

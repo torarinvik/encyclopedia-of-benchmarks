@@ -1,5 +1,5 @@
 # Prefix preprocessing, inclusive range queries, and prefix-set membership.
-def prefix_sum_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
+def prefix_sum_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
     remaining: mutable i64 = value
     byte: mutable usize = 0
     while byte < 8:
@@ -40,12 +40,12 @@ def prefix_sum_impl(input: i64&, length: usize, output: mutable u8&, output_capa
         return -1
     operation: i64 = input[0]
     count: usize = input[1].usize()
-    extra: usize = if operation == 1: 2 else if operation == 2: 1 else: 0
+    extra: usize = 2 if operation == 1 else (1 if operation == 2 else 0)
     if length != 2 + count + extra or (operation == 1 and count == 0):
         return -1
     index: mutable usize = 0
     while index < count:
-        if input[2 + index] < -2_147_483_648 or input[2 + index] > 2_147_483_647:
+        if input[2 + index] < -2147483648 or input[2 + index] > 2147483647:
             return -1
         index <- index + 1
     if operation == 1:
@@ -53,30 +53,30 @@ def prefix_sum_impl(input: i64&, length: usize, output: mutable u8&, output_capa
         right: i64 = input[3 + count]
         if left < 0 or right < left or right >= count.i64():
             return -1
-    if operation == 2 and (input[2 + count] < -1_000_000_000_000 or input[2 + count] > 1_000_000_000_000):
+    if operation == 2 and (input[2 + count] < -1000000000000 or input[2 + count] > 1000000000000):
         return -1
     prefix: mutable i64[257] = zeroed
     index <- 0
     while index < count:
         prefix[index + 1] <- prefix[index] + input[2 + index]
         index <- index + 1
-    words: usize = if operation == 0: count else: 1
+    words: usize = count if operation == 0 else 1
     if output_capacity < words * 8:
         return -2
     if operation == 0:
         if count == 0: return 0
-        output_view: mutable view[u8] = output[0:words * 8]
+        output_view: mutable u8& = output
         index <- 0
         while index < count:
             prefix_sum_store_i64(prefix[index + 1], output_view, index * 8)
             index <- index + 1
         return count.i64()
-    result: i64 = 0
+    result:mutable  mutable i64 = 0
     if operation == 1:
         result <- prefix[(input[3 + count] + 1).usize()] - prefix[input[2 + count].usize()]
-    else if prefix_sum_contains(prefix[0:count + 1], count, input[2 + count]):
+    elif prefix_sum_contains(prefix[0:count + 1], count, input[2 + count]):
         result <- 1
-    output_view: mutable view[u8] = output[0:words * 8]
+    output_view: mutable u8& = output
     prefix_sum_store_i64(result, output_view, 0)
     1
 

@@ -7,10 +7,10 @@ const LV_DIAGONALS: usize = LV_TEXT + LV_ERRORS + 3
 const LV_COSTS: usize = LV_ERRORS + 2
 const LV_FRONTIER: usize = LV_DIAGONALS * LV_COSTS
 
-fn lv_slot(diagonal: i64) -> usize:
+def lv_slot(diagonal: i64) -> usize:
     (diagonal + LV_ERRORS.i64() + 1).usize()
 
-def lv_impl(input: view[i64], length: usize, output: mutable view[u8],
+def lv_impl(input: i64&, length: usize, output: mutable u8&,
             capacity: usize, output_is_null: bool) -> i64:
     if length < 3 or length > LV_PARSEABLE_INPUT:
         return -1
@@ -21,42 +21,42 @@ def lv_impl(input: view[i64], length: usize, output: mutable view[u8],
         return -1
     if raw_k < 0 or raw_k > LV_ERRORS.i64() or raw_k >= raw_m:
         return -1
-    let m: usize = raw_m.usize()
-    let n: usize = raw_n.usize()
-    let k: usize = raw_k.usize()
+    m:  usize = raw_m.usize()
+    n:  usize = raw_n.usize()
+    k:  usize = raw_k.usize()
     if length != 3 + m + n:
         return -1
-    var symbols: mutable usize = 0
+    symbols: mutable usize = 0
     while symbols < m + n:
-        let symbol: i64 = input[3 + symbols]
+        symbol:  i64 = input[3 + symbols]
         if symbol < 0 or symbol > 3:
             return -1
         symbols <- symbols + 1
     if output_is_null or capacity < n:
         return -2
 
-    var frontier: mutable i64[LV_FRONTIER] = zeroed
-    var index: mutable usize = 0
+    frontier: mutable i64[LV_FRONTIER] = zeroed
+    index: mutable usize = 0
     while index < LV_FRONTIER:
         frontier[index] <- -1
         index <- index + 1
-    var diagonal: mutable i64 = -((k + 1).i64())
+    diagonal: mutable i64 = -((k + 1).i64())
     while diagonal < 0:
-        let magnitude: usize = (-diagonal).usize()
-        let base: usize = lv_slot(diagonal) * LV_COSTS
+        magnitude:  usize = (-diagonal).usize()
+        base:  usize = lv_slot(diagonal) * LV_COSTS
         frontier[base + magnitude] <- magnitude.i64() - 1
         frontier[base + magnitude - 1] <- magnitude.i64() - 2
         diagonal <- diagonal + 1
 
-    var staged: mutable u8[LV_TEXT] = zeroed
-    var errors: mutable usize = 0
+    staged: mutable u8[LV_TEXT] = zeroed
+    errors: mutable usize = 0
     while errors <= k:
         diagonal <- -(errors.i64())
         while diagonal <= raw_n:
-            let base: usize = lv_slot(diagonal) * LV_COSTS
-            var row: mutable i64 = frontier[base + errors] + 1
-            let from_left: i64 = frontier[base - LV_COSTS + errors]
-            let from_right: i64 = frontier[base + LV_COSTS + errors] + 1
+            base:  usize = lv_slot(diagonal) * LV_COSTS
+            row: mutable i64 = frontier[base + errors] + 1
+            from_left:  i64 = frontier[base - LV_COSTS + errors]
+            from_right:  i64 = frontier[base + LV_COSTS + errors] + 1
             if from_left > row:
                 row <- from_left
             if from_right > row:
@@ -64,7 +64,7 @@ def lv_impl(input: view[i64], length: usize, output: mutable view[u8],
             if row > raw_m:
                 row <- raw_m
             while row < raw_m:
-                let text_index: i64 = row + diagonal
+                text_index:  i64 = row + diagonal
                 if text_index < 0 or text_index >= raw_n:
                     break
                 if input[3 + m + text_index.usize()] != input[3 + row.usize()]:
@@ -72,7 +72,7 @@ def lv_impl(input: view[i64], length: usize, output: mutable view[u8],
                 row <- row + 1
             frontier[base + errors + 1] <- row
             if row == raw_m:
-                let endpoint: i64 = diagonal + raw_m
+                endpoint:  i64 = diagonal + raw_m
                 if endpoint >= 1 and endpoint <= raw_n:
                     staged[(endpoint - 1).usize()] <- 1
             diagonal <- diagonal + 1
@@ -84,16 +84,18 @@ def lv_impl(input: view[i64], length: usize, output: mutable view[u8],
         index <- index + 1
     n.i64()
 
-export fn landau_vishkin_k_difference_pattern_matching(input: i64&,
+def landau_vishkin_k_difference_pattern_matching_impl(input: i64&,
     length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length > LV_PARSEABLE_INPUT:
+    if input == null or length > LV_PARSEABLE_INPUT:
         return -1
-    let input_view: view[i64] = input[0:length]
-    if output.is_null():
-        var scratch: mutable u8[1] = zeroed
-        return lv_impl(input_view, length, scratch[0:0], capacity, true)
-    var safe_capacity: mutable usize = capacity
+    input_view: i64& = input
+    if output == null:
+        scratch: mutable u8[1] = zeroed
+        return lv_impl(input_view, length, &scratch[0], capacity, true)
+    safe_capacity: mutable usize = capacity
     if safe_capacity > LV_TEXT:
         safe_capacity <- LV_TEXT
-    let output_view: mutable view[u8] = output[0:safe_capacity]
+    output_view: mutable u8& = output
     lv_impl(input_view, length, output_view, capacity, false)
+
+export fn landau_vishkin_k_difference_pattern_matching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = landau_vishkin_k_difference_pattern_matching_impl

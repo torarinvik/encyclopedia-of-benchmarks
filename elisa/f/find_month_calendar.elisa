@@ -37,11 +37,11 @@ def find_month_calendar_start_offset(month: i64, year: i64) -> usize:
         current_month <- current_month + 1
     ((7 - (difference % 7)) % 7).usize()
 
-def find_month_calendar_write_byte(output: mutable view[u8], position: mutable usize&, value: i64) -> void:
+def find_month_calendar_write_byte(output: mutable u8&, position: mutable usize&, value: i64) -> void:
     output[position] <- value.u8()
     position <- position + 1
 
-def find_month_calendar_write_cell(output: mutable view[u8], position: mutable usize&, day: i64) -> void:
+def find_month_calendar_write_cell(output: mutable u8&, position: mutable usize&, day: i64) -> void:
     if day == 0:
         find_month_calendar_write_byte(output, position, 32)
         find_month_calendar_write_byte(output, position, 32)
@@ -70,7 +70,7 @@ def find_month_calendar_impl(values: i64&, length: usize, output: mutable u8&, o
     if required > MAX_OUTPUT_BYTES: return -1
     if output == null or output_capacity < required: return -2
 
-    output_view: mutable view[u8] = output[0:output_capacity]
+    output_view: mutable u8& = output
     position: mutable usize = 0
     find_month_calendar_write_byte(output_view, position, 77)
     find_month_calendar_write_byte(output_view, position, 32)

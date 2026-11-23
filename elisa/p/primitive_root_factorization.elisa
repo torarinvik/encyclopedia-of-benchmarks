@@ -23,10 +23,10 @@ def primitive_root_factorization_power_mod(base_input: i64, exponent_input: i64,
         exponent <- exponent / 2
     result
 
-def primitive_root_factorization_impl(input: view[i64]) -> i64:
-    if input.len() != 1:
+def primitive_root_factorization_impl(input: i64&, input_length: usize) -> i64:
+    if input_length != 1:
         return -1
-    let prime: i64 = input[0]
+    prime:  i64 = input[0]
     if prime < 2 or prime > MAX_PRIME or not primitive_root_factorization_is_prime(prime):
         return -1
     if prime == 2:
@@ -62,8 +62,11 @@ def primitive_root_factorization_impl(input: view[i64]) -> i64:
         candidate <- candidate + 1
     -1
 
-export fn primitive_root_factorization(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 1 or length > MAX_INPUT_LENGTH:
+def primitive_root_factorization_entry(input: i64&, length: usize) -> i64:
+    if input == null or length != 1 or length > MAX_INPUT_LENGTH:
         return -1
-    let input_view: view[i64] = input[0:length]
-    primitive_root_factorization_impl(input_view)
+    input_view: i64& = input
+    input_view_length: usize = length
+    primitive_root_factorization_impl(input_view, input_view_length)
+
+export fn primitive_root_factorization(input: i64&, length: usize) -> i64 = primitive_root_factorization_entry

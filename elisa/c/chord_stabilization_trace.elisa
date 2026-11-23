@@ -4,8 +4,8 @@ def chord_between(ids: view[usize], ring: usize, left: usize, item: usize, right
     distance > 0 and (span == 0 or distance < span)
 
 def chord_stabilization_trace_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 6 or length > 115: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 6 or length > 115: return -1
+    values: i64& = input
     if values[0] < 1 or values[0] > 6 or values[1] < 1 or values[1] > 16 or values[2] < 0 or values[2] > 64: return -1
     ring: usize = 1.usize() << values[0].usize()
     n: usize = values[1].usize()
@@ -29,11 +29,11 @@ def chord_stabilization_trace_impl(input: i64&, length: usize, output: mutable u
         if candidate >= 0 and chord_between(ids[0:n], ring, node, candidate.usize(), succ[node]): succ[node] <- candidate.usize()
         receiver: usize = succ[node]
         if pred[receiver] < 0 or chord_between(ids[0:n], ring, pred[receiver].usize(), node, receiver): pred[receiver] <- node.i64()
-    if output.is_null() or capacity < 2*n: return -2
-    out: mutable view[u8] = output[0:2*n]
+    if output == null or capacity < 2*n: return -2
+    out: mutable u8& = output
     for i in 0..<n:
         out[i] <- succ[i].u8()
-        out[n+i] <- if pred[i] < 0: 255 else: pred[i].u8()
+        out[n+i] <- 255 if pred[i] < 0 else pred[i].u8()
     (2*n).i64()
 
 export fn chord_stabilization_trace(input: i64&, length: usize,

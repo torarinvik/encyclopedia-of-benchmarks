@@ -36,14 +36,14 @@ def dot8(inputs: view[i32], input_base: usize, weights: view[i32], weight_base: 
         index <- index + 2
     total
 
-def train8(inputs: view[i32], input_base: usize, weights: mutable view[i32], weight_base: usize, error: i32) -> void:
+def train8(inputs: view[i32], input_base: usize, weights: mutable view[i32], weight_base: usize, error_value: i32) -> void:
     for index in 0..<8:
-        value: mutable i32 = weights[weight_base + index] + (((inputs[input_base + index] * error * 2 >> 16) + 1) >> 1)
+        value: mutable i32 = weights[weight_base + index] + (((inputs[input_base + index] * error_value * 2 >> 16) + 1) >> 1)
         if value < -32768: value <- -32768
         if value > 32767: value <- 32767
         weights[weight_base + index] <- value
 
-def store_prediction(value: i32, output: mutable view[u8], position: usize) -> void:
+def store_prediction(value: i32, output: mutable u8&, position: usize) -> void:
     output[position] <- (value & 255).u8()
     output[position + 1] <- ((value >> 8) & 255).u8()
 
@@ -73,7 +73,8 @@ def paq8p_context_mixer_impl(input: i64&, length: usize, output: mutable u8&, ca
     make_stretch(stretch[0:4096])
     outer: mutable i32[32]
     inner: mutable i32[8]
-    for index in 0..<8: inner[index] <- 32767
+    for index in 0..<8:
+        inner[index] <- 32767
     previous_inner: mutable i32[8]
     previous_prediction: mutable i32 = 2048
     previous_target: mutable i32 = 0
@@ -89,14 +90,16 @@ def paq8p_context_mixer_impl(input: i64&, length: usize, output: mutable u8&, ca
         inner_inputs: mutable i32[8]
         inner_inputs[0] <- stretch[model0.usize()]
         inner_inputs[1] <- stretch[model1.usize()]
-        for j in 2..<8: inner_inputs[j] <- 0
+        for j in 2..<8:
+            inner_inputs[j] <- 0
         prediction: i32 = squash(dot8(inner_inputs[0:8], 0, inner[0:8], 0) >> 8)
-        store_prediction(prediction, output[0:capacity], step * 2)
+        store_prediction(prediction, output, step * 2)
         error0: i32 = ((targets[step] << 12) - model0) * 7
         error1: i32 = ((targets[step] << 12) - model1) * 7
         train8(features[0:128], input_base, outer[0:32], context0 * 8, error0)
         train8(features[0:128], input_base, outer[0:32], context1 * 8, error1)
-        for j in 0..<8: previous_inner[j] <- inner_inputs[j]
+        for j in 0..<8:
+            previous_inner[j] <- inner_inputs[j]
         previous_prediction <- prediction
         previous_target <- targets[step]
     needed.i64()

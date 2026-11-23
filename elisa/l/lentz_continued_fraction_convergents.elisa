@@ -1,4 +1,4 @@
-const LENTZ_MODULUS: i64 = 998_244_353
+const LENTZ_MODULUS: i64 = 998244353
 const LENTZ_MAX_TERMS: usize = 8
 const LENTZ_MAX_INPUT: usize = 19
 const LENTZ_MAX_OUTPUT: usize = 80
@@ -18,13 +18,13 @@ def lentz_power(base_input: i64, exponent_input: i64) -> i64:
         exponent <- exponent >> 1
     result
 
-def lentz_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def lentz_store_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def lentz_impl(input: view[i64], length: usize, output: mutable view[u8],
+def lentz_impl(input: i64&, length: usize, output: mutable u8&,
     capacity: usize, output_is_null: bool) -> i64:
     if length < 1 or length > LENTZ_MAX_INPUT: return -1
     count_value: i64 = input[0]
@@ -55,17 +55,20 @@ def lentz_impl(input: view[i64], length: usize, output: mutable view[u8],
     output_bytes: usize = 8 * (count + 2)
     if output_is_null or capacity < output_bytes: return -2
     lentz_store_le((count + 1).i64(), output, 0)
-    for i in 0..=count: lentz_store_le(trace[i], output, 8 * (i + 1))
+    for i in 0..=count:
+        lentz_store_le(trace[i], output, 8 * (i + 1))
     output_bytes.i64()
 
-export fn lentz_continued_fraction_convergents(input: i64&, length: usize,
+def lentz_continued_fraction_convergents_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > LENTZ_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+    if input == null or length < 1 or length > LENTZ_MAX_INPUT: return -1
+    input_view: i64& = input
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return lentz_impl(input_view, length, scratch[0:1], 0, true)
+        return lentz_impl(input_view, length, &scratch[0], 0, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > LENTZ_MAX_OUTPUT: safe_capacity <- LENTZ_MAX_OUTPUT
-    output_view: mutable view[u8] = output[0:safe_capacity]
+    output_view: mutable u8& = output
     lentz_impl(input_view, length, output_view, capacity, false)
+
+export fn lentz_continued_fraction_convergents(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = lentz_continued_fraction_convergents_impl

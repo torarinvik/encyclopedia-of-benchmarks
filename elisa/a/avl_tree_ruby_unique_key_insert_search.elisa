@@ -70,14 +70,14 @@ def avl_tree_contains(root: i64, key: i64, keys: view[i64], left: view[i64], rig
             cursor <- right[node]
     false
 
-def avl_tree_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def avl_tree_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     index: mutable usize = 0
     while index < 8:
         output[offset + index] <- ((value >> (index * 8)) & 255).u8()
         index <- index + 1
 
 def avl_tree_ruby_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1:
+    if input == null or length < 1:
         return -1
     op_count_value: i64 = input[0]
     if op_count_value < 0 or op_count_value > 128 or length != (1 + 2 * op_count_value).usize():
@@ -132,28 +132,28 @@ def avl_tree_ruby_impl(input: i64&, length: usize, output: mutable u8&, capacity
             result_count <- result_count + 1
         index <- index + 1
     output_bytes: usize = (2 + insert_count + search_count) * 8
-    if output.is_null() or capacity < output_bytes:
+    if output == null or capacity < output_bytes:
         return -2
-    avl_tree_put_i64(output[0:output_bytes], 0, insert_count.i64())
-    stack: mutable usize[64] = zeroed
+    avl_tree_put_i64(output, 0, insert_count.i64())
+    stack_value: mutable usize[64] = zeroed
     top: mutable usize = 0
     cursor: mutable i64 = root
     output_index: mutable usize = 1
     while cursor >= 0 or top > 0:
         while cursor >= 0:
-            stack[top] <- cursor.usize()
+            stack_value[top] <- cursor.usize()
             top <- top + 1
             cursor <- left[cursor.usize()]
         top <- top - 1
-        cursor <- stack[top].i64()
-        avl_tree_put_i64(output[0:output_bytes], output_index * 8, keys[cursor.usize()])
+        cursor <- stack_value[top].i64()
+        avl_tree_put_i64(output, output_index * 8, keys[cursor.usize()])
         output_index <- output_index + 1
         cursor <- right[cursor.usize()]
-    avl_tree_put_i64(output[0:output_bytes], output_index * 8, search_count.i64())
+    avl_tree_put_i64(output, output_index * 8, search_count.i64())
     output_index <- output_index + 1
     index <- 0
     while index < search_count:
-        avl_tree_put_i64(output[0:output_bytes], output_index * 8, results[index])
+        avl_tree_put_i64(output, output_index * 8, results[index])
         output_index <- output_index + 1
         index <- index + 1
     output_bytes.i64()

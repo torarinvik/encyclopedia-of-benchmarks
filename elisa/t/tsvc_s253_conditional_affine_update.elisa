@@ -4,7 +4,7 @@ const TSVC_S253_MAX_N: usize = 64
 const TSVC_S253_MAX_PASSES: usize = 8
 const TSVC_S253_MAX_INPUT_LENGTH: usize = 258
 
-def tsvc_s253_conditional_affine_update_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def tsvc_s253_conditional_affine_update_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -13,7 +13,7 @@ def tsvc_s253_conditional_affine_update_store_i64(value: i64, output: mutable vi
 
 def tsvc_s253_conditional_affine_update_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 6 or length > TSVC_S253_MAX_INPUT_LENGTH:
+    if input == null or length < 6 or length > TSVC_S253_MAX_INPUT_LENGTH:
         return -1
     n_value: i64 = input[0]
     passes_value: i64 = input[1]
@@ -28,7 +28,7 @@ def tsvc_s253_conditional_affine_update_impl(input: i64&, length: usize,
         if input[i] < -2 or input[i] > 2:
             return -1
         i <- i + 1
-    if output.is_null() or output_capacity < 16 * n:
+    if output == null or output_capacity < 16 * n:
         return -2
 
     a_start: usize = 2
@@ -42,8 +42,8 @@ def tsvc_s253_conditional_affine_update_impl(input: i64&, length: usize,
         a[i] <- input[a_start + i]
         c[i] <- input[c_start + i]
         i <- i + 1
-    pass: mutable usize = 0
-    while pass < passes:
+    pass_value: mutable usize = 0
+    while pass_value < passes:
         i <- 0
         while i < n:
             b_value: i64 = input[b_start + i]
@@ -52,11 +52,11 @@ def tsvc_s253_conditional_affine_update_impl(input: i64&, length: usize,
                 c[i] <- c[i] + value
                 a[i] <- value
             i <- i + 1
-        pass <- pass + 1
+        pass_value <- pass_value + 1
     i <- 0
     while i < n:
-        tsvc_s253_conditional_affine_update_store_i64(a[i], output[0:output_capacity], 8 * i)
-        tsvc_s253_conditional_affine_update_store_i64(c[i], output[0:output_capacity], 8 * (n + i))
+        tsvc_s253_conditional_affine_update_store_i64(a[i], output, 8 * i)
+        tsvc_s253_conditional_affine_update_store_i64(c[i], output, 8 * (n + i))
         i <- i + 1
     (2 * n).i64()
 

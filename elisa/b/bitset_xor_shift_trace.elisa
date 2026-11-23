@@ -10,16 +10,16 @@ def popcount64(value:u64)->i32:
         count<-count+1
     count
 
-def put_i32(value:i32,output:mutable view[u8],pos:usize)->void:
+def put_i32(value:i32,output: mutable u8&,pos:usize)->void:
     bits:mutable u32=value.u32()
     byte:mutable usize=0
     while byte<4:
         output[pos+byte]<-((bits>>(8*byte))&255).u8()
         byte<-byte+1
 
-def bitset_xor_shift_trace(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("bitset_xor_shift_trace"):
-    if input.is_null() or length<3 or length>131:return -1
-    frame:view[i64]=input[0:length]
+def bitset_xor_shift_trace_impl(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64:
+    if input == null or length<3 or length>131:return -1
+    frame: i64& = input
     n64:i64=frame[0]
     q64:i64=frame[1]
     if n64<1 or n64>4096 or q64<0 or q64>64:return -1
@@ -35,7 +35,7 @@ def bitset_xor_shift_trace(input:i64&,length:usize,output:mutable u8&,capacity:u
         words[word]<-frame[2+word].u64()
         word<-word+1
     tail_bits:usize=n%64
-    tail_mask:u64=if tail_bits==0 then (0.u64()-1) else (1.u64()<<tail_bits)-1
+    tail_mask:u64=(0.u64()-1) if tail_bits==0 else (1.u64()<<tail_bits)-1
     if (words[word_count-1]&~tail_mask)!=0:return -1
     operation:mutable usize=0
     while operation<q:
@@ -44,7 +44,7 @@ def bitset_xor_shift_trace(input:i64&,length:usize,output:mutable u8&,capacity:u
         operation<-operation+1
 
     output_bytes:usize=q*4
-    if output_bytes!=0 and (output.is_null() or capacity<output_bytes):return -2
+    if output_bytes!=0 and (output == null or capacity<output_bytes):return -2
     counts:mutable i32[MAX_OPERATIONS]=zeroed
     operation<-0
     while operation<q:
@@ -91,9 +91,11 @@ def bitset_xor_shift_trace(input:i64&,length:usize,output:mutable u8&,capacity:u
         operation<-operation+1
 
     if output_bytes!=0:
-        output_view:mutable view[u8]=output[0:output_bytes]
+        output_view: mutable u8& = output
         operation<-0
         while operation<q:
             put_i32(counts[operation],output_view,operation*4)
             operation<-operation+1
     output_bytes.i64()
+
+export fn bitset_xor_shift_trace(input:i64&,length:usize,output:mutable u8&,capacity:usize) -> i64 = bitset_xor_shift_trace_impl

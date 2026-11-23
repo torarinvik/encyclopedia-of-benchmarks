@@ -1,15 +1,15 @@
-const FPS_MODULUS: i64 = 998_244_353
+const FPS_MODULUS: i64 = 998244353
 const FPS_MAX_N: usize = 64
 const FPS_MAX_INPUT: usize = 66
 
-def fps_store_le(value: i64, output: mutable view[u8], position: usize) -> void:
+def fps_store_le(value: i64, output: mutable u8&, position: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[position + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def exp_of_formal_power_series_impl(input: view[i64], length: usize,
-    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+def exp_of_formal_power_series_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize, output_is_null: bool) -> i64:
     if length < 2 or length > FPS_MAX_INPUT: return -1
     n_value: i64 = input[0]
     if n_value < 1 or n_value > FPS_MAX_N.i64(): return -1
@@ -22,8 +22,8 @@ def exp_of_formal_power_series_impl(input: view[i64], length: usize,
     bytes: usize = 8 * n
     if output_is_null or capacity < bytes: return -2
 
-    integer_inverse: mutable [FPS_MAX_N]i64 = [0; FPS_MAX_N]
-    exponential: mutable [FPS_MAX_N]i64 = [0; FPS_MAX_N]
+    integer_inverse: mutable i64[FPS_MAX_N] = zeroed
+    exponential: mutable i64[FPS_MAX_N] = zeroed
     if n > 1: integer_inverse[1] <- 1
     for k in 2..<n:
         remainder: usize = (FPS_MODULUS % k.i64()).usize()
@@ -32,21 +32,24 @@ def exp_of_formal_power_series_impl(input: view[i64], length: usize,
     for degree in 1..<n:
         sum: mutable i64 = 0
         for i in 1..<(degree + 1):
-            term: i64 = (i.i64() * input[i + 1]) % FPS_MODULUS
+            term: mutable i64 = (i.i64() * input[i + 1]) % FPS_MODULUS
             term <- term * exponential[degree - i] % FPS_MODULUS
             sum <- (sum + term) % FPS_MODULUS
         exponential[degree] <- sum * integer_inverse[degree] % FPS_MODULUS
-    for i in 0..<n: fps_store_le(exponential[i], output, 8 * i)
+    for i in 0..<n:
+        fps_store_le(exponential[i], output, 8 * i)
     bytes.i64()
 
-export fn exp_of_formal_power_series(input: i64&, length: usize,
+def exp_of_formal_power_series_entry(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > FPS_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+    if input == null or length < 2 or length > FPS_MAX_INPUT: return -1
+    input_view: i64& = input
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return exp_of_formal_power_series_impl(input_view, length, scratch[0:1], 0, true)
+        return exp_of_formal_power_series_impl(input_view, length, &scratch[0], 0, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > 8 * FPS_MAX_N: safe_capacity <- 8 * FPS_MAX_N
-    output_view: mutable view[u8] = output[0:safe_capacity]
+    output_view: mutable u8& = output
     exp_of_formal_power_series_impl(input_view, length, output_view, capacity, false)
+
+export fn exp_of_formal_power_series(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = exp_of_formal_power_series_entry

@@ -23,16 +23,16 @@ def row_is_selected(centers: view[i64], count: usize, row: i64) -> bool:
         index <- index + 1
     false
 
-def store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def kmeans_plus_plus_seeding_impl(values: view[i64],
+def kmeans_plus_plus_seeding_impl(values: i64&, values_length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if values.len() < 4 or values.len() > MAX_INPUT_LENGTH:
+    if values_length < 4 or values_length > MAX_INPUT_LENGTH:
         return -1
     point_count_value: i64 = values[0]
     dimension_value: i64 = values[1]
@@ -54,7 +54,7 @@ def kmeans_plus_plus_seeding_impl(values: view[i64],
     center_count: usize = center_count_value.usize()
     coordinate_count: usize = point_count * dimension
     draw_offset: usize = 4 + coordinate_count
-    if values.len() != draw_offset + center_count - 1:
+    if values_length != draw_offset + center_count - 1:
         return -1
 
     coordinates: mutable i64[128] = zeroed
@@ -119,17 +119,19 @@ def kmeans_plus_plus_seeding_impl(values: view[i64],
         step <- step + 1
 
     output_bytes: usize = center_count * 8
-    if output.is_null() or output_capacity < output_bytes:
+    if output == null or output_capacity < output_bytes:
         return -2
-    bytes: mutable view[u8] = output[0:output_bytes]
+    bytes: mutable u8& = output
     index <- 0
     while index < center_count:
         store_i64_le(bytes, index * 8, centers[index])
         index <- index + 1
     output_bytes.i64()
 
-export fn kmeans_plus_plus_seeding(input: i64&, length: usize,
+def kmeans_plus_plus_seeding_entry(input: i64&, length: usize,
     output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 4 or length > MAX_INPUT_LENGTH:
         return -1
-    kmeans_plus_plus_seeding_impl(input[0:length], output, output_capacity)
+    kmeans_plus_plus_seeding_impl(input, length, output, output_capacity)
+
+export fn kmeans_plus_plus_seeding(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = kmeans_plus_plus_seeding_entry

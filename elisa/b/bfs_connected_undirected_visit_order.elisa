@@ -2,7 +2,7 @@
 const MAX_VERTICES: usize = 40
 const MAX_EDGES: usize = 780
 
-def bfs_connected_put_i64(output: mutable view[u8], slot: usize, value: i64) -> void:
+def bfs_connected_put_i64(output: mutable u8&, slot: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[slot * 8 + byte] <- (bits & 255).u8()
@@ -10,7 +10,7 @@ def bfs_connected_put_i64(output: mutable view[u8], slot: usize, value: i64) -> 
 
 def bfs_connected_undirected_visit_order_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3:
+    if input == null or length < 3:
         return -1
     vertex_count_value: i64 = input[0]
     edge_count_value: i64 = input[1]
@@ -37,11 +37,11 @@ def bfs_connected_undirected_visit_order_impl(input: i64&, length: usize,
     queue: mutable usize[MAX_VERTICES] = zeroed
     order: mutable usize[MAX_VERTICES] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 1
+    tail_value: mutable usize = 1
     count: mutable usize = 0
     visited[0] <- true
     queue[0] <- 0
-    while head < tail:
+    while head < tail_value:
         vertex: usize = queue[head]
         head <- head + 1
         order[count] <- vertex
@@ -50,15 +50,15 @@ def bfs_connected_undirected_visit_order_impl(input: i64&, length: usize,
         while neighbor < vertices:
             if (adjacency[vertex] & (1.u64() << neighbor)) != 0 and not visited[neighbor]:
                 visited[neighbor] <- true
-                queue[tail] <- neighbor
-                tail <- tail + 1
+                queue[tail_value] <- neighbor
+                tail_value <- tail_value + 1
             neighbor <- neighbor + 1
     if count != vertices:
         return -1
-    if output.is_null() or capacity < vertices * 8:
+    if output == null or capacity < vertices * 8:
         return -2
     for index in 0..<count:
-        bfs_connected_put_i64(output[0:vertices * 8], index, order[index].i64())
+        bfs_connected_put_i64(output, index, order[index].i64())
     count.i64()
 
 export fn bfs_connected_undirected_visit_order(input: i64&, length: usize,

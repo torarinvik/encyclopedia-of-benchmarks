@@ -7,7 +7,7 @@ def mrg32k3a_residue(value: i64, modulus: i64) -> i64:
     if residue < 0: residue <- residue + modulus
     residue
 
-def mrg32k3a_put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def mrg32k3a_put_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -15,7 +15,7 @@ def mrg32k3a_put_i64_le(output: mutable view[u8], offset: usize, value: i64) -> 
         bits <- bits >> 8
         byte <- byte + 1
 
-def mrg32k3a_impl(input: view[i64], output: mutable view[u8]) -> i64:
+def mrg32k3a_impl(input: i64&, output: mutable u8&) -> i64:
     x1: mutable i64[3] = zeroed
     x2: mutable i64[3] = zeroed
     index: mutable usize = 0
@@ -40,10 +40,10 @@ def mrg32k3a_impl(input: view[i64], output: mutable view[u8]) -> i64:
         step <- step + 1
     (count * 8).i64()
 
-export fn mrg32k3a_combined_recursive_generator(
+def mrg32k3a_combined_recursive_generator_impl(
     input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length != 7: return -1
-    index: usize = 0
+    if input == null or length != 7: return -1
+    index: mutable usize = 0
     while index < 3:
         if input[index] < 0 or input[index] >= M1: return -1
         if input[index + 3] < 0 or input[index + 3] >= M2: return -1
@@ -54,7 +54,9 @@ export fn mrg32k3a_combined_recursive_generator(
     count: usize = input[6].usize()
     required: usize = count * 8
     if count == 0: return 0
-    if output.is_null() or capacity < required: return -2
-    input_view: view[i64] = input[0:length]
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    input_view: i64& = input
+    output_view: mutable u8& = output
     mrg32k3a_impl(input_view, output_view)
+
+export fn mrg32k3a_combined_recursive_generator( input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = mrg32k3a_combined_recursive_generator_impl

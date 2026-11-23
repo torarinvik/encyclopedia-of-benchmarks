@@ -10,17 +10,16 @@ def plug_advance(input_codes: view[i64], closed: i64, diagonal: i64,
         output_closed: mutable i64&, output_diagonal: mutable i64&) -> bool:
     if (closed & (1 << color)) != 0: return false
     above: i64 = input_codes[column]
-    left: i64 = if column == 0: 0 else: input_codes[column - 1]
-    if row != 0 and column != 0 and plug_cell_color(above) == color and
-        plug_cell_color(left) == color and diagonal == color + 1: return false
+    left: i64 = 0 if column == 0 else input_codes[column - 1]
+    if row != 0 and column != 0 and plug_cell_color(above) == color and plug_cell_color(left) == color and diagonal == color + 1: return false
 
     for slot in 0..<4:
         output_codes[slot] <- input_codes[slot]
     output_codes[column] <- 0
     above_color: i64 = plug_cell_color(above)
-    above_label: i64 = if above_color == color: (if color == 0: above else: above - 4) else: 0
-    left_label: i64 = if plug_cell_color(left) == color: (if color == 0: left else: left - 4) else: 0
-    chosen_label: mutable i64 = if above_label != 0: above_label else: left_label
+    above_label: i64 = ((above if color == 0 else above - 4)) if above_color == color else 0
+    left_label: i64 = ((left if color == 0 else left - 4)) if plug_cell_color(left) == color else 0
+    chosen_label: mutable i64 = above_label if above_label != 0 else left_label
     if above_label != 0 and left_label != 0 and above_label != left_label:
         for slot in 0..<4:
             if color == 0 and output_codes[slot] == left_label: output_codes[slot] <- above_label
@@ -31,10 +30,10 @@ def plug_advance(input_codes: view[i64], closed: i64, diagonal: i64,
         for slot in 0..<4:
             code: i64 = output_codes[slot]
             if plug_cell_color(code) == color:
-                label: i64 = if color == 0: code else: code - 4
+                label: i64 = code if color == 0 else code - 4
                 if label > maximum: maximum <- label
         chosen_label <- maximum + 1
-    output_codes[column] <- if color == 0: chosen_label else: 4 + chosen_label
+    output_codes[column] <- chosen_label if color == 0 else 4 + chosen_label
 
     output_closed <- closed
     if above != 0 and above_color != color:
@@ -65,7 +64,7 @@ def plug_advance(input_codes: view[i64], closed: i64, diagonal: i64,
                 next_white <- next_white + 1
                 mapping[key] <- 4 + next_white
             output_codes[slot] <- mapping[key]
-    output_diagonal <- if above_color < 0: 0 else: above_color + 1
+    output_diagonal <- 0 if above_color < 0 else above_color + 1
     true
 
 def plug_encode(codes: view[i64], closed: i64, diagonal: i64) -> usize:
@@ -75,7 +74,7 @@ def plug_encode(codes: view[i64], closed: i64, diagonal: i64) -> usize:
         code_key <- code_key + codes[slot].usize() * powers[slot]
     ((closed.usize() * 3 + diagonal.usize()) * PLUG_CODE_STATES) + code_key
 
-def connectivity_aware_plug_dp_binary_grid_colorings_impl(input: view[i64], length: usize) -> i64:
+def connectivity_aware_plug_dp_binary_grid_colorings_impl(input: i64&, length: usize) -> i64:
     if length != 2: return -1
     rows_value: i64 = input[0]
     columns_value: i64 = input[1]
@@ -88,10 +87,11 @@ def connectivity_aware_plug_dp_binary_grid_colorings_impl(input: view[i64], leng
     for cell in 0..<(rows * columns) |dp, next|:
         row: usize = cell / columns
         column: usize = cell % columns
-        for state in 0..<PLUG_MAX_STATES: next[state] <- 0
+        for state in 0..<PLUG_MAX_STATES:
+            next[state] <- 0
         for state in 0..<PLUG_MAX_STATES:
             if dp[state] == 0: continue
-            code_key: usize = state % PLUG_CODE_STATES
+            code_key: mutable usize = state % PLUG_CODE_STATES
             flags: usize = state / PLUG_CODE_STATES
             diagonal: i64 = (flags % 3).i64()
             closed: i64 = (flags / 3).i64()
@@ -99,7 +99,7 @@ def connectivity_aware_plug_dp_binary_grid_colorings_impl(input: view[i64], leng
             for slot in 0..<4:
                 codes[slot] <- (code_key % 9).i64()
                 code_key <- code_key / 9
-            for color in 0..2:
+            for color in 0..<2:
                 output_codes: mutable i64[4] = zeroed
                 output_closed: mutable i64 = 0
                 output_diagonal: mutable i64 = 0
@@ -107,12 +107,13 @@ def connectivity_aware_plug_dp_binary_grid_colorings_impl(input: view[i64], leng
                         output_codes[0:4], output_closed, output_diagonal):
                     destination: usize = plug_encode(output_codes[0:4], output_closed, output_diagonal)
                     next[destination] <- next[destination] + dp[state]
-        for state in 0..<PLUG_MAX_STATES: dp[state] <- next[state]
+        for state in 0..<PLUG_MAX_STATES:
+            dp[state] <- next[state]
 
     total: mutable i64 = 0
     for state in 0..<PLUG_MAX_STATES:
         if dp[state] == 0: continue
-        code_key: usize = state % PLUG_CODE_STATES
+        code_key: mutable usize = state % PLUG_CODE_STATES
         closed: i64 = ((state / PLUG_CODE_STATES) / 3).i64()
         seen_black: mutable bool[5] = zeroed
         seen_white: mutable bool[5] = zeroed
@@ -127,14 +128,13 @@ def connectivity_aware_plug_dp_binary_grid_colorings_impl(input: view[i64], leng
             elif code >= 5 and code <= 8 and not seen_white[code - 4]:
                 seen_white[code - 4] <- true
                 white_components <- white_components + 1
-        if ((closed & 1) != 0 and black_components == 0 or
-                (closed & 1) == 0 and black_components == 1) and
-            ((closed & 2) != 0 and white_components == 0 or
-                (closed & 2) == 0 and white_components == 1):
+        if ((closed & 1) != 0 and black_components == 0 or (closed & 1) == 0 and black_components == 1) and ((closed & 2) != 0 and white_components == 0 or (closed & 2) == 0 and white_components == 1):
             total <- total + dp[state]
     total
 
-export fn connectivity_aware_plug_dp_binary_grid_colorings(input: i64&, length: usize) -> i64:
+def connectivity_aware_plug_dp_binary_grid_colorings_entry(input: i64&, length: usize) -> i64:
     if input == null or length != 2: return -1
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     connectivity_aware_plug_dp_binary_grid_colorings_impl(input_view, length)
+
+export fn connectivity_aware_plug_dp_binary_grid_colorings(input: i64&, length: usize) -> i64 = connectivity_aware_plug_dp_binary_grid_colorings_entry

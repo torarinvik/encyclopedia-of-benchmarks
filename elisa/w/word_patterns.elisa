@@ -1,13 +1,13 @@
 # Map ASCII bytes to first-seen indices, after ASCII uppercase normalization.
-def word_patterns_impl(input: view[i64], output: mutable u8&, output_capacity: usize) -> i64:
-    length: usize = input.len()
+def word_patterns_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    length: usize = input_length
     if length < 1 or input[0] < 0 or input[0] > 256:
         return -1
     byte_length: usize = input[0].usize()
     if length != byte_length + 1:
         return -1
     first: mutable i32[128] = zeroed
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < 128:
         first[index] <- -1
         index <- index + 1
@@ -15,7 +15,7 @@ def word_patterns_impl(input: view[i64], output: mutable u8&, output_capacity: u
     position: mutable usize = 0
     index <- 0
     while index < byte_length:
-        value: i64 = input[index + 1]
+        value: mutable i64 = input[index + 1]
         if value < 0 or value > 127:
             return -1
         if value >= 97 and value <= 122: value <- value - 32
@@ -26,14 +26,14 @@ def word_patterns_impl(input: view[i64], output: mutable u8&, output_capacity: u
         index <- index + 1
     needed_capacity: usize = 4 * byte_length + 1
     if output == null or output_capacity < needed_capacity: return -2
-    result: mutable view[u8] = output[0:needed_capacity]
+    result: mutable u8& = output
     index <- 0
     while index < byte_length:
-        value: i64 = input[index + 1]
+        value: mutable i64 = input[index + 1]
         if value >= 97 and value <= 122: value <- value - 32
         character: usize = value.usize()
         if index > 0:
-            result[position] <- 46u8
+            result[position] <- 46
             position <- position + 1
         number: mutable i32 = first[character]
         digits: mutable u8[3] = zeroed
@@ -48,9 +48,11 @@ def word_patterns_impl(input: view[i64], output: mutable u8&, output_capacity: u
             result[position] <- digits[count]
             position <- position + 1
         index <- index + 1
-    result[position] <- 0u8
+    result[position] <- 0
     position.i64()
 
-export fn word_patterns(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+def word_patterns_entry(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     if input == null or length < 1 or length > 257: return -1
-    word_patterns_impl(input[0:length], output, output_capacity)
+    word_patterns_impl(input, length, output, output_capacity)
+
+export fn word_patterns(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = word_patterns_entry

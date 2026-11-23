@@ -37,14 +37,17 @@ def dv_is_dividuus(n: i64) -> bool:
     if sum == 0 or product == 0 or root == 0 or mroot == 0: return false
     n % sum == 0 and n % product == 0 and n % root == 0 and n % mroot == 0
 
-def dv_impl(input: view[i64]) -> i64:
-    if input.length != 1: return -1
+def dv_impl(input: i64&, input_length: usize) -> i64:
+    if input_length != 1: return -1
     n: i64 = input[0]
     if n < 1 or n > DV_MAX_N: return -1
     if dv_is_dividuus(n): return 1
     0
 
-export fn dividuus_number_predicate(input: i64&, input_length: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > DV_MAX_PARSEABLE_LENGTH: return -1
-    input_view: view[i64] = input[0:input_length]
-    dv_impl(input_view)
+def dividuus_number_predicate_impl(input: i64&, input_length: usize) -> i64:
+    if input == null or input_length < 1 or input_length > DV_MAX_PARSEABLE_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = input_length
+    dv_impl(input_view, input_view_length)
+
+export fn dividuus_number_predicate(input: i64&, input_length: usize) -> i64 = dividuus_number_predicate_impl

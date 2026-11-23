@@ -10,7 +10,7 @@ def next_permutation_reverse(values: mutable view[i64], left: usize, right: usiz
         low <- low + 1
         high <- high - 1
 
-def next_permutation_store(value: i64, output: mutable view[u8], position: usize) -> void:
+def next_permutation_store(value: i64, output: mutable u8&, position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -35,7 +35,7 @@ def next_permutation_impl(input: i64&, length: usize, output: mutable u8&, outpu
     required: usize = n * 4
     if output_capacity < required:
         return -2
-    output_view: mutable view[u8] = output[0:output_capacity]
+    output_view: mutable u8& = output
     pivot: mutable usize = n
     index <- n
     while index > 1:

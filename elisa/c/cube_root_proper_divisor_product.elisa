@@ -81,13 +81,16 @@ def cube_root_product_sequence_term(k: i64) -> i64:
         else: low <- middle + 1
     low.i64()
 
-def cube_root_product_impl(input: view[i64]) -> i64:
-    if input.len() != 1: return -1
+def cube_root_product_impl(input: i64&, input_length: usize) -> i64:
+    if input_length != 1: return -1
     k: i64 = input[0]
     if k < 1 or k > MAX_K: return -1
     cube_root_product_sequence_term(k)
 
-export fn cube_root_proper_divisor_product(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
-    return cube_root_product_impl(input_view)
+def cube_root_proper_divisor_product_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    return cube_root_product_impl(input_view, input_view_length)
+
+export fn cube_root_proper_divisor_product(input: i64&, length: usize) -> i64 = cube_root_proper_divisor_product_impl

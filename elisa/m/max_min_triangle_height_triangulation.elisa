@@ -54,7 +54,7 @@ def mth_triangle_score(points: view[MthPoint], n: usize, a: usize, b: usize, c: 
     pa: usize = a % n
     pb: usize = b % n
     pc: usize = c % n
-    area: i64 = mth_cross(points, pa, pb, pc)
+    area: mutable i64 = mth_cross(points, pa, pb, pc)
     if area < 0: area <- -area
     abx: i64 = points[pa].x - points[pb].x
     aby: i64 = points[pa].y - points[pb].y
@@ -63,7 +63,7 @@ def mth_triangle_score(points: view[MthPoint], n: usize, a: usize, b: usize, c: 
     cax: i64 = points[pc].x - points[pa].x
     cay: i64 = points[pc].y - points[pa].y
     best: mutable MthScore = mth_fraction(area * area, abx * abx + aby * aby)
-    candidate: MthScore = mth_fraction(area * area, bcx * bcx + bcy * bcy)
+    candidate: mutable MthScore = mth_fraction(area * area, bcx * bcx + bcy * bcy)
     if mth_compare(candidate, best) < 0: best <- candidate
     candidate <- mth_fraction(area * area, cax * cax + cay * cay)
     if mth_compare(candidate, best) < 0: best <- candidate
@@ -102,8 +102,8 @@ def mth_collect(start: usize, finish: usize, table: view[MthCell], n: usize,
     mth_collect(middle, finish, table, n, output, count)
 
 def mth_edge_matches(a: usize, b: usize, left: usize, right: usize) -> bool:
-    low: usize = if a < b: a else: b
-    high: usize = if a < b: b else: a
+    low: usize = a if a < b else b
+    high: usize = b if a < b else a
     low == left and high == right
 
 def mth_has_edge(triangles: view[MthTriangle], count: usize, left: usize, right: usize) -> bool:
@@ -197,8 +197,8 @@ def mth_solve(points: view[MthPoint], n: usize) -> i64:
             return current_value.minimum.num * 513 + current_value.minimum.den
     -1
 
-def mth_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def mth_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 1 or length > MTH_MAX_LENGTH: return -1
     if input[0] < MTH_MIN_N.i64() or input[0] > MTH_MAX_N.i64(): return -1
     n: usize = input[0].usize()
@@ -242,6 +242,8 @@ def mth_impl(input: view[i64]) -> i64:
         edge <- edge + 1
     mth_solve(points[0:n], n)
 
-export fn max_min_triangle_height_triangulation(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > MTH_MAX_LENGTH: return -1
-    mth_impl(input[0:length])
+def max_min_triangle_height_triangulation_impl(input: i64&, length: usize) -> i64:
+    if input == null or length > MTH_MAX_LENGTH: return -1
+    mth_impl(input, length)
+
+export fn max_min_triangle_height_triangulation(input: i64&, length: usize) -> i64 = max_min_triangle_height_triangulation_impl

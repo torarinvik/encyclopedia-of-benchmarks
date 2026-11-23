@@ -12,23 +12,23 @@ def finite(value: f64) -> bool:
 def exact_size(value: f64) -> bool:
     finite(value) and value >= 1.0 and value <= 64.0 and value.i64().f64() == value
 
-def valid_input(values: view[f64]) -> bool:
-    if values.len() < 2 or values.len() > max_input_length:
+def valid_input(values: f64&, values_length: usize) -> bool:
+    if values_length < 2 or values_length > max_input_length:
         return false
-    for index in 0..<values.len():
+    for index in 0..<values_length:
         if not finite(values[index]):
             return false
     if not exact_size(values[0]):
         return false
     n: usize = values[0].i64().usize()
-    if values.len() != 1 + 2 * n:
+    if values_length != 1 + 2 * n:
         return false
-    for index in 1..<values.len():
+    for index in 1..<values_length:
         if values[index] < -8.0 or values[index] > 8.0:
             return false
     true
 
-def direct_dft_impl(values: view[f64], output: mutable view[f64]) -> i64:
+def direct_dft_impl(values: f64&, output: mutable f64&) -> i64:
     n: usize = values[0].i64().usize()
     for k in 0..<n:
         real_sum: mutable f64 = 0.0
@@ -47,18 +47,18 @@ def direct_dft_impl(values: view[f64], output: mutable view[f64]) -> i64:
 
 def direct_discrete_fourier_transform_impl(input: f64&, input_length: usize,
                                            output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 2 or input_length > max_input_length:
+    if input == null or input_length < 2 or input_length > max_input_length:
         return -1
-    input_view: view[f64] = input[0:input_length]
-    if not valid_input(input_view):
+    input_view: f64& = input
+    input_view_length: usize = input_length
+    if not valid_input(input_view, input_view_length):
         return -1
     n: usize = input_view[0].i64().usize()
     needed: usize = 2 * n
-    if output.is_null() or output_capacity < needed:
+    if output == null or output_capacity < needed:
         return -2
-    output_view: mutable view[f64] = output[0:needed]
+    output_view: mutable f64& = output
     direct_dft_impl(input_view, output_view)
 
 export fn direct_discrete_fourier_transform(input: f64&, input_length: usize,
                                              output: mutable f64&, output_capacity: usize) -> i64 = direct_discrete_fourier_transform_impl
-

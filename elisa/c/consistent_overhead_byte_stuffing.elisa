@@ -2,7 +2,7 @@ const COBS_MAX_WORDS: usize = 257
 const COBS_MAX_PAYLOAD: i64 = 255
 const COBS_MAX_OUTPUT: usize = 257
 
-def cobs_encode_into(input: view[i64], payload_length: usize,
+def cobs_encode_into(input: i64&, payload_length: usize,
         staged: mutable view[u8]) -> usize:
     written: mutable usize = 1
     code_position: mutable usize = 0
@@ -33,7 +33,7 @@ def cobs_encode_into(input: view[i64], payload_length: usize,
         staged[code_position] <- code.u8()
     written
 
-def cobs_impl(input: view[i64], length: usize,
+def cobs_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
     if length < 1 or length > COBS_MAX_WORDS: return -1
     payload_value: i64 = input[0]
@@ -48,16 +48,18 @@ def cobs_impl(input: view[i64], length: usize,
 
     staged: mutable u8[COBS_MAX_OUTPUT] = zeroed
     encoded_length: usize = cobs_encode_into(input, payload_length, staged[0:COBS_MAX_OUTPUT])
-    if output.is_null() or capacity < encoded_length: return -2
-    output_view: mutable view[u8] = output[0:encoded_length]
+    if output == null or capacity < encoded_length: return -2
+    output_view: mutable u8& = output
     index <- 0
     while index < encoded_length:
         output_view[index] <- staged[index]
         index <- index + 1
     encoded_length.i64()
 
-export fn consistent_overhead_byte_stuffing(input: i64&, length: usize,
+def consistent_overhead_byte_stuffing_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > COBS_MAX_WORDS: return -1
-    input_view: view[i64] = input[0:length]
+    if input == null or length < 1 or length > COBS_MAX_WORDS: return -1
+    input_view: i64& = input
     cobs_impl(input_view, length, output, capacity)
+
+export fn consistent_overhead_byte_stuffing(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = consistent_overhead_byte_stuffing_impl

@@ -16,8 +16,8 @@ def dinic_maxflow_dfs(u: usize, sink: usize, pushed: i64, residual: mutable view
     0
 
 def dinic_maxflow_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > 196: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 4 or length > 196: return -1
+    values: i64& = input
     nv: i64 = values[0]
     mv: i64 = values[1]
     sv: i64 = values[2]

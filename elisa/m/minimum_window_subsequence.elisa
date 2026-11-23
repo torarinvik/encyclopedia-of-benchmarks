@@ -2,8 +2,8 @@ const MAX_INPUT_LENGTH: usize = 258
 const MAX_SEARCH_LENGTH: usize = 128
 const MAX_PATTERN_LENGTH: usize = 128
 
-def minimum_window_subsequence_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+def minimum_window_subsequence_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    length: usize = input_length
     if length < 3 or length > MAX_INPUT_LENGTH: return -1
     if input[0] < 0 or input[0] > MAX_SEARCH_LENGTH.i64(): return -1
     search_length: usize = input[0].usize()
@@ -37,7 +37,7 @@ def minimum_window_subsequence_impl(input: view[i64], output: mutable u8&, capac
         while j > 0:
             pattern_index: usize = j - 1
             if byte == input[search_length + 2 + pattern_index]:
-                candidate: i64 = if pattern_index == 0: end.i64() else: latest_start[pattern_index - 1].i64()
+                candidate: i64 = end.i64() if pattern_index == 0 else latest_start[pattern_index - 1].i64()
                 if candidate >= 0 and candidate > latest_start[pattern_index].i64():
                     latest_start[pattern_index] <- candidate.i8()
             j <- j - 1
@@ -49,15 +49,17 @@ def minimum_window_subsequence_impl(input: view[i64], output: mutable u8&, capac
                 best_length <- window_length
         end <- end + 1
     if best_start < 0: return 0
-    if output.is_null() or capacity < best_length: return -2
-    result: mutable view[u8] = output[0:best_length]
+    if output == null or capacity < best_length: return -2
+    result: mutable u8& = output
     index <- 0
     while index < best_length:
         result[index] <- input[best_start.usize() + 1 + index].u8()
         index <- index + 1
     best_length.i64()
 
-export fn minimum_window_subsequence(input: i64&, length: usize,
+def minimum_window_subsequence_entry(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return -1
-    minimum_window_subsequence_impl(input[0:length], output, capacity)
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH: return -1
+    minimum_window_subsequence_impl(input, length, output, capacity)
+
+export fn minimum_window_subsequence(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = minimum_window_subsequence_entry

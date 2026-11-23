@@ -3,9 +3,9 @@ def word_search_generator_next_random(state: mutable u64&) -> u64:
     state <- (state * 48271.u64()) % 2147483647.u64()
     state
 
-def word_search_generator_impl(values: view[i64], output: mutable u8&,
+def word_search_generator_impl(values: i64&, values_length: usize, output: mutable u8&,
         output_capacity: usize) -> i64:
-    length: usize = values.len()
+    length: usize = values_length
     if length < 4 or length > 4096:
         return -1
     width_value: i64 = values[0]
@@ -44,7 +44,7 @@ def word_search_generator_impl(values: view[i64], output: mutable u8&,
     cells: usize = width * height
     if output == null or output_capacity < cells:
         return -2
-    result: mutable view[u8] = output[0:cells]
+    result: mutable u8& = output
     board: mutable u8[1024] = zeroed
     rows: mutable usize[32] = zeroed
     columns: mutable usize[32] = zeroed
@@ -144,7 +144,9 @@ def word_search_generator_impl(values: view[i64], output: mutable u8&,
         index <- index + 1
     cells.i64()
 
-export fn word_search_generator(values: i64&, length: usize, output: mutable u8&,
+def word_search_generator_entry(values: i64&, length: usize, output: mutable u8&,
         output_capacity: usize) -> i64:
     if values == null or length < 4 or length > 4096: return -1
-    word_search_generator_impl(values[0:length], output, output_capacity)
+    word_search_generator_impl(values, length, output, output_capacity)
+
+export fn word_search_generator(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = word_search_generator_entry

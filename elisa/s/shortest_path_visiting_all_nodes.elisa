@@ -1,5 +1,5 @@
-def shortest_path_visiting_all_nodes_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def shortest_path_visiting_all_nodes_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 2 or length > 93:
         return -1
     n_value: i64 = input[0]
@@ -44,13 +44,13 @@ def shortest_path_visiting_all_nodes_impl(input: view[i64]) -> i64:
     for i in 0..<state_count:
         distance[i] <- -1
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     for start in 0..<n:
         state: usize = (1 << start) * n + start
         distance[state] <- 0
-        queue[tail] <- state
-        tail <- tail + 1
-    while head < tail:
+        queue[tail_value] <- state
+        tail_value <- tail_value + 1
+    while head < tail_value:
         state: usize = queue[head]
         head <- head + 1
         mask: usize = state / n
@@ -65,11 +65,13 @@ def shortest_path_visiting_all_nodes_impl(input: view[i64]) -> i64:
             if distance[next_state] >= 0:
                 continue
             distance[next_state] <- distance[state] + 1
-            queue[tail] <- next_state
-            tail <- tail + 1
+            queue[tail_value] <- next_state
+            tail_value <- tail_value + 1
     return -1
 
-export fn shortest_path_visiting_all_nodes(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 93:
+def shortest_path_visiting_all_nodes_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 93:
         return -1
-    shortest_path_visiting_all_nodes_impl(input[0:length])
+    shortest_path_visiting_all_nodes_impl(input, length)
+
+export fn shortest_path_visiting_all_nodes(input: i64&, length: usize) -> i64 = shortest_path_visiting_all_nodes_entry

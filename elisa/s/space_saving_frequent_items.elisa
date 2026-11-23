@@ -1,7 +1,7 @@
 def space_saving_frequent_items_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 67: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 2 or length > 67: return -1
+    values: i64& = input
     kr: i64 = values[0]
     nr: i64 = values[1]
     if kr < 1 or kr > 8 or nr < 0 or nr > 64: return -1
@@ -17,7 +17,8 @@ def space_saving_frequent_items_impl(input: i64&, length: usize,
     for i in 0..<n:
         item: i64 = values[2 + i]
         slot: mutable usize = 0
-        while slot < used and items[slot] != item: slot <- slot + 1
+        while slot < used and items[slot] != item:
+            slot <- slot + 1
         if slot < used:
             counts[slot] <- counts[slot] + 1
         elif used < k:
@@ -37,7 +38,7 @@ def space_saving_frequent_items_impl(input: i64&, length: usize,
     while i < used:
         item: i64 = items[i]
         count: i64 = counts[i]
-        error: i64 = errors[i]
+        error_value: i64 = errors[i]
         j: mutable usize = i
         while j > 0 and items[j - 1] > item:
             items[j] <- items[j - 1]
@@ -46,12 +47,12 @@ def space_saving_frequent_items_impl(input: i64&, length: usize,
             j <- j - 1
         items[j] <- item
         counts[j] <- count
-        errors[j] <- error
+        errors[j] <- error_value
         i <- i + 1
     words: usize = 1 + 3 * used
     bytes: usize = 8 * words
-    if output.is_null() or capacity < bytes: return -2
-    target: mutable view[u8] = output[0:bytes]
+    if output == null or capacity < bytes: return -2
+    target: mutable u8& = output
     fields: mutable i64[25] = zeroed
     fields[0] <- used.i64()
     for i in 0..<used:
@@ -64,7 +65,8 @@ def space_saving_frequent_items_impl(input: i64&, length: usize,
         for b in 0..<8:
             staged[8 * i + b] <- (bits & 255).u8()
             bits <- bits >> 8
-    for i in 0..<bytes: target[i] <- staged[i]
+    for i in 0..<bytes:
+        target[i] <- staged[i]
     bytes.i64()
 
 export fn space_saving_frequent_items(input: i64&, length: usize,

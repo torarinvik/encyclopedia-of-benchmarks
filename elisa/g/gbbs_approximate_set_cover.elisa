@@ -1,13 +1,13 @@
 # Clean-room bounded GBBS approximate set-cover profile; see package MIT notice.
-def gbbs_approximate_set_cover_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+def gbbs_approximate_set_cover_store(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def gbbs_approximate_set_cover(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("gbbs_approximate_set_cover"):
-    if input.is_null() or length < 2 or length > 10: return -1
+def gbbs_approximate_set_cover_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 10: return -1
     ns64: i64 = input[0]
     if ns64 < 1 or ns64 > 8: return -1
     ns: usize = ns64.usize()
@@ -29,7 +29,7 @@ def gbbs_approximate_set_cover(input: i64&, length: usize, output: mutable u8&, 
             if ((sets[s] >> other) & 1) != ((sets[other] >> s) & 1): return -1
             other <- other + 1
         s <- s + 1
-    if output.is_null() or capacity < 16: return -2
+    if output == null or capacity < 16: return -2
     uncovered: mutable u64 = valid
     selected: mutable u64 = 0
     bucket: mutable usize[8] = zeroed
@@ -100,6 +100,8 @@ def gbbs_approximate_set_cover(input: i64&, length: usize, output: mutable u8&, 
             s <- s + 1
         uncovered <- uncovered & ~covered
         round <- round + 1
-    gbbs_approximate_set_cover_store(selected.i64(), output[0:16], 0)
-    gbbs_approximate_set_cover_store(uncovered.i64(), output[0:16], 8)
+    gbbs_approximate_set_cover_store(selected.i64(), output, 0)
+    gbbs_approximate_set_cover_store(uncovered.i64(), output, 8)
     16
+
+export fn gbbs_approximate_set_cover(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = gbbs_approximate_set_cover_impl

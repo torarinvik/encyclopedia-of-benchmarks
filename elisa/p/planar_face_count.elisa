@@ -19,10 +19,7 @@ def pfc_segments_intersect(x: view[i64], y: view[i64], a: usize, b: usize, c: us
     cd_b: i64 = pfc_orient(x[c], y[c], x[d], y[d], x[b], y[b])
     if ((ab_c > 0 and ab_d < 0) or (ab_c < 0 and ab_d > 0)) and ((cd_a > 0 and cd_b < 0) or (cd_a < 0 and cd_b > 0)):
         return true
-    (ab_c == 0 and pfc_on_segment(x, y, a, b, c)) or
-        (ab_d == 0 and pfc_on_segment(x, y, a, b, d)) or
-        (cd_a == 0 and pfc_on_segment(x, y, c, d, a)) or
-        (cd_b == 0 and pfc_on_segment(x, y, c, d, b))
+    (ab_c == 0 and pfc_on_segment(x, y, a, b, c)) or (ab_d == 0 and pfc_on_segment(x, y, a, b, d)) or (cd_a == 0 and pfc_on_segment(x, y, c, d, a)) or (cd_b == 0 and pfc_on_segment(x, y, c, d, b))
 
 def pfc_angle_half(dx: i64, dy: i64) -> usize:
     if dy > 0 or (dy == 0 and dx >= 0):
@@ -38,15 +35,15 @@ def pfc_angle_less(a: usize, b: usize, origin: usize, x: view[i64], y: view[i64]
     bh: usize = pfc_angle_half(bx, by)
     ah < bh or (ah == bh and ax * by - ay * bx > 0)
 
-def pfc_impl(values: view[i64]) -> i64:
-    length: usize = values.len()
+def pfc_impl(values: i64&, values_length: usize) -> i64:
+    length: usize = values_length
     if length < 2 or length > PFC_MAX_INPUT:
         return -1
     if values[0] < 1 or values[0] > i64(PFC_MAX_N) or values[1] < 0 or values[1] > i64(PFC_MAX_M):
         return -1
     n: usize = values[0].usize()
     m: usize = values[1].usize()
-    edge_cap: usize = if n == 1: 0 else: if n == 2: 1 else: 3 * n - 6
+    edge_cap: usize = 0 if n == 1 else (1 if n == 2 else 3 * n - 6)
     if m > edge_cap or length != 2 + 2 * n + 2 * m:
         return -1
 
@@ -88,17 +85,17 @@ def pfc_impl(values: view[i64]) -> i64:
     reached: mutable bool[PFC_MAX_N] = zeroed
     queue: mutable usize[PFC_MAX_N] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 1
+    tail_value: mutable usize = 1
     reached[0] <- true
     queue[0] <- 0
-    while head < tail |adjacent, reached, queue|:
+    while head < tail_value |adjacent, reached, queue|:
         u: usize = queue[head]
         head <- head + 1
         for v in 0..<n |adjacent, reached, queue|:
             if adjacent[u * PFC_MAX_N + v] != 0 and not reached[v]:
                 reached[v] <- true
-                queue[tail] <- v
-                tail <- tail + 1
+                queue[tail_value] <- v
+                tail_value <- tail_value + 1
     for v in 0..<n:
         if not reached[v]:
             return -1
@@ -116,8 +113,8 @@ def pfc_impl(values: view[i64]) -> i64:
                 if common < 0: common <- v.i64()
             if common >= 0:
                 center: usize = common.usize()
-                p: usize = if u == center: v else: u
-                q: usize = if a == center: b else: a
+                p: usize = v if u == center else u
+                q: usize = b if a == center else a
                 ax: i64 = x[p] - x[center]
                 ay: i64 = y[p] - y[center]
                 bx: i64 = x[q] - x[center]
@@ -143,8 +140,8 @@ def pfc_impl(values: view[i64]) -> i64:
     faces: mutable i64 = 0
     for e in 0..<m |edge_u, edge_v, used, neighbors, degree|:
         for direction in 0..<2 |edge_u, edge_v, used, neighbors, degree|:
-            u: mutable usize = if direction == 0: edge_u[e] else: edge_v[e]
-            v: mutable usize = if direction == 0: edge_v[e] else: edge_u[e]
+            u: mutable usize = edge_u[e] if direction == 0 else edge_v[e]
+            v: mutable usize = edge_v[e] if direction == 0 else edge_u[e]
             if used[u * PFC_MAX_N + v]:
                 continue
             faces <- faces + 1
@@ -164,7 +161,9 @@ def pfc_impl(values: view[i64]) -> i64:
                     return -1
     faces
 
-export fn planar_face_count(values: i64&, length: usize) -> i64:
-    if values.is_null() or length > PFC_MAX_INPUT:
+def planar_face_count_impl(values: i64&, length: usize) -> i64:
+    if values == null or length > PFC_MAX_INPUT:
         return -1
-    pfc_impl(values[0:length])
+    pfc_impl(values, length)
+
+export fn planar_face_count(values: i64&, length: usize) -> i64 = planar_face_count_impl

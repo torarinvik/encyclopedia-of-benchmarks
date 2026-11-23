@@ -1,4 +1,4 @@
-def store_i32_le(value: u32, output: mutable view[u8], position: usize) -> void:
+def store_i32_le(value: u32, output: mutable u8&, position: usize) -> void:
     byte: mutable usize = 0
     while byte < 4:
         output[position + byte] <- ((value >> (byte * 8)) & 255).u8()
@@ -6,7 +6,7 @@ def store_i32_le(value: u32, output: mutable view[u8], position: usize) -> void:
 
 def matrix_addition_u32_bits(value: i64) -> u32:
     if value < 0:
-        return (value + 4_294_967_296).u32()
+        return (value + 4294967296).u32()
     value.u32()
 
 def matrix_addition_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
@@ -29,22 +29,22 @@ def matrix_addition_impl(input: i64&, length: usize, output: mutable u8&, output
         return -2
     if rows_a != rows_b or columns_a != columns_b:
         return -1
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < cells_a:
-        if input[index + 2] < -2_147_483_648 or input[index + 2] > 2_147_483_647 or input[b_dimensions + 2 + index] < -2_147_483_648 or input[b_dimensions + 2 + index] > 2_147_483_647:
+        if input[index + 2] < -2147483648 or input[index + 2] > 2147483647 or input[b_dimensions + 2 + index] < -2147483648 or input[b_dimensions + 2 + index] > 2147483647:
             return -2
         index <- index + 1
     if cells_a == 0:
         return 0
     if output_capacity < cells_a * 4:
         return -3
-    output_view: mutable view[u8] = output[0:cells_a * 4]
+    output_view: mutable u8& = output
     index <- 0
     while index < cells_a:
         left: u32 = matrix_addition_u32_bits(input[index + 2])
         right: u32 = matrix_addition_u32_bits(input[b_dimensions + 2 + index])
         sum: u64 = left.u64() + right.u64()
-        store_i32_le((sum & 4_294_967_295.u64()).u32(), output_view, index * 4)
+        store_i32_le((sum & 4294967295.u64()).u32(), output_view, index * 4)
         index <- index + 1
     cells_a.i64()
 

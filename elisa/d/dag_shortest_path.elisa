@@ -4,19 +4,19 @@ const DAG_MAX_LENGTH: usize = 203
 const DAG_OFFSET: i64 = 100000
 const DAG_INFINITY: i64 = 1 << 60
 
-def dag_shortest_path_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def dag_shortest_path_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 4 or length > DAG_MAX_LENGTH: return -1
     if input[0] < 1 or input[0] > DAG_MAX_VERTICES.i64() or input[1] < 0 or input[1] > DAG_MAX_EDGES.i64(): return -1
     vertex_count: usize = input[0].usize()
     edge_count: usize = input[1].usize()
     if length != 4+3*edge_count or input[2] < 0 or input[2] >= vertex_count.i64() or input[3] < 0 or input[3] >= vertex_count.i64(): return -1
-    from: mutable [DAG_MAX_EDGES]i64 = [0; DAG_MAX_EDGES]
-    to: mutable [DAG_MAX_EDGES]i64 = [0; DAG_MAX_EDGES]
-    weight: mutable [DAG_MAX_EDGES]i64 = [0; DAG_MAX_EDGES]
-    indegree: mutable [DAG_MAX_VERTICES]i64 = [0; DAG_MAX_VERTICES]
-    queue: mutable [DAG_MAX_VERTICES]usize = [0; DAG_MAX_VERTICES]
-    order: mutable [DAG_MAX_VERTICES]usize = [0; DAG_MAX_VERTICES]
+    from: mutable i64[DAG_MAX_EDGES] = zeroed
+    to_value: mutable i64[DAG_MAX_EDGES] = zeroed
+    weight: mutable i64[DAG_MAX_EDGES] = zeroed
+    indegree: mutable i64[DAG_MAX_VERTICES] = zeroed
+    queue: mutable usize[DAG_MAX_VERTICES] = zeroed
+    order: mutable usize[DAG_MAX_VERTICES] = zeroed
     edge: mutable usize = 0
     while edge < edge_count:
         start: i64 = input[4+3*edge]
@@ -25,23 +25,23 @@ def dag_shortest_path_impl(input: view[i64]) -> i64:
         if start < 0 or start >= vertex_count.i64() or finish < 0 or finish >= vertex_count.i64() or start == finish or cost < -1000 or cost > 1000: return -1
         previous: mutable usize = 0
         while previous < edge:
-            if from[previous] == start and to[previous] == finish: return -1
+            if from[previous] == start and to_value[previous] == finish: return -1
             previous <- previous+1
         from[edge] <- start
-        to[edge] <- finish
+        to_value[edge] <- finish
         weight[edge] <- cost
         indegree[finish.usize()] <- indegree[finish.usize()]+1
         edge <- edge+1
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     vertex: mutable usize = 0
     while vertex < vertex_count:
         if indegree[vertex] == 0:
-            queue[tail] <- vertex
-            tail <- tail+1
+            queue[tail_value] <- vertex
+            tail_value <- tail_value+1
         vertex <- vertex+1
     order_count: mutable usize = 0
-    while head < tail:
+    while head < tail_value:
         vertex <- queue[head]
         head <- head+1
         order[order_count] <- vertex
@@ -49,14 +49,16 @@ def dag_shortest_path_impl(input: view[i64]) -> i64:
         edge <- 0
         while edge < edge_count:
             if from[edge] == vertex.i64():
-                finish: usize = to[edge].usize()
+                finish: usize = to_value[edge].usize()
                 indegree[finish] <- indegree[finish]-1
                 if indegree[finish] == 0:
-                    queue[tail] <- finish
-                    tail <- tail+1
+                    queue[tail_value] <- finish
+                    tail_value <- tail_value+1
             edge <- edge+1
     if order_count != vertex_count: return -1
-    distance: mutable [DAG_MAX_VERTICES]i64 = [DAG_INFINITY; DAG_MAX_VERTICES]
+    distance: mutable i64[DAG_MAX_VERTICES] = zeroed
+    for distance_index in 0..<DAG_MAX_VERTICES:
+        distance[distance_index] <- DAG_INFINITY
     distance[input[2].usize()] <- 0
     position: mutable usize = 0
     while position < vertex_count:
@@ -65,7 +67,7 @@ def dag_shortest_path_impl(input: view[i64]) -> i64:
             edge <- 0
             while edge < edge_count:
                 if from[edge] == vertex.i64():
-                    finish: usize = to[edge].usize()
+                    finish: usize = to_value[edge].usize()
                     candidate: i64 = distance[vertex]+weight[edge]
                     if candidate < distance[finish]: distance[finish] <- candidate
                 edge <- edge+1
@@ -74,6 +76,8 @@ def dag_shortest_path_impl(input: view[i64]) -> i64:
     if answer == DAG_INFINITY: return 0
     DAG_OFFSET+answer
 
-export fn dag_shortest_path(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > DAG_MAX_LENGTH: return -1
-    dag_shortest_path_impl(input[0:length])
+def dag_shortest_path_entry(input: i64&, length: usize) -> i64:
+    if input == null or length > DAG_MAX_LENGTH: return -1
+    dag_shortest_path_impl(input, length)
+
+export fn dag_shortest_path(input: i64&, length: usize) -> i64 = dag_shortest_path_entry

@@ -27,7 +27,7 @@ def select_kth(values: mutable view[i64], count: usize, target: usize) -> i64:
             break
     values[target]
 
-def store_i32_le(value: i64, output: mutable view[u8], position: usize) -> void:
+def store_i32_le(value: i64, output: mutable u8&, position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -68,7 +68,7 @@ def simplified_wiggle_sort_impl(input: i64&, length: usize, output: mutable u8&,
         index <- index + 1
     index <- 0
     while index < length:
-        store_i32_le(ordered[index], output[0:byte_count], index * 4)
+        store_i32_le(ordered[index], output, index * 4)
         index <- index + 1
     length.i64()
 

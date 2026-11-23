@@ -23,17 +23,17 @@ def ecmf_pair_flow(adjacency: view[u8], n: usize, source: usize, sink: usize, li
             v <- v + 1
         parent[source] <- source.i64()
         head: mutable usize = 0
-        tail: mutable usize = 1
+        tail_value: mutable usize = 1
         queue[0] <- source
-        while head < tail and parent[sink] < 0:
+        while head < tail_value and parent[sink] < 0:
             u <- queue[head]
             head <- head + 1
             v <- 0
             while v < n:
                 if parent[v] < 0 and residual[u * ECMF_MAX_VERTICES + v] > 0:
                     parent[v] <- u.i64()
-                    queue[tail] <- v
-                    tail <- tail + 1
+                    queue[tail_value] <- v
+                    tail_value <- tail_value + 1
                     if v == sink: break
                 v <- v + 1
         if parent[sink] < 0: break
@@ -54,7 +54,7 @@ def ecmf_pair_flow(adjacency: view[u8], n: usize, source: usize, sink: usize, li
         flow <- flow + amount
     flow
 
-def edge_connectivity_all_pairs_maxflow_impl(input: view[i64], length: usize) -> i64:
+def edge_connectivity_all_pairs_maxflow_impl(input: i64&, length: usize) -> i64:
     if length < 2 or length > ECMF_MAX_PARSEABLE: return -1
     if input[0] < 2 or input[0] > 10 or input[1] < 0 or input[1] > 45: return -1
     n: usize = input[0].usize()
@@ -85,7 +85,9 @@ def edge_connectivity_all_pairs_maxflow_impl(input: view[i64], length: usize) ->
         source <- source + 1
     best
 
-export fn edge_connectivity_all_pairs_maxflow(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > ECMF_MAX_PARSEABLE: return -1
-    input_view: view[i64] = input[0:length]
+def edge_connectivity_all_pairs_maxflow_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > ECMF_MAX_PARSEABLE: return -1
+    input_view: i64& = input
     edge_connectivity_all_pairs_maxflow_impl(input_view, length)
+
+export fn edge_connectivity_all_pairs_maxflow(input: i64&, length: usize) -> i64 = edge_connectivity_all_pairs_maxflow_entry

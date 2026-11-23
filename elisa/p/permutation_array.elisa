@@ -2,7 +2,7 @@
 const MAX_LENGTH: usize = 6
 const MAX_PARSEABLE_LENGTH: usize = 8
 
-def permutation_array_store_i32(value: i64, output: mutable view[u8], position: usize) -> void:
+def permutation_array_store_i32(value: i64, output: mutable u8&, position: usize) -> void:
     bits: u32 = value.u32()
     output[position] <- (bits & 255).u8()
     output[position + 1] <- ((bits >> 8) & 255).u8()
@@ -10,10 +10,10 @@ def permutation_array_store_i32(value: i64, output: mutable view[u8], position: 
     output[position + 3] <- ((bits >> 24) & 255).u8()
 
 def permutation_array_generate(values: mutable view[i64], n: usize, index: usize,
-        output: mutable view[u8], result_count: mutable usize&) -> void:
+        output: mutable u8&, result_count: mutable usize&) -> void:
     if index == n:
         row_start: usize = result_count * n * 4
-        column: usize = 0
+        column: mutable usize = 0
         while column < n:
             permutation_array_store_i32(values[column], output, row_start + column * 4)
             column <- column + 1
@@ -31,7 +31,7 @@ def permutation_array_generate(values: mutable view[i64], n: usize, index: usize
             position <- position + 1
 
 def permutation_array_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_PARSEABLE_LENGTH:
+    if input == null or length < 1 or length > MAX_PARSEABLE_LENGTH:
         return -1
     n_value: i64 = input[0]
     if n_value < 0 or n_value > MAX_LENGTH.i64() or length != n_value.usize() + 1:
@@ -51,10 +51,10 @@ def permutation_array_impl(input: i64&, length: usize, output: mutable u8&, outp
         permutation_count <- permutation_count * factor
         factor <- factor + 1
     required: usize = permutation_count * n * 4
-    if output_capacity < required or (required > 0 and output.is_null()):
+    if output_capacity < required or (required > 0 and output == null):
         return -2
     result_count: mutable usize = 0
-    permutation_array_generate(values[0:n], n, 0, output[0:output_capacity], result_count)
+    permutation_array_generate(values[0:n], n, 0, output, result_count)
     result_count.i64()
 
 export fn permutation_array(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = permutation_array_impl

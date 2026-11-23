@@ -8,7 +8,8 @@ def tec_assignment(cost: view[i64], d: usize, width: usize, deletion: mutable vi
         previous: mutable usize[17] = zeroed
         used: mutable bool[17] = zeroed
         slack: mutable i64[17] = zeroed
-        for col in 0..<(width + 1): slack[col] <- inf
+        for col in 0..<(width + 1):
+            slack[col] <- inf
         owner[0] <- row
         col: mutable usize = 0
         while true:
@@ -47,10 +48,12 @@ def tec_assignment(cost: view[i64], d: usize, width: usize, deletion: mutable vi
     if free_col == width: return -1
     distance: mutable i64[16] = zeroed
     updated: mutable i64[16] = zeroed
-    for col in 0..<width: distance[col] <- inf
+    for col in 0..<width:
+        distance[col] <- inf
     distance[free_col] <- 0
-    for pass in 0..<d:
-        for col in 0..<width: updated[col] <- distance[col]
+    for pass_value in 0..<d:
+        for col in 0..<width:
+            updated[col] <- distance[col]
         for col in 0..<width:
             if owner[col + 1] == 0: continue
             row: usize = owner[col + 1] - 1
@@ -58,20 +61,21 @@ def tec_assignment(cost: view[i64], d: usize, width: usize, deletion: mutable vi
                 if distance[dest] != inf:
                     candidate: i64 = cost[row * 16 + dest] - cost[row * 16 + col] + distance[dest]
                     if candidate < updated[col]: updated[col] <- candidate
-        for col in 0..<width: distance[col] <- updated[col]
+        for col in 0..<width:
+            distance[col] <- updated[col]
     for col in 0..<width:
         if distance[col] == inf: return -1
         deletion[col] <- base + distance[col]
     base
 
-def tec_solve(values: view[i64]) -> i64:
-    if values.len() < 2 or values.len() > 82: return -1
+def tec_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 2 or values_length > 82: return -1
     nv: i64 = values[0]
     kv: i64 = values[1]
     if nv < 1 or nv > 64 or kv < 1 or kv > 16: return -1
     n: usize = nv.usize()
     k: usize = kv.usize()
-    if values.len() != n + 1 + k: return -1
+    if values_length != n + 1 + k: return -1
     parents: mutable usize[64] = zeroed
     degree: mutable usize[64] = zeroed
     child_count: mutable usize[64] = zeroed
@@ -121,10 +125,13 @@ def tec_solve(values: view[i64]) -> i64:
         if base < 0: return -1
         if saturated: tables[16 * vertex] <- base
         else:
-            for col in 0..<width: tables[16 * vertex + col] <- deletion[col]
+            for col in 0..<width:
+                tables[16 * vertex + col] <- deletion[col]
     if child_count[0] == k: return tables[0]
     tables[child_count[0]]
 
-export fn tree_min_cost_edge_coloring(input: i64&, length: usize) -> i64:
+def tree_min_cost_edge_coloring_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 2 or length > 82: return -1
-    tec_solve(input[0:length])
+    tec_solve(input, length)
+
+export fn tree_min_cost_edge_coloring(input: i64&, length: usize) -> i64 = tree_min_cost_edge_coloring_impl

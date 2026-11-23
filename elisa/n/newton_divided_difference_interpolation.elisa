@@ -12,14 +12,14 @@ def ndd_mod_pow(base_value: i64, exponent_value: i64) -> i64:
         exponent <- exponent/2
     result
 
-def ndd_interpolate(input: view[i64]) -> i64:
-    length: usize = input.len()
+def ndd_interpolate(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 4 or length > NDD_MAX_LENGTH: return -1
     if input[0] < 1 or input[0] > NDD_MAX_NODES.i64(): return -1
     count: usize = input[0].usize()
     if length != 2+2*count: return -1
-    nodes: mutable [NDD_MAX_NODES]i64 = [0; NDD_MAX_NODES]
-    differences: mutable [NDD_MAX_NODES]i64 = [0; NDD_MAX_NODES]
+    nodes: mutable i64[NDD_MAX_NODES] = zeroed
+    differences: mutable i64[NDD_MAX_NODES] = zeroed
     i: mutable usize = 0
     while i < count:
         nodes[i] <- input[1+i]
@@ -52,6 +52,8 @@ def ndd_interpolate(input: view[i64]) -> i64:
         result <- (result*factor+differences[i])%NDD_MODULUS
     result
 
-export fn newton_divided_difference_interpolation(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > NDD_MAX_LENGTH: return -1
-    ndd_interpolate(input[0:length])
+def newton_divided_difference_interpolation_impl(input: i64&, length: usize) -> i64:
+    if input == null or length > NDD_MAX_LENGTH: return -1
+    ndd_interpolate(input, length)
+
+export fn newton_divided_difference_interpolation(input: i64&, length: usize) -> i64 = newton_divided_difference_interpolation_impl

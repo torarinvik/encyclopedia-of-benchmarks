@@ -4,8 +4,8 @@ const SCC_DAG_MAX_M: usize = 28
 const SCC_DAG_MAX_INPUT: usize = 58
 const SCC_DAG_MAX_OUTPUT: usize = 17
 
-def scc_condensation_dag_impl(values: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = values.len()
+def scc_condensation_dag_impl(values: i64&, values_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    length: usize = values_length
     if length < 2 or length > SCC_DAG_MAX_INPUT: return -1
     n_value: i64 = values[0]
     m_value: i64 = values[1]
@@ -128,8 +128,8 @@ def scc_condensation_dag_impl(values: view[i64], output: mutable u8&, capacity: 
         source <- source + 1
 
     output_size: usize = 1 + n + component_count
-    if output.is_null() or capacity < output_size: return -2
-    result: mutable view[u8] = output[0:output_size]
+    if output == null or capacity < output_size: return -2
+    result: mutable u8& = output
     result[0] <- component_count.u8()
     vertex <- 0
     while vertex < n:
@@ -141,6 +141,8 @@ def scc_condensation_dag_impl(values: view[i64], output: mutable u8&, capacity: 
         component <- component + 1
     output_size.i64()
 
-export fn scc_condensation_dag(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > SCC_DAG_MAX_INPUT: return -1
-    scc_condensation_dag_impl(input[0:length], output, capacity)
+def scc_condensation_dag_entry(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > SCC_DAG_MAX_INPUT: return -1
+    scc_condensation_dag_impl(input, length, output, capacity)
+
+export fn scc_condensation_dag(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = scc_condensation_dag_entry

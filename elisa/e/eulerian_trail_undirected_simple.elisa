@@ -1,4 +1,4 @@
-def eulerian_trail_undirected_simple_put_i64(output: mutable view[u8], position: usize, value: i64) -> void:
+def eulerian_trail_undirected_simple_put_i64(output: mutable u8&, position: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[position + byte] <- (bits & 255).u8()
@@ -15,9 +15,9 @@ def eulerian_trail_undirected_simple_dfs(neighbors: view[i64], degree: view[i64]
             eulerian_trail_undirected_simple_dfs(neighbors, degree, seen, path, count, next)
 
 def eulerian_trail_undirected_simple_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 92:
+    if input == null or length < 2 or length > 92:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     if values[0] < 2 or values[0] > 10 or values[1] < 0 or values[1] > 45:
         return -1
     vertices: usize = values[0].usize()
@@ -50,7 +50,7 @@ def eulerian_trail_undirected_simple_impl(input: i64&, length: usize, output: mu
             start <- vertex
     if odd != 0 and odd != 2:
         return -1
-    status: i64 = 2
+    status: mutable i64 = 2
     if odd == 0:
         status <- 1
         start <- 1
@@ -58,19 +58,19 @@ def eulerian_trail_undirected_simple_impl(input: i64&, length: usize, output: mu
         if status == 1 and degree[1] == 0:
             return -1
         reached: mutable bool[10] = zeroed
-        stack: mutable i64[10] = zeroed
+        stack_value: mutable i64[10] = zeroed
         top: mutable usize = 0
-        stack[top] <- start.i64()
+        stack_value[top] <- start.i64()
         top <- top + 1
         reached[start] <- true
         while top > 0:
             top <- top - 1
-            node: usize = stack[top].usize()
+            node: usize = stack_value[top].usize()
             for offset in 0..<degree[node].usize():
                 next: usize = neighbors[node * 45 + offset].usize()
                 if not reached[next]:
                     reached[next] <- true
-                    stack[top] <- next.i64()
+                    stack_value[top] <- next.i64()
                     top <- top + 1
         for vertex in 0..<vertices:
             if degree[vertex] > 0 and not reached[vertex]:
@@ -82,12 +82,12 @@ def eulerian_trail_undirected_simple_impl(input: i64&, length: usize, output: mu
     if count != edges + 1:
         return -1
     bytes: usize = (2 + count) * 8
-    if output.is_null() or capacity < bytes:
+    if output == null or capacity < bytes:
         return -2
-    eulerian_trail_undirected_simple_put_i64(output[0:bytes], 0, status)
-    eulerian_trail_undirected_simple_put_i64(output[0:bytes], 8, count.i64())
+    eulerian_trail_undirected_simple_put_i64(output, 0, status)
+    eulerian_trail_undirected_simple_put_i64(output, 8, count.i64())
     for i in 0..<count:
-        eulerian_trail_undirected_simple_put_i64(output[0:bytes], (2 + i) * 8, path[i])
+        eulerian_trail_undirected_simple_put_i64(output, (2 + i) * 8, path[i])
     bytes.i64()
 
 export fn eulerian_trail_undirected_simple(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = eulerian_trail_undirected_simple_impl

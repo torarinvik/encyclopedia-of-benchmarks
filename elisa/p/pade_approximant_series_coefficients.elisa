@@ -2,41 +2,43 @@ const MODULUS: i64 = 998244353
 const MAX_INPUT_LENGTH: usize = 12
 
 def mod_pow(base_value: i64, exponent_value: i64) -> i64:
-    mut base: i64 = base_value
-    mut exponent: i64 = exponent_value
-    mut result: i64 = 1
+    base: mutable i64 = base_value
+    exponent: mutable i64 = exponent_value
+    result: mutable i64 = 1
     while exponent > 0:
         if (exponent & 1) != 0: result <- (result * base) % MODULUS
         base <- (base * base) % MODULUS
         exponent <- exponent >> 1
     result
 
-def pade_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
-    mut bits: u64 = value.u64()
+def pade_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def pade_approximant_series_coefficients_impl(input: view[i64], output: mutable view[u8]) -> i64:
-    if input.len() < 5 or input.len() > MAX_INPUT_LENGTH: return -1
+def pade_approximant_series_coefficients_impl(input: i64&, input_length: usize, output: mutable u8&, output_length: usize) -> i64:
+    if input_length < 5 or input_length > MAX_INPUT_LENGTH: return -1
     p_value: i64 = input[0]
     q_value: i64 = input[1]
-    if q_value < 1 or p_value < q_value or p_value > 4 or q_value > 4 or input.len() != (p_value + q_value + 3).usize(): return -1
+    if q_value < 1 or p_value < q_value or p_value > 4 or q_value > 4 or input_length != (p_value + q_value + 3).usize(): return -1
     p: usize = p_value.usize()
     q: usize = q_value.usize()
-    mut coefficients: u32[9] = zeroed
+    coefficients: mutable u32[9] = zeroed
     for i in 0..<(p + q + 1):
         if input[i + 2] < 0 or input[i + 2] >= MODULUS: return -1
         coefficients[i] <- input[i + 2].u32()
 
-    mut matrix: u32[20] = zeroed
+    matrix: mutable u32[20] = zeroed
     for row in 0..<q:
         m: usize = p + 1 + row
-        for col in 0..<q: matrix[row * 5 + col] <- coefficients[m - col - 1]
+        for col in 0..<q:
+            matrix[row * 5 + col] <- coefficients[m - col - 1]
         matrix[row * 5 + q] <- ((MODULUS - coefficients[m].i64()) % MODULUS).u32()
     for col in 0..<q:
-        mut pivot: usize = col
-        while pivot < q and matrix[pivot * 5 + col] == 0: pivot <- pivot + 1
+        pivot: mutable usize = col
+        while pivot < q and matrix[pivot * 5 + col] == 0:
+            pivot <- pivot + 1
         if pivot == q: return -3
         if pivot != col:
             for j in 0..<(q + 1):
@@ -44,24 +46,25 @@ def pade_approximant_series_coefficients_impl(input: view[i64], output: mutable 
                 matrix[col * 5 + j] <- matrix[pivot * 5 + j]
                 matrix[pivot * 5 + j] <- temporary
         inverse: i64 = mod_pow(matrix[col * 5 + col].i64(), MODULUS - 2)
-        for j in col..<(q + 1): matrix[col * 5 + j] <- (matrix[col * 5 + j].i64() * inverse % MODULUS).u32()
+        for j in col..<(q + 1):
+            matrix[col * 5 + j] <- (matrix[col * 5 + j].i64() * inverse % MODULUS).u32()
         for row in 0..<q:
             if row == col: continue
             factor: i64 = matrix[row * 5 + col].i64()
             for j in col..<(q + 1):
                 product: i64 = factor * matrix[col * 5 + j].i64() % MODULUS
-                mut difference: i64 = matrix[row * 5 + j].i64() - product
+                difference: mutable i64 = matrix[row * 5 + j].i64() - product
                 if difference < 0: difference <- difference + MODULUS
                 matrix[row * 5 + j] <- difference.u32()
 
     required: usize = 8 * (p + q + 4)
-    if output.len() < required: return -2
+    if output_length < required: return -2
     pade_store_i64_le(p_value, output, 0)
     pade_store_i64_le(q_value, output, 8)
-    mut offset: usize = 16
+    offset: mutable usize = 16
     for m in 0..<(p + 1):
-        mut value: u64 = coefficients[m].u64()
-        last: usize = if m < q: m else: q
+        value: mutable u64 = coefficients[m].u64()
+        last: usize = m if m < q else q
         for j in 1..<(last + 1):
             value <- (value + coefficients[m - j].u64() * matrix[(j - 1) * 5 + q].u64()) % MODULUS.u64()
         pade_store_i64_le(value.i64(), output, offset)
@@ -73,17 +76,21 @@ def pade_approximant_series_coefficients_impl(input: view[i64], output: mutable 
         offset <- offset + 8
     required.i64()
 
-export fn pade_approximant_series_coefficients(input: i64&, length: usize,
+def pade_approximant_series_coefficients_entry(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 5 or length > MAX_INPUT_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
-    if input_view.len() < 2: return -1
+    if input == null or length < 5 or length > MAX_INPUT_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    if input_view_length < 2: return -1
     p_value: i64 = input_view[0]
     q_value: i64 = input_view[1]
     if q_value < 1 or p_value < q_value or p_value > 4 or q_value > 4 or length != (p_value + q_value + 3).usize(): return -1
     for i in 2..<length:
         if input_view[i] < 0 or input_view[i] >= MODULUS: return -1
     required: usize = 8 * (p_value.usize() + q_value.usize() + 4)
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
-    pade_approximant_series_coefficients_impl(input_view, output_view)
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
+    output_view_length: usize = required
+    pade_approximant_series_coefficients_impl(input_view, input_view_length, output_view, output_view_length)
+
+export fn pade_approximant_series_coefficients(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = pade_approximant_series_coefficients_entry

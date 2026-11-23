@@ -44,15 +44,15 @@ def bvc_alternating_cover(left_count: usize, right_count: usize, rows: view[u16]
         if match_right[right] >= 0: matched_left[match_right[right].usize()] <- true
         right <- right + 1
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     left: mutable usize = 0
     while left < left_count:
         if not matched_left[left]:
             reached_left[left] <- true
-            queue[tail] <- left
-            tail <- tail + 1
+            queue[tail_value] <- left
+            tail_value <- tail_value + 1
         left <- left + 1
-    while head < tail:
+    while head < tail_value:
         left <- queue[head]
         head <- head + 1
         right <- 0
@@ -62,8 +62,8 @@ def bvc_alternating_cover(left_count: usize, right_count: usize, rows: view[u16]
                 owner: usize = match_right[right].usize()
                 if not reached_left[owner]:
                     reached_left[owner] <- true
-                    queue[tail] <- owner
-                    tail <- tail + 1
+                    queue[tail_value] <- owner
+                    tail_value <- tail_value + 1
             right <- right + 1
     result: mutable i64 = 0
     left <- 0
@@ -131,8 +131,8 @@ def bvc_canonical_cover(left_count: usize, right_count: usize, rows: view[u16], 
         vertex <- vertex + 1
     result
 
-def bipartite_minimum_vertex_cover_impl(values: view[i64]) -> i64:
-    length: usize = values.len()
+def bipartite_minimum_vertex_cover_impl(values: i64&, values_length: usize) -> i64:
+    length: usize = values_length
     if length < 2 or length > BVC_MAX_INPUT: return -1
     left_value: i64 = values[0]
     right_value: i64 = values[1]
@@ -166,6 +166,8 @@ def bipartite_minimum_vertex_cover_impl(values: view[i64]) -> i64:
     if optimum != matching_size: return -1
     bvc_canonical_cover(left_count, right_count, rows[0:left_count], optimum.i64())
 
-export fn bipartite_minimum_vertex_cover(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > BVC_MAX_INPUT: return -1
-    bipartite_minimum_vertex_cover_impl(input[0:length])
+def bipartite_minimum_vertex_cover_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > BVC_MAX_INPUT: return -1
+    bipartite_minimum_vertex_cover_impl(input, length)
+
+export fn bipartite_minimum_vertex_cover(input: i64&, length: usize) -> i64 = bipartite_minimum_vertex_cover_entry

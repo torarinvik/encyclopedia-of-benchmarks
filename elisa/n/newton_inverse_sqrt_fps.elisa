@@ -1,15 +1,16 @@
-const INVERSE_SQRT_MODULUS: i64 = 998_244_353
-const INVERSE_SQRT_HALF: i64 = 499_122_177
+const INVERSE_SQRT_MODULUS: i64 = 998244353
+const INVERSE_SQRT_HALF: i64 = 499122177
 
 def inverse_sqrt_multiply(left: view[i64], right: view[i64], width: usize,
     result: mutable view[i64]) -> void:
-    for i in 0..<width: result[i] <- 0
+    for i in 0..<width:
+        result[i] <- 0
     for i in 0..<width:
         for j in 0..<(width - i):
             result[i + j] <- (result[i + j] + left[i] * right[j]) % INVERSE_SQRT_MODULUS
 
-def newton_inverse_sqrt_fps_impl(input: view[i64], length: usize,
-    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+def newton_inverse_sqrt_fps_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize, output_is_null: bool) -> i64:
     if length < 2 or length > 66: return -1
     if input[0] < 1 or input[0] > 64: return -1
     n: usize = input[0].usize()
@@ -19,13 +20,14 @@ def newton_inverse_sqrt_fps_impl(input: view[i64], length: usize,
     if input[1] != 1: return -1
     bytes: usize = 8 * n
     if output_is_null or capacity < bytes: return -2
-    f: mutable [64]i64 = [0; 64]
-    inverse: mutable [64]i64 = [0; 64]
-    square: mutable [64]i64 = [0; 64]
-    product: mutable [64]i64 = [0; 64]
-    correction: mutable [64]i64 = [0; 64]
-    next: mutable [64]i64 = [0; 64]
-    for i in 0..<n: f[i] <- input[i + 1]
+    f: mutable i64[64] = zeroed
+    inverse: mutable i64[64] = zeroed
+    square: mutable i64[64] = zeroed
+    product: mutable i64[64] = zeroed
+    correction: mutable i64[64] = zeroed
+    next: mutable i64[64] = zeroed
+    for i in 0..<n:
+        f[i] <- input[i + 1]
     inverse[0] <- 1
     precision: mutable usize = 1
     while precision < n:
@@ -37,7 +39,8 @@ def newton_inverse_sqrt_fps_impl(input: view[i64], length: usize,
         for i in 1..<width:
             correction[i] <- (INVERSE_SQRT_MODULUS - product[i]) * INVERSE_SQRT_HALF % INVERSE_SQRT_MODULUS
         inverse_sqrt_multiply(inverse[0:width], correction[0:width], width, next[0:width])
-        for i in 0..<width: inverse[i] <- next[i]
+        for i in 0..<width:
+            inverse[i] <- next[i]
         precision <- width
     for i in 0..<n:
         bits: mutable u64 = inverse[i].u64()
@@ -46,14 +49,16 @@ def newton_inverse_sqrt_fps_impl(input: view[i64], length: usize,
             bits <- bits >> 8
     bytes.i64()
 
-export fn newton_inverse_sqrt_fps(input: i64&, length: usize,
+def newton_inverse_sqrt_fps_entry(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 66: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
-        scratch: mutable [1]u8 = [0; 1]
-        return newton_inverse_sqrt_fps_impl(input_view, length, scratch[0:1], 0, true)
+    if input == null or length < 2 or length > 66: return -1
+    input_view: i64& = input
+    if output == null:
+        scratch: mutable u8[1] = zeroed
+        return newton_inverse_sqrt_fps_impl(input_view, length, &scratch[0], 0, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > 512: safe_capacity <- 512
-    output_view: mutable view[u8] = output[0:safe_capacity]
+    output_view: mutable u8& = output
     newton_inverse_sqrt_fps_impl(input_view, length, output_view, capacity, false)
+
+export fn newton_inverse_sqrt_fps(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = newton_inverse_sqrt_fps_entry

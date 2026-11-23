@@ -1,5 +1,5 @@
 # In-place JSort: directional heap partial orders followed by insertion sort.
-def jsort_sift_down_min(values: mutable view[i64], root: usize, end: usize) -> void:
+def jsort_sift_down_min(values: mutable i64&, root: usize, end: usize) -> void:
     current: mutable usize = root
     while current < end / 2:
         child: mutable usize = current * 2 + 1
@@ -11,7 +11,7 @@ def jsort_sift_down_min(values: mutable view[i64], root: usize, end: usize) -> v
         values[child] <- temporary
         current <- child
 
-def jsort_sift_down_max(values: mutable view[i64], root: usize, end: usize) -> void:
+def jsort_sift_down_max(values: mutable i64&, root: usize, end: usize) -> void:
     current: mutable usize = root
     while current < end / 2:
         child: mutable usize = current * 2 + 1
@@ -23,7 +23,7 @@ def jsort_sift_down_max(values: mutable view[i64], root: usize, end: usize) -> v
         values[child] <- temporary
         current <- child
 
-def jsort_reverse(values: mutable view[i64], length: usize) -> void:
+def jsort_reverse(values: mutable i64&, length: usize) -> void:
     left: mutable usize = 0
     while left < length / 2:
         right: usize = length - 1 - left
@@ -34,7 +34,7 @@ def jsort_reverse(values: mutable view[i64], length: usize) -> void:
 
 def jsort_impl(values: mutable i64&, length: usize) -> void:
     if length < 2: return
-    items: mutable view[i64] = values[0:length]
+    items: mutable i64& = values
     start: mutable usize = length / 2
     while start > 0:
         start <- start - 1
