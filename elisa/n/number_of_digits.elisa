@@ -1,25 +1,16 @@
-@intrinsic("llvm.ctlz.i64")
-extern decimal_leading_zeros(value: u64, zero_undefined: bool) -> u64
-
-const DECIMAL_POWERS: array[u64, 20] = [
-    1, 10, 100, 1000,
-    10000, 100000, 1000000, 10000000,
-    100000000, 1000000000, 10000000000, 100000000000,
-    1000000000000, 10000000000000, 100000000000000, 1000000000000000,
-    10000000000000000, 100000000000000000, 1000000000000000000, 10000000000000000000
-]
-
 # Count base-10 digits in the magnitude of any signed 64-bit value.
 def number_of_digits_impl(value: i64) -> i64:
-    bits: u64 = value.u64()
-    magnitude: u64 = 0.u64() - bits if value < 0 else bits
-    return 1 if magnitude < 10.u64()
-    bit_length: u64 = 64 - decimal_leading_zeros(magnitude, false)
-    # The bit length narrows the digit count to two adjacent values.
-    # The table gives the threshold for the larger count.
-    estimate: usize = ((bit_length * 1233) >> 12).usize()
-    threshold: u64 = DECIMAL_POWERS[estimate]
-    correction: usize = 1.usize() if magnitude >= threshold else 0.usize()
-    (estimate + correction).i64()
+    magnitude: mutable u64 = (-(value + 1)).u64() + 1 if value < 0 else value.u64()
+    if magnitude < 10:
+        return 1
+    digits: mutable i64 = 1
+    while magnitude >= 10000:
+        magnitude <- magnitude / 10000
+        digits <- digits + 4
+    if magnitude < 10:
+        return digits
+    if magnitude < 100:
+        return digits + 1
+    digits + (2 if magnitude < 1000 else 3)
 
 export fn number_of_digits(value: i64) -> i64 = number_of_digits_impl
