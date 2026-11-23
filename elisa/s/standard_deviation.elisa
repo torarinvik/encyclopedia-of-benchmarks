@@ -1,32 +1,30 @@
-@link_name("llvm.sqrt.f64")
+# Population standard deviation of bounded integers in binary64 arithmetic.
+@intrinsic("llvm.sqrt.f64")
 extern sqrt(value: f64) -> f64
+@intrinsic("llvm.pow.f64")
+extern pow(base: f64, exponent: f64) -> f64
+
+const MAX_LENGTH: usize = 64
+const MAX_ABS_VALUE: i64 = 1000000
+const INVALID_RESULT: f64 = -1.0e300
 
 def standard_deviation_impl(values: i64&?, length: usize) -> f64:
-    if length == 0 or length > 64 or values == null:
-        return -1.0e300
-    first: i64 = values[0]
-    if first < -1000000 or first > 1000000: return -1.0e300
-    if length == 1: return 0.0
-    standard_deviation_run(values, length, first)
-
-@inline(never)
-def standard_deviation_run(values: i64&, length: usize, first: i64) -> f64:
-    # Bounded integer partial sums are exactly representable in binary64.
-    total: mutable i64 = first
-    index: mutable usize = 1
-    while index < length:
-        value: i64 = values[index]
-        if value < -1000000 or value > 1000000:
-            return -1.0e300
-        total <- total + value
-        index <- index + 1
-    average: f64 = total.f64() / length.f64()
+    if values == null or length == 0 or length > MAX_LENGTH:
+        return INVALID_RESULT
+    sum: mutable f64 = 0.0
+    i: mutable usize = 0
+    while i < length:
+        if values[i] < -MAX_ABS_VALUE or values[i] > MAX_ABS_VALUE:
+            return INVALID_RESULT
+        sum <- sum + values[i].f64()
+        i <- i + 1
+    average: f64 = sum / length.f64()
     squared_deviations: mutable f64 = 0.0
-    index <- 0
-    while index < length:
-        difference: f64 = values[index].f64() - average
-        squared_deviations <- squared_deviations + difference * difference
-        index <- index + 1
+    i <- 0
+    while i < length:
+        difference: f64 = values[i].f64() - average
+        squared_deviations <- squared_deviations + pow(difference, 2.0)
+        i <- i + 1
     sqrt(squared_deviations / length.f64())
 
 export fn standard_deviation(values: i64&?, length: usize) -> f64 = standard_deviation_impl

@@ -1,74 +1,15 @@
-@link_name("llvm.memcpy.p0.p0.i64")
-extern copy_seed_bits(destination: mutable u64&, source: f64&, bytes: usize, is_volatile: bool) -> void
-@link_name("llvm.memcpy.inline.p0.p0.i64")
-extern copy_seed_value(destination: mutable f64&, source: u64&, bytes: usize, is_volatile: bool) -> void
-
-@inline(never)
-def inverse_square_root_seed(value: f64) -> f64:
-    bits: mutable u64 = 0
-    copy_seed_bits(&bits, &value, 8, false)
-    seed_bits: u64 = 0x5fe6eb50c7b537a9 - (bits >> 1)
-    seed: mutable f64 = 0.0
-    copy_seed_value(&seed, &seed_bits, 8, false)
-    half_value: f64 = value * 0.5
-    first: f64 = seed * (1.5 - half_value * seed * seed)
-    first * (1.5 - half_value * first * first)
-
-@inline(always)
-def newton_step(value: f64, estimate: f64) -> f64:
-    0.5 * estimate + 0.5 * (value / estimate)
-
-@inline(never)
-def refine_square_root(value: f64, initial: f64) -> f64:
-    estimate: mutable f64 = initial
-    # Check convergence at each step and the 1100-step limit once per group.
-    groups_remaining: mutable usize = 110
-    while groups_remaining != 0:
-        refined_1: f64 = newton_step(value, estimate)
-        if refined_1 >= estimate:
-            return estimate
-        refined_2: f64 = newton_step(value, refined_1)
-        if refined_2 >= refined_1:
-            return refined_1
-        refined_3: f64 = newton_step(value, refined_2)
-        if refined_3 >= refined_2:
-            return refined_2
-        refined_4: f64 = newton_step(value, refined_3)
-        if refined_4 >= refined_3:
-            return refined_3
-        refined_5: f64 = newton_step(value, refined_4)
-        if refined_5 >= refined_4:
-            return refined_4
-        refined_6: f64 = newton_step(value, refined_5)
-        if refined_6 >= refined_5:
-            return refined_5
-        refined_7: f64 = newton_step(value, refined_6)
-        if refined_7 >= refined_6:
-            return refined_6
-        refined_8: f64 = newton_step(value, refined_7)
-        if refined_8 >= refined_7:
-            return refined_7
-        refined_9: f64 = newton_step(value, refined_8)
-        if refined_9 >= refined_8:
-            return refined_8
-        refined_10: f64 = newton_step(value, refined_9)
-        if refined_10 >= refined_9:
-            return refined_9
-        estimate <- refined_10
-        groups_remaining <- groups_remaining - 1
-    estimate
-
-# Select the seed before tail-calling the Newton refinement loop.
+# Newton square root using binary64 arithmetic and a portable initial estimate.
 def square_root_impl(value: f64) -> f64:
     if value == 0.0:
         return 0.0
-    bits: mutable u64 = 0
-    copy_seed_bits(&bits, &value, 8, false)
-    if bits < 0x7ff0000000000000:
-        seed: u64 = (bits >> 1) + 0x1ff8000000000000
-        initial: mutable f64 = 0.0
-        copy_seed_value(&initial, &seed, 8, false)
-        return refine_square_root(value, initial)
-    refine_square_root(value, 1.0 if value < 1.0 else value)
+    estimate: mutable f64 = value if value >= 1.0 else 1.0
+    iteration: mutable i64 = 0
+    while iteration < 1100:
+        next: f64 = 0.5 * estimate + 0.5 * (value / estimate)
+        if next >= estimate:
+            return estimate
+        estimate <- next
+        iteration <- iteration + 1
+    estimate
 
 export fn square_root(value: f64) -> f64 = square_root_impl
