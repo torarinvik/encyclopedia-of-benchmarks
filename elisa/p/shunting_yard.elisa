@@ -47,7 +47,7 @@ def shunting_yard_apply(numbers: mutable view[f64], number_count: mutable usize&
     number_count <- number_count + 1
     true
 
-export fn shunting_yard(input: i64&, length: usize) -> f64:
+def shunting_yard_impl(input: i64&, length: usize) -> f64:
     if input == null or length < 2 or length > MAX_INPUT_VALUES: return INVALID_RESULT
     byte_count_value: i64 = input[0]
     if byte_count_value < 1 or byte_count_value > MAX_EXPRESSION_BYTES.i64(): return INVALID_RESULT
@@ -109,11 +109,10 @@ export fn shunting_yard(input: i64&, length: usize) -> f64:
                 top: u8 = operators[operator_count - 1]
                 top_precedence: usize = shunting_yard_precedence(top)
                 current_precedence: usize = shunting_yard_precedence(character)
-                if top_precedence < current_precedence or
-                    (top_precedence == current_precedence and character == 94.u8()):
+                if top_precedence < current_precedence or (top_precedence == current_precedence and character == 94.u8()):
                     break
                 operator_count <- operator_count - 1
-                if not shunting_yard_apply(numbers[0:MAX_OPERANDS], number_count&, top): return INVALID_RESULT
+                if not shunting_yard_apply(numbers[0:MAX_OPERANDS], number_count, top): return INVALID_RESULT
             if operator_count >= MAX_OPERATORS: return INVALID_RESULT
             operators[operator_count] <- character
             operator_count <- operator_count + 1
@@ -124,6 +123,8 @@ export fn shunting_yard(input: i64&, length: usize) -> f64:
         return INVALID_RESULT
     while operator_count > 0:
         operator_count <- operator_count - 1
-        if not shunting_yard_apply(numbers[0:MAX_OPERANDS], number_count&, operators[operator_count]): return INVALID_RESULT
+        if not shunting_yard_apply(numbers[0:MAX_OPERANDS], number_count, operators[operator_count]): return INVALID_RESULT
     if number_count != 1: return INVALID_RESULT
     numbers[0]
+
+export fn shunting_yard(input: i64&, length: usize) -> f64 = shunting_yard_impl
