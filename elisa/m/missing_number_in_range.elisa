@@ -1,45 +1,42 @@
-# XOR a consecutive signed 32-bit range using portable 32-bit bit patterns.
+# XOR a consecutive signed 32-bit range using portable zero-extended bit patterns.
+const MAX_VALUES: usize = 1024
+const INVALID_RESULT: i64 = -2147483649
+
 def encode_i32(value: i64) -> u64:
-    value.u64() & 0xffffffff
+    (value + 4294967296).u64() if value < 0 else value.u64()
 
 def missing_number_in_range_impl(values: i64&, length: usize) -> i64:
-    if length < 2 or length > 1024:
-        return -2147483649
+    if values == null or length < 2 or length > MAX_VALUES:
+        return INVALID_RESULT
     low: mutable i64 = values[0]
     high: mutable i64 = values[0]
-    index: mutable usize = 0
-    while index < length:
-        value: i64 = values[index]
-        if value < -2147483648 or value > 2147483647:
-            return -2147483649
-        if value < low:
-            low <- value
-        if value > high:
-            high <- value
-        index <- index + 1
-    # Modular subtraction gives the exact nonnegative distance between the validated endpoints.
-    low_bits: u64 = low.u64()
-    if high.u64() - low_bits != length.u64():
-        return -2147483649
+    i: mutable usize = 0
+    while i < length:
+        if values[i] < -2147483648 or values[i] > 2147483647:
+            return INVALID_RESULT
+        if values[i] < low:
+            low <- values[i]
+        if values[i] > high:
+            high <- values[i]
+        i <- i + 1
+    if high - low != length.i64():
+        return INVALID_RESULT
     seen: mutable bool[1025] = zeroed
     actual: mutable u64 = 0
-    index <- 0
-    while index < length:
-        value: i64 = values[index]
-        slot: usize = (value.u64() - low_bits).usize()
+    i <- 0
+    while i < length:
+        slot: usize = (values[i] - low).usize()
         if seen[slot]:
-            return -2147483649
+            return INVALID_RESULT
         seen[slot] <- true
-        actual <- actual ^ encode_i32(value)
-        index <- index + 1
+        actual <- actual ^ encode_i32(values[i])
+        i <- i + 1
     expected: mutable u64 = 0
-    index <- 0
-    while index <= length:
-        expected <- expected ^ ((low_bits + index.u64()) & 0xffffffff)
-        index <- index + 1
-    result: mutable i64 = (expected ^ actual).i64()
-    if result > 2147483647:
-        result <- result - 4294967296
-    result
+    value: mutable i64 = low
+    while value <= high:
+        expected <- expected ^ encode_i32(value)
+        value <- value + 1
+    result: u64 = expected ^ actual
+    result.i64() if result <= 2147483647 else result.i64() - 4294967296
 
 export fn missing_number_in_range(values: i64&, length: usize) -> i64 = missing_number_in_range_impl
