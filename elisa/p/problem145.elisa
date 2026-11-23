@@ -1,4 +1,4 @@
-def count_reversible(remaining: i64, carry_in: i64, digits: mutable i64[9], length: i64) -> i64:
+def count_reversible(remaining: i64, carry_in: i64, digits: mutable i64[9]&, length: i64) -> i64:
     if remaining == 0:
         if digits[0] == 0 or digits[(length - 1).usize()] == 0: return 0
         carry: mutable i64 = carry_in
@@ -41,7 +41,7 @@ def problem145_impl(max_power: i64) -> i64:
     length: mutable i64 = 1
     while length <= max_power:
         if (length - 1) % 4 != 0:
-            total <- total + count_reversible(length, 0, digits, length)
+            total <- total + count_reversible(length, 0, &digits, length)
         length <- length + 1
     total
 

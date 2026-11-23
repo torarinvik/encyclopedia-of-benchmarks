@@ -42,7 +42,7 @@ def graph_edge_bit_index(n: usize, u_input: usize, v_input: usize) -> usize:
         first <- first + 1
     index + v - u - 1
 
-def graph_component_count(n: usize, present: mutable bool[64]) -> usize:
+def graph_component_count(n: usize, present: mutable bool[64]&) -> usize:
     seen: mutable bool[8] = zeroed
     count: mutable usize = 0
     root: mutable usize = 0
@@ -66,7 +66,7 @@ def graph_component_count(n: usize, present: mutable bool[64]) -> usize:
         root <- root + 1
     count
 
-def graph_prim_forest(n: usize, present: mutable bool[64], weights: mutable i64[64],
+def graph_prim_forest(n: usize, present: mutable bool[64]&, weights: mutable i64[64]&,
                       component_total: mutable usize&, edge_mask: mutable u64&) -> void:
     edge: mutable usize = zeroed
     in_forest: mutable bool[8] = zeroed
@@ -112,14 +112,14 @@ def graph_prim_forest(n: usize, present: mutable bool[64], weights: mutable i64[
                     neighbor <- neighbor + 1
         root <- root + 1
 
-def graph_find_root(parent: mutable usize[8], node_input: usize) -> usize:
+def graph_find_root(parent: mutable usize[8]&, node_input: usize) -> usize:
     node: mutable usize = node_input
     while parent[node] != node:
         parent[node] <- parent[parent[node]]
         node <- parent[node]
     node
 
-def graph_kruskal_forest(n: usize, present: mutable bool[64], weights: mutable i64[64],
+def graph_kruskal_forest(n: usize, present: mutable bool[64]&, weights: mutable i64[64]&,
                          component_total: mutable usize&, edge_mask: mutable u64&) -> void:
     edge_u: mutable usize[28] = zeroed
     edge_v: mutable usize[28] = zeroed
@@ -162,8 +162,8 @@ def graph_kruskal_forest(n: usize, present: mutable bool[64], weights: mutable i
     edge_mask <- 0
     index <- 0
     while index < edge_count:
-        left: usize = graph_find_root(parent, edge_u[index])
-        right: usize = graph_find_root(parent, edge_v[index])
+        left: usize = graph_find_root(&parent, edge_u[index])
+        right: usize = graph_find_root(&parent, edge_v[index])
         if left != right:
             if rank[left] < rank[right]: parent[left] <- right
             elif rank[left] > rank[right]: parent[right] <- left
@@ -260,15 +260,15 @@ def undirected_graph_impl(input: i64&, length: usize) -> i64:
             if u_value != 0 or v_value != 0 or weight != 0: return -1
             hash <- graph_hash_byte(hash, opcode.u64())
             hash <- graph_hash_byte(hash, result_code)
-            hash <- graph_hash_byte(hash, graph_component_count(n, present).u64())
+            hash <- graph_hash_byte(hash, graph_component_count(n, &present).u64())
             operation <- operation + 1
             continue
         elif opcode == 4 or opcode == 5 or opcode == 6:
             if u_value != 0 or v_value != 0 or weight != 0: return -1
             components: mutable usize = 0
             mask: mutable u64 = 0
-            if opcode == 5: graph_kruskal_forest(n, present, weights, components, mask)
-            else: graph_prim_forest(n, present, weights, components, mask)
+            if opcode == 5: graph_kruskal_forest(n, &present, &weights, components, mask)
+            else: graph_prim_forest(n, &present, &weights, components, mask)
             hash <- graph_hash_byte(hash, opcode.u64())
             hash <- graph_hash_byte(hash, result_code)
             hash <- graph_hash_byte(hash, components.u64())

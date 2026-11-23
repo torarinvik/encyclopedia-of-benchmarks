@@ -81,7 +81,7 @@ def proof_of_work_hash(input: view[i64], length: usize, output: mutable view[u8]
             output[word * 4 + byte] <- ((state[word] >> (24 - 8 * byte)) & 255).u8()
     32
 
-def append_decimal(out: mutable i64[151], initial: usize, initial_value: u64) -> usize:
+def append_decimal(out: mutable i64[151]&, initial: usize, initial_value: u64) -> usize:
     value: mutable u64 = initial_value
     digits: mutable u8[20] = zeroed
     count: mutable usize = 0
@@ -100,7 +100,7 @@ def append_decimal(out: mutable i64[151], initial: usize, initial_value: u64) ->
 def zero_prefix(digest: view[u8], difficulty: i64) -> bool:
     for index in 0..<difficulty.usize():
         byte: u8 = digest[index / 2]
-        nibble: u8 = if index % 2 == 0 then byte >> 4 else byte & 15
+        nibble: u8 = byte >> 4 if index % 2 == 0 else byte & 15
         if nibble != 0: return false
     true
 
@@ -122,14 +122,19 @@ def simple_proof_of_work_impl(input: i64&, length: usize, output: mutable u8&, c
     nonce: mutable u64 = 0
     while nonce <= max_nonce.u64():
         message: mutable i64[151] = zeroed
-        n: mutable usize = append_decimal(message, 0, block.u64())
-        for i in 0..<tl.usize(): message[n] <- input[5 + i]; n <- n + 1
-        for i in 0..<pl.usize(): message[n] <- input[5 + tl.usize() + i]; n <- n + 1
-        n <- append_decimal(message, n, nonce)
+        n: mutable usize = append_decimal(&message, 0, block.u64())
+        for i in 0..<tl.usize():
+            message[n] <- input[5 + i]
+            n <- n + 1
+        for i in 0..<pl.usize():
+            message[n] <- input[5 + tl.usize() + i]
+            n <- n + 1
+        n <- append_decimal(&message, n, nonce)
         digest: mutable u8[32] = zeroed
         if proof_of_work_hash(message[0:n], n, digest[0:32], 32) != 32: return -1
         if zero_prefix(digest[0:32], difficulty):
-            for i in 0..<8: output[i] <- ((nonce >> (8 * i)) & 255).u8()
+            for i in 0..<8:
+                output[i] <- ((nonce >> (8 * i)) & 255).u8()
             for i in 0..<32:
                 output[8 + 2 * i] <- hex[(digest[i] >> 4).usize()]
                 output[9 + 2 * i] <- hex[(digest[i] & 15).usize()]
