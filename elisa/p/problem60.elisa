@@ -34,7 +34,7 @@ def problem60_pair_works(primes: view[i64], cache: mutable view[u8], left_index:
     right: i64 = primes[right_index]
     result: bool = problem60_is_prime(problem60_concatenate(left, right)) and
                    problem60_is_prime(problem60_concatenate(right, left))
-    state: u8 = if result then 2 else 1
+    state: u8 = 2 if result else 1
     cache[key] <- state
     cache[reverse_key] <- state
     result

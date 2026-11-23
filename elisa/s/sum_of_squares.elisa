@@ -31,4 +31,4 @@ def sum_of_squares_impl(value: i64) -> i64:
         return 4
     3
 
-export fn sum_of_squares(value: i64) -> i64 = sum_of_squares_impl(value)
+export fn sum_of_squares(value: i64) -> i64 = sum_of_squares_impl

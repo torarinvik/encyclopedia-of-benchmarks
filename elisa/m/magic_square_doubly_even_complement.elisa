@@ -31,4 +31,4 @@ def magic_square_doubly_even_complement_impl(n: i64) -> i64:
             hash <- magic_square_doubly_even_hash_i32(hash, value.i32())
     (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
 
-export fn magic_square_doubly_even_complement(n: i64) i64 = magic_square_doubly_even_complement_impl
+export fn magic_square_doubly_even_complement(n: i64) -> i64 = magic_square_doubly_even_complement_impl

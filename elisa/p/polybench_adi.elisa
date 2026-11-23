@@ -3,7 +3,7 @@ const MAX_CELLS: usize = 1024
 const MAX_TSTEPS: i64 = 20
 extern memcpy(destination: mutable u64&, source: f64&, length: usize) -> mutable u64&
 
-def polybench_adi_write_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
+def polybench_adi_write_f64(output: mutable u8&, offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     byte: mutable usize = 0
@@ -12,14 +12,13 @@ def polybench_adi_write_f64(output: mutable view[u8], offset: usize, value: f64)
         byte <- byte + 1
 
 def polybench_adi_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length != 2 or input[0] < 1 or input[0] > MAX_DIMENSION.i64() or
-       input[1] < 1 or input[1] > MAX_TSTEPS:
+    if input == null or length != 2 or input[0] < 1 or input[0] > MAX_DIMENSION.i64() or input[1] < 1 or input[1] > MAX_TSTEPS:
         return -1
     n: usize = input[0].usize()
     tsteps: usize = input[1].usize()
     cells: usize = n * n
     output_bytes: usize = cells * 8
-    if output.is_null() or output_capacity < output_bytes:
+    if output == null or output_capacity < output_bytes:
         return -2
 
     u: mutable f64[MAX_CELLS] = zeroed
@@ -59,8 +58,7 @@ def polybench_adi_impl(input: i64&, length: usize, output: mutable u8&, output_c
             while j < n - 1:
                 p[i * n + j] <- -c / (a * p[i * n + j - 1] + b)
                 q[i * n + j] <- (-d * u[j * n + i - 1] + (1.0 + 2.0 * d) * u[j * n + i]
-                                 - f * u[j * n + i + 1] - a * q[i * n + j - 1]) /
-                                (a * p[i * n + j - 1] + b)
+                                 - f * u[j * n + i + 1] - a * q[i * n + j - 1]) / (a * p[i * n + j - 1] + b)
                 j <- j + 1
             v[(n - 1) * n + i] <- 1.0
             j <- n - 1
@@ -77,8 +75,7 @@ def polybench_adi_impl(input: i64&, length: usize, output: mutable u8&, output_c
             while j < n - 1:
                 p[i * n + j] <- -f / (d * p[i * n + j - 1] + e)
                 q[i * n + j] <- (-a * v[(i - 1) * n + j] + (1.0 + 2.0 * a) * v[i * n + j]
-                                 - c * v[(i + 1) * n + j] - d * q[i * n + j - 1]) /
-                                (d * p[i * n + j - 1] + e)
+                                 - c * v[(i + 1) * n + j] - d * q[i * n + j - 1]) / (d * p[i * n + j - 1] + e)
                 j <- j + 1
             u[i * n + n - 1] <- 1.0
             j <- n - 1
@@ -90,7 +87,7 @@ def polybench_adi_impl(input: i64&, length: usize, output: mutable u8&, output_c
 
     index: mutable usize = 0
     while index < cells:
-        polybench_adi_write_f64(output[0:output_capacity], index * 8, u[index])
+        polybench_adi_write_f64(output, index * 8, u[index])
         index <- index + 1
     output_bytes.i64()
 

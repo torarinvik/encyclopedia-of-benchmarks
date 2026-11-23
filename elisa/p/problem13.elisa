@@ -151,4 +151,4 @@ def problem13_impl(ignored: i64) -> i64:
         index <- index + 1
     result
 
-export fn problem13(ignored: i64) -> i64 = problem13_impl(ignored)
+export fn problem13(ignored: i64) -> i64 = problem13_impl

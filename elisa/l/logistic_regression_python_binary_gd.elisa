@@ -8,7 +8,7 @@ def put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
 
 def logistic_regression_python_binary_gd_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 4: return -1
+    if input == null or length < 4: return -1
     m_value: i64 = input[0]
     d_value: i64 = input[1]
     epochs_value: i64 = input[2]
@@ -25,7 +25,7 @@ def logistic_regression_python_binary_gd_impl(input: i64&, length: usize, output
         label: i64 = input[labels_offset + sample]
         if label != 0 and label != 1: return -1
     required: usize = d * 8
-    if output.is_null() or capacity < required: return -2
+    if output == null or capacity < required: return -2
 
     theta: mutable f64[8] = zeroed
     next_theta: mutable f64[8] = zeroed
@@ -46,8 +46,10 @@ def logistic_regression_python_binary_gd_impl(input: i64&, length: usize, output
                 gradient <- gradient + x * errors[sample]
             gradient <- gradient / m.f64()
             next_theta[feature] <- theta[feature] - alpha * gradient
-        for feature in 0..<d: theta[feature] <- next_theta[feature]
-    for feature in 0..<d: put_f64(output, feature * 8, theta[feature])
+        for feature in 0..<d:
+            theta[feature] <- next_theta[feature]
+    for feature in 0..<d:
+        put_f64(output, feature * 8, theta[feature])
     required.i64()
 
 export fn logistic_regression_python_binary_gd(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = logistic_regression_python_binary_gd_impl

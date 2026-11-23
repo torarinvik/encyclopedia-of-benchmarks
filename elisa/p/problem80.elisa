@@ -44,7 +44,7 @@ def problem80_impl(placeholder: i64) -> i64:
         trial_view: mutable view[i64] = trial[0:16]
         digit_sum: mutable i64 = 0
         for step in 0..<100:
-            mul_add(remainder_view, 100, if step == 0 then number else 0, remainder_view)
+            mul_add(remainder_view, 100, (number if step == 0 else 0), remainder_view)
             digit: mutable i64 = 9
             while digit >= 0:
                 mul_add(root_view, 20, digit, scaled_view)

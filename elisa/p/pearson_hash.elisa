@@ -9,8 +9,8 @@ def pearson_hash_impl(input: i64&, length: usize) -> i64:
     if declared < 0 or declared > 64 or length != 257 + declared.usize():
         return -1
 
-    table: mutable [u8; 256] = [0; 256]
-    used: mutable [bool; 256] = [false; 256]
+    table: mutable u8[256] = zeroed
+    used: mutable bool[256] = zeroed
     for slot in 0..<TABLE_SIZE:
         value: i64 = input[1 + slot]
         if value < 0 or value > 255:

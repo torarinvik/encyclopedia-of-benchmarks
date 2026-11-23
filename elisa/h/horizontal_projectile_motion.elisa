@@ -22,7 +22,7 @@ def round_cents(value: f64) -> i64:
         return -rounded.i64()
     rounded.i64()
 
-def store_f64_le(output: mutable view[u8], position: usize, value: f64) -> void:
+def store_f64_le(output: mutable u8&, position: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
@@ -31,14 +31,13 @@ def store_f64_le(output: mutable view[u8], position: usize, value: f64) -> void:
 
 def horizontal_projectile_motion_impl(values: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if values.is_null() or length != 2:
+    if values == null or length != 2:
         return -1
     velocity_milli: i64 = values[0]
     angle_millidegrees: i64 = values[1]
-    if velocity_milli < 0 or velocity_milli > 100000 or
-            angle_millidegrees < 1000 or angle_millidegrees > 90000:
+    if velocity_milli < 0 or velocity_milli > 100000 or angle_millidegrees < 1000 or angle_millidegrees > 90000:
         return -1
-    if output.is_null() or output_capacity < 24:
+    if output == null or output_capacity < 24:
         return -2
 
     velocity: f64 = velocity_milli.f64() / 1000.0
@@ -50,9 +49,9 @@ def horizontal_projectile_motion_impl(values: i64&, length: usize,
     sine_squared: f64 = angle_sine * angle_sine
     height_raw: f64 = velocity_squared * sine_squared / (2.0 * 9.80665)
     time_raw: f64 = (2.0 * velocity) * angle_sine / 9.80665
-    store_f64_le(output[0:24], 0, round_cents(distance_raw).f64() / 100.0)
-    store_f64_le(output[0:24], 8, round_cents(height_raw).f64() / 100.0)
-    store_f64_le(output[0:24], 16, round_cents(time_raw).f64() / 100.0)
+    store_f64_le(output, 0, round_cents(distance_raw).f64() / 100.0)
+    store_f64_le(output, 8, round_cents(height_raw).f64() / 100.0)
+    store_f64_le(output, 16, round_cents(time_raw).f64() / 100.0)
     24.i64()
 
 export fn horizontal_projectile_motion(values: i64&, length: usize,

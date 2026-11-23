@@ -31,4 +31,4 @@ def magic_square_impl(n: i64) -> i64:
                 hash <- (hash ^ byte.u64()) * FNV_PRIME
     (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
 
-export fn magic_square(n: i64) i64 = magic_square_impl
+export fn magic_square(n: i64) -> i64 = magic_square_impl
