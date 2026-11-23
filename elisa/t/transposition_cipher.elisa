@@ -46,7 +46,8 @@ def transposition_cipher_impl(input: i64&, length: usize, output: mutable u8&, o
             if column == columns or (column == columns - 1 and row >= final_column_rows):
                 column <- 0
                 row <- row + 1
-    for i in 0..<n: output[i] <- transformed[i]
+    for i in 0..<n:
+        output[i] <- transformed[i]
     n.i64()
 
 export fn transposition_cipher(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = transposition_cipher_impl

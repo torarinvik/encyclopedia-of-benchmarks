@@ -21,15 +21,15 @@ def reverse_bits64(value: u64) -> u64:
     ((n & 0xff00000000000000.u64()) >> 56) | ((n & 0x00ff000000000000.u64()) >> 40) | ((n & 0x0000ff0000000000.u64()) >> 24) | ((n & 0x000000ff00000000.u64()) >> 8) | ((n & 0x00000000ff000000.u64()) << 8) | ((n & 0x0000000000ff0000.u64()) << 24) | ((n & 0x000000000000ff00.u64()) << 40) | ((n & 0x00000000000000ff.u64()) << 56)
 
 def revert_bits_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length != 2 or input[0] < 0 or input[0].u64() > 4294967295.u64():
+    if input == null or length != 2 or input[0] < 0 or input[0].u64() > 4294967295.u64():
         return -1
-    if output.is_null() or capacity < OUTPUT_BYTES:
+    if output == null or capacity < OUTPUT_BYTES:
         return -2
     reversed32: u32 = reverse_bits32(input[0].u32())
     reversed64: u64 = reverse_bits64(input[1].u64())
-    for byte in 0..4:
+    for byte in 0..<4:
         output[byte] <- ((reversed32 >> (8 * byte)) & 255.u32()).u8()
-    for byte in 0..8:
+    for byte in 0..<8:
         output[4 + byte] <- ((reversed64 >> (8 * byte)) & 255.u64()).u8()
     OUTPUT_BYTES.i64()
 

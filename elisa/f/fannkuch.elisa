@@ -6,9 +6,9 @@ def fannkuch_impl(values: i64&, length: usize) -> i64:
     if n64 < 1 or n64 > 8:
         return -1
     n: usize = n64.usize()
-    perm: mutable [8]i64 = [0; 8]
-    perm1: mutable [8]i64 = [0; 8]
-    count: mutable [8]i64 = [0; 8]
+    perm: mutable i64[8] = zeroed
+    perm1: mutable i64[8] = zeroed
+    count: mutable i64[8] = zeroed
     for i in 0..<n:
         perm1[i] <- i.i64()
     r: mutable usize = n

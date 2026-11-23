@@ -12,7 +12,8 @@ def conway_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize
     index <- 0
     while index < n.usize():
         end: mutable usize = index + 1
-        while end < n.usize() and (input[end] == input[end + 1] or input[end] == 10 or input[end] == 13): end <- end + 1
+        while end < n.usize() and (input[end] == input[end + 1] or input[end] == 10 or input[end] == 13):
+            end <- end + 1
         run: mutable usize = end - index
         needed <- needed + 1
         while run >= 10:
@@ -24,7 +25,8 @@ def conway_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize
     index <- 0
     while index < n.usize():
         end: mutable usize = index + 1
-        while end < n.usize() and (input[end] == input[end + 1] or input[end] == 10 or input[end] == 13): end <- end + 1
+        while end < n.usize() and (input[end] == input[end + 1] or input[end] == 10 or input[end] == 13):
+            end <- end + 1
         run: mutable usize = end - index
         start: usize = pos
         while true:

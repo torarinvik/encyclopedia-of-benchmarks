@@ -1,5 +1,5 @@
-export fn pattern_matching(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > 130 or input[0] < 0 or input[0] > 64.i64(): return -1
+def pattern_matching_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > 130 or input[0] < 0 or input[0] > 64.i64(): return -1
     text_size: usize = input[0].usize()
     p_offset: usize = text_size + 1
     if length < p_offset + 1 or input[p_offset] < 1 or input[p_offset] > 64.i64(): return -1
@@ -16,8 +16,10 @@ export fn pattern_matching(input: i64&, length: usize) -> i64:
     start: mutable usize = 0
     while start <= text_size - pattern_size:
         j: mutable usize = 0
-        while j < pattern_size and input[start + j + 1] == input[p_offset + j + 1]: j <- j + 1
+        while j < pattern_size and input[start + j + 1] == input[p_offset + j + 1]:
+            j <- j + 1
         if j == pattern_size: return start.i64()
         start <- start + 1
     return -1
 
+export fn pattern_matching(input: i64&, length: usize) -> i64 = pattern_matching_impl

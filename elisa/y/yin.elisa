@@ -39,9 +39,11 @@ def yin_impl(input: i64&, length: usize) -> f64:
         lag <- lag + 1
     threshold_float: f64 = threshold.f64() / 1000000.0
     lag <- min_lag
-    while lag <= max_lag and not (cmndf[lag] < threshold_float): lag <- lag + 1
+    while lag <= max_lag and not (cmndf[lag] < threshold_float):
+        lag <- lag + 1
     if lag > max_lag: return -1.0e300
-    while lag < max_lag and cmndf[lag + 1] < cmndf[lag]: lag <- lag + 1
+    while lag < max_lag and cmndf[lag + 1] < cmndf[lag]:
+        lag <- lag + 1
     left: mutable usize = lag
     if lag > 1: left <- lag - 1
     right: mutable usize = lag

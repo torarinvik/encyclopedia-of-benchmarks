@@ -4,8 +4,8 @@ def neville_impl(values: i64&, length: usize) -> f64:
     count: i64 = values[0]
     target_i: i64 = values[1]
     if count < 1 or count > 16 or length != (2 * count + 2).usize() or target_i < -1000000 or target_i > 1000000: return invalid
-    x: mutable [16]f64 = [0.0; 16]
-    p: mutable [16]f64 = [0.0; 16]
+    x: mutable f64[16] = zeroed
+    p: mutable f64[16] = zeroed
     i: mutable usize = 0
     while i < count.usize():
         xi: i64 = values[2 + 2 * i]

@@ -35,7 +35,7 @@ def doomsday_impl(values: i64&, length: usize) -> i64:
         days_in_month <- 28
         if leap:
             days_in_month <- 29
-    else if month == 4 or month == 6 or month == 9 or month == 11:
+    elif month == 4 or month == 6 or month == 9 or month == 11:
         days_in_month <- 30
     if day < 1 or day > days_in_month:
         return -1

@@ -60,7 +60,8 @@ def tic_tac_toe_search(board: view[i64], side: i64) -> i64:
     while true:
         offset: usize = depth * 9
         cursor: mutable usize = cursors[depth]
-        while cursor < 9 and boards[offset + cursor] != 0: cursor <- cursor + 1
+        while cursor < 9 and boards[offset + cursor] != 0:
+            cursor <- cursor + 1
         cursors[depth] <- cursor + 1
         if cursor >= 9:
             result: i64 = best_scores[depth] * 512 + best_masks[depth]

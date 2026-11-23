@@ -66,30 +66,30 @@ def prolangs_c_assembler_impl(input: i64&, length: usize) -> i64:
         if opcode[i] == 0:
             if i != 0: return -1
             size[i] <- 0
-        else if opcode[i] == 1:
+        elif opcode[i] == 1:
             if i != count - 1: return -1
             size[i] <- 0
-        else if opcode[i] == 2:
+        elif opcode[i] == 2:
             if kind[i] != 0 or operand[i] > 256: return -1
             size[i] <- operand[i]
-        else if opcode[i] == 3:
+        elif opcode[i] == 3:
             if kind[i] != 0 or operand[i] > 256: return -1
             size[i] <- operand[i] * 3
-        else if opcode[i] == 4:
+        elif opcode[i] == 4:
             if kind[i] != 0: return -1
             size[i] <- 3
-        else if opcode[i] >= 5 and opcode[i] <= 8:
+        elif opcode[i] >= 5 and opcode[i] <= 8:
             if not ((kind[i] == 1 and operand[i] <= 4095) or
                 ((kind[i] == 2 or kind[i] == 3) and operand[i] >= 1 and operand[i] <= 16)):
                 return -1
             size[i] <- 3
-        else if opcode[i] == 9:
+        elif opcode[i] == 9:
             if kind[i] != 0 or operand[i] != 0: return -1
             size[i] <- 3
-        else if opcode[i] == 10:
+        elif opcode[i] == 10:
             if kind[i] != 4 or operand[i] > 5: return -1
             size[i] <- 2
-        else if opcode[i] == 11:
+        elif opcode[i] == 11:
             if kind[i] != 5 or (operand[i] >> 4) > 5 or (operand[i] & 15) > 5: return -1
             size[i] <- 2
         else:
@@ -103,14 +103,14 @@ def prolangs_c_assembler_impl(input: i64&, length: usize) -> i64:
     while i + 1 < count:
         if opcode[i] == 4:
             code[i] <- operand[i]
-        else if opcode[i] >= 5 and opcode[i] <= 8:
+        elif opcode[i] >= 5 and opcode[i] <= 8:
             base: mutable i64 = 0x3C
             if opcode[i] == 5: base <- 0
-            else if opcode[i] == 6: base <- 0x0C
-            else if opcode[i] == 7: base <- 0x18
+            elif opcode[i] == 6: base <- 0x0C
+            elif opcode[i] == 7: base <- 0x18
             ni: mutable i64 = 2
             if kind[i] == 1: ni <- 1
-            else if kind[i] == 2: ni <- 3
+            elif kind[i] == 2: ni <- 3
             field: mutable i64 = operand[i]
             pc_relative: mutable i64 = 0
             if kind[i] == 2 or kind[i] == 3:
@@ -121,9 +121,9 @@ def prolangs_c_assembler_impl(input: i64&, length: usize) -> i64:
                 pc_relative <- 1
                 field <- field & 0xFFF
             code[i] <- (base | ni) * 65536 + pc_relative * 8192 + field
-        else if opcode[i] == 9: code[i] <- 0x4F0000
-        else if opcode[i] == 10: code[i] <- 0xB400 | (operand[i] << 4)
-        else if opcode[i] == 11: code[i] <- 0x9000 | operand[i]
+        elif opcode[i] == 9: code[i] <- 0x4F0000
+        elif opcode[i] == 10: code[i] <- 0xB400 | (operand[i] << 4)
+        elif opcode[i] == 11: code[i] <- 0x9000 | operand[i]
         i <- i + 1
     checksum: mutable i64 = (program_length * 257 + start_address * 17) % MODULUS
     i <- 0

@@ -25,7 +25,7 @@ def problem686_impl(number: i64) -> i64:
         difference: f64 = problem686_difference(power_iterator)
         if difference >= UPPER_LIMIT:
             power_iterator <- power_iterator + 93
-        else if difference < LOWER_LIMIT:
+        elif difference < LOWER_LIMIT:
             power_iterator <- power_iterator + 196
         else:
             previous_power <- power_iterator

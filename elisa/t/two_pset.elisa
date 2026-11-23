@@ -1,8 +1,8 @@
 # Two-replica two-phase set with additions and removal tombstones.
 const MAX_Q: usize = 256
 const MAX_INPUT: usize = 1025
-const HASH_MULTIPLIER: i64 = 1_000_003
-const HASH_MODULUS: i64 = 1_000_000_007
+const HASH_MULTIPLIER: i64 = 1000003
+const HASH_MODULUS: i64 = 1000000007
 
 def two_pset_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 1 or length > MAX_INPUT:

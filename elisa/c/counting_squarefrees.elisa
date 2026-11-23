@@ -32,7 +32,7 @@ def counting_squarefrees_impl(n: i64) -> i64:
             multiple <- prime
             while multiple <= limit:
                 if mobius[multiple] == 1: mobius[multiple] <- 2
-                else if mobius[multiple] == 2: mobius[multiple] <- 1
+                elif mobius[multiple] == 2: mobius[multiple] <- 1
                 multiple <- multiple + prime
             if prime <= limit / prime:
                 square: usize = prime * prime
@@ -47,7 +47,7 @@ def counting_squarefrees_impl(n: i64) -> i64:
     while divisor <= limit:
         quotient: i64 = n / (divisor.i64() * divisor.i64())
         if mobius[divisor] == 1: count <- count + quotient
-        else if mobius[divisor] == 2: count <- count - quotient
+        elif mobius[divisor] == 2: count <- count - quotient
         divisor <- divisor + 1
     count
 

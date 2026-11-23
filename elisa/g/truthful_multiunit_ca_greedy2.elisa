@@ -12,7 +12,7 @@ def ca_put_i64(output: mutable view[u8], offset: usize, value: i64):
         byte <- byte + 1
 
 def truthful_multiunit_ca_greedy2_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 5 or length > CA_MAX_INPUT: return -1
+    if input == null or length < 5 or length > CA_MAX_INPUT: return -1
     if input[0] < 2 or input[0] > CA_MAX_ITEMS.i64() or input[1] < 1 or input[1] > CA_MAX_BIDDERS.i64(): return -1
     items: usize = input[0].usize()
     bidders: usize = input[1].usize()
@@ -74,7 +74,7 @@ def truthful_multiunit_ca_greedy2_impl(input: i64&, length: usize, output: mutab
             e <- e + 1
         if dual >= threshold: break
     bytes: usize = 8 * (1 + count)
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     staged: mutable u8[CA_MAX_OUTPUT] = zeroed
     ca_put_i64(staged[0:bytes], 0, count.i64())
     i <- 0
@@ -82,7 +82,9 @@ def truthful_multiunit_ca_greedy2_impl(input: i64&, length: usize, output: mutab
         ca_put_i64(staged[0:bytes], 8 * (i + 1), order[i].i64())
         i <- i + 1
     i <- 0
-    while i < bytes: output[i] <- staged[i]; i <- i + 1
+    while i < bytes:
+        output[i] <- staged[i]
+        i <- i + 1
     bytes.i64()
 
 export fn truthful_multiunit_ca_greedy2(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = truthful_multiunit_ca_greedy2_impl

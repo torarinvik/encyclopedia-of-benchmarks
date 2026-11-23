@@ -17,7 +17,7 @@ def problem122_impl(maximum: i64) -> i64:
     if maximum < 0 or maximum > 200:
         return -1
     total: mutable i64 = 0
-    for goal in 2..(maximum + 1):
+    for goal in 2..<(maximum + 1):
         chain: mutable i64[32] = zeroed
         chain[0] <- 1
         depth: mutable usize = 0

@@ -48,7 +48,8 @@ def transposition_impl(input: i64&, length: usize) -> i64:
     ranks: mutable usize[MAX_KEY] = zeroed
     for index in 0..<key_length:
         first: mutable usize = 0
-        while first < key_length and sorted[first] != key[index]: first <- first + 1
+        while first < key_length and sorted[first] != key[index]:
+            first <- first + 1
         duplicate: mutable usize = 0
         for prior in 0..<index:
             if key[prior] == key[index]: duplicate <- duplicate + 1
@@ -62,7 +63,8 @@ def transposition_impl(input: i64&, length: usize) -> i64:
     if mode == 0 and text[text_length - 1] == 32: return -1
     padding: usize = key_length - (text_length % key_length)
     padded_length: usize = text_length + padding
-    for index in text_length..<padded_length: text[index] <- 32
+    for index in text_length..<padded_length:
+        text[index] <- 32
 
     result: mutable u8[MAX_PADDED] = zeroed
     result_length: mutable usize = 0
@@ -70,7 +72,8 @@ def transposition_impl(input: i64&, length: usize) -> i64:
         start: mutable usize = 0
         while start < padded_length |text, ranks, result, result_length|:
             block: mutable u8[MAX_KEY] = zeroed
-            for offset in 0..<key_length: block[ranks[offset] - 1] <- text[start + offset]
+            for offset in 0..<key_length:
+                block[ranks[offset] - 1] <- text[start + offset]
             for offset in 0..<key_length:
                 result[result_length] <- block[offset]
                 result_length <- result_length + 1

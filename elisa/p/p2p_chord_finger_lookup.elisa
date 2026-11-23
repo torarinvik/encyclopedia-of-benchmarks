@@ -9,8 +9,8 @@ def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def p2p_chord_finger_lookup(input: i64&, length: usize,
-                            output: mutable u8&, capacity: usize) -> i64 @export("p2p_chord_finger_lookup"):
+def p2p_chord_finger_lookup_impl(input: i64&, length: usize,
+                            output: mutable u8&, capacity: usize) -> i64:
     if input == null or length < 4 or length > MAX_INPUT: return -1
     if input[0] < 1 or input[0] > MAX_BITS.i64() or input[1] < 2 or input[1] > MAX_NODES.i64(): return -1
     bits: usize = input[0].usize()
@@ -33,7 +33,8 @@ def p2p_chord_finger_lookup(input: i64&, length: usize,
         while level < bits:
             target: i64 = (ids[node] + (1 << level)) % ring
             successor: mutable usize = 0
-            while successor < n and ids[successor] < target: successor <- successor + 1
+            while successor < n and ids[successor] < target:
+                successor <- successor + 1
             if successor == n: successor <- 0
             raw: i64 = input[4 + n + node * bits + level]
             if raw < 0 or raw >= n.i64() or raw.usize() != successor: return -1
@@ -42,7 +43,8 @@ def p2p_chord_finger_lookup(input: i64&, length: usize,
         node <- node + 1
     key: i64 = input[3]
     owner: mutable usize = 0
-    while owner < n and ids[owner] < key: owner <- owner + 1
+    while owner < n and ids[owner] < key:
+        owner <- owner + 1
     if owner == n: owner <- 0
     route: mutable usize[MAX_NODES] = zeroed
     route_length: mutable usize = 1
@@ -73,6 +75,10 @@ def p2p_chord_finger_lookup(input: i64&, length: usize,
     byte_count: usize = 8 * route_length
     if output == null or capacity < byte_count: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
-    for i in 0..<route_length: put_i64(staged[0:MAX_OUTPUT], 8 * i, ids[route[i]])
-    for i in 0..<byte_count: output[i] <- staged[i]
+    for i in 0..<route_length:
+        put_i64(staged[0:MAX_OUTPUT], 8 * i, ids[route[i]])
+    for i in 0..<byte_count:
+        output[i] <- staged[i]
     byte_count.i64()
+
+export fn p2p_chord_finger_lookup(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = p2p_chord_finger_lookup_impl

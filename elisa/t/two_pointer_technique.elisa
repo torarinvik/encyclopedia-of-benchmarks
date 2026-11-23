@@ -45,7 +45,8 @@ def two_pointer_technique_impl(input: i64&, length: usize) -> i64:
         if cycle_target != -1 or k < 1 or k > n: return -1
         lead: mutable i64 = 0
         lag: mutable i64 = 0
-        for _ in 0..<k.usize(): lead <- next_node(lead, n, cycle_target)
+        for _ in 0..<k.usize():
+            lead <- next_node(lead, n, cycle_target)
         while lead != -1:
             lead <- next_node(lead, n, cycle_target)
             lag <- next_node(lag, n, cycle_target)

@@ -30,7 +30,9 @@ def bankers_algorithm_impl(values: i64&, length: usize) -> i64:
             for resource in 0..<resources:
                 index: usize = process * resources + resource
                 need: i64 = values[maximum_offset + index] - values[allocation_offset + index]
-                if need > work[resource]: feasible <- false; break
+                if need > work[resource]:
+                    feasible <- false
+                    break
             if feasible:
                 for resource in 0..<resources:
                     work[resource] <- work[resource] + values[allocation_offset + process * resources + resource]

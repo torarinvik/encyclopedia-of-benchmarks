@@ -33,8 +33,12 @@ def bankers_algorithm_python_demo_impl(values: i64&, length: usize) -> i64:
             for r in 0..<m:
                 pi: usize = p * m + r
                 qi: usize = q * m + r
-                if values[moff + pi] - values[aoff + pi] != values[moff + qi] - values[aoff + qi]: equal <- false; break
-            if equal: first[p] <- first[q]; break
+                if values[moff + pi] - values[aoff + pi] != values[moff + qi] - values[aoff + qi]:
+                    equal <- false
+                    break
+            if equal:
+                first[p] <- first[q]
+                break
     count: mutable usize = n
     while count > 0:
         selected: mutable usize = count
@@ -43,12 +47,18 @@ def bankers_algorithm_python_demo_impl(values: i64&, length: usize) -> i64:
             feasible: mutable bool = true
             for r in 0..<m:
                 j: usize = p * m + r
-                if values[moff + j] - values[aoff + j] > work[r]: feasible <- false; break
-            if feasible: selected <- i; break
+                if values[moff + j] - values[aoff + j] > work[r]:
+                    feasible <- false
+                    break
+            if feasible:
+                selected <- i
+                break
         if selected == count: return 0
         mapped: usize = first[remaining[selected]]
-        for r in 0..<m: work[r] <- work[r] + values[aoff + mapped * m + r]
-        for i in selected + 1..<count: remaining[i - 1] <- remaining[i]
+        for r in 0..<m:
+            work[r] <- work[r] + values[aoff + mapped * m + r]
+        for i in selected + 1..<count:
+            remaining[i - 1] <- remaining[i]
         count <- count - 1
     1
 

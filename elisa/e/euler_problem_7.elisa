@@ -1,7 +1,7 @@
-const SIEVE_LIMIT: usize = 1_000_000
+const SIEVE_LIMIT: usize = 1000000
 const MAX_VALID_INPUT_LENGTH: usize = 1
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 2
-const MAX_ORDINAL: i64 = 10_001
+const MAX_ORDINAL: i64 = 10001
 
 def euler_problem_7_impl(input: i64&, length: usize) -> i64:
     if input == null or length < MAX_VALID_INPUT_LENGTH or length > MAX_PARSEABLE_INPUT_LENGTH:

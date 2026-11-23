@@ -50,7 +50,7 @@ def soundex_encoder_impl(input: i64&, length: usize, output: mutable u8&, output
         append_digit: mutable bool = false
         if mapped_count == 0:
             append_digit <- true
-        else if mapped[mapped_count - 1] != digit:
+        elif mapped[mapped_count - 1] != digit:
             append_digit <- true
         if append_digit:
             mapped[mapped_count] <- digit

@@ -3,12 +3,14 @@ const MAX_EPOCH: i64 = 15
 const MAX_ADDRESS: i64 = 255
 
 def analyzer_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > 194: return -1
+    if input == null or length < 1 or length > 194: return -1
     count_value:i64=input[0]
     if count_value < 0 or count_value > MAX_EVENTS.i64(): return -1
     count:usize=count_value.usize()
     if length != 1 + 3 * count: return -1
-    latest_writer: mutable [256]i64 = [-1; 256]
+    latest_writer: mutable i64[256] = zeroed
+    for latest_writer_index in 0..<256:
+        latest_writer[latest_writer_index] <- -1
     conflicts:mutable i64=0
     previous_epoch:mutable i64=0
     for event in 0..<count:

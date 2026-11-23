@@ -4,12 +4,12 @@ def problem109_impl(limit: i64) -> i64:
     doubles: mutable i64[21] = zeroed
     value_count: mutable usize = 0
     double_count: mutable usize = 0
-    for score in 1..21:
+    for score in 1..<21:
         values[value_count] <- score.i64()
         value_count <- value_count + 1
     values[value_count] <- 25
     value_count <- value_count + 1
-    for score in 1..21:
+    for score in 1..<21:
         doubles[double_count] <- (2 * score).i64()
         values[value_count] <- (2 * score).i64()
         double_count <- double_count + 1
@@ -18,7 +18,7 @@ def problem109_impl(limit: i64) -> i64:
     values[value_count] <- 50
     double_count <- double_count + 1
     value_count <- value_count + 1
-    for score in 1..21:
+    for score in 1..<21:
         values[value_count] <- (3 * score).i64()
         value_count <- value_count + 1
     values[value_count] <- 0

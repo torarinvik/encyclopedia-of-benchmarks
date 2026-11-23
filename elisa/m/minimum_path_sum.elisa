@@ -20,11 +20,11 @@ def minimum_path_sum_impl(values: i64&, length: usize) -> i64:
                 return -9223372036854775807 - 1
             if row == 0 and column == 0:
                 costs[column] <- cell
-            else if row == 0:
+            elif row == 0:
                 costs[column] <- costs[column - 1] + cell
-            else if column == 0:
+            elif column == 0:
                 costs[column] <- costs[column] + cell
-            else if costs[column - 1] < costs[column]:
+            elif costs[column - 1] < costs[column]:
                 costs[column] <- costs[column - 1] + cell
             else:
                 costs[column] <- costs[column] + cell

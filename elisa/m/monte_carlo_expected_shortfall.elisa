@@ -11,9 +11,9 @@ const MAX_PARSEABLE_INPUT_LENGTH: usize = 198
 def finite_value(value: f64) -> bool:
     value == value and value >= -1.7976931348623157e308 and value <= 1.7976931348623157e308
 
-export fn monte_carlo_expected_shortfall(input: f64&, input_length: usize,
+def monte_carlo_expected_shortfall_impl(input: f64&, input_length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 45 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input == null or input_length < 45 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
     index: mutable usize = 0
     while index < input_length:
         if not finite_value(input[index]): return -1
@@ -33,8 +33,8 @@ export fn monte_carlo_expected_shortfall(input: f64&, input_length: usize,
     if simulation_value != simulation_count.f64() or return_count_value != return_count.f64(): return -1
     if input_length != 5 + return_count + simulation_count or input_length > MAX_VALID_INPUT_LENGTH: return -1
 
-    returns: mutable [64]f64 = zeroed
-    simulated: mutable [128]f64 = zeroed
+    returns: mutable f64[64] = zeroed
+    simulated: mutable f64[128] = zeroed
     sum: mutable f64 = 0.0
     index <- 0
     while index < return_count:
@@ -83,6 +83,8 @@ export fn monte_carlo_expected_shortfall(input: f64&, input_length: usize,
         index <- index + 1
     metric: f64 = -(tail_sum / tail_count.f64()) * portfolio * sqrt(horizon)
     if not finite_value(metric): return -1
-    if output.is_null() or output_capacity < 1: return -2
+    if output == null or output_capacity < 1: return -2
     output[0] <- metric
     return 1
+
+export fn monte_carlo_expected_shortfall(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = monte_carlo_expected_shortfall_impl

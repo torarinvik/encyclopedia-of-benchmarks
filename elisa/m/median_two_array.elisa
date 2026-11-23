@@ -1,11 +1,11 @@
 # Median of two sorted integer arrays
-export fn median_two_array(a: i64&, length: usize) -> f64:
+def median_two_array_impl(a: i64&, length: usize) -> f64:
     bad: f64 = -1.0e300
-    if a.is_null(): return bad
+    if a == null: return bad
     if length < 2 or length > 259 or a[0] < 0 or a[1] < 0 or a[0] + a[1] < 1 or a[0] + a[1] > 256 or length != (a[0] + a[1]).usize() + 2: return bad
     n: usize = (a[0] + a[1]).usize()
     n1: usize = a[0].usize()
-    vals: mutable [256]i64 = [0;256]
+    vals: mutable i64[256] = zeroed
     i: mutable usize = 0
     while i < n:
         vals[i] <- a[i + 2]
@@ -25,3 +25,5 @@ export fn median_two_array(a: i64&, length: usize) -> f64:
     m: usize = n / 2
     if n % 2 == 1: vals[m].f64()
     else: (vals[m - 1].f64() + vals[m].f64()) / 2.0
+
+export fn median_two_array(a: i64&, length: usize) -> f64 = median_two_array_impl

@@ -1,7 +1,7 @@
-const LCN_MAX_VALUE: i64 = 1_000_000
+const LCN_MAX_VALUE: i64 = 1000000
 
 def lcn_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 1: return -1
+    if input == null or length != 1: return -1
     value: i64 = input[0]
     if value < 1 or value > LCN_MAX_VALUE: return -1
 

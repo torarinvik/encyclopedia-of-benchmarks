@@ -15,7 +15,7 @@ def gauss_easter_impl(year: i64) -> i64:
     if add_q == 116 and sunday_q == 24:
         month <- 4
         day <- 19
-    else if add_q == 112 and sunday_q == 24:
+    elif add_q == 112 and sunday_q == 24:
         month <- 4
         day <- 18
     else:

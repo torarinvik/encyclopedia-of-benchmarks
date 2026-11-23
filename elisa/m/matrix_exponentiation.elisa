@@ -1,7 +1,7 @@
 const MAX_ORDER: usize = 8
 const MAX_INPUT_WORDS: usize = 18
-const MOD: i64 = 1_000_000_007
-const MAX_N: i64 = 1_000_000_000_000
+const MOD: i64 = 1000000007
+const MAX_N: i64 = 1000000000000
 
 def matrix_multiply(left: i64[64], right: i64[64], order: usize) -> i64[64]:
     result: mutable i64[64] = zeroed
@@ -25,7 +25,7 @@ def matrix_power(matrix: i64[64], exponent: i64, order: usize) -> i64[64]:
     matrix_multiply(half, half, order)
 
 def matrix_exponentiation_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_WORDS: return -1
+    if input == null or length < 1 or length > MAX_INPUT_WORDS: return -1
     order_value: i64 = input[0]
     if order_value < 1 or order_value > 8 or length != (2 * order_value + 2).usize(): return -1
     order: usize = order_value.usize()

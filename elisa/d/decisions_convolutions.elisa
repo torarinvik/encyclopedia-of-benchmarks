@@ -31,7 +31,7 @@ def decisions_convolutions_impl(input: i64&, length: usize) -> i64:
             product: i64 = input[3 + m + decision * m + criterion] * input[3 + criterion]
             if method == 0:
                 score <- score + product
-            else if criterion == 0 or product < score:
+            elif criterion == 0 or product < score:
                 score <- product
             criterion <- criterion + 1
         if decision == 0 or score > best_score:

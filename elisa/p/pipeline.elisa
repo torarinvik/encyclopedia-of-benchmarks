@@ -20,7 +20,7 @@ def pipeline_impl(values: i64&, length: usize) -> i64:
             return -1
         if operation == 0:
             result <- result + argument
-        else if operation == 1:
+        elif operation == 1:
             result <- result * argument
         else:
             return -1

@@ -7,12 +7,12 @@ def rotated_binary_search_impl(input: i64&, length: usize) -> i64:
     if count == 0:
         return -1
     key: i64 = input[count + 1]
-    if key < -2_147_483_648 or key > 2_147_483_647:
+    if key < -2147483648 or key > 2147483647:
         return -2
     drops: mutable usize = 0
     index: mutable usize = 0
     while index < count:
-        if input[index + 1] < -2_147_483_648 or input[index + 1] > 2_147_483_647:
+        if input[index + 1] < -2147483648 or input[index + 1] > 2147483647:
             return -2
         if index > 0 and input[index] > input[index + 1]:
             drops <- drops + 1

@@ -1,5 +1,5 @@
 def ec_run_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if values.is_null() or length != 7: return -1
+    if values == null or length != 7: return -1
     prime: i64 = values[0]
     coefficient: i64 = values[1]
     curve_b: i64 = values[2]
@@ -16,12 +16,14 @@ def ec_run_impl(values: i64&, length: usize, output: mutable u8&, capacity: usiz
     if gx < 0 or gx >= prime or gy < 0 or gy >= prime: return -1
     if alice < 1 or alice > 1024 or bob < 1 or bob > 1024: return -1
     discriminant: mutable i64 = (4 * coefficient * coefficient * coefficient + 27 * curve_b * curve_b) % prime
-    while discriminant < 0: discriminant <- discriminant + prime
+    while discriminant < 0:
+        discriminant <- discriminant + prime
     if discriminant == 0: return -1
     on_curve: mutable i64 = (gy * gy - gx * gx * gx - coefficient * gx - curve_b) % prime
-    while on_curve < 0: on_curve <- on_curve + prime
+    while on_curve < 0:
+        on_curve <- on_curve + prime
     if on_curve != 0: return -1
-    if capacity < 48 or output.is_null(): return -2
+    if capacity < 48 or output == null: return -2
     alice_x: mutable i64 = -1
     alice_y: mutable i64 = -1
     bob_x: mutable i64 = -1
@@ -79,17 +81,21 @@ def ec_run_impl(values: i64&, length: usize, output: mutable u8&, capacity: usiz
                                 exponent <- prime - 2
                                 inverse <- 1
                                 base <- (qx - rx) % prime
-                                while base < 0: base <- base + prime
+                                while base < 0:
+                                    base <- base + prime
                                 while exponent > 0:
                                     if (exponent & 1) != 0: inverse <- (inverse * base) % prime
                                     base <- (base * base) % prime
                                     exponent <- exponent >> 1
                                 slope <- ((qy - ry) * inverse) % prime
-                            while slope < 0: slope <- slope + prime
+                            while slope < 0:
+                                slope <- slope + prime
                             nx <- (slope * slope - rx - qx) % prime
-                            while nx < 0: nx <- nx + prime
+                            while nx < 0:
+                                nx <- nx + prime
                             ny <- (slope * (rx - nx) - ry) % prime
-                            while ny < 0: ny <- ny + prime
+                            while ny < 0:
+                                ny <- ny + prime
                             rx <- nx
                             ry <- ny
             scalar <- scalar >> 1
@@ -107,11 +113,14 @@ def ec_run_impl(values: i64&, length: usize, output: mutable u8&, capacity: usiz
                             base <- (base * base) % prime
                             exponent <- exponent >> 1
                         slope <- ((3 * qx * qx + coefficient) * inverse) % prime
-                        while slope < 0: slope <- slope + prime
+                        while slope < 0:
+                            slope <- slope + prime
                         nx <- (slope * slope - 2 * qx) % prime
-                        while nx < 0: nx <- nx + prime
+                        while nx < 0:
+                            nx <- nx + prime
                         ny <- (slope * (qx - nx) - qy) % prime
-                        while ny < 0: ny <- ny + prime
+                        while ny < 0:
+                            ny <- ny + prime
                         qx <- nx
                         qy <- ny
         if stage == 0:

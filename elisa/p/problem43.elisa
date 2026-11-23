@@ -9,12 +9,13 @@ def problem43_impl(n: i64) -> i64:
     while not done:
         if digits[3] % 2 == 0 and (digits[2]+digits[3]+digits[4]) % 3 == 0 and digits[5] % 5 == 0:
             valid: mutable bool = true
-            for i in 0..4:
+            for i in 0..<4:
                 if (digits[i+4]*100+digits[i+5]*10+digits[i+6]) % divisors[i] != 0:
                     valid <- false
             if valid:
                 value: mutable i64 = 0
-                for digit in digits: value <- value*10+digit
+                for digit in digits:
+                    value <- value*10+digit
                 total <- total+value
         pivot: mutable i64 = 8
         while pivot >= 0 and digits[pivot.usize()] >= digits[(pivot+1).usize()]:
@@ -23,7 +24,8 @@ def problem43_impl(n: i64) -> i64:
             done <- true
         else:
             successor: mutable i64 = 9
-            while digits[successor.usize()] <= digits[pivot.usize()]: successor <- successor-1
+            while digits[successor.usize()] <= digits[pivot.usize()]:
+                successor <- successor-1
             temporary: mutable i64 = digits[pivot.usize()]
             digits[pivot.usize()] <- digits[successor.usize()]
             digits[successor.usize()] <- temporary

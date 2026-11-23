@@ -8,7 +8,7 @@ const OUTPUT_LIMIT: f64 = 2000000.0
 const PI: f64 = 3.14159265358979323846
 
 def vector3_axis_rotation_impl(input: f64&, input_len: usize, output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_len != 5: return -1
+    if input == null or input_len != 5: return -1
     i: mutable usize = 0
     while i < 3:
         value: f64 = input[i]
@@ -30,7 +30,7 @@ def vector3_axis_rotation_impl(input: f64&, input_len: usize, output: mutable f6
         result[0] <- x
         result[1] <- y * cosine - z * sine
         result[2] <- z * cosine + y * sine
-    else if axis == 1.0:
+    elif axis == 1.0:
         result[0] <- x * cosine - z * sine
         result[1] <- y
         result[2] <- z * cosine + x * sine
@@ -43,7 +43,7 @@ def vector3_axis_rotation_impl(input: f64&, input_len: usize, output: mutable f6
         value: f64 = result[i]
         if value != value or value < -OUTPUT_LIMIT or value > OUTPUT_LIMIT: return -1
         i <- i + 1
-    if output.is_null() or output_capacity < 3: return -2
+    if output == null or output_capacity < 3: return -2
     i <- 0
     while i < 3:
         output[i] <- result[i]

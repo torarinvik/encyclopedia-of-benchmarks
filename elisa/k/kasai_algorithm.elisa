@@ -55,7 +55,8 @@ def kasai_algorithm_impl(input: i64&, length: usize) -> i64:
         if common > 0: common <- common - 1
 
     hash: mutable u64 = kasai_algorithm_fnv_word(FNV_OFFSET_BASIS, n.i64())
-    for index in 0..<n: hash <- kasai_algorithm_fnv_word(hash, lcp[index])
+    for index in 0..<n:
+        hash <- kasai_algorithm_fnv_word(hash, lcp[index])
     (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
 
 export fn kasai_algorithm(input: i64&, length: usize) -> i64 = kasai_algorithm_impl

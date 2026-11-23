@@ -11,7 +11,8 @@ def kth_next_greater_element_impl(v: i64&, length: usize) -> i64:
         pos: mutable usize = i + 1
         ok: mutable i64 = 1
         for z in 0..<k:
-            while pos < m and v[pos + 1] <= cur: pos <- pos + 1
+            while pos < m and v[pos + 1] <= cur:
+                pos <- pos + 1
             if pos == m:
                 ok <- 0
                 break
