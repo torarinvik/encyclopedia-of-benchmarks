@@ -2,15 +2,16 @@ const MAX_TEAMS: usize = 8
 const MAX_PARSEABLE_INPUT: usize = 2
 const MAX_CELLS: usize = 64
 
-fn round_robin_tournament_schedule_impl(
+def round_robin_tournament_schedule_impl(
     input: i64&,
     length: usize,
     output: mutable u8&,
-    capacity: usize,
+    capacity: usize
 ) -> i64:
-    if input.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT: return -1
+    if input == null or length < 1 or length > MAX_PARSEABLE_INPUT: return -1
     if length != 1: return -1
-    values: view[i64] = input[0:length]
+    values_storage: darray[i64] = [input[index] for index in 0..<length]
+    values: view[i64] = values_storage[0:length]
     n_word: i64 = values[0]
     if n_word < 2 or n_word > MAX_TEAMS.i64(): return -1
 
@@ -41,13 +42,12 @@ fn round_robin_tournament_schedule_impl(
         round_index <- round_index + 1
 
     required: usize = 2 + n * rounds
-    if output.is_null() or capacity < required: return -2
-    result: mutable view[u8] = output[0:required]
-    result[0] <- n.u8()
-    result[1] <- rounds.u8()
+    if output == null or capacity < required: return -2
+    output[0] <- n.u8()
+    output[1] <- rounds.u8()
     index <- 0
-    while index < n * rounds |index, table, result, n, rounds|:
-        result[index + 2] <- table[index]
+    while index < n * rounds |index, table, output, n, rounds|:
+        output[index + 2] <- table[index]
         index <- index + 1
     return required.i64()
 
@@ -55,5 +55,5 @@ export fn round_robin_tournament_schedule(
     input: i64&,
     length: usize,
     output: mutable u8&,
-    capacity: usize,
+    capacity: usize
 ) -> i64 = round_robin_tournament_schedule_impl

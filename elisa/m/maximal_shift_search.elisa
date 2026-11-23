@@ -9,8 +9,8 @@ def maximal_shift_match_shift(pattern: view[u8], order_loc: view[i64], order_sym
     while shift < m:
         order_index: mutable i64 = prefix_length.i64() - 1
         while order_index >= 0:
-            let index: usize = order_index.usize()
-            let pattern_index: i64 = order_loc[index] - shift.i64()
+            index: usize = order_index.usize()
+            pattern_index: i64 = order_loc[index] - shift.i64()
             if pattern_index >= 0 and order_symbol[index] != pattern[pattern_index.usize()].i64():
                 break
             order_index <- order_index - 1
@@ -22,26 +22,26 @@ def maximal_shift_match_shift(pattern: view[u8], order_loc: view[i64], order_sym
 def maximal_shift_search_impl(input: view[i64], length: usize) -> i64:
     if length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    let raw_n: i64 = input[0]
-    let raw_m: i64 = input[1]
+    raw_n: i64 = input[0]
+    raw_m: i64 = input[1]
     if raw_n < 0 or raw_n > MAX_TEXT.i64() or raw_m < 1 or raw_m > MAX_PATTERN.i64():
         return -1
-    let n: usize = raw_n.usize()
-    let m: usize = raw_m.usize()
+    n: usize = raw_n.usize()
+    m: usize = raw_m.usize()
     if length != 2 + n + m:
         return -1
     text: mutable u8[MAX_TEXT] = zeroed
     pattern: mutable u8[MAX_PATTERN] = zeroed
     q: mutable usize = 0
     while q < n:
-        let value: i64 = input[2 + q]
+        value: i64 = input[2 + q]
         if value < 0 or value >= ALPHABET.i64():
             return -1
         text[q] <- value.u8()
         q <- q + 1
     q <- 0
     while q < m:
-        let value: i64 = input[2 + n + q]
+        value: i64 = input[2 + n + q]
         if value < 0 or value >= ALPHABET.i64():
             return -1
         pattern[q] <- value.u8()
@@ -62,9 +62,8 @@ def maximal_shift_search_impl(input: view[i64], length: usize) -> i64:
         leading_shift[i] <- i.i64() - previous
         position: mutable usize = i
         while position > 0:
-            let prior_loc: usize = order_loc[position - 1].usize()
-            if leading_shift[prior_loc] > leading_shift[i] or
-               (leading_shift[prior_loc] == leading_shift[i] and prior_loc > i):
+            prior_loc: usize = order_loc[position - 1].usize()
+            if leading_shift[prior_loc] > leading_shift[i] or (leading_shift[prior_loc] == leading_shift[i] and prior_loc > i):
                 break
             order_loc[position] <- order_loc[position - 1]
             position <- position - 1
@@ -76,9 +75,9 @@ def maximal_shift_search_impl(input: view[i64], length: usize) -> i64:
         i <- i + 1
     order_loc[m] <- m.i64()
     order_symbol[m] <- -1
-    let pattern_view: view[u8] = pattern[0:m]
-    let order_loc_view: view[i64] = order_loc[0:m + 1]
-    let order_symbol_view: view[i64] = order_symbol[0:m + 1]
+    pattern_view: view[u8] = pattern[0:m]
+    order_loc_view: view[i64] = order_loc[0:m + 1]
+    order_symbol_view: view[i64] = order_symbol[0:m + 1]
     i <- 0
     while i < ALPHABET:
         quick_shift[i] <- m.i64() + 1
@@ -100,7 +99,7 @@ def maximal_shift_search_impl(input: view[i64], length: usize) -> i64:
     while prefix_length <= m:
         shift <- adapted_shift[prefix_length].usize()
         while shift < m:
-            let pattern_index: i64 = order_loc[prefix_length] - shift.i64()
+            pattern_index: i64 = order_loc[prefix_length] - shift.i64()
             if pattern_index < 0 or order_symbol[prefix_length] != pattern[pattern_index.usize()].i64():
                 break
             shift <- shift + 1
@@ -121,17 +120,20 @@ def maximal_shift_search_impl(input: view[i64], length: usize) -> i64:
             count <- count + 1
             offset_sum <- offset_sum + start.i64()
             offset_xor <- offset_xor ^ start.i64()
-        let lookahead: usize = start + m
+        lookahead: usize = start + m
         if lookahead >= n:
             break
-        let good: i64 = adapted_shift[compared]
-        let bad: i64 = quick_shift[text[lookahead].usize()]
-        let advance: i64 = if good > bad then good else bad
+        good: i64 = adapted_shift[compared]
+        bad: i64 = quick_shift[text[lookahead].usize()]
+        advance: i64 = good if good > bad else bad
         start <- start + advance.usize()
     (count << 36) | (offset_sum << 12) | offset_xor
 
-export fn maximal_shift_search(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+def maximal_shift_search_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    let input_view: view[i64] = input[0:length]
+    input_view_storage: darray[i64] = [input[index] for index in 0..<length]
+    input_view: view[i64] = input_view_storage[0:length]
     maximal_shift_search_impl(input_view, length)
+
+export fn maximal_shift_search(input: i64&, length: usize) -> i64 = maximal_shift_search_entry

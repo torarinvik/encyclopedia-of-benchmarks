@@ -8,19 +8,19 @@ def end_at(input: view[i64], index: usize) -> i64:
 def weight_at(input: view[i64], index: usize) -> i64:
     input[3 + index * 3]
 
-def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
-def store_i32_le(value: i32, output: mutable view[u8], offset: usize) -> void:
+def store_i32_le(value: i32, output: mutable u8&, offset: usize) -> void:
     bits: mutable u32 = value.u32()
     for byte in 0..<4:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def weighted_interval_scheduling_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+    length: usize = input.len
     if length < 1 or length > MAX_INPUT_LENGTH or input[0] < 0 or input[0] > MAX_INTERVALS.i64():
         return -1
     n: usize = input[0].usize()
@@ -57,7 +57,7 @@ def weighted_interval_scheduling_impl(input: view[i64], output: mutable u8&, cap
                 high <- mid
         predecessors[j] <- low
         include: i64 = weight_at(data, order[j]) + dp[low]
-        dp[j + 1] <- if include > dp[j] then include else dp[j]
+        dp[j + 1] <- include if (include > dp[j]) else dp[j]
     selected_count: mutable usize = 0
     current: mutable usize = n
     while current > 0:
@@ -76,13 +76,15 @@ def weighted_interval_scheduling_impl(input: view[i64], output: mutable u8&, cap
     needed: usize = 16 + 4 * selected_count
     if output == null or capacity < needed:
         return -2
-    result: mutable view[u8] = output[0:needed]
-    store_i64_le(dp[n], result, 0)
-    store_i64_le(selected_count.i64(), result, 8)
+    store_i64_le(dp[n], output, 0)
+    store_i64_le(selected_count.i64(), output, 8)
     for i in 0..<selected_count:
-        store_i32_le(selected[i].i32(), result, 16 + 4 * i)
+        store_i32_le(selected[i].i32(), output, 16 + 4 * i)
     needed.i64()
 
-export fn weighted_interval_scheduling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+def weighted_interval_scheduling_entry(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
-    weighted_interval_scheduling_impl(input[0:length], output, capacity)
+    input_copy: darray[i64] = [input[index] for index in 0..<length]
+    weighted_interval_scheduling_impl(input_copy[0:length], output, capacity)
+
+export fn weighted_interval_scheduling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = weighted_interval_scheduling_entry

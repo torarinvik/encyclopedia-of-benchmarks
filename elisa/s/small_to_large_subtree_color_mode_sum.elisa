@@ -1,7 +1,7 @@
 const MAX_N: usize = 64
 const CELLS: usize = MAX_N * MAX_N
 
-def stlm_add_color(map: usize, color: usize, amount: i64, labels: view[i64],
+def stlm_add_color(map: mutable usize, color: usize, amount: i64, labels: view[i64],
                    frequencies: mutable view[i64], keys: mutable view[usize],
                    lengths: mutable view[usize], maximum: mutable view[i64],
                    mode_sum: mutable view[i64]) -> void:
@@ -15,11 +15,11 @@ def stlm_add_color(map: usize, color: usize, amount: i64, labels: view[i64],
     if updated > maximum[map]:
         maximum[map] <- updated
         mode_sum[map] <- labels[color]
-    else if updated == maximum[map]:
+    elif updated == maximum[map]:
         mode_sum[map] <- mode_sum[map] + labels[color]
     frequencies[cell] <- updated
 
-def stlm_put_word(output: mutable view[u8], offset: usize, value: i64) -> void:
+def stlm_put_word(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -27,10 +27,10 @@ def stlm_put_word(output: mutable view[u8], offset: usize, value: i64) -> void:
         bits <- bits >> 8
         byte <- byte + 1
 
-export fn small_to_large_subtree_color_mode_sum(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 129: return -1
-    input_view: view[i64] = input[0:length]
+def small_to_large_subtree_color_mode_sum_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 129: return -1
+    input_view_storage: darray[i64] = [input[index] for index in 0..<length]
+    input_view: view[i64] = input_view_storage[0:length]
     n_value: i64 = input_view[0]
     if n_value < 1 or n_value > 64 or length != (n_value * 2).usize(): return -1
     n: usize = n_value.usize()
@@ -69,12 +69,11 @@ export fn small_to_large_subtree_color_mode_sum(input: i64&, length: usize,
     vertex <- 0
     while vertex < n:
         index: mutable usize = 0
-        while labels[index] != input_view[n + vertex]: index <- index + 1
+        while labels[index] != input_view[n + vertex]:
+            index <- index + 1
         color_index[vertex] <- index
         vertex <- vertex + 1
-    if output.is_null() or capacity < 8 * n: return -2
-    output_view: mutable view[u8] = output[0:8 * n]
-
+    if output == null or capacity < 8 * n: return -2
     frequencies: mutable i64[CELLS] = zeroed
     keys: mutable usize[CELLS] = zeroed
     lengths: mutable usize[MAX_N] = zeroed
@@ -88,11 +87,10 @@ export fn small_to_large_subtree_color_mode_sum(input: i64&, length: usize,
         largest: mutable usize = n
         child: mutable usize = vertex + 1
         while child < n:
-            if parent[child] == vertex and
-                (largest == n or lengths[map_id[child]] > lengths[map_id[largest]]):
+            if parent[child] == vertex and (largest == n or lengths[map_id[child]] > lengths[map_id[largest]]):
                 largest <- child
             child <- child + 1
-        map: usize = vertex
+        map: mutable usize = vertex
         if largest < n: map <- map_id[largest]
         child <- vertex + 1
         while child < n:
@@ -114,6 +112,8 @@ export fn small_to_large_subtree_color_mode_sum(input: i64&, length: usize,
         answers[vertex] <- mode_sum[map]
     vertex <- 0
     while vertex < n:
-        stlm_put_word(output_view, vertex * 8, answers[vertex])
+        stlm_put_word(output, vertex * 8, answers[vertex])
         vertex <- vertex + 1
     (8 * n).i64()
+
+export fn small_to_large_subtree_color_mode_sum(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = small_to_large_subtree_color_mode_sum_impl

@@ -91,6 +91,9 @@ def diff_views_impl(a: view[i64], n: usize, root: i64, view: i64, out: mutable v
                 written <- written + 1
     return written.i64()
 
-export fn diff_views_of_binary_tree(a: i64&, n: usize, root: i64, view: i64,
-        out: mutable i64&, cap: usize) -> i64:
-    diff_views_impl(a[0:3 * n], n, root, view, out[0:cap], cap)
+def diff_views_of_binary_tree_impl(a: i64&, n: usize, root: i64, view: i64, out: mutable i64&, cap: usize) -> i64:
+    a_copy: darray[i64] = [a[index] for index in 0..<3 * n]
+    out_copy: darray[i64] = [out[index] for index in 0..<cap]
+    diff_views_impl(a_copy[0:3 * n], n, root, view, out_copy[0:cap], cap)
+
+export fn diff_views_of_binary_tree(a: i64&, n: usize, root: i64, view: i64, out: mutable i64&, cap: usize) -> i64 = diff_views_of_binary_tree_impl

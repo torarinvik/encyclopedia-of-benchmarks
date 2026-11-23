@@ -32,8 +32,7 @@ def minimum_queue_two_stacks_impl(input: view[i64], length: usize) -> i64:
             if cursor >= length: return -1
             value: i64 = input[cursor]
             cursor <- cursor + 1
-            if value < mqt_value_min or value > mqt_value_max or
-               in_count + out_count >= mqt_capacity:
+            if value < mqt_value_min or value > mqt_value_max or in_count + out_count >= mqt_capacity:
                 return -1
             in_value_view[in_count] <- value
             if in_count == 0 or value < in_minimum_view[in_count - 1]:
@@ -80,6 +79,9 @@ def minimum_queue_two_stacks_impl(input: view[i64], length: usize) -> i64:
         checksum <- checksum + position.i64() * (in_value_view[index] + mqt_offset)
     checksum
 
-export fn minimum_queue_two_stacks(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > mqt_max_input: return -1
-    minimum_queue_two_stacks_impl(input[0:length], length)
+def minimum_queue_two_stacks_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > mqt_max_input: return -1
+    input_copy: darray[i64] = [input[index] for index in 0..<length]
+    minimum_queue_two_stacks_impl(input_copy[0:length], length)
+
+export fn minimum_queue_two_stacks(input: i64&, length: usize) -> i64 = minimum_queue_two_stacks_entry
