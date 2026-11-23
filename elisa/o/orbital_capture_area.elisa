@@ -1,15 +1,25 @@
 # Circular cross-sectional area for orbital capture, rounded to whole square metres.
-@link_name("llvm.roundeven.f64")
-extern round_nonnegative(value: f64) -> f64
+@intrinsic("llvm.floor.f64")
+extern floor(value: f64) -> f64
 
-@inline(never)
-def rounded_capture_area(capture_radius: f64) -> f64:
-    area: f64 = 3.14159265358979323846 * capture_radius * capture_radius
-    return round_nonnegative(area)
+const INVALID_RESULT: f64 = -1.0e300
+
+# Round half to even for a nonnegative value.
+def round_nonnegative(value: f64) -> f64:
+    if value >= 9007199254740992.0:
+        return value
+    lower: f64 = floor(value)
+    fraction: f64 = value - lower
+    lower_half: f64 = floor(lower / 2.0)
+    odd: bool = lower - 2.0 * lower_half != 0.0
+    if fraction > 0.5 or (fraction == 0.5 and odd):
+        return lower + 1.0
+    lower
 
 def orbital_capture_area_impl(capture_radius: f64) -> f64:
     if not (capture_radius >= 0.0 and capture_radius <= 1.0e10):
-        return -1e300
-    return rounded_capture_area(capture_radius)
+        return INVALID_RESULT
+    area: f64 = 3.14159265358979323846 * capture_radius * capture_radius
+    round_nonnegative(area)
 
 export fn orbital_capture_area(capture_radius: f64) -> f64 = orbital_capture_area_impl
