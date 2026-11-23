@@ -4,7 +4,7 @@ const MAX_WORD_LENGTH: usize = 15
 def word_search_is_letter(value: i64) -> bool:
     (value >= 65 and value <= 90) or (value >= 97 and value <= 122)
 
-def word_search_visit(input: view[i64], columns: usize, rows: usize, word_start: usize,
+def word_search_visit(input: i64&, columns: usize, rows: usize, word_start: usize,
                       word_length: usize, position: usize, word_index: usize,
                       visited: mutable view[u8]) -> bool:
     if visited[position] != 0 or input[2 + position] != input[word_start + word_index]:
@@ -31,9 +31,8 @@ def word_search_visit(input: view[i64], columns: usize, rows: usize, word_start:
     visited[position] <- 0.u8()
     found
 
-def word_search_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
-    if length < 5 or input[0] < 1 or input[0] > 6 or input[1] < 1 or input[1] > 6:
+def word_search_impl(input: i64&, length: usize) -> i64:
+    if length < 5 or length > 54 or input[0] < 1 or input[0] > 6 or input[1] < 1 or input[1] > 6:
         return -1
     rows: usize = input[0].usize()
     columns: usize = input[1].usize()
@@ -68,6 +67,4 @@ def word_search_impl(input: view[i64]) -> i64:
         index <- index + 1
     0
 
-export fn word_search(input: i64&, length: usize) -> i64:
-    if input == null or length < 5 or length > 54: return -1
-    word_search_impl(input[0:length])
+export fn word_search(input: i64&, length: usize) -> i64 = word_search_impl
