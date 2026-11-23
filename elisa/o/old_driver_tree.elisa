@@ -37,8 +37,7 @@ def odt_coalesce(state: mutable view[i64]) -> void:
     count: usize = state[0].usize()
     write: mutable usize = 0
     for read in 0..<count:
-        if write > 0 and state[ODT_RUN_BASE + 3 * (write - 1) + 1] + 1 == state[ODT_RUN_BASE + 3 * read] and
-            state[ODT_RUN_BASE + 3 * (write - 1) + 2] == state[ODT_RUN_BASE + 3 * read + 2]:
+        if write > 0 and state[ODT_RUN_BASE + 3 * (write - 1) + 1] + 1 == state[ODT_RUN_BASE + 3 * read] and state[ODT_RUN_BASE + 3 * (write - 1) + 2] == state[ODT_RUN_BASE + 3 * read + 2]:
             state[ODT_RUN_BASE + 3 * (write - 1) + 1] <- state[ODT_RUN_BASE + 3 * read + 1]
         else:
             state[ODT_RUN_BASE + 3 * write] <- state[ODT_RUN_BASE + 3 * read]
@@ -58,15 +57,16 @@ def odt_modular_power(base: i64, exponent_input: i64, modulus: i64) -> i64:
         exponent <- exponent >> 1
     result
 
-def odt_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def odt_store_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-export fn old_driver_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > ODT_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
+def old_driver_tree_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > ODT_MAX_INPUT: return -1
+    input_view_storage: darray[i64] = [input[index] for index in 0..<length]
+    input_view: view[i64] = input_view_storage[0:length]
     nv: i64 = input_view[0]
     qv: i64 = input_view[1]
     if nv < 1 or nv > ODT_MAX_N.i64() or qv < 0 or qv > ODT_MAX_Q.i64() or length < 2 + nv.usize(): return -1
@@ -83,7 +83,7 @@ export fn old_driver_tree(input: i64&, length: usize, output: mutable u8&, capac
         if cursor >= length: return -1
         kind: i64 = input_view[cursor]
         cursor <- cursor + 1
-        words: usize = if kind == 3 then 4 else if kind >= 0 and kind <= 2 then 3 else 0
+        words: usize = 4 if kind == 3 else (3 if kind >= 0 and kind <= 2 else 0)
         if words == 0 or length - cursor < words: return -1
         left: i64 = input_view[cursor]
         right: i64 = input_view[cursor + 1]
@@ -94,9 +94,7 @@ export fn old_driver_tree(input: i64&, length: usize, output: mutable u8&, capac
             extra <- input_view[cursor]
             cursor <- cursor + 1
         if left < 0 or left > right or right >= nv: return -1
-        if (kind <= 1 and (arg < -1000 or arg > 1000)) or
-            (kind == 2 and (arg < 1 or arg > right - left + 1)) or
-            (kind == 3 and (arg < 0 or arg > 8 or extra < 1 or extra > 1000000000)): return -1
+        if (kind <= 1 and (arg < -1000 or arg > 1000)) or (kind == 2 and (arg < 1 or arg > right - left + 1)) or (kind == 3 and (arg < 0 or arg > 8 or extra < 1 or extra > 1000000000)): return -1
         base: usize = 5 * i
         ops[base] <- kind
         ops[base + 1] <- left
@@ -106,8 +104,7 @@ export fn old_driver_tree(input: i64&, length: usize, output: mutable u8&, capac
         if kind >= 2: answer_count <- answer_count + 1
     if cursor != length or length > 2 + ODT_MAX_N + 5 * ODT_MAX_Q: return -1
     required: usize = 8 * answer_count
-    if required > 0 and (output.is_null() or capacity < required): return -2
-    out_view: mutable view[u8] = if required > 0 then output[0:required] else zeroed
+    if required > 0 and (output == null or capacity < required): return -2
     state: mutable i64[ODT_STATE_SIZE] = zeroed
     for i in 0..<n:
         count: usize = state[0].usize()
@@ -130,7 +127,7 @@ export fn old_driver_tree(input: i64&, length: usize, output: mutable u8&, capac
         if kind <= 1:
             odt_split_at(state_view, right + 1, nv)
             odt_split_at(state_view, left, nv)
-            count: usize = state[0].usize()
+            count: mutable usize = state[0].usize()
             start: usize = odt_lower_bound(state_view, count, left)
             finish: usize = odt_lower_bound(state_view, count, right + 1)
             if kind == 0:
@@ -154,17 +151,18 @@ export fn old_driver_tree(input: i64&, length: usize, output: mutable u8&, capac
                 state[ODT_RUN_BASE + 3 * start + 2] <- arg
                 state[0] <- i64(count + 1)
             else:
-                for j in start..<finish: state[ODT_RUN_BASE + 3 * j + 2] <- state[ODT_RUN_BASE + 3 * j + 2] + arg
+                for j in start..<finish:
+                    state[ODT_RUN_BASE + 3 * j + 2] <- state[ODT_RUN_BASE + 3 * j + 2] + arg
             odt_coalesce(state_view)
-        else if kind == 2:
+        elif kind == 2:
             ordered: mutable i64[ODT_MAX_N] = zeroed
             used: mutable usize = 0
             count: usize = state[0].usize()
             for j in 0..<count:
-                lo: i64 = if state[ODT_RUN_BASE + 3 * j] > left then state[ODT_RUN_BASE + 3 * j] else left
-                hi: i64 = if state[ODT_RUN_BASE + 3 * j + 1] < right then state[ODT_RUN_BASE + 3 * j + 1] else right
+                lo: i64 = state[ODT_RUN_BASE + 3 * j] if state[ODT_RUN_BASE + 3 * j] > left else left
+                hi: i64 = state[ODT_RUN_BASE + 3 * j + 1] if state[ODT_RUN_BASE + 3 * j + 1] < right else right
                 if lo <= hi:
-                    for _ in 0..(hi - lo + 1).usize():
+                    for _ in 0..<(hi - lo + 1).usize():
                         at: mutable usize = used
                         value: i64 = state[ODT_RUN_BASE + 3 * j + 2]
                         while at > 0 and ordered[at - 1] > value:
@@ -172,18 +170,20 @@ export fn old_driver_tree(input: i64&, length: usize, output: mutable u8&, capac
                             at <- at - 1
                         ordered[at] <- value
                         used <- used + 1
-            odt_store_le(ordered[(arg - 1).usize()], out_view, 8 * written)
+            odt_store_le(ordered[(arg - 1).usize()], output, 8 * written)
             written <- written + 1
         else:
             total: mutable i64 = 0
             count: usize = state[0].usize()
             for j in 0..<count:
-                lo: i64 = if state[ODT_RUN_BASE + 3 * j] > left then state[ODT_RUN_BASE + 3 * j] else left
-                hi: i64 = if state[ODT_RUN_BASE + 3 * j + 1] < right then state[ODT_RUN_BASE + 3 * j + 1] else right
+                lo: i64 = state[ODT_RUN_BASE + 3 * j] if state[ODT_RUN_BASE + 3 * j] > left else left
+                hi: i64 = state[ODT_RUN_BASE + 3 * j + 1] if state[ODT_RUN_BASE + 3 * j + 1] < right else right
                 if lo <= hi:
                     width: i64 = hi - lo + 1
                     value: i64 = odt_modular_power(state[ODT_RUN_BASE + 3 * j + 2], arg, extra)
                     total <- (total + width * value) % extra
-            odt_store_le(total, out_view, 8 * written)
+            odt_store_le(total, output, 8 * written)
             written <- written + 1
     required.i64()
+
+export fn old_driver_tree(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = old_driver_tree_impl

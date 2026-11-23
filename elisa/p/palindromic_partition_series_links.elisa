@@ -5,7 +5,7 @@ const ALPHABET: usize = 4
 const MAX_WORDS: usize = MAX_TEXT + 1
 const MAX_OUTPUT_BYTES: usize = MAX_WORDS * 8
 
-def find_extendable(lengths: view[i64], links: view[i64], text: view[i64],
+def find_extendable(lengths: view[i64], links: view[usize], text: view[i64],
                     position: usize, start: usize) -> usize:
     node: mutable usize = start
     while true:
@@ -14,7 +14,7 @@ def find_extendable(lengths: view[i64], links: view[i64], text: view[i64],
         node <- links[node].usize()
     0
 
-def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -22,9 +22,9 @@ def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
         bits <- bits >> 8
         byte <- byte + 1
 
-def palindromic_partition_series_links_impl(input: view[i64], output: mutable view[u8],
+def palindromic_partition_series_links_impl(input: view[i64], output: mutable u8&,
                                              capacity: usize, output_is_null: bool) -> i64:
-    length: usize = input.len()
+    length: usize = input.len
     if length < 1 or length > MAX_TEXT + 2: return -1
     if input[0] < 0 or input[0] > MAX_TEXT.i64(): return -1
     n: usize = input[0].usize()
@@ -52,7 +52,8 @@ def palindromic_partition_series_links_impl(input: view[i64], output: mutable vi
     last: mutable usize = 0
     dp: mutable i64[MAX_TEXT + 1] = zeroed
     predecessor: mutable usize[MAX_TEXT + 1] = zeroed
-    for i in 0..<MAX_TEXT + 1: dp[i] <- (MAX_TEXT + 1).i64()
+    for i in 0..<MAX_TEXT + 1:
+        dp[i] <- (MAX_TEXT + 1).i64()
     dp[0] <- 0
 
     for position in 0..<n:
@@ -89,9 +90,7 @@ def palindromic_partition_series_links_impl(input: view[i64], output: mutable vi
             series_best[node] <- dp[start]
             series_start[node] <- start
             fail: usize = suffix_link[node]
-            if difference[node] == difference[fail] and
-               (series_best[fail] < series_best[node] or
-                (series_best[fail] == series_best[node] and series_start[fail] < series_start[node])):
+            if difference[node] == difference[fail] and (series_best[fail] < series_best[node] or (series_best[fail] == series_best[node] and series_start[fail] < series_start[node])):
                 series_best[node] <- series_best[fail]
                 series_start[node] <- series_start[fail]
             candidate: i64 = series_best[node] + 1
@@ -120,15 +119,19 @@ def palindromic_partition_series_links_impl(input: view[i64], output: mutable vi
         i <- i - 1
     byte_count: usize = word_count * 8
     if output_is_null or capacity < byte_count: return -2
-    for word in 0..<word_count: put_i64(output, word * 8, words[word])
+    for word in 0..<word_count:
+        put_i64(output, word * 8, words[word])
     byte_count.i64()
 
-export fn palindromic_partition_series_links(input: i64&, length: usize,
-                                               output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_TEXT + 2: return -1
-    if output.is_null():
+def palindromic_partition_series_links_entry(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_TEXT + 2: return -1
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return palindromic_partition_series_links_impl(input[0:length], scratch[0:1], capacity, true)
+        input_copy: darray[i64] = [input[index] for index in 0..<length]
+        return palindromic_partition_series_links_impl(input_copy[0:length], &scratch[0], capacity, true)
     output_length: mutable usize = capacity
     if output_length > MAX_OUTPUT_BYTES: output_length <- MAX_OUTPUT_BYTES
-    palindromic_partition_series_links_impl(input[0:length], output[0:output_length], capacity, false)
+    input_copy: darray[i64] = [input[index] for index in 0..<length]
+    palindromic_partition_series_links_impl(input_copy[0:length], output, capacity, false)
+
+export fn palindromic_partition_series_links(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = palindromic_partition_series_links_entry
