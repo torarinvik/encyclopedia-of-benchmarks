@@ -2,7 +2,7 @@ const MAX_INPUT_LENGTH: usize = 8192
 const MAX_PADDED_LENGTH: usize = 8256
 
 def sha256_add32(left: u32, right: u32) -> u32:
-    ((left.u64() + right.u64()) & 0xFFFF_FFFF.u64()).u32()
+    ((left.u64() + right.u64()) & 0xFFFFFFFF).u32()
 
 def sha256_rotr(value: u32, amount: usize) -> u32:
     (value >> amount) | (value << (32 - amount))
@@ -87,17 +87,17 @@ export fn sha256(input: i64&, length: usize, output: mutable u8&, capacity: usiz
 def merkle_signature_scheme_verify(input: view[i64], height: usize, w: usize, msg_len: usize, leaf_index: usize, sig_pos: usize, pk_pos: usize, auth_pos: usize, root_pos: usize, l: usize) -> i64:
     digest: mutable u8[32] = zeroed
     current: mutable u8[32] = zeroed
-    if sha256(&input[3], msg_len, &digest[0], 32) != 32: return 0
-    log_w: usize = if w == 4: 2 else if w == 16: 4 else: 8
-    len1: usize = if w == 4: 128 else if w == 16: 64 else: 32
+    if sha256_impl(&input[3], msg_len, &digest[0], 32) != 32: return 0
+    log_w: usize = 2 if w == 4 else (4 if w == 16 else 8)
+    len1: usize = 128 if w == 4 else (64 if w == 16 else 32)
     len2: usize = l - len1
     mask: usize = w - 1
     digits: mutable u8[133] = zeroed
     digit: mutable usize = 0
     checksum: mutable i64 = 0
-    byte: usize = 0
+    byte: mutable usize = 0
     while byte < 32:
-        part: usize = 0
+        part: mutable usize = 0
         while part < 8 / log_w:
             shift: usize = 8 - log_w * (part + 1)
             value: u8 = ((digest[byte] >> shift) & mask.u8())
@@ -120,7 +120,7 @@ def merkle_signature_scheme_verify(input: view[i64], height: usize, w: usize, ms
             j <- j + 1
         step: mutable usize = 0
         while step < w - 1 - digits[i].usize():
-            if sha256(&chain[0], 32, &current[0], 32) != 32: return 0
+            if sha256_impl(&chain[0], 32, &current[0], 32) != 32: return 0
             j <- 0
             while j < 32:
                 chain[j] <- current[j].i64()
@@ -131,12 +131,12 @@ def merkle_signature_scheme_verify(input: view[i64], height: usize, w: usize, ms
             if chain[j].u8() != input[pk_pos + 32 * i + j].u8(): return 0
             j <- j + 1
         i <- i + 1
-    if sha256(&input[pk_pos], 32 * l, &digest[0], 32) != 32: return 0
+    if sha256_impl(&input[pk_pos], 32 * l, &digest[0], 32) != 32: return 0
     pair: mutable i64[64] = zeroed
     index <- leaf_index
     level: mutable usize = 0
     while level < height:
-        j <- 0
+        j: mutable usize = 0
         while j < 32:
             left: i64 = digest[j].i64()
             right: i64 = input[auth_pos + 32 * level + j]
@@ -147,10 +147,10 @@ def merkle_signature_scheme_verify(input: view[i64], height: usize, w: usize, ms
                 pair[j] <- right
                 pair[32 + j] <- left
             j <- j + 1
-        if sha256(&pair[0], 64, &digest[0], 32) != 32: return 0
+        if sha256_impl(&pair[0], 64, &digest[0], 32) != 32: return 0
         index <- index >> 1
         level <- level + 1
-    j <- 0
+    j: mutable usize = 0
     while j < 32:
         if digest[j].i64() != input[root_pos + j]: return 0
         j <- j + 1
@@ -165,7 +165,7 @@ def merkle_signature_scheme_impl(input: i64&, length: usize, output: mutable u8&
     height: usize = h_arg.usize()
     w: usize = w_arg.usize()
     msg: usize = msg_arg.usize()
-    l: usize = if w == 4: 133 else if w == 16: 67 else: 34
+    l: usize = 133 if w == 4 else (67 if w == 16 else 34)
     index_pos: usize = 3 + msg
     expected: usize = 4 + msg + 64 * l + 32 * height + 32
     if length != expected: return -1
@@ -184,7 +184,8 @@ def merkle_signature_scheme_impl(input: i64&, length: usize, output: mutable u8&
         if input[i] < 0 or input[i] > 255: return -1
         i <- i + 1
     if output == null or capacity < 8: return -2
-    valid: i64 = merkle_signature_scheme_verify(input[0:length], height, w, msg, index_value.usize(), sig_pos, pk_pos, auth_pos, root_pos, l)
+    input_copy: darray[i64] = [input[index] for index in 0..<length]
+    valid: i64 = merkle_signature_scheme_verify(input_copy[0:length], height, w, msg, index_value.usize(), sig_pos, pk_pos, auth_pos, root_pos, l)
     i <- 0
     while i < 8:
         output[i] <- 0
