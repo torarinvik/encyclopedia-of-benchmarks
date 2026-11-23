@@ -4,7 +4,7 @@ const MAX_OUTPUT: usize = 512
 
 def lz78_flexible_parsing_impl(input: i64&, input_length: usize,
                                output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > 34: return -1
+    if input == null or input_length < 1 or input_length > 34: return -1
     if input[0] < 0 or input[0] > 32.i64(): return -1
     n: usize = input[0].usize()
     if input_length != n + 1: return -1
@@ -13,7 +13,7 @@ def lz78_flexible_parsing_impl(input: i64&, input_length: usize,
         if input[i + 1] < 32 or input[i + 1] > 126: return -1
         text[i] <- input[i + 1].u8()
 
-    words: mutable u8[33][32] = zeroed
+    words: mutable u8[32][33] = zeroed
     word_lengths: mutable usize[33] = zeroed
     token_parents: mutable i64[32] = zeroed
     token_symbols: mutable i64[32] = zeroed
@@ -55,7 +55,8 @@ def lz78_flexible_parsing_impl(input: i64&, input_length: usize,
             if symbol_position >= n: continue
             phrase_length: usize = prefix_length + 1
             phrase: mutable u8[32] = zeroed
-            for i in 0..<prefix_length: phrase[i] <- words[parent][i]
+            for i in 0..<prefix_length:
+                phrase[i] <- words[parent][i]
             phrase[prefix_length] <- text[symbol_position]
             phrase_id: mutable usize = dictionary_count
             for id in 1..<dictionary_count:
@@ -91,13 +92,15 @@ def lz78_flexible_parsing_impl(input: i64&, input_length: usize,
                 best_next <- advancement
                 best_symbol <- text[symbol_position]
                 best_new <- is_new
-                for i in 0..<phrase_length: best_word[i] <- phrase[i]
+                for i in 0..<phrase_length:
+                    best_word[i] <- phrase[i]
         if not have_best: return -1
         token_parents[token_count] <- best_parent.i64()
         token_symbols[token_count] <- best_symbol.i64()
         token_count <- token_count + 1
         if best_new:
-            for i in 0..<best_length: words[dictionary_count][i] <- best_word[i]
+            for i in 0..<best_length:
+                words[dictionary_count][i] <- best_word[i]
             word_lengths[dictionary_count] <- best_length
             dictionary_count <- dictionary_count + 1
         position <- position + best_length
@@ -111,8 +114,9 @@ def lz78_flexible_parsing_impl(input: i64&, input_length: usize,
             shift: usize = byte_index * 8
             staged[token * 16 + byte_index] <- ((parent_bits >> shift) & 255).u8()
             staged[token * 16 + 8 + byte_index] <- ((symbol_bits >> shift) & 255).u8()
-    if output.is_null() or capacity < output_bytes: return -2
-    for i in 0..<output_bytes: output[i] <- staged[i]
+    if output == null or capacity < output_bytes: return -2
+    for i in 0..<output_bytes:
+        output[i] <- staged[i]
     output_bytes.i64()
 
 export fn lz78_flexible_parsing(input: i64&, input_length: usize,

@@ -19,9 +19,9 @@ def local_weighted_learning_grid(value: f64, minimum: f64, maximum: f64) -> bool
 
 def local_weighted_learning_impl(input: f64&, input_length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
-    if not local_weighted_learning_integer(input[0], 2, MAX_N.i64()) or
-        not local_weighted_learning_integer(input[1], 1, MAX_D.i64()): return -1
+    feature: mutable usize = 0
+    if input == null or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if not local_weighted_learning_integer(input[0], 2, MAX_N.i64()) or not local_weighted_learning_integer(input[1], 1, MAX_D.i64()): return -1
     n: usize = input[0].usize()
     d: usize = input[1].usize()
     if d > n: return -1
@@ -30,12 +30,12 @@ def local_weighted_learning_impl(input: f64&, input_length: usize,
     expected_length: usize = 3 + n * d + n
     if input_length != expected_length: return -1
 
-    x_train: mutable f64[MAX_N][MAX_D] = zeroed
+    x_train: mutable f64[MAX_D][MAX_N] = zeroed
     y_train: mutable f64[MAX_N] = zeroed
     cursor: mutable usize = 3
     row: mutable usize = 0
     while row < n:
-        feature: mutable usize = 0
+        feature <- 0
         while feature < d:
             value: f64 = input[cursor]
             cursor <- cursor + 1
@@ -171,7 +171,7 @@ def local_weighted_learning_impl(input: f64&, input_length: usize,
         staged[query] <- prediction
         query <- query + 1
 
-    if output.is_null() or output_capacity < n: return -2
+    if output == null or output_capacity < n: return -2
     index: mutable usize = 0
     while index < n:
         output[index] <- staged[index]

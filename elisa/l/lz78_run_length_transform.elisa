@@ -5,15 +5,15 @@ const LZ78RT_MAX_TOKENS: usize = 32
 const LZ78RT_MAX_OUTPUT: usize = 776
 
 def lz78rt_store(staged: mutable view[u8], offset: usize, value: i64) -> void:
-    bits: u64 = value.u64()
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         staged[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
         byte <- byte + 1
 
-def lz78rt_impl(input: view[i64], staged: mutable view[u8]) -> i64:
-    length: usize = input.len()
+def lz78rt_impl(input: i64&, input_length: usize, staged: mutable view[u8]) -> i64:
+    length: usize = input_length
     if length < 1 or length > LZ78RT_MAX_INPUT: return -1
     if input[0] < 0 or input[0] > LZ78RT_MAX_TEXT.i64(): return -1
     n: usize = input[0].usize()
@@ -29,7 +29,8 @@ def lz78rt_impl(input: view[i64], staged: mutable view[u8]) -> i64:
     while position < n:
         symbol: i64 = input[position + 1]
         end: mutable usize = position + 1
-        while end < n and input[end + 1] == symbol: end <- end + 1
+        while end < n and input[end + 1] == symbol:
+            end <- end + 1
         run_length: usize = end - position
         highest_bit: mutable usize = 0
         value: mutable usize = run_length
@@ -39,12 +40,12 @@ def lz78rt_impl(input: view[i64], staged: mutable view[u8]) -> i64:
         bit: mutable usize = highest_bit + 1
         while bit > 0:
             bit <- bit - 1
-            transformed[transformed_length] <- if ((run_length >> bit) & 1) == 1: symbol else: 0
+            transformed[transformed_length] <- symbol if ((run_length >> bit) & 1) == 1 else 0
             transformed_length <- transformed_length + 1
         position <- end
 
-    children: mutable usize[LZ78RT_MAX_TRIE_NODES][4] = zeroed
-    tokens: mutable i64[LZ78RT_MAX_TOKENS][3] = zeroed
+    children: mutable usize[4][LZ78RT_MAX_TRIE_NODES] = zeroed
+    tokens: mutable i64[3][LZ78RT_MAX_TOKENS] = zeroed
     token_count: mutable usize = 0
     text_position: mutable usize = 0
     next_phrase_id: mutable usize = 1
@@ -82,15 +83,17 @@ def lz78rt_impl(input: view[i64], staged: mutable view[u8]) -> i64:
         token <- token + 1
     (8 + 24 * token_count).i64()
 
-export fn lz78_run_length_transform(input: i64&, length: usize,
+def lz78_run_length_transform_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > LZ78RT_MAX_INPUT: return -1
+    if input == null or length < 1 or length > LZ78RT_MAX_INPUT: return -1
     staged: mutable u8[LZ78RT_MAX_OUTPUT] = zeroed
-    bytes: i64 = lz78rt_impl(input[0:length], staged[0:LZ78RT_MAX_OUTPUT])
+    bytes: i64 = lz78rt_impl(input, length, staged[0:LZ78RT_MAX_OUTPUT])
     if bytes < 0: return bytes
-    if output.is_null() or capacity < bytes.usize(): return -2
+    if output == null or capacity < bytes.usize(): return -2
     i: mutable usize = 0
     while i < bytes.usize():
         output[i] <- staged[i]
         i <- i + 1
     bytes
+
+export fn lz78_run_length_transform(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = lz78_run_length_transform_impl

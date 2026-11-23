@@ -1,6 +1,6 @@
 # Run-length-native unit-cost edit distance by run-pair blocks.
 def rle_levenshtein_block_dp_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > 18:
+    if input == null or length < 4 or length > 18:
         return -1
     left_count_value: i64 = input[0]
     if left_count_value < 1 or left_count_value > 4:
@@ -43,8 +43,8 @@ def rle_levenshtein_block_dp_impl(input: i64&, length: usize) -> i64:
         right_symbol[run] <- symbol
         right_size[run] <- size_value.usize()
         run <- run + 1
-    bottom: mutable i64[4][9] = zeroed
-    next_bottom: mutable i64[4][9] = zeroed
+    bottom: mutable i64[9][4] = zeroed
+    next_bottom: mutable i64[9][4] = zeroed
     right_prefix: mutable usize = 0
     column: mutable usize = 0
     j: mutable usize = 0
@@ -76,7 +76,7 @@ def rle_levenshtein_block_dp_impl(input: i64&, length: usize) -> i64:
                 previous[column] <- bottom[j][column]
                 column <- column + 1
             right_boundary[0] <- previous[columns]
-            substitution: i64 = 0
+            substitution: mutable i64 = 0
             if left_symbol[i] != right_symbol[j]:
                 substitution <- 1
             row <- 1

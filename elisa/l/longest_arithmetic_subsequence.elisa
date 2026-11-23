@@ -12,8 +12,8 @@ def longest_arithmetic_subsequence_impl(values: i64&, length: usize) -> i64:
     if length == 1:
         return 1
 
-    keys: mutable i64[64][127] = zeroed
-    sizes: mutable i64[64][127] = zeroed
+    keys: mutable i64[127][64] = zeroed
+    sizes: mutable i64[127][64] = zeroed
     maximum: mutable i64 = 2
     right: mutable usize = 0
     while right < length:

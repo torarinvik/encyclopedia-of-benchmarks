@@ -20,7 +20,7 @@ def depth_first_search_iterative_order_impl(input: i64&, length: usize,
     edge_count: usize = edge_count_value.usize()
     if length != 3 + 2 * edge_count: return -1
 
-    adjacency: mutable usize[11][128] = zeroed
+    adjacency: mutable usize[128][11] = zeroed
     degree: mutable usize[11] = zeroed
     position: mutable usize = 2
     edge: mutable usize = 0

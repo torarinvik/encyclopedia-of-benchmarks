@@ -2,8 +2,8 @@
 def fks_hash_index(a: usize, b: usize, modulus: usize, key: i64) -> usize:
     (((a.i64() * key + b.i64()) % 257).usize()) % modulus
 
-def fks_static_perfect_hash_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def fks_static_perfect_hash_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 2 or length > 19:
         return -1
     n_value: i64 = input[0]
@@ -50,8 +50,8 @@ def fks_static_perfect_hash_impl(input: view[i64]) -> i64:
         bucket_of[i] <- fks_hash_index(first_a, first_b, n, input[2 + i])
         bucket_sizes[bucket_of[i]] <- bucket_sizes[bucket_of[i]] + 1
 
-    slot_keys: mutable i64[8][64] = zeroed
-    occupied: mutable bool[8][64] = zeroed
+    slot_keys: mutable i64[64][8] = zeroed
+    occupied: mutable bool[64][8] = zeroed
     local_a: mutable usize[8] = zeroed
     local_b: mutable usize[8] = zeroed
     for bucket in 0..<n:
@@ -101,7 +101,9 @@ def fks_static_perfect_hash_impl(input: view[i64]) -> i64:
             result <- result | (1.i64() << i.usize())
     result
 
-export fn fks_static_perfect_hash(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 19:
+def fks_static_perfect_hash_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 19:
         return -1
-    fks_static_perfect_hash_impl(input[0:length])
+    fks_static_perfect_hash_impl(input, length)
+
+export fn fks_static_perfect_hash(input: i64&, length: usize) -> i64 = fks_static_perfect_hash_entry
