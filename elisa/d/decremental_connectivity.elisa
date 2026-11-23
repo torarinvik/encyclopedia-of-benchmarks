@@ -103,7 +103,7 @@ def decremental_connectivity_impl(a: i64&, length: usize) -> i64:
         u: usize = u64_value.usize()
         v: usize = v64_value.usize()
         if op == 1:
-            h <- (h ^ (comp[u] == comp[v]).u64()) * 1099511628211
+            h <- (h ^ (1 if (comp[u] == comp[v]) else 0).u64()) * 1099511628211
         else:
             if ((adj[u] >> v) & 1) == 0 or comp[u] != comp[v]:
                 return -1

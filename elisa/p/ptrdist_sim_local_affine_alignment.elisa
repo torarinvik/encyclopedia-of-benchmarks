@@ -46,11 +46,11 @@ def ptrdist_sim_local_affine_alignment_impl(input: i64&, length: usize) -> i64:
             p: usize = i*STRIDE+j
             d_open: i64 = h[p-STRIDE]-62
             d_extend: i64 = d[p-STRIDE]-2
-            d[p] <- if d_open > d_extend: d_open else: d_extend
+            d[p] <- d_open if d_open > d_extend else d_extend
             f_open: i64 = h[p-1]-62
             f_extend: i64 = f[p-1]-2
-            f[p] <- if f_open > f_extend: f_open else: f_extend
-            score: mutable i64 = h[p-STRIDE-1] + (if input[i] == input[right_pos+j]: 10 else: -10)
+            f[p] <- f_open if f_open > f_extend else f_extend
+            score: mutable i64 = h[p-STRIDE-1] + (10 if (input[i] == input[right_pos+j]) else -10)
             if score < 0:
                 score <- 0
             if d[p] > score:

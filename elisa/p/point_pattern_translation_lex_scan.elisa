@@ -2,18 +2,18 @@ const MAX_PATTERN: usize = 6
 const MAX_TARGET: usize = 8
 const MAX_COORD: i64 = 16
 
-def ppls_put64(output: mutable view[u8], offset: usize, value: i64): void:
+def ppls_put64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def ppls_less(ax: i64, ay: i64, bx: i64, by: i64): bool:
+def ppls_less(ax: i64, ay: i64, bx: i64, by: i64) -> bool:
     return ax < bx or (ax == bx and ay < by)
 
 def point_pattern_translation_lex_scan_impl(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize): i64:
-    if input.is_null() or length < 2 or length > 31: return -1
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 31: return -1
     pattern_raw: i64 = input[0]
     target_raw: i64 = input[1]
     if pattern_raw < 1 or pattern_raw > MAX_PATTERN.i64() or target_raw < 1 or target_raw > MAX_TARGET.i64() or pattern_raw > target_raw: return -1
@@ -37,7 +37,7 @@ def point_pattern_translation_lex_scan_impl(input: i64&, length: usize,
         cursor <- cursor + 2
         if tx[i] < -MAX_COORD or tx[i] > MAX_COORD or ty[i] < -MAX_COORD or ty[i] > MAX_COORD: return -1
         if i > 0 and not ppls_less(tx[i - 1], ty[i - 1], tx[i], ty[i]): return -1
-    if output.is_null() or capacity < 24: return -2
+    if output == null or capacity < 24: return -2
 
     found: mutable i64 = 0
     best_x: mutable i64 = 0
@@ -65,8 +65,9 @@ def point_pattern_translation_lex_scan_impl(input: i64&, length: usize,
     ppls_put64(staged[0:24], 0, found)
     ppls_put64(staged[0:24], 8, best_x)
     ppls_put64(staged[0:24], 16, best_y)
-    for byte in 0..<24: output[byte] <- staged[byte]
+    for byte in 0..<24:
+        output[byte] <- staged[byte]
     24
 
 export fn point_pattern_translation_lex_scan(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 @export("point_pattern_translation_lex_scan") = point_pattern_translation_lex_scan_impl
+        output: mutable u8&, capacity: usize) -> i64 = point_pattern_translation_lex_scan_impl

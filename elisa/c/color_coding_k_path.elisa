@@ -1,7 +1,7 @@
-// Subset/endpoint dynamic program for a colorful path of exactly k vertices.
+# Subset/endpoint dynamic program for a colorful path of exactly k vertices.
 def color_coding_k_path_impl(values: i64&, length: usize, output: mutable u8&,
         output_capacity: usize) -> i64:
-    if values.is_null(): return -1
+    if values == null: return -1
     if length < 3 or length > 147: return -1
     nv: i64 = values[0]
     mv: i64 = values[1]
@@ -14,11 +14,11 @@ def color_coding_k_path_impl(values: i64&, length: usize, output: mutable u8&,
     if length != split+2*m: return -1
     colors: mutable usize[12] = zeroed
     adjacency: mutable u16[12] = zeroed
-    for v in 0..n:
+    for v in 0..<n:
         c: i64 = values[3+v]
         if c < 0 or c >= kv: return -1
         colors[v] <- c.usize()
-    for e in 0..m:
+    for e in 0..<m:
         av: i64 = values[split+2*e]
         bv: i64 = values[split+2*e+1]
         if av < 0 or bv < 0 or av >= nv or bv >= nv or av == bv: return -1
@@ -28,22 +28,27 @@ def color_coding_k_path_impl(values: i64&, length: usize, output: mutable u8&,
         if (adjacency[a] & bit) != 0: return -1
         adjacency[a] <- adjacency[a] | bit
         adjacency[b] <- adjacency[b] | (1.u16() << a)
-    dp: mutable bool[64][12] = zeroed
-    for v in 0..n: dp[1 << colors[v]][v] <- true
+    dp: mutable bool[12][64] = zeroed
+    for v in 0..<n:
+        dp[1 << colors[v]][v] <- true
     full: usize = (1 << k)-1
     found: mutable bool = false
-    for mask in 1..full+1:
-        for v in 0..n:
+    for mask in 1..<full+1:
+        for v in 0..<n:
             if not dp[mask][v]: continue
-            if mask == full: found <- true; break
-            for u in 0..n:
+            if mask == full:
+                found <- true
+                break
+            for u in 0..<n:
                 bit: usize = 1 << colors[u]
                 if (adjacency[v] & (1.u16() << u)) != 0 and (mask & bit) == 0:
                     dp[mask | bit][u] <- true
         if found: break
-    if output.is_null() or output_capacity < 8: return -2
-    if found: output[0] <- 1.u8() else: output[0] <- 0.u8()
-    for i in 1..8: output[i] <- 0
+    if output == null or output_capacity < 8: return -2
+    if found: output[0] <- 1.u8()
+    else: output[0] <- 0.u8()
+    for i in 1..<8:
+        output[i] <- 0
     8
 
 export fn color_coding_k_path(values: i64&, length: usize, output: mutable u8&,

@@ -3,15 +3,15 @@ const MAX_TARGET: usize = 8
 const MAX_PAIRS: usize = 48
 const MAX_COORD: i64 = 16
 
-def ptv_put64(output: mutable view[u8], offset: usize, value: i64): void:
+def ptv_put64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def point_pattern_translation_voting_impl(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize): i64:
-    if input.is_null() or length < 2 or length > 31: return -1
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 31: return -1
     pattern_raw: i64 = input[0]
     target_raw: i64 = input[1]
     if pattern_raw < 1 or pattern_raw > MAX_PATTERN.i64() or target_raw < 1 or target_raw > MAX_TARGET.i64(): return -1
@@ -37,7 +37,7 @@ def point_pattern_translation_voting_impl(input: i64&, length: usize,
         if tx[i] < -MAX_COORD or tx[i] > MAX_COORD or ty[i] < -MAX_COORD or ty[i] > MAX_COORD: return -1
         for j in 0..<i:
             if tx[i] == tx[j] and ty[i] == ty[j]: return -1
-    if output.is_null(): return -2
+    if output == null: return -2
 
     dx: mutable i64[MAX_PAIRS] = zeroed
     dy: mutable i64[MAX_PAIRS] = zeroed
@@ -75,8 +75,9 @@ def point_pattern_translation_voting_impl(input: i64&, length: usize,
     ptv_put64(staged[0:24], 0, best_count.i64())
     ptv_put64(staged[0:24], 8, best_x)
     ptv_put64(staged[0:24], 16, best_y)
-    for byte in 0..<24: output[byte] <- staged[byte]
+    for byte in 0..<24:
+        output[byte] <- staged[byte]
     24
 
 export fn point_pattern_translation_voting(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 @export("point_pattern_translation_voting") = point_pattern_translation_voting_impl
+        output: mutable u8&, capacity: usize) -> i64 = point_pattern_translation_voting_impl
