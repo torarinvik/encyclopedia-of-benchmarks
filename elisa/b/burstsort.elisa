@@ -5,10 +5,10 @@ const BURST_THRESHOLD: usize = 3
 const BURST_MAX_INPUT_LENGTH: usize = 145
 
 struct BurstSortNode:
-    depth: usize
-    burst: bool
-    leaf_count: usize
-    terminal_count: usize
+    depth: mutable usize
+    burst: mutable bool
+    leaf_count: mutable usize
+    terminal_count: mutable usize
     children: i64[4]
     leaf_items: usize[BURST_THRESHOLD]
     terminal_items: usize[BURST_MAX_STRINGS]
@@ -66,7 +66,7 @@ def burstsort_string_less(left: usize, right: usize, string_lengths: view[usize]
                           string_bytes: view[u8]) -> bool:
     left_length: usize = string_lengths[left]
     right_length: usize = string_lengths[right]
-    common: usize = if left_length < right_length: left_length else: right_length
+    common: usize = left_length if left_length < right_length else right_length
     for i in 0..<common:
         left_byte: u8 = string_bytes[left * BURST_MAX_STRING_LENGTH + i]
         right_byte: u8 = string_bytes[right * BURST_MAX_STRING_LENGTH + i]
@@ -104,7 +104,7 @@ def burstsort_emit(nodes: view[BurstSortNode], node_id: usize,
         output[output_count] <- ordered[i]
         output_count <- output_count + 1
 
-def burstsort_impl(input: view[i64], length: usize) -> i64:
+def burstsort_impl(input: i64&, length: usize) -> i64:
     if length < 1 or length > BURST_MAX_INPUT_LENGTH:
         return -1
     if input[0] < 0 or input[0] > BURST_MAX_STRINGS.i64():
@@ -164,8 +164,10 @@ def burstsort_impl(input: view[i64], length: usize) -> i64:
         checksum <- checksum + (rank.i64() + 1) * key
     checksum
 
-export fn burstsort(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > BURST_MAX_INPUT_LENGTH:
+def burstsort_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > BURST_MAX_INPUT_LENGTH:
         return -1
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     burstsort_impl(input_view, length)
+
+export fn burstsort(input: i64&, length: usize) -> i64 = burstsort_entry

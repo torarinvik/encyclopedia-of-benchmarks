@@ -13,31 +13,31 @@ const HEALTH_IR: i64 = 2836
 const HEALTH_MASK: i64 = 123459876
 
 struct OldenHealthPatient:
-    next: i64
-    previous: i64
-    time_left: i64
-    elapsed: i64
-    hospital_visits: i64
+    next: mutable i64
+    previous: mutable i64
+    time_left: mutable i64
+    elapsed: mutable i64
+    hospital_visits: mutable i64
 
 struct OldenHealthVillage:
-    label: i64
-    level: i64
-    free_personnel: i64
-    seed: i64
+    label: mutable i64
+    level: mutable i64
+    free_personnel: mutable i64
+    seed: mutable i64
     head: i64[4]
-    tail: i64[4]
+    tail_value: i64[4]
 
 def olden_health_queue_push(villages: mutable view[OldenHealthVillage],
                             patients: mutable view[OldenHealthPatient],
                             village_index: usize, queue: usize, patient_id: usize) -> void:
-    tail: i64 = villages[village_index].tail[queue]
-    patients[patient_id].previous <- tail
+    tail_value: i64 = villages[village_index].tail_value[queue]
+    patients[patient_id].previous <- tail_value
     patients[patient_id].next <- -1
-    if tail >= 0:
-        patients[tail.usize()].next <- patient_id.i64()
+    if tail_value >= 0:
+        patients[tail_value.usize()].next <- patient_id.i64()
     else:
         villages[village_index].head[queue] <- patient_id.i64()
-    villages[village_index].tail[queue] <- patient_id.i64()
+    villages[village_index].tail_value[queue] <- patient_id.i64()
 
 def olden_health_queue_remove(villages: mutable view[OldenHealthVillage],
                               patients: mutable view[OldenHealthPatient],
@@ -51,7 +51,7 @@ def olden_health_queue_remove(villages: mutable view[OldenHealthVillage],
     if next >= 0:
         patients[next.usize()].previous <- previous
     else:
-        villages[village_index].tail[queue] <- previous
+        villages[village_index].tail_value[queue] <- previous
     patients[patient_id].next <- -1
     patients[patient_id].previous <- -1
 
@@ -93,6 +93,7 @@ def olden_health_simulate_village(label: usize, village_count: usize,
                                   patients: mutable view[OldenHealthPatient],
                                   patient_count: mutable usize&,
                                   discharged: mutable i64&) -> void:
+    patient_id: mutable usize = zeroed
     offset: mutable i64 = 4
     while offset >= 1:
         child_value: i64 = label.i64() * 4 + offset
@@ -100,7 +101,7 @@ def olden_health_simulate_village(label: usize, village_count: usize,
             child_label: usize = child_value.usize()
             patient_value: mutable i64 = villages[child_label].head[HEALTH_UP]
             while patient_value >= 0:
-                patient_id: usize = patient_value.usize()
+                patient_id <- patient_value.usize()
                 next_value: i64 = patients[patient_id].next
                 olden_health_queue_remove(villages, patients, child_label, HEALTH_UP, patient_id)
                 olden_health_admit(villages, patients, label, patient_id)
@@ -109,7 +110,7 @@ def olden_health_simulate_village(label: usize, village_count: usize,
 
     patient_value: mutable i64 = villages[label].head[HEALTH_INSIDE]
     while patient_value >= 0:
-        patient_id: usize = patient_value.usize()
+        patient_id <- patient_value.usize()
         next_value: i64 = patients[patient_id].next
         patients[patient_id].time_left <- patients[patient_id].time_left - 1
         if patients[patient_id].time_left == 0:
@@ -160,7 +161,7 @@ def olden_health_simulate_village(label: usize, village_count: usize,
         olden_health_admit(villages, patients, label, new_patient)
 
 def olden_health_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 3: return -1
+    if input == null or length != 3: return -1
     level: i64 = input[0]
     ticks: i64 = input[1]
     seed: i64 = input[2]
@@ -188,7 +189,7 @@ def olden_health_impl(input: i64&, length: usize) -> i64:
         queue: mutable usize = 0
         while queue < 4:
             villages[label].head[queue] <- -1
-            villages[label].tail[queue] <- -1
+            villages[label].tail_value[queue] <- -1
             queue <- queue + 1
         label <- label + 1
 

@@ -6,8 +6,8 @@ const MAX_VALID_INPUT_LENGTH: usize = 33282
 const ALPHABET: usize = 128
 
 struct SamState:
-    length: i32
-    link: i32
+    length: mutable i32
+    link: mutable i32
     next: i32[128]
 
 def suffix_automaton_initialize_state(states: mutable view[SamState], index: usize) -> void:
@@ -100,7 +100,7 @@ def suffix_automaton_count_distinct(states: view[SamState], state_count: usize) 
         total <- total + (states[state].length - states[link].length).i64()
     total
 
-def suffix_automaton_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def suffix_automaton_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255.u64()).u8()
@@ -146,7 +146,7 @@ def suffix_automaton_impl(input: i64&, length: usize, output: mutable u8&, capac
         opcodes[query] <- opcode.u8()
         if opcode == 0:
             results[query] <- suffix_automaton_contains(states[0:MAX_STATES], pattern[0:MAX_TEXT], pattern_length).i64()
-        else if opcode == 1:
+        elif opcode == 1:
             results[query] <- suffix_automaton_count_occurrences(states[0:MAX_STATES], state_count,
                     text[0:MAX_TEXT], text_length, pattern[0:MAX_TEXT], pattern_length)
         else:
@@ -157,7 +157,7 @@ def suffix_automaton_impl(input: i64&, length: usize, output: mutable u8&, capac
     if output == null or capacity < output_bytes: return -2
     for query in 0..<query_count:
         output[query * 9] <- opcodes[query]
-        suffix_automaton_store_i64(output[0:capacity], query * 9 + 1, results[query])
+        suffix_automaton_store_i64(output, query * 9 + 1, results[query])
     output_bytes.i64()
 
 export fn suffix_automaton(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = suffix_automaton_impl

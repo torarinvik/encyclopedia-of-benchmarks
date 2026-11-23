@@ -4,8 +4,8 @@ const EERTREE_MAX_NODES: usize = EERTREE_MAX_TEXT_LENGTH + 2
 const EERTREE_ALPHABET_SIZE: usize = 26
 
 struct EertreeNode:
-    length: i64
-    suffix_link: i64
+    length: mutable i64
+    suffix_link: mutable i64
     next: i64[26]
 
 def eertree_initialize_node(nodes: mutable view[EertreeNode], id: usize,
@@ -27,7 +27,7 @@ def eertree_find_extendable(nodes: view[EertreeNode], text: view[i64],
     -1
 
 def eertree_impl(input_values: i64&, length: usize) -> i64:
-    if input_values.is_null() or length < 1 or length > EERTREE_MAX_TEXT_LENGTH + 1: return -1
+    if input_values == null or length < 1 or length > EERTREE_MAX_TEXT_LENGTH + 1: return -1
     if input_values[0] < 0 or input_values[0] > EERTREE_MAX_TEXT_LENGTH.i64(): return -1
     text_length: usize = input_values[0].usize()
     if length != text_length + 1: return -1

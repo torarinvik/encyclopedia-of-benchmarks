@@ -4,7 +4,7 @@ const MAX_TOTAL_VERTICES: usize = 128
 const MAX_INPUT_LENGTH: usize = 1 + 2 * MAX_TREES * MAX_TREE_VERTICES
 
 struct RootedTreeSignature:
-    child_count: usize
+    child_count: mutable usize
     child_types: usize[32]
 
 def rooted_tree_isomorphism_intern(signatures: mutable view[RootedTreeSignature],
@@ -31,18 +31,19 @@ def rooted_tree_isomorphism_canonical_root(adjacency: view[u64], vertex_count: u
     signature_count: mutable usize&) -> i64:
     parent: mutable usize[32] = zeroed
     order: mutable usize[32] = zeroed
-    stack: mutable usize[32] = zeroed
+    stack_value: mutable usize[32] = zeroed
     node_type: mutable usize[32] = zeroed
     visited: mutable u8[32] = zeroed
-    for vertex in 0..<vertex_count: parent[vertex] <- MAX_TREE_VERTICES
+    for vertex in 0..<vertex_count:
+        parent[vertex] <- MAX_TREE_VERTICES
     parent[root] <- root
     visited[root] <- 1
     stack_size: mutable usize = 1
     order_size: mutable usize = 0
-    stack[0] <- root
+    stack_value[0] <- root
     while stack_size > 0:
         stack_size <- stack_size - 1
-        vertex: usize = stack[stack_size]
+        vertex: usize = stack_value[stack_size]
         order[order_size] <- vertex
         order_size <- order_size + 1
         for neighbor in 0..<vertex_count:
@@ -51,7 +52,7 @@ def rooted_tree_isomorphism_canonical_root(adjacency: view[u64], vertex_count: u
             if visited[neighbor] != 0: return -1
             visited[neighbor] <- 1
             parent[neighbor] <- vertex
-            stack[stack_size] <- neighbor
+            stack_value[stack_size] <- neighbor
             stack_size <- stack_size + 1
     if order_size != vertex_count: return -1
 
@@ -81,7 +82,7 @@ def rooted_tree_isomorphism_canonical_root(adjacency: view[u64], vertex_count: u
 
 def rooted_tree_isomorphism_classification_impl(values: i64&, length: usize,
     output: mutable u8&, output_capacity: usize) -> i64:
-    if values.is_null() or length < 1 or length > MAX_INPUT_LENGTH: return -1
+    if values == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
     tree_count_value: i64 = values[0]
     if tree_count_value < 1 or tree_count_value > MAX_TREES.i64(): return -1
     tree_count: usize = tree_count_value.usize()
@@ -121,14 +122,16 @@ def rooted_tree_isomorphism_classification_impl(values: i64&, length: usize,
         if root_type < 0: return -1
         root_types[tree] <- root_type.usize()
         prior: mutable usize = 0
-        while prior < tree and root_types[prior] != root_types[tree]: prior <- prior + 1
+        while prior < tree and root_types[prior] != root_types[tree]:
+            prior <- prior + 1
         if prior < tree: labels[tree] <- labels[prior]
         else:
             labels[tree] <- class_count.u8()
             class_count <- class_count + 1
     if position != length: return -1
-    if output.is_null() or output_capacity < tree_count: return -2
-    for tree in 0..<tree_count: output[tree] <- labels[tree]
+    if output == null or output_capacity < tree_count: return -2
+    for tree in 0..<tree_count:
+        output[tree] <- labels[tree]
     tree_count.i64()
 
 export fn rooted_tree_isomorphism_classification(values: i64&, length: usize,

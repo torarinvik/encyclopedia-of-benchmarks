@@ -7,27 +7,23 @@ const MAX_OUTPUT_WORDS: usize = 194
 const MAX_OUTPUT_BYTES: usize = 1552
 
 struct QuadPoint:
-    x: f64
-    y: f64
+    x: mutable f64
+    y: mutable f64
 
 struct QuadNode:
-    center_x: f64
-    center_y: f64
-    half_width: f64
-    point_count: usize
+    center_x: mutable f64
+    center_y: mutable f64
+    half_width: mutable f64
+    point_count: mutable usize
     point_indices: usize[MAX_CAPACITY]
     children: usize[4]
-    divided: bool
+    divided: mutable bool
 
 def quad_tree_contains(node: QuadNode, point: QuadPoint) -> bool:
-    point.x >= node.center_x - node.half_width and point.x <= node.center_x + node.half_width and
-        point.y >= node.center_y - node.half_width and point.y <= node.center_y + node.half_width
+    point.x >= node.center_x - node.half_width and point.x <= node.center_x + node.half_width and point.y >= node.center_y - node.half_width and point.y <= node.center_y + node.half_width
 
 def quad_tree_intersects(node: QuadNode, query_x: f64, query_y: f64, query_half_width: f64) -> bool:
-    query_x - query_half_width <= node.center_x + node.half_width and
-        query_x + query_half_width >= node.center_x - node.half_width and
-        query_y - query_half_width <= node.center_y + node.half_width and
-        query_y + query_half_width >= node.center_y - node.half_width
+    query_x - query_half_width <= node.center_x + node.half_width and query_x + query_half_width >= node.center_x - node.half_width and query_y - query_half_width <= node.center_y + node.half_width and query_y + query_half_width >= node.center_y - node.half_width
 
 def quad_tree_subdivide(nodes: mutable view[QuadNode], node_index: usize, node_count: mutable usize&) -> void:
     child_half: f64 = nodes[node_index].half_width / 2.0
@@ -88,7 +84,7 @@ def quad_tree_query(nodes: view[QuadNode], node_index: usize, points: view[QuadP
                             query_half_width, query_indices, query_count)
             child <- child + 1
 
-def quad_tree_write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def quad_tree_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -98,16 +94,12 @@ def quad_tree_write_i64_le(output: mutable view[u8], offset: usize, value: i64) 
 
 def quad_tree_impl(input: i64&, input_length: usize,
                    output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 8 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
-    if input[0] < -2048 or input[0] > 2048 or input[1] < -2048 or input[1] > 2048 or
-       input[2] < 1 or input[2] > 1024 or input[3] < 1 or input[3] > MAX_CAPACITY.i64() or
-       input[4] < 0 or input[4] > MAX_POINTS.i64(): return -1
+    if input == null or input_length < 8 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input[0] < -2048 or input[0] > 2048 or input[1] < -2048 or input[1] > 2048 or input[2] < 1 or input[2] > 1024 or input[3] < 1 or input[3] > MAX_CAPACITY.i64() or input[4] < 0 or input[4] > MAX_POINTS.i64(): return -1
     point_count: usize = input[4].usize()
     if input_length != 8 + 2 * point_count: return -1
     query_offset: usize = 5 + 2 * point_count
-    if input[query_offset] < -8192 or input[query_offset] > 8192 or
-       input[query_offset + 1] < -8192 or input[query_offset + 1] > 8192 or
-       input[query_offset + 2] < 0 or input[query_offset + 2] > 8192: return -1
+    if input[query_offset] < -8192 or input[query_offset] > 8192 or input[query_offset + 1] < -8192 or input[query_offset + 1] > 8192 or input[query_offset + 2] < 0 or input[query_offset + 2] > 8192: return -1
 
     nodes: mutable QuadNode[MAX_NODES] = zeroed
     nodes[0].center_x <- input[0].f64()
@@ -134,7 +126,7 @@ def quad_tree_impl(input: i64&, input_length: usize,
     words[0] <- point_count.i64()
     point <- 0
     while point < point_count:
-        words[1 + point] <- if quad_tree_insert(nodes[0:MAX_NODES], 0, point, points[0:MAX_POINTS], input[3].usize(), node_count) then 1 else 0
+        words[1 + point] <- 1 if quad_tree_insert(nodes[0:MAX_NODES], 0, point, points[0:MAX_POINTS], input[3].usize(), node_count) else 0
         point <- point + 1
     query_x: f64 = input[query_offset].f64()
     query_y: f64 = input[query_offset + 1].f64()
@@ -151,8 +143,8 @@ def quad_tree_impl(input: i64&, input_length: usize,
 
     output_bytes: usize = word_count * 8
     if output_bytes > MAX_OUTPUT_BYTES: return -1
-    if output.is_null() or capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:capacity]
+    if output == null or capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     index <- 0
     while index < word_count:
         quad_tree_write_i64_le(output_view, index * 8, words[index])
