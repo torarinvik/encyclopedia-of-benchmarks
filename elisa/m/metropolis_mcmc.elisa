@@ -9,7 +9,7 @@ def metropolis_bounded_integer(value: f64, minimum: f64, maximum: f64) -> bool:
     value == value and trunc(value) == value and value >= minimum and value <= maximum
 
 def metropolis_mcmc_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    if input == null or length < 4 or length > MAX_INPUT: return -1
     if not metropolis_bounded_integer(input[0], 1.0, MAX_STATES.f64()) or
         not metropolis_bounded_integer(input[1], 0.0, MAX_STEPS.f64()): return -1
     states: usize = input[0].usize()
@@ -30,7 +30,7 @@ def metropolis_mcmc_impl(input: f64&, length: usize, output: mutable f64&, capac
         uniform: f64 = input[uniform_start + step]
         if uniform != uniform or uniform < 0.0 or uniform >= 1.0: return -1
         step <- step + 1
-    if output.is_null() or capacity < steps + 1: return -2
+    if output == null or capacity < steps + 1: return -2
 
     current: mutable usize = input[2].usize()
     output[0] <- current.f64()

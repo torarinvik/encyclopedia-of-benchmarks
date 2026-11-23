@@ -17,7 +17,7 @@ def dsa_verify_pow(base_value: i64, exponent_value: i64, modulus: i64) -> i64:
     return result
 
 def dsa_verify_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 7 or length > 15: return -1
+    if input == null or length < 7 or length > 15: return -1
     p: i64 = input[0]
     q: i64 = input[1]
     g: i64 = input[2]

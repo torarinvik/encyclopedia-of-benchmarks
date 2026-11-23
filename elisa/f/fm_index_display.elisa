@@ -11,8 +11,8 @@ def fm_display_suffix_less(text: view[i64], n: usize, a0: usize, b0: usize) -> b
         b <- b + 1
     a == n and b != n
 
-def fm_index_display(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("fm_index_display"):
-    if input.is_null() or length < 5 or length > MAX_INPUT: return -1
+def fm_index_display_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 5 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     if n64 < 1 or n64 > 32 or length != n64.usize() + 4: return -1
     n: usize = n64.usize()
@@ -98,9 +98,11 @@ def fm_index_display(input: i64&, length: usize, output: mutable u8&, capacity: 
         row <- lf[row]
         current <- current - 1
     if count != right - left + 1: return -1
-    if output.is_null() or capacity < count: return -2
+    if output == null or capacity < count: return -2
     i <- 0
     while i < count:
         output[i] <- reversed[count - 1 - i]
         i <- i + 1
     count.i64()
+
+export fn fm_index_display(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fm_index_display_impl

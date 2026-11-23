@@ -8,7 +8,7 @@ const MAX_ITERATIONS: usize = 64
 const INVALID_RESULT: f64 = -1e300
 
 def kmeans_raw_r_impl(input: i64&, length: usize) -> f64:
-    if input.is_null() or length < 12 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 12 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
     if input[0] < 2 or input[0] > MAX_ROWS.i64() or
         input[1] < 2 or input[1] > MAX_DIMENSIONS.i64() or

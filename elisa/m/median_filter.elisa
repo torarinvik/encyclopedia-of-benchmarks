@@ -13,7 +13,7 @@ def median_filter_lower_bound(sorted: view[f64], size: usize, value: f64) -> usi
     low
 
 def median_filter_impl(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 66:
+    if input == null or length < 2 or length > 66:
         return -1
     window_value: f64 = input[0]
     count_value: f64 = input[1]
@@ -31,7 +31,7 @@ def median_filter_impl(input: f64&, length: usize, output: mutable f64&, output_
         if value != value or value < -1000000.0 or value > 1000000.0:
             return -1
         samples[index] <- value
-    if output.is_null() or output_capacity < count:
+    if output == null or output_capacity < count:
         return -2
 
     arrival: mutable f64[16] = zeroed

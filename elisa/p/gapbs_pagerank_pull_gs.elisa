@@ -1,5 +1,5 @@
 def gapbs_pagerank_pull_gs_impl(input: i64&, input_length: usize) -> i64:
-    if input.is_null() or input_length < 6 or input_length > 66: return -1
+    if input == null or input_length < 6 or input_length > 66: return -1
     n_value: i64 = input[0]
     iterations_value: i64 = input[1]
     if n_value < 2 or n_value > 8 or iterations_value < 0 or iterations_value > 20: return -1

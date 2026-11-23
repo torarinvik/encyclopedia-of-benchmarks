@@ -45,7 +45,7 @@ def cos_poly(w: f64) -> f64:
     value*w + 1.0
 
 def misc_flops_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 2:
+    if values == null or length != 2:
         return INVALID_RESULT
     module_id: i64 = values[0]
     steps: i64 = values[1]

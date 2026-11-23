@@ -21,7 +21,7 @@ def lu_decompose_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
     value.i64().f64() == value
 
 def lu_decompose_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if input == null or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
     if not lu_decompose_exact_integer(input[0], 1, MAX_DIMENSION.i64()): return -1
     dimension: usize = input[0].usize()
     matrix_elements: usize = dimension * dimension
@@ -87,7 +87,7 @@ def lu_decompose_impl(input: f64&, input_length: usize, output: mutable f64&, ca
         index <- index + 1
 
     output_length: usize = 2 * matrix_elements
-    if output.is_null() or capacity < output_length: return -2
+    if output == null or capacity < output_length: return -2
     index <- 0
     while index < matrix_elements:
         output[index] <- lower[index]

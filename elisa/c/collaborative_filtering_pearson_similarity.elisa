@@ -7,7 +7,7 @@ const MAX_RATING_MILLI: i64 = 1000000000
 const INVALID_RESULT: f64 = -2.0
 
 def collaborative_filtering_pearson_similarity_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if values == null or length < 2 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
     first_count_value: i64 = values[0]
     if first_count_value < 0 or first_count_value > MAX_PROFILE_ITEMS.i64():

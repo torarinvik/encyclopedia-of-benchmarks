@@ -2,7 +2,7 @@ const MAX_ITEMS: usize = 64
 const MAX_PRICE: i64 = 1000000
 
 def wine_problem_tabulated_impl(prices: i64&, length: usize) -> i64:
-    if prices.is_null() or length == 0 or length > MAX_ITEMS: return -1
+    if prices == null or length == 0 or length > MAX_ITEMS: return -1
     table: mutable i64[MAX_ITEMS * MAX_ITEMS] = zeroed
     first: mutable usize = 0
     while first < length:

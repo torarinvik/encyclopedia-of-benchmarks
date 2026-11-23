@@ -21,7 +21,7 @@ def charoccurrence_append_decimal(buffer: mutable view[u8], offset: usize, value
 def charoccurrence_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if length > 128:
         return -1
-    if length > 0 and values.is_null():
+    if length > 0 and values == null:
         return -1
     counts: mutable i64[128] = zeroed
     index: mutable usize = 0
@@ -47,7 +47,7 @@ def charoccurrence_impl(values: i64&, length: usize, output: mutable u8&, capaci
         codepoint <- codepoint + 1
     if used > capacity:
         return -2
-    if used > 0 and output.is_null():
+    if used > 0 and output == null:
         return -2
     index <- 0
     while index < used:

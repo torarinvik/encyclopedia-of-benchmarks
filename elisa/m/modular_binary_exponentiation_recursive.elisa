@@ -5,7 +5,7 @@ def modular_power(a: i64, exponent: i64, modulus: i64) -> i64:
     (half * half) % modulus
 
 def modular_binary_exponentiation_recursive_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 3: return -1
+    if input == null or length != 3: return -1
     a: i64 = input[0]
     exponent: i64 = input[1]
     modulus: i64 = input[2]

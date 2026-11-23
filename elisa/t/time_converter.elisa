@@ -14,7 +14,7 @@ def seconds_per_unit(unit: i64) -> f64:
     0.0
 
 def time_converter_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 3 or length > MAX_INPUT_LENGTH:
+    if values == null or length != 3 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
     time_micro: i64 = values[0]
     from_unit: i64 = values[1]

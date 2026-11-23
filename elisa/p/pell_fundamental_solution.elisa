@@ -1,5 +1,5 @@
 def pell_fundamental_solution_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 1:
+    if input == null or length != 1:
         return -1
 
     d_value: i64 = input[0]

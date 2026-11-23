@@ -7,7 +7,7 @@ def sir_in_range(value: f64, minimum: f64, maximum: f64) -> bool:
     value >= minimum and value <= maximum
 
 def sir_impl(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < INPUT_LENGTH or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+    if input == null or input_length < INPUT_LENGTH or input_length > MAX_PARSEABLE_INPUT_LENGTH:
         return INVALID_RESULT
     if input_length != INPUT_LENGTH: return INVALID_RESULT
 
@@ -28,7 +28,7 @@ def sir_impl(input: f64&, input_length: usize, output: mutable f64&, output_capa
     d_i: f64 = d_i_infection - d_i_recovery
     d_r: f64 = k * i
 
-    if output.is_null() or output_capacity < 3: return OUTPUT_ERROR
+    if output == null or output_capacity < 3: return OUTPUT_ERROR
     output[0] <- d_s
     output[1] <- d_i
     output[2] <- d_r

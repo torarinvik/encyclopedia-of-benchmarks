@@ -5,7 +5,7 @@ const alphabet_size: usize = 95
 const invalid_result: f64 = -1.0e300
 
 def dice_coefficient_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length < 2: return invalid_result
+    if values == null or length < 2: return invalid_result
     len_a_raw: i64 = values[0]
     len_b_raw: i64 = values[1]
     if len_a_raw < 0 or len_a_raw > 128 or len_b_raw < 0 or len_b_raw > 128: return invalid_result

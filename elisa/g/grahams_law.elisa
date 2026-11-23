@@ -23,7 +23,7 @@ def rounded_six(value: f64) -> f64:
     lower / 1000000.0
 
 def grahams_law_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length < 3 or length > 4 or values[0] < 0 or values[0] > 4:
+    if values == null or length < 3 or length > 4 or values[0] < 0 or values[0] > 4:
         return -1.0e300
     operation: i64 = values[0]
     if (operation == 0 and length != 3) or (operation != 0 and length != 4):

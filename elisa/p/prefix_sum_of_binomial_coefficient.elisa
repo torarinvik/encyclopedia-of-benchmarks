@@ -4,7 +4,7 @@ const PREFIX_MAX_N: usize = 128
 const PREFIX_MAX_INPUT_LENGTH: usize = 34
 
 def prefix_sum_of_binomial_coefficient_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > PREFIX_MAX_INPUT_LENGTH:
+    if input == null or length < 3 or length > PREFIX_MAX_INPUT_LENGTH:
         return -1
     count_value: i64 = input[0]
     if count_value < 1 or count_value > 16:
@@ -22,7 +22,7 @@ def prefix_sum_of_binomial_coefficient_impl(input: i64&, length: usize, output: 
             return -1
         query <- query + 1
     output_length: usize = 4 * count
-    if output.is_null() or capacity < output_length:
+    if output == null or capacity < output_length:
         return -2
 
     inverse: mutable i64[129]

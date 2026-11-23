@@ -5,7 +5,7 @@ const TSVC_S4115_MAX_INPUT_LENGTH: usize = 193
 const TSVC_S4115_MAX_VALUE: i64 = 1000000
 
 def tsvc_s4115_indexed_gather_product_sum_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > TSVC_S4115_MAX_INPUT_LENGTH:
+    if input == null or length < 4 or length > TSVC_S4115_MAX_INPUT_LENGTH:
         return -1
     n_value: i64 = input[0]
     if n_value < 1 or n_value > 64:

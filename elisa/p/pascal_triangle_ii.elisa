@@ -1,6 +1,6 @@
 const MAX_ROW: i64 = 30
 const MODULUS: i64 = 1000000007
-export fn pascal_triangle_ii(row: i64) -> i64:
+def pascal_triangle_ii_impl(row: i64) -> i64:
     if row < 0 or row > MAX_ROW: return -9223372036854775808
     triangle: mutable i64[961] = zeroed
     triangle[0] <- 1
@@ -19,3 +19,5 @@ export fn pascal_triangle_ii(row: i64) -> i64:
         hash <- (hash * 31 + triangle[row.usize() * 31 + j]) % MODULUS
         j <- j + 1
     hash
+
+export fn pascal_triangle_ii(row: i64) -> i64 = pascal_triangle_ii_impl

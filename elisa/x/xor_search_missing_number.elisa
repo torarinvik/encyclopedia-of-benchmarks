@@ -1,5 +1,5 @@
 def xor_search_missing_number_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > 257:
+    if input == null or length < 1 or length > 257:
         return -1
     n_value: i64 = input[0]
     if n_value < 0 or n_value > 255 or length != (n_value + 1).usize():

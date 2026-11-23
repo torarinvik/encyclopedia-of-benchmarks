@@ -77,9 +77,9 @@ def solve(output: mutable view[u8]) -> void:
     store_f64_le(output[0:REQUIRED_BYTES], 16, refined_minus)
 
 def prolangs_c_allroots_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if values.is_null() or length != 4: return -1
+    if values == null or length != 4: return -1
     if values[0] != 4 or values[1] != -4 or values[2] != -1 or values[3] != 1: return -1
-    if output.is_null() or capacity < REQUIRED_BYTES: return -2
+    if output == null or capacity < REQUIRED_BYTES: return -2
     staged: mutable u8[REQUIRED_BYTES] = zeroed
     solve(staged[0:REQUIRED_BYTES])
     i: mutable usize = 0

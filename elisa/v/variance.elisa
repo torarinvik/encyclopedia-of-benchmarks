@@ -1,5 +1,5 @@
 def variance_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length < 2 or length > 64:
+    if values == null or length < 2 or length > 64:
         return -1.0e300
     total: mutable f64 = 0.0
     index: mutable usize = 0

@@ -3,7 +3,7 @@ const MAX_TRAINING_COUNT: usize = 32
 const MAX_FEATURE_COUNT: usize = 8
 
 def k_nn_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 3 or length > MAX_INPUT_VALUES: return -1
     training_value: i64 = input[0]
     feature_value: i64 = input[1]
     neighbor_value: i64 = input[2]

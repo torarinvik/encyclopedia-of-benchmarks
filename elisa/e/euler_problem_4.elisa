@@ -10,7 +10,7 @@ def euler_problem_4_is_palindromic(value: u32) -> bool:
     reversed == value
 
 def euler_problem_4_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH:
+    if input == null or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
     digits: i64 = input[0]
     if digits < 1 or digits > MAX_DIGITS or length != 1:

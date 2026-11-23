@@ -1,7 +1,7 @@
 const INVERSE_TABLE_MODULUS: i64 = 1000000007
 
 def prime_modulus_inverse_table_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > 34:
+    if input == null or length < 1 or length > 34:
         return -1
     count_value: i64 = input[0]
     if count_value < 0 or count_value > 32:
@@ -21,7 +21,7 @@ def prime_modulus_inverse_table_impl(input: i64&, length: usize, output: mutable
     if count == 0:
         return 0
     output_length: usize = 4 * count
-    if output.is_null() or capacity < output_length:
+    if output == null or capacity < output_length:
         return -2
     inverse: mutable i64[257]
     inverse[0] <- 0

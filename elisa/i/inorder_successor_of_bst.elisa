@@ -2,7 +2,7 @@ const MAX_NODES: usize = 64
 const MAX_INPUT_LENGTH: usize = 67
 
 def inorder_successor_of_bst_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
     count_value: i64 = input[0]
     target: i64 = input[1]

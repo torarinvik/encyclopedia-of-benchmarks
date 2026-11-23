@@ -2,7 +2,7 @@ const INPUT_LENGTH: usize = 16
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 17
 
 def versabench_dbms_consistent_key_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH or length != INPUT_LENGTH: return -1
+    if values == null or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH or length != INPUT_LENGTH: return -1
     for box in 0..<2:
         base: usize = box * 8
         for d in 0..<4:

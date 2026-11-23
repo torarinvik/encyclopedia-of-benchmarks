@@ -3,7 +3,7 @@ const COVARIANCE_MAX_CELLS: usize = COVARIANCE_MAX_DIMENSION * COVARIANCE_MAX_DI
 const COVARIANCE_INVALID_RESULT: f64 = -1e300
 
 def covariance_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 2:
+    if values == null or length != 2:
         return COVARIANCE_INVALID_RESULT
     if values[0] < 2 or values[0] > COVARIANCE_MAX_DIMENSION.i64() or
        values[1] < 1 or values[1] > COVARIANCE_MAX_DIMENSION.i64():

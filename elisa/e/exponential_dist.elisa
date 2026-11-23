@@ -1,7 +1,7 @@
 extern pow(base: f64, exponent: f64) -> f64
 
 def exponential_dist_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 2:
+    if values == null or length != 2:
         return -1.0e300
     operation: i64 = values[0]
     rate_micro: i64 = values[1]

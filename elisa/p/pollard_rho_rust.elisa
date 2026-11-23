@@ -82,7 +82,7 @@ def brent_factor(number: i64, x0: i64, c: i64) -> i64:
     current_gcd
 
 def pollard_rho_rust_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 3: return -1
+    if input == null or length != 3: return -1
     number: i64 = input[0]
     state: mutable i64 = input[1]
     restart_limit: i64 = input[2]

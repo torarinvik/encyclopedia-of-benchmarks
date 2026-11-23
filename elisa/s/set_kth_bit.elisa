@@ -1,5 +1,5 @@
 def set_kth_bit_impl(input: i64&, length: usize) -> i64:
-    if length != 2 or input.is_null():
+    if length != 2 or input == null:
         return -1
     number: i64 = input[0]
     bit: i64 = input[1]

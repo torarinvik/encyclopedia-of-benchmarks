@@ -8,7 +8,7 @@ const MAX_INPUT_LENGTH: usize = 11
 const INVALID_RESULT: f64 = -1.0e300
 
 def present_value_rust_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+    if values == null or length < 3 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
     count: i64 = values[0]
     rate_ppm: i64 = values[1]

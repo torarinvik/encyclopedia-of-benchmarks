@@ -24,8 +24,10 @@ def fortunate_compute(n: i64) -> i64:
         offset <- offset + 1
     -2
 
-export fn fortunate_numbers(input: i64&, input_length: usize) -> i64:
-    if input.is_null() or input_length != 1: return -1
+def fortunate_numbers_impl(input: i64&, input_length: usize) -> i64:
+    if input == null or input_length != 1: return -1
     n: i64 = input[0]
     if n < 1 or n > MAX_N: return -1
     fortunate_compute(n)
+
+export fn fortunate_numbers(input: i64&, input_length: usize) -> i64 = fortunate_numbers_impl

@@ -6,7 +6,7 @@ def single_point_crossover_finite(value: f64) -> bool:
 
 def single_point_crossover_impl(input: f64&, input_length: usize,
     output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 6 or input_length > MAX_INPUT_LENGTH:
+    if input == null or input_length < 6 or input_length > MAX_INPUT_LENGTH:
         return -1
     n_value: f64 = input[0]
     cut_value: f64 = input[1]
@@ -27,7 +27,7 @@ def single_point_crossover_impl(input: f64&, input_length: usize,
         if not single_point_crossover_finite(first[index]) or not single_point_crossover_finite(second[index]):
             return -1
     required: usize = 2 * n
-    if output.is_null() or output_capacity < required:
+    if output == null or output_capacity < required:
         return -2
     for index in 0..<n:
         if index < cut:

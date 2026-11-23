@@ -1,5 +1,5 @@
 def multiplexer_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length != 3:
+    if values == null or length != 3:
         return -1
     input0: i64 = values[0]
     input1: i64 = values[1]

@@ -1,5 +1,5 @@
 def mean_threshold_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 1027: return -1
+    if input == null or length < 2 or length > 1027: return -1
     if input[0] < 1 or input[0] > 32 or input[1] < 1 or input[1] > 32: return -1
 
     width: usize = input[0].usize()
@@ -16,7 +16,7 @@ def mean_threshold_impl(input: i64&, length: usize, output: mutable u8&, output_
         index <- index + 1
 
     mean: i64 = sum / pixel_count.i64()
-    if output_capacity < pixel_count or output.is_null(): return -2
+    if output_capacity < pixel_count or output == null: return -2
     index <- 0
     while index < pixel_count:
         if input[2 + index] > mean:

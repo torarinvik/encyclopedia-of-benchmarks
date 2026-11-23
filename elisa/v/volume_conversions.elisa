@@ -8,7 +8,7 @@ def volume_conversions_impl(input: i64&, length: usize, output: mutable u8&, cap
     to_unit: i64 = input[2]
     if value < 0 or value > 1000 or from_unit < 0 or from_unit > 2 or to_unit < 0 or to_unit > 2 or from_unit == to_unit:
         return -1
-    if capacity < 8 or output.is_null():
+    if capacity < 8 or output == null:
         return -2
     from_factor: mutable f64 = 1.0
     to_factor: mutable f64 = 1.0

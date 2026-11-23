@@ -28,7 +28,7 @@ def ccm_factors_are_prime(n: i64, multiplier: i64) -> bool:
     true
 
 def chernick_carmichael_least_multiplier_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 1:
+    if input == null or length != 1:
         return -1
     n: i64 = input[0]
     if n < 3 or n > 9:

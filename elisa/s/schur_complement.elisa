@@ -1,7 +1,7 @@
 const INVALID_RESULT: f64 = -1.0e300
 
 def schur_complement_impl(input: i64&, length: usize) -> f64:
-    if input.is_null() or length != 6:
+    if input == null or length != 6:
         return INVALID_RESULT
     a00: i64 = input[0]
     a01: i64 = input[1]

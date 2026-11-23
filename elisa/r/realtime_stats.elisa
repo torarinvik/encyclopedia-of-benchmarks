@@ -5,7 +5,7 @@ const MAX_SAMPLES: i64 = 32
 const INVALID_RESULT: f64 = -1e300
 
 def realtime_stats_impl(input: i64&, length: usize) -> f64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
     if input[0] < 0 or input[0] > 2 or input[1] < 0 or input[1] > 2:
         return INVALID_RESULT

@@ -1,7 +1,7 @@
 extern trunc(value: f64) -> f64
 
 def himenobmtxpa_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length != 4: return -1
+    if input == null or length != 4: return -1
     nx_value: f64 = input[0]
     ny_value: f64 = input[1]
     nz_value: f64 = input[2]
@@ -13,7 +13,7 @@ def himenobmtxpa_impl(input: f64&, length: usize, output: mutable f64&, capacity
     ny: usize = ny_value.usize()
     nz: usize = nz_value.usize()
     iterations: usize = iterations_value.usize()
-    if output.is_null() or capacity < 1: return -2
+    if output == null or capacity < 1: return -2
 
     p: mutable f32[216] = zeroed
     work: mutable f32[216] = zeroed

@@ -4,7 +4,7 @@ extern sin(value: f64) -> f64
 const INVALID_RESULT: f64 = -1.0e300
 
 def transformations_2d_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 3:
+    if values == null or length != 3:
         return INVALID_RESULT
     operation: i64 = values[0]
     parameter_micro: i64 = values[1]

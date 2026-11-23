@@ -35,7 +35,7 @@ def spectral_norm_multiply_ata(n: usize, input: view[f64], output: mutable view[
     spectral_norm_multiply_at(n, temporary, output)
 
 def spectral_norm_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 1 or values[0] < 1 or values[0] > MAX_DIMENSION.i64():
+    if values == null or length != 1 or values[0] < 1 or values[0] > MAX_DIMENSION.i64():
         return INVALID_RESULT
     n: usize = values[0].usize()
     u: mutable f64[MAX_DIMENSION] = zeroed

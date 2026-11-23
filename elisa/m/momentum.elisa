@@ -5,7 +5,7 @@ const BETA: f64 = 0.9
 
 def momentum_impl(input: f64&, length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or length == 0 or length > MAX_LENGTH:
+    if input == null or length == 0 or length > MAX_LENGTH:
         return -1
     values: mutable f64[MAX_LENGTH] = zeroed
     velocity: mutable f64[MAX_LENGTH] = zeroed
@@ -17,7 +17,7 @@ def momentum_impl(input: f64&, length: usize,
             return -1
         values[index] <- value
         index <- index + 1
-    if output.is_null() or output_capacity < length:
+    if output == null or output_capacity < length:
         return -2
 
     iteration: mutable usize = 0

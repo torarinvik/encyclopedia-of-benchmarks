@@ -6,7 +6,7 @@ const TSVC_S424_X_LENGTH: usize = 255
 const TSVC_S424_MAX_INPUT_LENGTH: usize = 256
 
 def tsvc_s424_alias_overlap_feedback_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 130 or length > TSVC_S424_MAX_INPUT_LENGTH:
+    if input == null or length < 130 or length > TSVC_S424_MAX_INPUT_LENGTH:
         return -1
     n_value: i64 = input[0]
     if n_value < 66 or n_value > 192:

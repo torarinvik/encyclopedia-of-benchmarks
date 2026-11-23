@@ -1,7 +1,7 @@
 def ones_complement_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if length == 0 or length > 64:
         return -1
-    if input.is_null():
+    if input == null:
         return -1
     invalid: mutable bool = false
     index: mutable usize = 0
@@ -12,7 +12,7 @@ def ones_complement_impl(input: i64&, length: usize, output: mutable u8&, capaci
             index <- index + 1
     if invalid:
         return -1
-    if length > capacity or output.is_null():
+    if length > capacity or output == null:
         return -2
     index <- 0
     while index < length:

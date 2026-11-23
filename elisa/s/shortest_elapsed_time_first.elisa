@@ -2,9 +2,9 @@ const MAX_JOBS: usize = 8
 const MAX_INPUT: usize = 18
 const MAX_OUTPUT: usize = 112
 
-def shortest_elapsed_time_first(input: i64&, length: usize,
-                               output: mutable u8&, capacity: usize) -> i64 @export("shortest_elapsed_time_first"):
-    if input.is_null() or length < 1 or length > MAX_INPUT: return -1
+def shortest_elapsed_time_first_impl(input: i64&, length: usize,
+                               output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     if n64 < 0 or n64 > 8 or length != 1 + 2 * n64.usize(): return -1
     n: usize = n64.usize()
@@ -17,7 +17,7 @@ def shortest_elapsed_time_first(input: i64&, length: usize,
         remaining[job] <- input[2 + 2 * job]
         if release[job] < 0 or release[job] > 16 or remaining[job] < 1 or remaining[job] > 12: return -1
         job <- job + 1
-    if output.is_null(): return -2
+    if output == null: return -2
     trace: mutable u8[MAX_OUTPUT] = zeroed
     time: mutable usize = 0
     completed: mutable usize = 0
@@ -43,3 +43,5 @@ def shortest_elapsed_time_first(input: i64&, length: usize,
         output[time] <- trace[time]
         time <- time + 1
     final_time.i64()
+
+export fn shortest_elapsed_time_first(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = shortest_elapsed_time_first_impl

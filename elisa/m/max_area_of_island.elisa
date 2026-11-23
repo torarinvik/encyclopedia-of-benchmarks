@@ -2,7 +2,7 @@
 const MAX_CELLS: usize = 256
 
 def max_area_of_island_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or input[0] < 0 or input[0] > 16 or input[1] < 0 or input[1] > 16:
+    if input == null or length < 2 or input[0] < 0 or input[0] > 16 or input[1] < 0 or input[1] > 16:
         return -1
     rows: usize = input[0].usize()
     columns: usize = input[1].usize()

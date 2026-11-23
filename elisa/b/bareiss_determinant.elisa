@@ -3,7 +3,7 @@ const MAX_INPUT_LENGTH: usize = 65
 const INVALID_RESULT: i64 = -9223372036854775807 - 1
 
 def bareiss_determinant_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
     dimension_value: i64 = input[0]
     if dimension_value < 1 or dimension_value > 8:

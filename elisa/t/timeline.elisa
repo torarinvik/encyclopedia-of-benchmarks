@@ -1,5 +1,5 @@
 def timeline_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 131: return -1
+    if input == null or length < 2 or length > 131: return -1
     if input[0] < 0 or input[0] > 16: return -1
     initial_count: usize = input[0].usize()
     command_count_index: usize = 1 + 2 * initial_count
@@ -196,7 +196,7 @@ def timeline_impl(input: i64&, length: usize, output: mutable u8&, capacity: usi
         word_count <- word_count + 2
         index <- index + 1
     output_bytes: usize = word_count * 8
-    if output.is_null() or capacity < output_bytes or output_bytes > 5528: return -2
+    if output == null or capacity < output_bytes or output_bytes > 5528: return -2
     index <- 0
     while index < word_count:
         bits: u64 = words[index].u64()

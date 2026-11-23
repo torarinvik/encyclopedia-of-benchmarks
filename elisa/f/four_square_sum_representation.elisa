@@ -7,8 +7,8 @@ def four_square_floor_sqrt(value: i64) -> i64:
 def four_square_pack(a: i64, b: i64, c: i64, d: i64) -> i64:
     (((a * 33 + b) * 33 + c) * 33 + d)
 
-export fn four_square_sum_representation(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 1:
+def four_square_sum_representation_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 1:
         return -1
     n: i64 = input[0]
     if n < 0 or n > 1024:
@@ -36,3 +36,5 @@ export fn four_square_sum_representation(input: i64&, length: usize) -> i64:
             b <- b - 1
         a <- a - 1
     -2
+
+export fn four_square_sum_representation(input: i64&, length: usize) -> i64 = four_square_sum_representation_impl

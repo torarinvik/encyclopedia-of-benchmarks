@@ -3,7 +3,7 @@ const MAX_PLAINTEXT_LENGTH: usize = 512
 const MAX_INPUT_LENGTH: usize = 578
 
 def mixed_keyword_cypher_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
     raw_keyword_length: i64 = input[0]
     if raw_keyword_length < 1 or raw_keyword_length > 64:
@@ -87,7 +87,7 @@ def mixed_keyword_cypher_impl(input: i64&, length: usize, output: mutable u8&, c
             buffer[index] <- letter.u8()
         index <- index + 1
 
-    if output.is_null() or capacity < plaintext_length:
+    if output == null or capacity < plaintext_length:
         return -2
     index <- 0
     while index < plaintext_length:

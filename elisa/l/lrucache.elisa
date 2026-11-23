@@ -1,5 +1,5 @@
 def lrucache_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 99: return -1
+    if input == null or length < 2 or length > 99: return -1
     capacity_value: i64 = input[0]
     operation_count_value: i64 = input[1]
     if capacity_value < 2 or capacity_value > 16 or operation_count_value < 0 or operation_count_value > 32: return -1
@@ -81,7 +81,7 @@ def lrucache_impl(input: i64&, length: usize, output: mutable u8&, output_capaci
         index <- index + 1
 
     output_bytes: usize = word_count * 8
-    if output.is_null() or output_capacity < output_bytes: return -2
+    if output == null or output_capacity < output_bytes: return -2
     index <- 0
     while index < word_count:
         bits: u64 = fields[index].u64()

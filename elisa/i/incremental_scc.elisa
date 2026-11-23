@@ -5,7 +5,7 @@ const MAX_INPUT_LENGTH: usize = 2 + 2 * MAX_EDGES
 const REACHABILITY_CELLS: usize = MAX_VERTICES * MAX_VERTICES
 
 def incremental_scc_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
     if input[0] < 1 or input[0] > i64(MAX_VERTICES) or input[1] < 0 or input[1] > i64(MAX_EDGES):
         return -1

@@ -10,7 +10,7 @@ def marsaglia_is_bounded_integer(value: f64, minimum: f64, maximum: f64) -> bool
     value == value and trunc(value) == value and value >= minimum and value <= maximum
 
 def marsaglia_polar_normal_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length < 4 or length > 2 + MAX_DRAWS: return -1
+    if input == null or length < 4 or length > 2 + MAX_DRAWS: return -1
     if not marsaglia_is_bounded_integer(input[0], 2.0, MAX_DRAWS.f64()) or
             not marsaglia_is_bounded_integer(input[1], 1.0, MAX_ATTEMPTS.f64()): return -1
     draw_count: usize = input[0].usize()
@@ -37,7 +37,7 @@ def marsaglia_polar_normal_impl(input: f64&, length: usize, output: mutable f64&
             break
         attempt <- attempt + 1
     if not accepted: return -1
-    if output.is_null() or capacity < 2: return -2
+    if output == null or capacity < 2: return -2
     output[0] <- first
     output[1] <- second
     2

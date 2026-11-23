@@ -11,7 +11,7 @@ def update_returns_finite(value: f64) -> bool:
 
 def update_returns_impl(input: f64&, input_length: usize,
                         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > UPDATE_RETURNS_MAX_INPUT_LENGTH:
+    if input == null or input_length < 3 or input_length > UPDATE_RETURNS_MAX_INPUT_LENGTH:
         return -1
     for index in 0..<input_length:
         if not update_returns_finite(input[index]): return -1
@@ -47,7 +47,7 @@ def update_returns_impl(input: f64&, input_length: usize,
     staged[count + 1] <- sample_sd
     staged[count + 2] <- var_value
     result_length: usize = count + 3
-    if output.is_null() or output_capacity < result_length: return -2
+    if output == null or output_capacity < result_length: return -2
     for index in 0..<result_length:
         output[index] <- staged[index]
     result_length.i64()

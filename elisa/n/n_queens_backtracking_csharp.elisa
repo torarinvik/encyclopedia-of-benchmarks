@@ -29,7 +29,7 @@ def n_queens_backtracking_csharp_impl(n: i64, output: mutable u8&, capacity: usi
         rows: mutable i64[MAX_N] = zeroed
         enumerate(n.usize(), 0, rows[0:MAX_N], values[0:MAX_OUTPUT_WORDS], used)
     required: usize = used * 8
-    if output.is_null() or capacity < required:
+    if output == null or capacity < required:
         return -2
     for index in 0..<used:
         bits: mutable u64 = values[index].u64()

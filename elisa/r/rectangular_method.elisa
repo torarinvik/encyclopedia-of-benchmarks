@@ -8,7 +8,7 @@ def integrand(x: f64) -> f64:
     (exp(x) / 2.0) * (cos(x) - sin(x))
 
 def rectangular_method_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 4:
+    if values == null or length != 4:
         return INVALID_RESULT
     a_quarters: i64 = values[0]
     b_quarters: i64 = values[1]

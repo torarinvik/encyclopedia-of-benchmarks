@@ -2,7 +2,7 @@ const MAX_DIMENSION: usize = 64
 const INVALID_RESULT: f64 = -1e300
 
 def gesummv_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 1 or values[0] < 1 or values[0] > MAX_DIMENSION.i64():
+    if values == null or length != 1 or values[0] < 1 or values[0] > MAX_DIMENSION.i64():
         return INVALID_RESULT
     n: usize = values[0].usize()
     x: mutable f64[MAX_DIMENSION] = zeroed

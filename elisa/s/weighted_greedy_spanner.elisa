@@ -3,9 +3,9 @@ const MAX_M: usize = 28
 const MAX_INPUT: usize = 88
 const INF: i64 = 1152921504606846976
 
-def weighted_greedy_spanner(input: i64&, length: usize,
-                            output: mutable u8&, capacity: usize) -> i64 @export("weighted_greedy_spanner"):
-    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+def weighted_greedy_spanner_impl(input: i64&, length: usize,
+                            output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     k: i64 = input[2]
@@ -42,7 +42,7 @@ def weighted_greedy_spanner(input: i64&, length: usize,
             pos <- pos - 1
         order[pos] <- key
         i <- i + 1
-    if output.is_null() or capacity < m: return -2
+    if output == null or capacity < m: return -2
     rank: mutable usize = 0
     while rank < m:
         edge: usize = order[rank]
@@ -80,3 +80,5 @@ def weighted_greedy_spanner(input: i64&, length: usize,
         output[i] <- selected[i]
         i <- i + 1
     m.i64()
+
+export fn weighted_greedy_spanner(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = weighted_greedy_spanner_impl

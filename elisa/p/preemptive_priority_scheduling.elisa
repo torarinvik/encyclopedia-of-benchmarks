@@ -11,7 +11,7 @@ def put_i32_le(output: mutable view[u8], offset: usize, value: i32) -> void:
         byte <- byte + 1
 
 def preemptive_priority_scheduling_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > 33: return -1
+    if input == null or length < 1 or length > 33: return -1
     process_count: i32 = input[0]
     if process_count < 0 or process_count > MAX_PROCESSES.i32(): return -1
     if length != 1 + 4 * process_count.usize(): return -1
@@ -60,7 +60,7 @@ def preemptive_priority_scheduling_impl(input: i32&, length: usize, output: muta
         tick_count <- tick_count + 1
 
     bytes: usize = (1 + tick_count) * 4
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     buffer: mutable u8[MAX_OUTPUT_WORDS * 4] = zeroed
     put_i32_le(buffer[0:MAX_OUTPUT_WORDS * 4], 0, tick_count.i32())
     index <- 0

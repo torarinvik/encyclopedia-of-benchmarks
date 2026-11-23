@@ -11,7 +11,7 @@ def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
 
 def johnson_trotter_adjacent_gray_code_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length != 1: return -1
+    if input == null or length != 1: return -1
     n_value: i64 = input[0]
     if n_value < 1 or n_value > 3: return -1
     n: usize = n_value.usize()
@@ -21,7 +21,7 @@ def johnson_trotter_adjacent_gray_code_impl(input: i64&, length: usize,
         permutation_count <- permutation_count * value
         value <- value + 1
     output_bytes: usize = 8 * n * permutation_count
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     permutation: mutable i64[MAX_N] = zeroed
     direction: mutable i64[MAX_N + 1] = zeroed
     index: mutable usize = 0

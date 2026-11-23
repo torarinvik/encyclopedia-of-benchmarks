@@ -3,7 +3,7 @@ const POLYBENCH_SYMM_MAX_CELLS: usize = POLYBENCH_SYMM_MAX_DIMENSION * POLYBENCH
 const POLYBENCH_SYMM_INVALID_RESULT: f64 = -1e300
 
 def polybench_symm_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 2:
+    if values == null or length != 2:
         return POLYBENCH_SYMM_INVALID_RESULT
     if values[0] < 1 or values[0] > POLYBENCH_SYMM_MAX_DIMENSION.i64() or
        values[1] < 1 or values[1] > POLYBENCH_SYMM_MAX_DIMENSION.i64():

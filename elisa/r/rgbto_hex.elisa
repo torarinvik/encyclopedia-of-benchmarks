@@ -6,14 +6,14 @@ def rgbto_hex_digit(value: i64) -> u8:
 def rgbto_hex_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if length != 3:
         return -1
-    if input.is_null():
+    if input == null:
         return -1
     index: mutable usize = 0
     while index < 3:
         if input[index] < 0 or input[index] > 255:
             return -1
         index <- index + 1
-    if capacity < 7 or output.is_null():
+    if capacity < 7 or output == null:
         return -2
     output[0] <- 35
     index <- 0

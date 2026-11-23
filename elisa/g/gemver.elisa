@@ -3,7 +3,7 @@ const GEMVER_MAX_CELLS: usize = GEMVER_MAX_DIMENSION * GEMVER_MAX_DIMENSION
 const GEMVER_INVALID_RESULT: f64 = -1e300
 
 def gemver_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 1:
+    if values == null or length != 1:
         return GEMVER_INVALID_RESULT
     if values[0] < 1 or values[0] > GEMVER_MAX_DIMENSION.i64():
         return GEMVER_INVALID_RESULT

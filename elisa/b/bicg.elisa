@@ -3,7 +3,7 @@ const BICG_MAX_CELLS: usize = BICG_MAX_DIMENSION * BICG_MAX_DIMENSION
 const BICG_INVALID_RESULT: f64 = -1e300
 
 def bicg_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 2:
+    if values == null or length != 2:
         return BICG_INVALID_RESULT
     if values[0] < 1 or values[0] > BICG_MAX_DIMENSION.i64() or
        values[1] < 1 or values[1] > BICG_MAX_DIMENSION.i64():

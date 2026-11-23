@@ -1,5 +1,5 @@
 def modular_multiplicative_inverse_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 2: return -1
+    if input == null or length != 2: return -1
     a: i64 = input[0]
     m: i64 = input[1]
     if m < 2 or m > 1000000 or a < 0 or a >= m: return -1

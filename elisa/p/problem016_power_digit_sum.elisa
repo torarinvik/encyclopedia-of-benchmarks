@@ -2,7 +2,7 @@
 const MAX_DIGITS: usize = 1001
 
 def problem016_power_digit_sum_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length != 2:
+    if values == null or length != 2:
         return -1
     base: i64 = values[0]
     exponent: i64 = values[1]

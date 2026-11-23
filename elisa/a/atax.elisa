@@ -3,7 +3,7 @@ const ATAX_MAX_CELLS: usize = ATAX_MAX_DIMENSION * ATAX_MAX_DIMENSION
 const ATAX_INVALID_RESULT: f64 = -1e300
 
 def atax_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 2:
+    if values == null or length != 2:
         return ATAX_INVALID_RESULT
     if values[0] < 1 or values[0] > ATAX_MAX_DIMENSION.i64() or
        values[1] < 1 or values[1] > ATAX_MAX_DIMENSION.i64():

@@ -4,7 +4,7 @@ const MAX_CHARGE_MICROCOULOMBS: i64 = 1000000
 const MAX_DISTANCE_MILLIMETERS: i64 = 1000000
 
 def coulombs_law_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 3:
+    if values == null or length != 3:
         return INVALID_RESULT
     charge1_value: i64 = values[0]
     charge2_value: i64 = values[1]

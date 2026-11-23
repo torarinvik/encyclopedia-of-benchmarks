@@ -17,7 +17,7 @@ const JOULES_PER_UNIT: f64[55] = [
     4184000000000.0, 4.184e15, 4.184e18, 4.3597482e-18, 2.1798741e-18
 ]
 def energy_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 3 or length > MAX_INPUT_LENGTH:
+    if values == null or length != 3 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
     value_micro: i64 = values[0]
     from_unit: i64 = values[1]

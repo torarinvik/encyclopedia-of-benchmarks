@@ -1,5 +1,5 @@
 def schorr_waite_graph_marking_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > 66:
+    if input == null or length < 4 or length > 66:
         return -1
 
     node_count_value: i64 = input[0]

@@ -38,7 +38,7 @@ def rehash(table: mutable view[i32], capacity: mutable usize&):
         index <- index + 1
 
 def linear_probing_hash_table_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 66: return -1
+    if input == null or length < 2 or length > 66: return -1
     if input[0] < 2 or input[0] > 16 or input[1] < 0 or input[1] > 32: return -1
     table_capacity: mutable usize = input[0].usize()
     operation_count: usize = input[1].usize()
@@ -99,7 +99,7 @@ def linear_probing_hash_table_impl(input: i64&, length: usize, output: mutable u
         operation <- operation + 1
     if position != length or word_count > 1088: return -1
     bytes: usize = word_count * 8
-    if output.is_null() or output_capacity < bytes: return -2
+    if output == null or output_capacity < bytes: return -2
     index: mutable usize = 0
     while index < word_count:
         bits: u64 = words[index].u64()

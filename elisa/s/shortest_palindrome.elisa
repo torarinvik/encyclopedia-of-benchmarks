@@ -2,7 +2,7 @@
 def shortest_palindrome_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     if length > 64:
         return -1
-    if length > 0 and input.is_null():
+    if length > 0 and input == null:
         return -1
     index: mutable usize = 0
     while index < length:
@@ -34,7 +34,7 @@ def shortest_palindrome_impl(input: i64&, length: usize, output: mutable u8&, ou
         index <- index + 1
 
     output_length: usize = 2 * length - prefix_match
-    if output.is_null() or output_capacity < output_length:
+    if output == null or output_capacity < output_length:
         return -2
     index <- 0
     while index < length:

@@ -3,7 +3,7 @@ const MAX_STEPS: usize = 64
 const MAX_INPUT_LENGTH: usize = 19
 
 def self_adjusting_scheduling_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
         return -1
     task_count_value: i64 = input[0]
     steps_value: i64 = input[1]
@@ -39,7 +39,7 @@ def self_adjusting_scheduling_impl(input: i64&, length: usize, output: mutable u
             return -1
         priorities[selected] <- updated_priority
 
-    if output.is_null() or capacity < steps:
+    if output == null or capacity < steps:
         return -2
     for step in 0..<steps:
         output[step] <- schedule[step]

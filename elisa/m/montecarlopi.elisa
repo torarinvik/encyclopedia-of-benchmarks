@@ -11,7 +11,7 @@ def mcpi_allowed_coordinate(value: f64) -> bool:
 
 def montecarlopi_impl(input: f64&, input_length: usize,
                       output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input == null or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
     if not mcpi_exact_integer(input[0], 1, 64): return -1
     point_count: usize = input[0].usize()
     if input_length != 1 + 2 * point_count: return -1
@@ -25,7 +25,7 @@ def montecarlopi_impl(input: f64&, input_length: usize,
         point <- point + 1
     estimate: f64 = inside.f64() / point_count.f64() * 4.0
     if estimate != estimate or estimate >= 1.7976931348623157e308 or estimate <= -1.7976931348623157e308: return -1
-    if output.is_null() or capacity < 1: return -2
+    if output == null or capacity < 1: return -2
     output[0] <- estimate
     1
 

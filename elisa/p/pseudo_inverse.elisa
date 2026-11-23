@@ -2,7 +2,7 @@ extern floor(value: f64) -> f64
 extern sqrt(value: f64) -> f64
 
 def pseudo_inverse_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > 7: return -1
+    if input == null or input_length < 3 or input_length > 7: return -1
     i: mutable usize = 0
     while i < input_length:
         if input[i] != input[i]: return -1
@@ -34,7 +34,7 @@ def pseudo_inverse_impl(input: f64&, input_length: usize, output: mutable f64&, 
             staged[2 + i] <- column[i] / squared_norm
             i <- i + 1
     output_size: usize = rows + 2
-    if output.is_null() or capacity < output_size: return -2
+    if output == null or capacity < output_size: return -2
     i <- 0
     while i < output_size:
         output[i] <- staged[i]

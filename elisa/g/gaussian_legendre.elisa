@@ -2,7 +2,7 @@
 const INVALID_RESULT: f64 = -1.0e300
 
 def gaussian_legendre_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 7: return INVALID_RESULT
+    if values == null or length != 7: return INVALID_RESULT
     order: i64 = values[0]
     if order < 1 or order > 5 or values[1] < -5000 or values[1] > 5000: return INVALID_RESULT
     if values[2] < -5000 or values[2] > 5000: return INVALID_RESULT

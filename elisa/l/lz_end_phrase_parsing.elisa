@@ -2,8 +2,8 @@ const MAX_TEXT: usize = 64
 const MAX_INPUT: usize = 66
 const PHRASE_MULTIPLIER: i64 = 133121
 
-def lz_end_phrase_parsing(input: i64&, length: usize) -> i64 @export("lz_end_phrase_parsing"):
-    if input.is_null() or length < 1 or length > MAX_INPUT: return -1
+def lz_end_phrase_parsing_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT: return -1
     if input[0] < 0 or input[0] > 64.i64(): return -1
     n: usize = input[0].usize()
     if length != n + 1: return -1
@@ -42,3 +42,5 @@ def lz_end_phrase_parsing(input: i64&, length: usize) -> i64 @export("lz_end_phr
     for i in 0..<phrases:
         checksum <- checksum + (i + 1).i64() * phrase_lengths[i].i64()
     PHRASE_MULTIPLIER * phrases.i64() + checksum
+
+export fn lz_end_phrase_parsing(input: i64&, length: usize) -> i64 = lz_end_phrase_parsing_impl

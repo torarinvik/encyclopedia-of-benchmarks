@@ -1,6 +1,6 @@
 # Maximum consecutive ones with at most k flips
 def max_consecutive_ones_iii_impl(a: i64&, length: usize) -> i64:
-    if a.is_null(): return -2
+    if a == null: return -2
     if length < 3 or length > 1026 or a[0] < 1 or a[0] > 1024 or length != a[0].usize() + 2 or a[1] < 0 or a[1] > a[0]: return -2
     n: usize = a[0].usize()
     i: mutable usize = 0

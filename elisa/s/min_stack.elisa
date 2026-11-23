@@ -10,8 +10,8 @@ def min_stack_write_i64(output: mutable view[u8], offset: usize, value: i64) -> 
         bits <- bits >> 8
         byte <- byte + 1
 
-export fn min_stack(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+def min_stack_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_VALUES: return -1
     count_value: i64 = input[0]
     if count_value < 0 or count_value > 256: return -1
     count: usize = count_value.usize()
@@ -41,7 +41,7 @@ export fn min_stack(input: i64&, length: usize, output: mutable u8&, capacity: u
     if position != length: return -1
 
     needed: usize = (1 + 3 * query_count) * 8
-    if output.is_null() or capacity < needed: return -2
+    if output == null or capacity < needed: return -2
 
     buffer: mutable u8[6152] = zeroed
     min_stack_write_i64(buffer[0:MAX_OUTPUT_BYTES], 0, query_count.i64())
@@ -82,3 +82,5 @@ export fn min_stack(input: i64&, length: usize, output: mutable u8&, capacity: u
         output[index] <- buffer[index]
         index <- index + 1
     needed.i64()
+
+export fn min_stack(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = min_stack_impl

@@ -18,5 +18,7 @@ def cone_impl(values: i64&, length: usize) -> f64:
     height_value: f64 = height.f64()
     base_area + pi * radius_value * sqrt(radius_squared + height_value * height_value)
 
-export fn cone(values: i64&, length: usize) -> f64:
+def cone_entry(values: i64&, length: usize) -> f64:
     cone_impl(values, length)
+
+export fn cone(values: i64&, length: usize) -> f64 = cone_entry

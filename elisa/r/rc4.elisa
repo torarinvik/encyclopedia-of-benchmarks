@@ -3,7 +3,7 @@ const MAX_PLAINTEXT_LENGTH: usize = 256
 const MAX_INPUT_VALUES: usize = 515
 
 def rc4_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 2 or length > MAX_INPUT_VALUES: return -1
     key_length_value: i64 = input[0]
     plaintext_length_value: i64 = input[1]
     if key_length_value < 1 or key_length_value > 256: return -1
@@ -17,7 +17,7 @@ def rc4_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -
         if byte < 0 or byte > 255: return -1
         index <- index + 1
     if plaintext_length == 0: return 0
-    if output.is_null() or capacity < plaintext_length: return -2
+    if output == null or capacity < plaintext_length: return -2
 
     state: mutable i64[256] = zeroed
     index <- 0

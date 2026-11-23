@@ -1,5 +1,5 @@
-export fn extended_kalman_filter(values: i64&, length: usize) -> f64:
-    if values.is_null() or length < 10 or length > 17: return -1.0e300
+def extended_kalman_filter_impl(values: i64&, length: usize) -> f64:
+    if values == null or length < 10 or length > 17: return -1.0e300
     steps: i64 = values[0]
     if steps < 1 or steps > 8 or length != (9 + steps).usize(): return -1.0e300
     index: mutable usize = 1
@@ -52,3 +52,5 @@ export fn extended_kalman_filter(values: i64&, length: usize) -> f64:
         p11 <- z11
         t <- t + 1
     return x
+
+export fn extended_kalman_filter(values: i64&, length: usize) -> f64 = extended_kalman_filter_impl

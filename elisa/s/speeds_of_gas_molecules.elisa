@@ -8,7 +8,7 @@ const PI_VALUE: f64 = 3.14159265358979323846264338327950288
 const INVALID_RESULT: f64 = -1.0e300
 
 def speeds_of_gas_molecules_impl(input: i64&, length: usize) -> f64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return INVALID_RESULT
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH: return INVALID_RESULT
     operation: i64 = input[0]
     temperature_mk: i64 = input[1]
     molar_mass_micro: i64 = input[2]

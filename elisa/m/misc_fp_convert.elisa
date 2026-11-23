@@ -2,10 +2,10 @@ const MAX_ITERATIONS: i64 = 256
 const VECTOR_LENGTH: usize = 2048
 
 def misc_fp_convert_impl(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length != 1: return -1
+    if input == null or input_length != 1: return -1
     requested: f64 = input[0]
     if requested != requested or requested < 1.0 or requested > 256.0 or requested.i64().f64() != requested: return -1
-    if output.is_null() or output_capacity < 1: return -2
+    if output == null or output_capacity < 1: return -2
 
     iterations: i64 = requested.i64()
     x: mutable f32[VECTOR_LENGTH] = zeroed

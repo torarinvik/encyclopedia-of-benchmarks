@@ -13,7 +13,7 @@ def box_muller_is_bounded_integer(value: f64, minimum: f64, maximum: f64) -> boo
 
 def box_muller_cartesian_normal_impl(input: f64&, length: usize,
     output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 1 + 2 * MAX_PAIRS: return -1
+    if input == null or length < 2 or length > 1 + 2 * MAX_PAIRS: return -1
     if not box_muller_is_bounded_integer(input[0], 1.0, MAX_PAIRS.f64()): return -1
     pair_count: usize = input[0].usize()
     if length != 1 + 2 * pair_count: return -1
@@ -23,7 +23,7 @@ def box_muller_cartesian_normal_impl(input: f64&, length: usize,
         index <- index + 1
 
     result_count: usize = 2 * pair_count
-    if output.is_null() or capacity < result_count: return -2
+    if output == null or capacity < result_count: return -2
     pair: mutable usize = 0
     while pair < pair_count:
         radial: f64 = (input[1 + 2 * pair] + 1.0) / DRAW_SCALE

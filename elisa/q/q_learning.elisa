@@ -8,7 +8,7 @@ def q_learning_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
 
 def q_learning_update_impl(input: f64&, input_length: usize,
                            output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 6 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input == null or input_length < 6 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
     if not q_learning_exact_integer(input[0], 0, 1) or not q_learning_exact_integer(input[5], 0, 4): return -1
     done: bool = input[0] == 1.0
     alpha: f64 = input[1]
@@ -36,7 +36,7 @@ def q_learning_update_impl(input: f64&, input_length: usize,
             index <- index + 1
     updated: f64 = (1.0 - alpha) * old_q + alpha * (reward + gamma * max_q_next)
     if updated != updated or updated >= 1.7976931348623157e308 or updated <= -1.7976931348623157e308: return -1
-    if output.is_null() or capacity < 1: return -2
+    if output == null or capacity < 1: return -2
     output[0] <- updated
     1
 

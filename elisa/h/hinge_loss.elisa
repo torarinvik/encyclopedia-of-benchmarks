@@ -1,5 +1,5 @@
 def hinge_loss_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length < 3 or length > 513: return -1.0e300
+    if values == null or length < 3 or length > 513: return -1.0e300
     count_value: i64 = values[0]
     if count_value < 1 or count_value > 256: return -1.0e300
     count: usize = count_value.usize()

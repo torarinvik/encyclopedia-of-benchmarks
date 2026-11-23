@@ -1,7 +1,7 @@
 const INVALID_RESULT: i64 = -9223372036854775807 - 1
 
 def ipv4_conversion_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 4:
+    if input == null or length != 4:
         return INVALID_RESULT
     address: mutable i64 = 0
     index: mutable usize = 0

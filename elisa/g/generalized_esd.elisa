@@ -1,6 +1,6 @@
 const CRITICAL: f64[9] = [0.0, 0.0, 0.0, 1.1543048513440384, 1.48125, 1.715037312343363, 1.887145117783933, 2.0199685076795957, 2.126645087195462]
 
-export fn generalized_esd(values: i64&, length: usize) -> i64:
+def generalized_esd_impl(values: i64&, length: usize) -> i64:
     if length < 5 or length > 10: return -1
     n: i64 = values[0]
     limit: i64 = values[1]
@@ -55,3 +55,5 @@ export fn generalized_esd(values: i64&, length: usize) -> i64:
         mask <- mask | (1 << removed[i].usize())
         i <- i + 1
     return mask
+
+export fn generalized_esd(values: i64&, length: usize) -> i64 = generalized_esd_impl

@@ -9,7 +9,7 @@ def how_many_times_rotated_impl(input: i64&, length: usize) -> i64:
         return -1
     if length == 0:
         return 0
-    if input.is_null():
+    if input == null:
         return -1
     index: mutable usize = 0
     while index < length:

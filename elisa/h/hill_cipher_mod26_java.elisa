@@ -1,5 +1,5 @@
 def hill_cipher_mod26_java_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > 257: return -1
+    if input == null or length < 1 or length > 257: return -1
     if input[0] != 0 and input[0] != 1: return -1
     key: mutable i64[4] = zeroed
     if input[0] == 0:
@@ -27,7 +27,7 @@ def hill_cipher_mod26_java_impl(input: i64&, length: usize, output: mutable u8&,
     if text_length % 2 == 1:
         text[text_length] <- 88
         text_length <- text_length + 1
-    if text_length > capacity or (text_length > 0 and output.is_null()): return -2
+    if text_length > capacity or (text_length > 0 and output == null): return -2
     if text_length == 0: return 0
     index <- 0
     while index < text_length:

@@ -2,7 +2,7 @@ const MAX_DIMENSION: i64 = 32
 const MAX_INPUT_LENGTH: usize = 2053
 
 def checkequal_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length < 4 or length > MAX_INPUT_LENGTH:
+    if values == null or length < 4 or length > MAX_INPUT_LENGTH:
         return -1
 
     rows_a: i64 = values[0]

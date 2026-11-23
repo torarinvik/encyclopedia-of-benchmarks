@@ -19,7 +19,7 @@ def poisson_point(mean: f64, successes: i64) -> f64:
     (pow(mean, successes.f64()) * exp(-mean)) / poisson_factorial(successes.f64())
 
 def poisson_dist_impl(input: i64&, length: usize) -> f64:
-    if input.is_null() or length != 4:
+    if input == null or length != 4:
         return INVALID_RESULT
     operation: i64 = input[0]
     first: i64 = input[1]

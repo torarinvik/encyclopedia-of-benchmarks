@@ -1,7 +1,7 @@
 const INVALID_RESULT: f64 = -1.0e300
 
 def mean_bias_deviation_percent_impl(input: i64&, length: usize) -> f64:
-    if input.is_null() or length < 1 or length > 131:
+    if input == null or length < 1 or length > 131:
         return INVALID_RESULT
     if input[0] < 1 or input[0] > 64:
         return INVALID_RESULT

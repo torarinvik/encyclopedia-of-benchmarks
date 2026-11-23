@@ -17,7 +17,7 @@ def integrand(function_id: i64, x: f64) -> f64:
     INVALID_RESULT
 
 def midpoint_integral_method_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 4:
+    if values == null or length != 4:
         return INVALID_RESULT
     function_id: i64 = values[0]
     intervals: i64 = values[1]

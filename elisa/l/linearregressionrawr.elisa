@@ -6,7 +6,7 @@ extern floor(value: f64) -> f64
 
 def linearregressionrawr_impl(input: f64&, input_length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > LINEARREGRESSIONRAWR_MAX_INPUT:
+    if input == null or input_length < 1 or input_length > LINEARREGRESSIONRAWR_MAX_INPUT:
         return -1
     n_value: f64 = input[0]
     if n_value != n_value or n_value < 2.0 or n_value > 32.0 or floor(n_value) != n_value:
@@ -51,7 +51,7 @@ def linearregressionrawr_impl(input: f64&, input_length: usize,
     if all_equal:
         return -1
 
-    if output.is_null() or output_capacity < 2:
+    if output == null or output_capacity < 2:
         return -2
     output[0] <- response_sum.f64() / n.f64()
     output[1] <- cross_sum.f64() / square_sum.f64()

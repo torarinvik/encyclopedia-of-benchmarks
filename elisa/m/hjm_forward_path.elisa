@@ -2,7 +2,7 @@ extern sqrt(value: f64) -> f64
 
 def hjm_forward_path_impl(input: f64&, input_length: usize,
         output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 7 or input_length > 54: return -1
+    if input == null or input_length < 7 or input_length > 54: return -1
     steps_value: f64 = input[0]
     factors_value: f64 = input[1]
     if not (steps_value >= 2.0 and steps_value <= 8.0): return -1
@@ -105,7 +105,7 @@ def hjm_forward_path_impl(input: f64&, input_length: usize,
         time <- time + 1
 
     needed: usize = steps * steps
-    if output.is_null() or capacity < needed: return -2
+    if output == null or capacity < needed: return -2
     cursor <- 0
     while cursor < needed:
         output[cursor] <- path[cursor]

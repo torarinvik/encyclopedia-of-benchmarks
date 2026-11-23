@@ -9,9 +9,9 @@ def write_i32_le(output: mutable view[u8], offset: usize, value: i64) -> void:
         bits <- bits >> 8
         byte <- byte + 1
 
-export fn search_in_arow_and_col_wise_sorted_matrix(input: i64&, length: usize,
+def search_in_arow_and_col_wise_sorted_matrix_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 2 or length > MAX_INPUT_VALUES: return -1
     n_value: i64 = input[0]
     target: i64 = input[1]
     if n_value < 1 or n_value > MAX_DIMENSION or target < -2147483648 or target > 2147483647: return -1
@@ -51,7 +51,7 @@ export fn search_in_arow_and_col_wise_sorted_matrix(input: i64&, length: usize,
         else:
             column_search <- column_search - 1
 
-    if output.is_null() or capacity < 8: return -2
+    if output == null or capacity < 8: return -2
     buffer: mutable u8[8] = zeroed
     write_i32_le(buffer[0:8], 0, result_row)
     write_i32_le(buffer[0:8], 4, result_column)
@@ -60,3 +60,5 @@ export fn search_in_arow_and_col_wise_sorted_matrix(input: i64&, length: usize,
         output[index] <- buffer[index]
         index <- index + 1
     found
+
+export fn search_in_arow_and_col_wise_sorted_matrix(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = search_in_arow_and_col_wise_sorted_matrix_impl

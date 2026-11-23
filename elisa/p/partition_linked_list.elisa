@@ -1,8 +1,8 @@
 const MAX_COUNT: usize = 64
 const MODULUS: i64 = 1000000007
 const BASE: i64 = 2000000003
-export fn partition_linked_list(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 66 or input[0] < 0 or input[0] > 64 or length != input[0].usize() + 2 or input[1] < -2147483648 or input[1] > 2147483647: return -1
+def partition_linked_list_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 66 or input[0] < 0 or input[0] > 64 or length != input[0].usize() + 2 or input[1] < -2147483648 or input[1] > 2147483647: return -1
     count: usize = input[0].usize()
     less: mutable i64[64]
     greater: mutable i64[64]
@@ -29,3 +29,5 @@ export fn partition_linked_list(input: i64&, length: usize) -> i64:
         hash <- (hash * BASE + greater[i] + 2147483648) % MODULUS
         i <- i + 1
     hash
+
+export fn partition_linked_list(input: i64&, length: usize) -> i64 = partition_linked_list_impl

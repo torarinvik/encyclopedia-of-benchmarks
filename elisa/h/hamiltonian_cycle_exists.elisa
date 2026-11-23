@@ -15,7 +15,7 @@ def has_cycle(n: usize, graph: view[i64], visited: mutable view[i64], current: u
     false
 
 def hamiltonian_cycle_exists_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]

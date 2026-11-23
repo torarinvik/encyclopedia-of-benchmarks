@@ -30,7 +30,7 @@ def traveling_salesman_next_permutation(values: mutable view[usize], length: usi
     true
 
 def traveling_salesman_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > TRAVELING_SALESMAN_MAX_INPUT_LENGTH:
+    if input == null or length < 1 or length > TRAVELING_SALESMAN_MAX_INPUT_LENGTH:
         return -1
     city_count_value: i64 = input[0]
     if city_count_value < 0 or city_count_value > 8: return -1

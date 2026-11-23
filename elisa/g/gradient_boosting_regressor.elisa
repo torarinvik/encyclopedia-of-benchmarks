@@ -2,7 +2,7 @@ const INVALID_RESULT: f64 = -1.0e300
 const MAX_SAMPLES: usize = 16
 
 def gradient_boosting_regressor_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length < 8 or length > 36: return INVALID_RESULT
+    if values == null or length < 8 or length > 36: return INVALID_RESULT
     n: i64 = values[0]
     rounds: i64 = values[1]
     rate_i: i64 = values[2]

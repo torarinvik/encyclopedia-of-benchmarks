@@ -7,7 +7,7 @@ const MAX_INPUT_LENGTH: usize = 3
 const INVALID_RESULT: f64 = -1.0e300
 
 def kelly_criterion_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 2 or length > MAX_INPUT_LENGTH:
+    if values == null or length != 2 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
     probability_micro: i64 = values[0]
     ratio_micro: i64 = values[1]

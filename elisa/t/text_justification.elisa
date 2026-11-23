@@ -5,7 +5,7 @@ const MAX_INPUT_LENGTH: usize = 2 + MAX_TEXT_BYTES + 1
 const MAX_OUTPUT_BYTES: usize = MAX_WORDS * MAX_WIDTH + MAX_WORDS
 
 def text_justification_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
     width_value: i64 = input[0]
     text_length_value: i64 = input[1]
@@ -101,7 +101,7 @@ def text_justification_impl(input: i64&, length: usize, output: mutable u8&, cap
         result[result_length] <- 32
         result_length <- result_length + 1
 
-    if output.is_null() or capacity < result_length:
+    if output == null or capacity < result_length:
         return -2
     for i in 0..<result_length:
         output[i] <- result[i]

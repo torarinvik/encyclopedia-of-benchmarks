@@ -5,7 +5,7 @@ def rol(value: u32, shift: u32) -> u32:
     ((value << shift) | (value >> (32 - shift))).u32()
 
 def sha1_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if length > MAX_INPUT or (length > 0 and input.is_null()):
+    if length > MAX_INPUT or (length > 0 and input == null):
         return -1
     for index in 0..<length:
         if input[index] < 0 or input[index] > 255:
@@ -62,7 +62,7 @@ def sha1_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) 
         h2 <- ((h2.u64() + c.u64()) & 0xFFFFFFFF).u32()
         h3 <- ((h3.u64() + d.u64()) & 0xFFFFFFFF).u32()
         h4 <- ((h4.u64() + e.u64()) & 0xFFFFFFFF).u32()
-    if output.is_null() or capacity < 20:
+    if output == null or capacity < 20:
         return -2
     digest: u32[5] = [h0, h1, h2, h3, h4]
     for index in 0..<5:

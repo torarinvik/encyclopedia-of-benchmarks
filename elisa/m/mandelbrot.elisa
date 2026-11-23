@@ -15,7 +15,7 @@ def mandelbrot_rounded_divide(left: f64, right: f64) -> f64:
     left / right
 
 def mandelbrot_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length != 6: return -1
+    if input == null or length != 6: return -1
     width_value: i64 = input[0]
     height_value: i64 = input[1]
     center_x_q: i64 = input[2]
@@ -30,7 +30,7 @@ def mandelbrot_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
     height: usize = height_value.usize()
     max_step: usize = max_step_value.usize()
     pixel_count: usize = width * height
-    if output.is_null() or capacity < pixel_count: return -2
+    if output == null or capacity < pixel_count: return -2
 
     center_x: f64 = center_x_q.f64() / 16.0
     center_y: f64 = center_y_q.f64() / 16.0

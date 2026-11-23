@@ -1,5 +1,5 @@
-export fn palindrome_singly_linked_list(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > 65 or input[0] < 0 or input[0] > 64.i64() or length != input[0].usize() + 1: return -1
+def palindrome_singly_linked_list_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 65 or input[0] < 0 or input[0] > 64.i64() or length != input[0].usize() + 1: return -1
     size: usize = input[0].usize()
     i: mutable usize = 1
     while i < length:
@@ -17,3 +17,4 @@ export fn palindrome_singly_linked_list(input: i64&, length: usize) -> i64:
         i <- i + 1
     return 1
 
+export fn palindrome_singly_linked_list(input: i64&, length: usize) -> i64 = palindrome_singly_linked_list_impl
