@@ -1,9 +1,12 @@
-@intrinsic("llvm.ctpop.i64")
-extern population_count(value: u64) -> u64
-
-# Return the parity of the set-bit count.
-def parity_impl(number: i64) -> i64:
-    # Arithmetic right shift yields the required -1 for negative inputs.
-    ((population_count(number.u64()) & 1).i64() | (number >> 63))
+# Return the parity of the set-bit count using Kernighan's bit clearing.
+def parity_impl(input: i64) -> i64:
+    if input < 0:
+        return -1
+    number: mutable i64 = input
+    result: mutable i64 = 0
+    while number != 0:
+        result <- result ^ 1
+        number <- number & (number - 1)
+    result
 
 export fn parity(number: i64) -> i64 = parity_impl

@@ -1,31 +1,43 @@
-const MAX_VALUES: usize = 64
+# Sum over subsets (zeta transform) by per-bit accumulation, then a checksum.
+const MAX_MASKS: usize = 64
 const MAX_INPUT_LENGTH: usize = 66
-const MAX_FUNCTION_VALUE: i64 = 1000000
-
-@intrinsic("llvm.ctpop.i32")
-extern population_count(value: u32) -> u32
+const MAX_BITS: i64 = 6
 
 def sum_over_subsets_zeta_transform_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 1 or length > MAX_INPUT_LENGTH:
         return -1
-    bit_count64: i64 = input[0]
-    if bit_count64 < 0 or bit_count64 > 6:
+    bit_count_value: i64 = input[0]
+    if bit_count_value < 0 or bit_count_value > MAX_BITS:
         return -1
-    bit_count: usize = bit_count64.usize()
-    state_count: usize = 1 << bit_count
-    if length != state_count + 1:
+    bit_count: usize = bit_count_value.usize()
+    mask_count: usize = 1.usize() << bit_count
+    if length != mask_count + 1:
         return -1
 
-    checksum: mutable u64 = 0
-    for mask in 0..<state_count:
-        value: u64 = input[mask + 1].u64()
-        if value > MAX_FUNCTION_VALUE.u64():
+    transformed: mutable i64[64] = zeroed
+    mask: mutable usize = 0
+    while mask < mask_count:
+        value: i64 = input[mask + 1]
+        if value < 0 or value > 1000000:
             return -1
-        free_bits: u32 = (state_count - 1 - mask).u32()
-        # Free bits occur in half the supersets. The bits in mask occur in all of them.
-        # The sum of (superset + 1) over all supersets of mask.
-        weight: u64 = ((state_count + mask + 1).u64() << population_count(free_bits)) >> 1
-        checksum <- checksum + value * weight
-    checksum.i64()
+        transformed[mask] <- value
+        mask <- mask + 1
+
+    bit: mutable usize = 0
+    while bit < bit_count:
+        bit_value: usize = 1.usize() << bit
+        mask <- 0
+        while mask < mask_count:
+            if (mask & bit_value) != 0:
+                transformed[mask] <- transformed[mask] + transformed[mask ^ bit_value]
+            mask <- mask + 1
+        bit <- bit + 1
+
+    checksum: mutable i64 = 0
+    mask <- 0
+    while mask < mask_count:
+        checksum <- checksum + (mask + 1).i64() * transformed[mask]
+        mask <- mask + 1
+    checksum
 
 export fn sum_over_subsets_zeta_transform(input: i64&, length: usize) -> i64 = sum_over_subsets_zeta_transform_impl

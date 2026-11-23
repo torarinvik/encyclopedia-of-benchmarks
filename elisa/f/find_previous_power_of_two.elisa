@@ -1,10 +1,12 @@
-@intrinsic("llvm.ctlz.i32")
-extern leading_zeros(value: u32, zero_undefined: bool) -> u32
-
-# Isolate the highest set bit, returning zero when the input has none.
+# Preserve the pinned source's repeated-doubling search on its i32 domain.
 def find_previous_power_of_two_impl(number: i64) -> i64:
-    if number.u64() > 2147483647:
+    if number < 0 or number > 2147483647:
         return -1
-    (0x80000000.u64() >> leading_zeros(number.u32(), false)).i64()
+    if number == 0:
+        return 0
+    power: mutable i64 = 1
+    while power <= number:
+        power <- power << 1
+    power >> 1 if number > 1 else 1
 
 export fn find_previous_power_of_two(number: i64) -> i64 = find_previous_power_of_two_impl
