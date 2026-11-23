@@ -1,94 +1,99 @@
-extern memcpy(destination: mutable u8&, source: i64&, length: usize) -> mutable u8&
+# A stack on a doubly linked list of pooled nodes; records each operation.
+const MAX_OPERATIONS: usize = 64
+const MAX_INPUT_LENGTH: usize = 129
+const MAX_OUTPUT_BYTES: usize = 1536
 
-struct StackScratch:
-    node_values: i64[65]
-    next_ids: usize[65]
-    prev_ids: usize[65]
-    buffer: i64[192]
+struct StackNode:
+    value: i64
+    next: usize
+    previous: mutable usize
 
-const STACK_MAX_OPERATIONS: usize = 64
-const STACK_MAX_INPUT_LENGTH: usize = 129
-def stack_with_doubly_linked_list_impl(input: i64&, length: usize,
-                                       output: mutable u8&, capacity: usize) -> i64:
-    if input == null or length < 1 or length > STACK_MAX_INPUT_LENGTH: return -1
+def stack_write_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte).u64()) & 255).u8()
+        byte <- byte + 1
+
+def stack_write_record(output: mutable view[u8], offset: usize, opcode: i64, tag: i64, value: i64) -> void:
+    stack_write_i64_le(output, offset, opcode)
+    stack_write_i64_le(output, offset + 8, tag)
+    stack_write_i64_le(output, offset + 16, value)
+
+def stack_with_doubly_linked_list_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
     count_value: i64 = input[0]
-    if count_value < 0 or count_value > 64: return -1
+    if count_value < 0 or count_value > MAX_OPERATIONS.i64():
+        return -1
     count: usize = count_value.usize()
-    if count == 0:
-        if length != 1: return -1
-        return -2 if output == null else 0
-    stack_doubly_run(input, length, output, capacity, count)
-
-@inline(never)
-def stack_doubly_run(input: i64&, length: usize, output: mutable u8&, capacity: usize, count: usize) -> i64:
-    scratch: mutable StackScratch = zeroed
-    # A validated trace creates at most 64 nodes. Links contain only node IDs or zero.
-    node_values: mutable i64& = &scratch.node_values[0]
-    next_ids: mutable usize& = &scratch.next_ids[0]
-    prev_ids: mutable usize& = &scratch.prev_ids[0]
-    node_count: mutable usize = 0
-    head: mutable usize = 0
+    opcodes: mutable i64[64] = zeroed
+    arguments: mutable i64[64] = zeroed
     cursor: mutable usize = 1
-    index: mutable usize = 0
-    while index < count:
-        if cursor >= length: return -1
+    i: mutable usize = 0
+    while i < count:
+        if cursor >= length:
+            return -1
         opcode: i64 = input[cursor]
         cursor <- cursor + 1
-        if opcode < 1 or opcode > 4: return -1
+        opcodes[i] <- opcode
+        if opcode == 1:
+            if cursor >= length:
+                return -1
+            value: i64 = input[cursor]
+            cursor <- cursor + 1
+            if value < -2147483648 or value > 2147483647:
+                return -1
+            arguments[i] <- value
+        elif opcode < 2 or opcode > 4:
+            return -1
+        i <- i + 1
+    if cursor != length:
+        return -1
+
+    nodes: mutable StackNode[65] = zeroed
+    next_node: mutable usize = 0
+    head: mutable usize = 0
+    written: mutable usize = 0
+    buffer: mutable u8[1536] = zeroed
+    i <- 0
+    while i < count:
+        opcode: i64 = opcodes[i]
         tag: mutable i64 = 2
         value: mutable i64 = 0
         if opcode == 1:
-            if cursor >= length: return -1
-            pushed: i64 = input[cursor]
-            cursor <- cursor + 1
-            if pushed < -2147483648 or pushed > 2147483647: return -1
-            node_count <- node_count + 1
-            node_values[node_count] <- pushed
-            next_ids[node_count] <- head
-            prev_ids[node_count] <- 0
-            if head != 0: prev_ids[head] <- node_count
-            head <- node_count
-        else:
-            if opcode == 2:
+            next_node <- next_node + 1
+            node_id: usize = next_node
+            nodes[node_id] <- StackNode{value: arguments[i], next: head, previous: 0}
+            if head != 0:
+                nodes[head].previous <- node_id
+            head <- node_id
+        elif opcode == 2:
+            if head != 0:
+                tag <- 0
+                value <- nodes[head].value
+                head <- nodes[head].next
                 if head != 0:
-                    tag <- 0
-                    value <- node_values[head]
-                    head <- next_ids[head]
-                    if head != 0: prev_ids[head] <- 0
-            else:
-                if opcode == 3:
-                    if head != 0:
-                        tag <- 0
-                        value <- node_values[head]
-                else:
-                    tag <- 0
-                    node: mutable usize = head
-                    while node != 0:
-                        value <- value + 1
-                        node <- next_ids[node]
-        written: usize = index * 3
-        scratch.buffer[written] <- opcode
-        scratch.buffer[written + 1] <- tag
-        scratch.buffer[written + 2] <- value
-        index <- index + 1
+                    nodes[head].previous <- 0
+        elif opcode == 3:
+            if head != 0:
+                tag <- 0
+                value <- nodes[head].value
+        else:
+            tag <- 0
+            node: mutable usize = head
+            while node != 0:
+                value <- value + 1
+                node <- nodes[node].next
+        stack_write_record(buffer[0:MAX_OUTPUT_BYTES], written, opcode, tag, value)
+        written <- written + 24
+        i <- i + 1
+    if output == null or capacity < written:
+        return -2
+    i <- 0
+    while i < written:
+        output[i] <- buffer[i]
+        i <- i + 1
+    written.i64()
 
-    if cursor != length: return -1
-    written: usize = count * 3
-    output_length: usize = written * 8
-    if output == null or capacity < output_length: return -2
-    # Copy the native words directly only when they match the little-endian ABI.
-    marker: i64 = 1
-    bytes: mutable u8[8] = zeroed
-    memcpy(&bytes[0], &marker, 8)
-    if bytes[0] == 1:
-        memcpy(output, &scratch.buffer[0], output_length)
-        return output_length.i64()
-    for word in 0..<written:
-        bits: u64 = scratch.buffer[word].u64()
-        for byte in 0..<8:
-            output[word * 8 + byte] <- (bits >> (byte * 8)).u8()
-    output_length.i64()
-
-
-export fn stack_with_doubly_linked_list(input: i64&, length: usize,
-    output: mutable u8&, capacity: usize) -> i64 = stack_with_doubly_linked_list_impl
+export fn stack_with_doubly_linked_list(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = stack_with_doubly_linked_list_impl

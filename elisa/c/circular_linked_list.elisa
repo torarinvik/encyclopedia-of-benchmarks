@@ -1,112 +1,108 @@
-def circular_linked_list_trace(values: i64&, operation_count: usize, node_value: mutable u32&, next_node: mutable u16&) -> i64:
+# Bounded singly circular linked-list operation trace with a sentinel ring.
+const CAPACITY: usize = 256
+const SENTINEL: usize = 256
+const VALUE_OFFSET: i64 = 1000000
+const MAX_INDEX: i64 = 1000000
+
+# Unlink node after previous and return it to the free list. Returns the new list_tail.
+def circular_unlink(next_node: mutable view[usize], previous: usize, node: usize, list_tail: usize, free_head: usize) -> usize:
+    next_node[previous] <- next_node[node]
+    next_node[node] <- free_head
+    previous if node == list_tail else list_tail
+
+def circular_linked_list_impl(values: i64&, length: usize) -> i64:
+    if length > 1024 or length % 2 != 0:
+        return -1
+    operation_count: usize = length / 2
+    node_value: mutable i64[256] = zeroed
+    next_node: mutable usize[257] = zeroed
+    i: mutable usize = 0
+    while i < CAPACITY:
+        next_node[i] <- i + 1
+        i <- i + 1
+    next_node[SENTINEL] <- SENTINEL
     free_head: mutable usize = 0
-    next_unused: mutable usize = 1
-    tail_index: mutable usize = 0
+    list_tail: mutable usize = SENTINEL
     count: mutable usize = 0
-    checksum: mutable u64 = 0
-    for operation in 0..<operation_count:
-        opcode: u64 = values[2 * operation].u64()
+    checksum: mutable i64 = 0
+
+    operation: mutable usize = 0
+    while operation < operation_count:
+        opcode: i64 = values[2 * operation]
         payload: i64 = values[2 * operation + 1]
-        observed: mutable u64 = 1000000
-        removed: mutable usize = 0
-        predecessor: mutable usize = 0
-        if opcode < 2:
-            biased_payload: u64 = payload.u64() + 1000000
-            if biased_payload > 2000000:
+        observed: mutable i64 = 0
+        returns_value: mutable bool = true
+        if opcode == 0 or opcode == 1:
+            if payload < -VALUE_OFFSET or payload > VALUE_OFFSET or count == CAPACITY or free_head == SENTINEL:
                 return -1
-            node: usize = next_unused if free_head == 0 else free_head
-            if free_head == 0:
-                if next_unused > 256:
-                    return -1
-                next_unused <- next_unused + 1
-            else:
-                free_head <- next_node[node].usize()
-            node_value[node] <- biased_payload.u32()
+            node: usize = free_head
+            free_head <- next_node[node]
+            node_value[node] <- payload
             if opcode == 0:
-                next_node[node] <- 0
-                next_node[tail_index] <- node.u16()
-                tail_index <- node
+                next_node[node] <- SENTINEL
+                next_node[list_tail] <- node
+                list_tail <- node
             else:
-                next_node[node] <- next_node[0]
-                next_node[0] <- node.u16()
+                next_node[node] <- next_node[SENTINEL]
+                next_node[SENTINEL] <- node
                 if count == 0:
-                    tail_index <- node
+                    list_tail <- node
             count <- count + 1
-            continue
-        elif opcode < 4:
+            returns_value <- false
+        elif opcode == 2 or opcode == 3:
             if payload != 0 or count == 0:
                 return -1
-            previous: mutable usize = 0
+            previous: mutable usize = SENTINEL
             if opcode == 3:
-                while next_node[previous].usize() != tail_index:
-                    previous <- next_node[previous].usize()
-            node: usize = next_node[previous].usize()
-            observed <- node_value[node].u64()
-            removed <- node
-            predecessor <- previous
-        elif opcode < 6:
-            biased_payload: u64 = payload.u64() + 1000000
-            if biased_payload > 2000000:
+                while next_node[previous] != list_tail:
+                    previous <- next_node[previous]
+            node: usize = next_node[previous]
+            observed <- node_value[node]
+            list_tail <- circular_unlink(next_node[0:257], previous, node, list_tail, free_head)
+            free_head <- node
+            count <- count - 1
+        elif opcode == 4 or opcode == 5:
+            if payload < -VALUE_OFFSET or payload > VALUE_OFFSET:
                 return -1
-            previous: mutable usize = 0
-            node: mutable usize = next_node[0].usize()
-            while node != 0 and node_value[node] != biased_payload.u32():
-                previous <- node
-                node <- next_node[node].usize()
-            observed <- 1000001 if node != 0 else 1000000
-            if opcode == 4:
-                removed <- node
-                predecessor <- previous
+            previous: mutable usize = SENTINEL
+            while next_node[previous] != SENTINEL and node_value[next_node[previous]] != payload:
+                previous <- next_node[previous]
+            node: usize = next_node[previous]
+            observed <- 1 if node != SENTINEL else 0
+            if opcode == 4 and node != SENTINEL:
+                list_tail <- circular_unlink(next_node[0:257], previous, node, list_tail, free_head)
+                free_head <- node
+                count <- count - 1
         elif opcode == 6:
             if payload != 0:
                 return -1
-            observed <- count.u64() + 1000000
-        elif opcode < 9:
-            if payload.u64() >= count.u64():
+            observed <- count.i64()
+        elif opcode == 7 or opcode == 8:
+            if payload < 0 or payload > MAX_INDEX or count == 0 or payload.u64() >= count.u64():
                 return -1
-            previous: mutable usize = 0
-            for index in 0..<payload.usize():
-                previous <- next_node[previous].usize()
-            node: usize = next_node[previous].usize()
-            observed <- node_value[node].u64()
+            previous: mutable usize = SENTINEL
+            index: mutable usize = 0
+            while index < payload.usize():
+                previous <- next_node[previous]
+                index <- index + 1
+            node: usize = next_node[previous]
+            observed <- node_value[node]
             if opcode == 8:
-                removed <- node
-                predecessor <- previous
+                list_tail <- circular_unlink(next_node[0:257], previous, node, list_tail, free_head)
+                free_head <- node
+                count <- count - 1
         else:
             return -1
-        if removed != 0:
-            next_node[predecessor] <- next_node[removed]
-            if removed == tail_index:
-                tail_index <- predecessor
-            next_node[removed] <- free_head.u16()
-            free_head <- removed
-            count <- count - 1
-        checksum <- checksum + (operation + 1).u64() * observed
-    checksum <- while node != 0 |node: mutable usize = next_node[0].usize(), index: mutable usize = 0, total: mutable u64 = checksum| -> total:
-        total <- total + (operation_count + index + 1).u64() * node_value[node].u64()
-        node <- next_node[node].usize()
+        if returns_value:
+            checksum <- checksum + (operation.i64() + 1) * (observed + VALUE_OFFSET)
+        operation <- operation + 1
+
+    node: mutable usize = next_node[SENTINEL]
+    index: mutable usize = 0
+    while node != SENTINEL:
+        checksum <- checksum + (operation_count.i64() + index.i64() + 1) * (node_value[node] + VALUE_OFFSET)
+        node <- next_node[node]
         index <- index + 1
-    checksum.i64()
-
-# Bounded singly circular linked list with a sentinel and reusable node pool.
-def circular_linked_list_impl(values: i64&, length: usize) -> i64:
-    if length == 0:
-        return 0
-    operation_count: usize = length / 2
-    if length < 32:
-        if length % 2 != 0:
-            return -1
-        small_values: mutable u32[16] = zeroed
-        small_links: mutable u16[16] = zeroed
-        return circular_linked_list_trace(values, operation_count, &small_values[0], &small_links[0])
-    if length > 1024 or length % 2 != 0:
-        return -1
-    circular_linked_list_long_trace(values, operation_count)
-
-@inline(never)
-def circular_linked_list_long_trace(values: i64&, operation_count: usize) -> i64:
-    node_values: mutable u32[257] = zeroed
-    links: mutable u16[257] = zeroed
-    circular_linked_list_trace(values, operation_count, &node_values[0], &links[0])
+    checksum
 
 export fn circular_linked_list_benchmark(values: i64&, length: usize) -> i64 = circular_linked_list_impl
