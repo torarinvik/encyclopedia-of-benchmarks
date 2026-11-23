@@ -1,212 +1,127 @@
-@inline(always)
-def strassen_store_word(output: mutable u8&, offset: usize, bits: u64) -> void:
-    output[offset + 0] <- (bits >> 0).u8()
-    output[offset + 1] <- (bits >> 8).u8()
-    output[offset + 2] <- (bits >> 16).u8()
-    output[offset + 3] <- (bits >> 24).u8()
-    output[offset + 4] <- (bits >> 32).u8()
-    output[offset + 5] <- (bits >> 40).u8()
-    output[offset + 6] <- (bits >> 48).u8()
-    output[offset + 7] <- (bits >> 56).u8()
+# Seven-product Strassen multiplication for bounded square matrices.
+const MAX_N: usize = 8
+const MAX_INPUT_LENGTH: usize = 129
 
-# The validated product fits in i64. Arithmetic modulo 2^64 preserves its
-# exact little-endian bit pattern, including negative results.
-@inline(always)
-def strassen_two[Left, Right, left_stride: usize, right_stride: usize](a: Left&, b: Right&, c: mutable u64&) -> void:
-    a0: u64 = a[0].u64()
-    b0: u64 = b[0].u64()
-    a3: u64 = a[left_stride + 1].u64()
-    b3: u64 = b[right_stride + 1].u64()
-    a1: u64 = a[1].u64()
-    b1: u64 = b[1].u64()
-    a2: u64 = a[left_stride].u64()
-    b2: u64 = b[right_stride].u64()
-    m1: u64 = (a0 + a3) * (b0 + b3)
-    m2: u64 = (a2 + a3) * b0
-    m3: u64 = a0 * (b1 - b3)
-    m4: u64 = a3 * (b2 - b0)
-    m5: u64 = (a0 + a1) * b3
-    m6: u64 = (a2 - a0) * (b0 + b1)
-    m7: u64 = (a1 - a3) * (b2 + b3)
-    c[0] <- m1 + m4 - m5 + m7
-    c[1] <- m3 + m5
-    c[2] <- m2 + m4
-    c[3] <- m1 - m2 + m3 + m6
+def strassen_multiply(a: i64&, b: i64&, c: mutable i64&, n: usize) -> void:
+    if n == 1:
+        c[0] <- a[0] * b[0]
+        return
+    half: usize = n / 2
+    x: mutable i64[16] = zeroed
+    y: mutable i64[16] = zeroed
+    m1: mutable i64[16] = zeroed
+    m2: mutable i64[16] = zeroed
+    m3: mutable i64[16] = zeroed
+    m4: mutable i64[16] = zeroed
+    m5: mutable i64[16] = zeroed
+    m6: mutable i64[16] = zeroed
+    m7: mutable i64[16] = zeroed
+    row: mutable usize = 0
+    while row < half:
+        column: mutable usize = 0
+        while column < half:
+            i: usize = row * half + column
+            x[i] <- a[row * n + column] + a[(row + half) * n + column + half]
+            y[i] <- b[row * n + column] + b[(row + half) * n + column + half]
+            column <- column + 1
+        row <- row + 1
+    strassen_multiply(&x[0], &y[0], &m1[0], half)
+    row <- 0
+    while row < half:
+        column: mutable usize = 0
+        while column < half:
+            i: usize = row * half + column
+            x[i] <- a[(row + half) * n + column] + a[(row + half) * n + column + half]
+            y[i] <- b[row * n + column]
+            column <- column + 1
+        row <- row + 1
+    strassen_multiply(&x[0], &y[0], &m2[0], half)
+    row <- 0
+    while row < half:
+        column: mutable usize = 0
+        while column < half:
+            i: usize = row * half + column
+            x[i] <- a[row * n + column]
+            y[i] <- b[row * n + column + half] - b[(row + half) * n + column + half]
+            column <- column + 1
+        row <- row + 1
+    strassen_multiply(&x[0], &y[0], &m3[0], half)
+    row <- 0
+    while row < half:
+        column: mutable usize = 0
+        while column < half:
+            i: usize = row * half + column
+            x[i] <- a[(row + half) * n + column + half]
+            y[i] <- b[(row + half) * n + column] - b[row * n + column]
+            column <- column + 1
+        row <- row + 1
+    strassen_multiply(&x[0], &y[0], &m4[0], half)
+    row <- 0
+    while row < half:
+        column: mutable usize = 0
+        while column < half:
+            i: usize = row * half + column
+            x[i] <- a[row * n + column] + a[row * n + column + half]
+            y[i] <- b[(row + half) * n + column + half]
+            column <- column + 1
+        row <- row + 1
+    strassen_multiply(&x[0], &y[0], &m5[0], half)
+    row <- 0
+    while row < half:
+        column: mutable usize = 0
+        while column < half:
+            i: usize = row * half + column
+            x[i] <- a[(row + half) * n + column] - a[row * n + column]
+            y[i] <- b[row * n + column] + b[row * n + column + half]
+            column <- column + 1
+        row <- row + 1
+    strassen_multiply(&x[0], &y[0], &m6[0], half)
+    row <- 0
+    while row < half:
+        column: mutable usize = 0
+        while column < half:
+            i: usize = row * half + column
+            x[i] <- a[row * n + column + half] - a[(row + half) * n + column + half]
+            y[i] <- b[(row + half) * n + column] + b[(row + half) * n + column + half]
+            column <- column + 1
+        row <- row + 1
+    strassen_multiply(&x[0], &y[0], &m7[0], half)
 
-@inline(never)
-def strassen_multiply[Left, Right, dimension: usize, left_stride: usize, right_stride: usize](a: Left&, b: Right&, c: mutable u64&) -> void:
-    h: usize = dimension / 2
-    x: mutable u64[16] = zeroed
-    y: mutable u64[16] = zeroed
-    product: mutable u64[16] = zeroed
-    previous_product: mutable u64[16] = zeroed
-    r: mutable usize = 0
-    while r < h:
-        col: mutable usize = 0
-        while col < h:
-            i: usize = r * h + col
-            x[i] <- a[r * left_stride + col].u64() + a[(r + h) * left_stride + col + h].u64()
-            y[i] <- b[r * right_stride + col].u64() + b[(r + h) * right_stride + col + h].u64()
-            col <- col + 1
-        r <- r + 1
-    if dimension == 4:
-        strassen_two[u64, u64, 2, 2](&x[0], &y[0], &previous_product[0])
-    else:
-        strassen_multiply[u64, u64, 4, 4, 4](&x[0], &y[0], &previous_product[0])
-    r <- 0
-    while r < h:
-        col: mutable usize = 0
-        while col < h:
-            i: usize = r * h + col
-            x[i] <- a[(r + h) * left_stride + col].u64() + a[(r + h) * left_stride + col + h].u64()
-            col <- col + 1
-        r <- r + 1
-    if dimension == 4:
-        strassen_two[u64, Right, 2, right_stride](&x[0], &b[0], &product[0])
-    else:
-        strassen_multiply[u64, Right, 4, 4, right_stride](&x[0], &b[0], &product[0])
-    for row in 0..<h:
-        for column in 0..<h:
-            i: usize = row * h + column
-            c[row * dimension + column] <- previous_product[i]
-            c[(row + h) * dimension + column + h] <- (previous_product[i]) - product[i]
-            c[(row + h) * dimension + column] <- product[i]
-    r <- 0
-    while r < h:
-        col: mutable usize = 0
-        while col < h:
-            i: usize = r * h + col
-            x[i] <- a[(r + h) * left_stride + col].u64() - a[r * left_stride + col].u64()
-            y[i] <- b[r * right_stride + col].u64() + b[r * right_stride + col + h].u64()
-            col <- col + 1
-        r <- r + 1
-    if dimension == 4:
-        strassen_two[u64, u64, 2, 2](&x[0], &y[0], &product[0])
-    else:
-        strassen_multiply[u64, u64, 4, 4, 4](&x[0], &y[0], &product[0])
-    for row in 0..<h:
-        for column in 0..<h:
-            i: usize = row * h + column
-            c[(row + h) * dimension + column + h] <- c[(row + h) * dimension + column + h] + product[i]
-    r <- 0
-    while r < h:
-        col: mutable usize = 0
-        while col < h:
-            i: usize = r * h + col
-            y[i] <- b[r * right_stride + col + h].u64() - b[(r + h) * right_stride + col + h].u64()
-            col <- col + 1
-        r <- r + 1
-    if dimension == 4:
-        strassen_two[Left, u64, left_stride, 2](&a[0], &y[0], &product[0])
-    else:
-        strassen_multiply[Left, u64, 4, left_stride, 4](&a[0], &y[0], &product[0])
-    for row in 0..<h:
-        for column in 0..<h:
-            i: usize = row * h + column
-            c[row * dimension + column + h] <- product[i]
-            c[(row + h) * dimension + column + h] <- c[(row + h) * dimension + column + h] + product[i]
-    r <- 0
-    while r < h:
-        col: mutable usize = 0
-        while col < h:
-            i: usize = r * h + col
-            x[i] <- a[r * left_stride + col].u64() + a[r * left_stride + col + h].u64()
-            col <- col + 1
-        r <- r + 1
-    if dimension == 4:
-        strassen_two[u64, Right, 2, right_stride](&x[0], &b[h * right_stride + h], &product[0])
-    else:
-        strassen_multiply[u64, Right, 4, 4, right_stride](&x[0], &b[h * right_stride + h], &product[0])
-    for row in 0..<h:
-        for column in 0..<h:
-            i: usize = row * h + column
-            c[row * dimension + column] <- c[row * dimension + column] - product[i]
-            c[row * dimension + column + h] <- c[row * dimension + column + h] + product[i]
-    r <- 0
-    while r < h:
-        col: mutable usize = 0
-        while col < h:
-            i: usize = r * h + col
-            x[i] <- a[r * left_stride + col + h].u64() - a[(r + h) * left_stride + col + h].u64()
-            y[i] <- b[(r + h) * right_stride + col].u64() + b[(r + h) * right_stride + col + h].u64()
-            col <- col + 1
-        r <- r + 1
-    if dimension == 4:
-        strassen_two[u64, u64, 2, 2](&x[0], &y[0], &previous_product[0])
-    else:
-        strassen_multiply[u64, u64, 4, 4, 4](&x[0], &y[0], &previous_product[0])
-    r <- 0
-    while r < h:
-        col: mutable usize = 0
-        while col < h:
-            i: usize = r * h + col
-            y[i] <- b[(r + h) * right_stride + col].u64() - b[r * right_stride + col].u64()
-            col <- col + 1
-        r <- r + 1
-    if dimension == 4:
-        strassen_two[Left, u64, left_stride, 2](&a[h * left_stride + h], &y[0], &product[0])
-    else:
-        strassen_multiply[Left, u64, 4, left_stride, 4](&a[h * left_stride + h], &y[0], &product[0])
-    for row in 0..<h:
-        for column in 0..<h:
-            i: usize = row * h + column
-            c[row * dimension + column] <- (c[row * dimension + column] + previous_product[i]) + product[i]
-            c[(row + h) * dimension + column] <- c[(row + h) * dimension + column] + product[i]
-
+    row <- 0
+    while row < half:
+        column: mutable usize = 0
+        while column < half:
+            i: usize = row * half + column
+            c[row * n + column] <- m1[i] + m4[i] - m5[i] + m7[i]
+            c[row * n + column + half] <- m3[i] + m5[i]
+            c[(row + half) * n + column] <- m2[i] + m4[i]
+            c[(row + half) * n + column + half] <- m1[i] - m2[i] + m3[i] + m6[i]
+            column <- column + 1
+        row <- row + 1
 
 def strassen_matrix_multiplication_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if input == null: return -1
-    if length == 3:
-        if input[0] != 1: return -1
-        left: i64 = input[1]
-        right: i64 = input[2]
-        if left.u64() + 2 > 4 or right.u64() + 2 > 4: return -1
-        if output == null or capacity < 8: return -2
-        bits: mutable u64 = (left * right).u64()
-        for byte in 0..<8:
-            output[byte] <- (bits & 255).u8()
-            bits <- bits >> 8
-        return 8
-    n: usize = (2 if length == 9 else 0) if length < 33 else (4 if length == 33 else (8 if length == 129 else 0))
-    if n == 0 or input[0].usize() != n: return -1
-    return strassen_matrix_frame(input, n, output, capacity)
-
-@inline(never)
-def strassen_matrix_frame(input: i64&, n: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if n == 2:
-        invalid: mutable u64 = 0
-        for index in 1..<9:
-            invalid <- invalid | (1.u64() if input[index].u64() + 2 > 4 else 0.u64())
-        if invalid != 0: return -1
-        if output == null or capacity < 32: return -2
-        small_result: mutable u64[4] = zeroed
-        strassen_two[i64, i64, 2, 2](&input[1], &input[5], &small_result[0])
-        for index in 0..<4:
-            strassen_store_word(output, 8 * index, small_result[index].u64())
-        return 32
-    return strassen_large_dispatch(input, n, output, capacity)
-
-@inline(never)
-def strassen_large_dispatch(input: i64&, n: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if n == 4: return strassen_large_frame[4, 16](input, output, capacity)
-    return strassen_large_frame[8, 64](input, output, capacity)
-
-@inline(never)
-def strassen_large_frame[dimension: usize, cells: usize](input: i64&, output: mutable u8&?, capacity: usize) -> i64:
-    invalid: mutable u64 = 0
-    for index in 0..<2 * cells:
-        out_of_range: u64 = 1.u64() if input[index + 1].u64() + 2 > 4 else 0.u64()
-        invalid <- invalid + out_of_range if dimension == 4 else invalid | out_of_range
-    if invalid != 0: return -1
-    if output == null or capacity < 8 * cells: return -2
-    return strassen_product[dimension, cells](input, output)
-
-@inline(never)
-def strassen_product[dimension: usize, cells: usize](input: i64&, output: mutable u8&) -> i64:
-    result: mutable u64[64] = zeroed
-    strassen_multiply[i64, i64, dimension, dimension, dimension](&input[1], &input[1 + cells], &result[0])
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    n_value: i64 = input[0]
+    if n_value != 1 and n_value != 2 and n_value != 4 and n_value != 8:
+        return -1
+    n: usize = n_value.usize()
+    matrix_cells: usize = n * n
+    if length != 1 + 2 * matrix_cells:
+        return -1
     i: mutable usize = 0
-    while i < cells:
+    while i < 2 * matrix_cells:
+        if input[1 + i] < -2 or input[1 + i] > 2:
+            return -1
+        i <- i + 1
+
+    output_bytes: usize = 8 * matrix_cells
+    if output == null or capacity < output_bytes:
+        return -2
+    result: mutable i64[64] = zeroed
+    strassen_multiply(&input[1], &input[1 + matrix_cells], &result[0], n)
+    i <- 0
+    while i < matrix_cells:
         bits: mutable u64 = result[i].u64()
         byte: mutable usize = 0
         while byte < 8:
@@ -214,6 +129,6 @@ def strassen_product[dimension: usize, cells: usize](input: i64&, output: mutabl
             bits <- bits >> 8
             byte <- byte + 1
         i <- i + 1
-    (8 * cells).i64()
+    output_bytes.i64()
 
 export fn strassen_matrix_multiplication(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = strassen_matrix_multiplication_impl

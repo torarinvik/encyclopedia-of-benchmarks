@@ -1,29 +1,27 @@
 # Seeded, bounded string evolution with fixed population and portable byte output.
-def string_genetic_algorithm_next_random(state: mutable u64&) -> u64:
-    # Since 2^31 is congruent to 1, fold the high bits and reduce once.
-    modulus: u64 = 2147483647
-    product: u64 = state * 48271.u64()
-    folded: u64 = (product & modulus) + (product >> 31)
-    # Adding one carries into bit 31 exactly when the folded value reaches the modulus.
-    state <- (folded + ((folded + 1) >> 31)) & modulus
+const POPULATION_SIZE: usize = 200
+const SELECTED_SIZE: usize = 50
+const ELITE_SIZE: usize = 66
+
+def string_genetic_algorithm_next_random(state: mutable u32&) -> u32:
+    state <- ((state.u64() * 48271.u64()) % 2147483647.u64()).u32()
     state
 
-def string_genetic_algorithm_write_i64(output: mutable u8&, offset: usize, value: u32) -> void:
+def string_genetic_algorithm_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
-    for byte in 0..<8:
-        output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
+    byte: mutable usize = 0
+    while byte < 8:
+        output[offset + byte] <- ((bits >> (8 * byte).u64()) & 255.u64()).u8()
+        byte <- byte + 1
 
-def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u8&,
-        output_capacity: usize) -> i64:
+def string_genetic_algorithm_impl(values: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if values == null or length < 6 or length > 44:
         return -2
     target_length_value: i64 = values[0]
     gene_count_value: i64 = values[1]
     seed_value: i64 = values[2]
     max_generations_value: i64 = values[3]
-    if target_length_value < 1 or target_length_value > 8 or gene_count_value < 1 or gene_count_value > 32:
-        return -2
-    if seed_value < 1 or seed_value >= 2147483647 or max_generations_value < 1 or max_generations_value > 1000:
+    if target_length_value < 1 or target_length_value > 8 or gene_count_value < 1 or gene_count_value > 32 or seed_value < 1 or seed_value >= 2147483647 or max_generations_value < 1 or max_generations_value > 1000:
         return -2
     target_length: usize = target_length_value.usize()
     gene_count: usize = gene_count_value.usize()
@@ -32,30 +30,37 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
         return -2
     if gene_count == 1:
         gene: i64 = values[4 + target_length]
-        if gene < 32 or gene > 126 or output == null or output_capacity < 16: return -2
-        for index in 0..<target_length:
-            if values[4 + index] != gene: return -2
+        if gene < 32 or gene > 126 or output == null or output_capacity < 16:
+            return -2
+        index: mutable usize = 0
+        while index < target_length:
+            if values[4 + index] != gene:
+                return -2
+            index <- index + 1
         string_genetic_algorithm_write_i64(output, 0, 1)
-        string_genetic_algorithm_write_i64(output, 8, 200)
+        string_genetic_algorithm_write_i64(output, 8, POPULATION_SIZE.i64())
         return 16
 
     genes: mutable u8[32] = zeroed
     target_word: mutable u64 = 0
     target_low: mutable u64 = 0
     target_high: mutable u64 = 0
-    for index in 0..<target_length:
+    index: mutable usize = 0
+    while index < target_length:
         value: i64 = values[4 + index]
         if value < 32 or value > 126:
             return -2
-        target_word <- target_word | (value.u64() << (8 * index))
+        target_word <- target_word | (value.u64() << (8 * index).u64())
         bit: u64 = 1.u64() << (value.u64() & 63)
         if value < 64:
             target_low <- target_low | bit
         else:
             target_high <- target_high | bit
+        index <- index + 1
     gene_low: mutable u64 = 0
     gene_high: mutable u64 = 0
-    for index in 0..<gene_count:
+    index <- 0
+    while index < gene_count:
         value: i64 = values[4 + target_length + index]
         if value < 32 or value > 126:
             return -2
@@ -65,33 +70,39 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
             gene_low <- gene_low | bit
         else:
             gene_high <- gene_high | bit
+        index <- index + 1
     if (target_low & ~gene_low) != 0 or (target_high & ~gene_high) != 0 or output == null:
         return -2
 
-    # Every random gene index is reduced modulo the validated gene count.
-    gene_table: u8& = &genes[0]
+    random_state: mutable u32 = seed_value.u32()
     population: mutable u64[200] = zeroed
-    state: mutable u64 = seed_value.u64()
+    next_population: mutable u64[200] = zeroed
+    mismatches: mutable u8[200] = zeroed
+    order: mutable usize[200] = zeroed
     individual: mutable usize = 0
-    while individual < 200 |individual, population, gene_table, state, target_length, gene_count, target_word, output, output_capacity|:
-        word: mutable u64 = 0.u64()
-        for position in 0..<target_length:
-            gene_index: usize = (string_genetic_algorithm_next_random(state) % gene_count.u64()).usize()
-            word <- (word >> 8) | (gene_table[gene_index].u64() << 56)
-        candidate: u64 = word >> ((8 - target_length) * 8)
+    while individual < POPULATION_SIZE:
+        word: mutable u64 = 0
+        position: mutable usize = 0
+        while position < target_length:
+            gene: u8 = genes[(string_genetic_algorithm_next_random(random_state) % gene_count.u32()).usize()]
+            word <- (word >> 8) | (gene.u64() << 56)
+            position <- position + 1
+        candidate: u64 = word >> ((8 - target_length) * 8).u64()
         if candidate == target_word:
-            if output_capacity < 16: return -2
+            if output_capacity < 16:
+                return -2
             string_genetic_algorithm_write_i64(output, 0, 1)
-            string_genetic_algorithm_write_i64(output, 8, 200)
+            string_genetic_algorithm_write_i64(output, 8, POPULATION_SIZE.i64())
             return 16
         population[individual] <- candidate
         individual <- individual + 1
 
-    next_population: mutable u64[200] = zeroed
-    mismatches: mutable u8[200] = zeroed
+    total_population: mutable i64 = 0
     generation: mutable usize = 1
-    while generation < max_generations |generation, population, mismatches, target_word, target_length, output, next_population, state, gene_table, gene_count|:
-        for individual in 0..<200:
+    while generation < max_generations:
+        total_population <- total_population + POPULATION_SIZE.i64()
+        individual <- 0
+        while individual < POPULATION_SIZE:
             # ASCII XOR leaves the high bit clear. Adding 127 flags each unequal byte.
             difference: u64 = population[individual] ^ target_word
             unequal: u64 = ((difference + 0x7f7f7f7f7f7f7f7f.u64()) >> 7) & 0x0101010101010101.u64()
@@ -100,68 +111,77 @@ def string_genetic_algorithm_impl(values: i64&, length: usize, output: mutable u
             if mismatch_count == 0:
                 if output_capacity < 16:
                     return -2
-                string_genetic_algorithm_write_i64(output, 0, generation.u32())
-                string_genetic_algorithm_write_i64(output, 8, generation.u32() * 200)
+                string_genetic_algorithm_write_i64(output, 0, generation.i64())
+                string_genetic_algorithm_write_i64(output, 8, total_population)
                 return 16
+            individual <- individual + 1
+
         # Count mismatch buckets, then scatter in population order to preserve ties.
         offsets: mutable usize[9] = zeroed
-        # Mismatch counts range from zero through eight.
-        buckets: mutable usize& = &offsets[0]
-        for individual in 0..<200:
-            rank: usize = mismatches[individual].usize()
-            buckets[rank] <- buckets[rank] + 1
+        individual <- 0
+        while individual < POPULATION_SIZE:
+            offsets[mismatches[individual].usize()] <- offsets[mismatches[individual].usize()] + 1
+            individual <- individual + 1
         offset: mutable usize = 0
-        for rank in 0..<9:
-            count: usize = buckets[rank]
-            buckets[rank] <- offset
+        rank: mutable usize = 0
+        while rank < 9:
+            count: usize = offsets[rank]
+            offsets[rank] <- offset
             offset <- offset + count
-        for individual in 0..<200:
-            rank: usize = mismatches[individual].usize()
-            destination: usize = buckets[rank]
-            if destination < 66:
-                next_population[destination] <- population[individual]
-            buckets[rank] <- destination + 1
-        # After scattering, this bucket ends just before the zero-fitness parents.
-        positive_parents: usize = buckets[target_length - 1]
-        next_count: mutable usize = 66
-        # Pairs start at an even index below 200, so both slots exist.
-        offspring: mutable u64& = &next_population[0]
-        for parent_rank in 0..<50 |parent_rank, next_count, positive_parents, target_length, state, gene_table, gene_count, next_population|:
-            if next_count >= 200:
-                break
-            first: u64 = next_population[parent_rank]
-            # Every positive fitness reaches the cap for target lengths from one to eight.
-            child_count: usize = 10 if parent_rank < positive_parents else 1
-            for round in 0..<child_count |round, next_count, state, first, target_length, gene_table, gene_count, next_population, offspring|:
-                if next_count >= 200:
-                    break
-                second: u64 = next_population[(string_genetic_algorithm_next_random(state) % 51.u64()).usize()]
-                cut: usize = (string_genetic_algorithm_next_random(state) % target_length.u64()).usize()
+            rank <- rank + 1
+        individual <- 0
+        while individual < POPULATION_SIZE:
+            bucket: usize = mismatches[individual].usize()
+            order[offsets[bucket]] <- individual
+            offsets[bucket] <- offsets[bucket] + 1
+            individual <- individual + 1
+
+        next_count: mutable usize = 0
+        while next_count < ELITE_SIZE:
+            next_population[next_count] <- population[order[next_count]]
+            next_count <- next_count + 1
+        parent_rank: mutable usize = 0
+        while parent_rank < SELECTED_SIZE and next_count < POPULATION_SIZE:
+            first: u64 = population[order[parent_rank]]
+            child_count: usize = (target_length - mismatches[order[parent_rank]].usize()) * 100 / target_length + 1
+            bounded_child_count: usize = child_count if child_count < 10 else 10
+            child_round: mutable usize = 0
+            while child_round < bounded_child_count and next_count < POPULATION_SIZE:
+                second: u64 = population[order[(string_genetic_algorithm_next_random(random_state) % 51).usize()]]
+                cut: usize = (string_genetic_algorithm_next_random(random_state) % target_length.u32()).usize()
                 # The low bytes come from one parent and the high bytes from the other.
-                low_mask: u64 = (1.u64() << (8 * cut)) - 1
+                low_mask: u64 = (1.u64() << (8 * cut).u64()) - 1
                 exchanged: u64 = (first ^ second) & low_mask
                 children: mutable u64[2] = [second ^ exchanged, first ^ exchanged]
-                for child in 0..<2 |child, children, state, target_length, gene_table, gene_count, next_count, offspring|:
-                    if string_genetic_algorithm_next_random(state) % 5.u64() < 2.u64():
-                        position: usize = (string_genetic_algorithm_next_random(state) % target_length.u64()).usize()
-                        replacement_index: usize = (string_genetic_algorithm_next_random(state) % gene_count.u64()).usize()
-                        shift: usize = 8 * position
-                        mask: u64 = 255.u64() << shift
-                        children[child] <- (children[child] & ~mask) | (gene_table[replacement_index].u64() << shift)
-                    offspring[next_count + child] <- children[child]
-                next_count <- next_count + 2
-        for index in 0..<200:
+                child_index: mutable usize = 0
+                while child_index < 2:
+                    if string_genetic_algorithm_next_random(random_state) % 5 < 2:
+                        position: usize = (string_genetic_algorithm_next_random(random_state) % target_length.u32()).usize()
+                        shift: u64 = (8 * position).u64()
+                        replacement: u64 = genes[(string_genetic_algorithm_next_random(random_state) % gene_count.u32()).usize()].u64()
+                        children[child_index] <- (children[child_index] & ~(255.u64() << shift)) | (replacement << shift)
+                    if next_count < POPULATION_SIZE:
+                        next_population[next_count] <- children[child_index]
+                        next_count <- next_count + 1
+                    child_index <- child_index + 1
+                child_round <- child_round + 1
+            parent_rank <- parent_rank + 1
+        index <- 0
+        while index < POPULATION_SIZE:
             population[index] <- next_population[index]
+            index <- index + 1
         generation <- generation + 1
     # The last generation needs equality only because it has no offspring.
-    if generation != 1:
-        for individual in 0..<200:
+    if max_generations != 1:
+        individual <- 0
+        while individual < POPULATION_SIZE:
             if population[individual] == target_word:
-                if output_capacity < 16: return -2
-                string_genetic_algorithm_write_i64(output, 0, generation.u32())
-                string_genetic_algorithm_write_i64(output, 8, generation.u32() * 200)
+                if output_capacity < 16:
+                    return -2
+                string_genetic_algorithm_write_i64(output, 0, max_generations.i64())
+                string_genetic_algorithm_write_i64(output, 8, total_population + POPULATION_SIZE.i64())
                 return 16
+            individual <- individual + 1
     -1
 
-export fn string_genetic_algorithm(values: i64&, length: usize, output: mutable u8&,
-        output_capacity: usize) -> i64 = string_genetic_algorithm_impl
+export fn string_genetic_algorithm(values: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64 = string_genetic_algorithm_impl
