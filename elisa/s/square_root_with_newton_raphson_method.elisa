@@ -1,24 +1,22 @@
 # Newton-Raphson square root under the pinned integer input contract.
-@link_name("llvm.fabs.f64")
-extern absolute(value: f64) -> f64
+@intrinsic("llvm.fabs.f64")
+extern fabs(value: f64) -> f64
+@intrinsic("llvm.trunc.f64")
+extern trunc(value: f64) -> f64
 
-@link_name("llvm.fptosi.sat.i32.f64")
-extern saturate_to_integer(value: f64) -> i32
+const INVALID_RESULT: f64 = -1.0e300
+const MAX_INPUT: f64 = 2147483647.0
+const MAX_FINITE: f64 = 1.7976931348623157e308
 
-@inline(never)
-def refine(input: f64) -> f64:
+def square_root_with_newton_raphson_method_impl(input: f64) -> f64:
+    # fabs(input) <= MAX_FINITE is false for NaN and both infinities, like isfinite.
+    if not (fabs(input) <= MAX_FINITE) or input < 1.0 or input > MAX_INPUT or trunc(input) != input:
+        return INVALID_RESULT
     guess: mutable f64 = input
     root: mutable f64 = 0.5 * (guess + input / guess)
-    while absolute(root - guess) > 1e-7:
+    while fabs(root - guess) > 1e-7:
         guess <- root
         root <- 0.5 * (guess + input / guess)
     root
-
-def square_root_with_newton_raphson_method_impl(input: f64) -> f64:
-    # Only positive i32 values that round-trip exactly satisfy the input contract.
-    integer: i32 = saturate_to_integer(input)
-    if not (integer > 0 and integer.f64() == input):
-        return -1.0e300
-    refine(input)
 
 export fn square_root_with_newton_raphson_method(input: f64) -> f64 = square_root_with_newton_raphson_method_impl

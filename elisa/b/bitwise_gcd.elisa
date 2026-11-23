@@ -1,20 +1,27 @@
-@intrinsic("llvm.cttz.i64")
-extern trailing_zeros(value: u64, zero_undefined: bool) -> u64
+# Binary (Stein) GCD with trailing-zero stripping.
+def trailing_zeros(value: u64) -> u64:
+    remaining: mutable u64 = value
+    count: mutable u64 = 0
+    while (remaining & 1) == 0:
+        remaining <- remaining >> 1
+        count <- count + 1
+    count
 
-def bitwise_gcd_impl(left: u64, right: u64) -> i64:
-    if left == 0 or right == 0 or left == right:
-        return (left | right).i64()
-
-    common_twos: u64 = trailing_zeros(left | right, true)
-    a: mutable u64 = left >> trailing_zeros(left, true)
-    b: mutable u64 = right
-    while b != 0:
-        b <- b >> trailing_zeros(b, true)
-        if a > b:
-            temp: u64 = a
-            a <- b
-            b <- temp
-        b <- b - a
-    (a << common_twos).i64()
+def bitwise_gcd_impl(left_input: u64, right_input: u64) -> i64:
+    if left_input == 0:
+        return right_input.i64()
+    if right_input == 0:
+        return left_input.i64()
+    common_twos: u64 = trailing_zeros(left_input | right_input)
+    left: mutable u64 = left_input >> trailing_zeros(left_input)
+    right: mutable u64 = right_input
+    while right != 0:
+        right <- right >> trailing_zeros(right)
+        if left > right:
+            temp: u64 = left
+            left <- right
+            right <- temp
+        right <- right - left
+    (left << common_twos).i64()
 
 export fn bitwise_gcd(left: u64, right: u64) -> i64 = bitwise_gcd_impl
