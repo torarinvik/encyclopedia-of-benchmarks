@@ -5,7 +5,7 @@
 
 namespace {
 constexpr int MAX_N = 12;
-constexpr std::size_t MAX_INPUT = 135;
+constexpr std::size_t MAX_INPUT_VALUES = 135;
 
 int popcount_mask(std::uint16_t mask) {
     int count = 0;
@@ -48,7 +48,7 @@ int search_mds(const std::uint16_t* closed, int n, std::uint16_t full,
 
 extern "C" std::int64_t minimum_dominating_set_branch_bound(const std::int64_t* packed,
                                                                std::size_t length) noexcept {
-    if (packed == nullptr || length < 2 || length > MAX_INPUT) return -1;
+    if (packed == nullptr || length < 2 || length > MAX_INPUT_VALUES) return -1;
     const std::int64_t n64 = packed[0], m64 = packed[1];
     if (n64 < 1 || n64 > MAX_N) return -1;
     const int n = static_cast<int>(n64);

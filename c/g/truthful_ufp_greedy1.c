@@ -18,7 +18,7 @@ int64_t truthful_ufp_greedy1(const int64_t*a,size_t n,uint8_t*out,size_t cap){
    for(int step=0;step<nv;step++){int u=-1;for(int v=0;v<nv;v++)if(!used[v]&&(u<0||d[v]<d[u]||(d[v]==d[u]&&v<u)))u=v;if(u<0||d[u]>=1e299)break;used[u]=1;
     for(int e=0;e<m;e++){int v=-1;if(eu[e]==u)v=ev[e];else if(ev[e]==u)v=eu[e];if(v<0||used[v])continue;double cand=d[u]+y[e];if(cand<d[v]||(cand==d[v]&&(prev[v]<0||u<prev[v]))){d[v]=cand;prev[v]=u;}}
    }
-   if(d[dst[i]]>=1e299)return -1;int rev[MAX_N],len=0,v=dst[i];while(v!=src[i]&&len<nv){rev[len++]=v;v=prev[v];if(v<0)return -1;}if(v!=src[i])return -1;rev[len++]=src[i];rlen[i]=len;for(int q=0;q<len;q++)route[i][q]=rev[len-1-q];dist[i][0]=d[dst[i]];
+   if(d[dst[i]]>=1e299)return -1;int rev[MAX_N],len=0,v=dst[i];while(v!=src[i]&&len<nv){rev[len++]=v;v=prev[v];if(v<0)return -1;}if(v!=src[i])return -1;rev[len++]=src[i];rlen[i]=len;for(int q=0;q<len;q++)route[i][q]=rev[len-1-q];
    double score=(double)val[i]/d[dst[i]];if(best<0||score>best_score){best=i;best_score=score;}
   }
   if(best<0)break;live[best]=0;chosen[count]=best;plen[count]=rlen[best];for(int q=0;q<plen[count];q++)paths[count][q]=route[best][q];count++;

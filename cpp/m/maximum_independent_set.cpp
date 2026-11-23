@@ -75,6 +75,6 @@ extern "C" std::int64_t maximum_independent_set(const std::int64_t* packed,
         search.adjacency[u] |= bit;
         search.adjacency[v] |= UINT64_C(1) << u;
     }
-    search_mis(search, (UINT64_C(1) << n) - UINT64_C(1), 0);
+    search_mis(search, (UINT64_C(1) << static_cast<unsigned>(n64)) - UINT64_C(1), 0);
     return search.best;
 }

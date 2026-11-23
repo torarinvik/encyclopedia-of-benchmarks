@@ -6,9 +6,9 @@
 #include <limits>
 
 extern "C" double gbbs_greedy_plus_plus_densest_subgraph(const std::int64_t* input, std::size_t length) {
-    constexpr std::size_t N = 16, M = 64, MAX_INPUT = 2 + 2 * M + 2;
+    constexpr std::size_t N = 16, M = 64, MAX_INPUT_VALUES = 2 + 2 * M + 2;
     constexpr double INVALID = -1.0e300;
-    if (input == nullptr || length < 2 || length > MAX_INPUT) return INVALID;
+    if (input == nullptr || length < 2 || length > MAX_INPUT_VALUES) return INVALID;
     const auto n64 = input[0], m64 = input[1];
     if (n64 < 10 || n64 > 16 || m64 < 0 || m64 > 64 || length != 2 + 2 * static_cast<std::size_t>(m64)) return INVALID;
     const auto n = static_cast<std::size_t>(n64), m = static_cast<std::size_t>(m64);

@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <limits.h>
 
-enum { MAX_INPUT = 67, MAX_OUTPUT = 504, MAX_N = 32, MAX_M = 32, MAX_H = 63 };
+enum { MAX_INPUT_VALUES = 67, MAX_OUTPUT = 504, MAX_N = 32, MAX_M = 32, MAX_H = 63 };
 typedef struct {
     const int64_t *concave, *arbitrary;
     size_t n, m, h;
@@ -68,7 +68,7 @@ static void partition(Context *c, size_t x1, size_t x2, size_t y1, size_t y2) {
 
 int64_t min_plus_convolution_concave_arbitrary(const int64_t *input, size_t length,
                                                uint8_t *output, size_t capacity) {
-    if (input==NULL || length<4 || length>MAX_INPUT) return -1;
+    if (input==NULL || length<4 || length>MAX_INPUT_VALUES) return -1;
     int64_t n0=input[0],m0=input[1];
     if (n0<1 || n0>MAX_N || m0<1 || m0>MAX_M) return -1;
     size_t n=(size_t)n0,m=(size_t)m0;

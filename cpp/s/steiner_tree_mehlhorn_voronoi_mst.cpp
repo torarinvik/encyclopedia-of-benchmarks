@@ -5,7 +5,7 @@
 
 namespace {
 constexpr int N = 8, M = 14;
-constexpr std::size_t MAX_INPUT = 54, MAX_OUTPUT = 72;
+constexpr std::size_t MAX_INPUT_VALUES = 54, MAX_OUTPUT = 72;
 constexpr std::int64_t INF = INT64_C(0x3fffffffffffffff);
 struct Edge { int u{}, v{}, w{}; };
 struct Candidate { int a{}, b{}, left{}, right{}, edge{}; std::int64_t w{}; };
@@ -25,7 +25,7 @@ bool before(const Candidate& a, const Candidate& b) {
            std::array<std::int64_t,6>{b.w,b.a,b.b,b.left,b.right,b.edge};
 }
 bool parse(const std::int64_t* in, std::size_t len, Graph& g) {
-    if (in == nullptr || len < 3 || len > MAX_INPUT) return false;
+    if (in == nullptr || len < 3 || len > MAX_INPUT_VALUES) return false;
     if (in[0] < 2 || in[0] > N || in[1] < 1 || in[1] > M || in[2] < 2 || in[2] > in[0]) return false;
     g.n = static_cast<int>(in[0]); g.m = static_cast<int>(in[1]); g.k = static_cast<int>(in[2]);
     if (len < static_cast<std::size_t>(3 + g.k + 3*g.m)) return false;

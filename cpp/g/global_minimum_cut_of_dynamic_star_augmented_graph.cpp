@@ -4,7 +4,7 @@
 #include <limits>
 
 namespace {
-constexpr int MAX_N=16,MAX_M=64,MAX_Q=32,MAX_V=17,MAX_INPUT=276,MAX_OUTPUT=256;
+constexpr int MAX_N=16,MAX_M=64,MAX_Q=32,MAX_V=17,MAX_INPUT_VALUES=276,MAX_OUTPUT=256;
 constexpr std::int64_t MAX_W=1000000;
 void store_le(std::uint8_t *out,std::size_t at,std::int64_t x){auto b=static_cast<std::uint64_t>(x);for(std::size_t i=0;i<8;++i){out[at+i]=static_cast<std::uint8_t>(b&255u);b>>=8;}}
 std::int64_t stoer_wagner(std::size_t n,const std::int64_t *spokes,std::size_t m,const std::int64_t *eu,const std::int64_t *ev,const std::int64_t *ew){
@@ -19,7 +19,7 @@ std::int64_t stoer_wagner(std::size_t n,const std::int64_t *spokes,std::size_t m
 }
 }
 extern "C" std::int64_t global_minimum_cut_of_dynamic_star_augmented_graph(const std::int64_t *input,std::size_t length,std::uint8_t *output,std::size_t capacity){
-    if(!input||length<3||length>MAX_INPUT)return -1;auto n0=input[0],m0=input[1],q0=input[2];if(n0<1||n0>MAX_N||m0<0||m0>MAX_M||m0>n0*(n0-1)/2||q0<1||q0>MAX_Q)return -1;
+    if(!input||length<3||length>MAX_INPUT_VALUES)return -1;auto n0=input[0],m0=input[1],q0=input[2];if(n0<1||n0>MAX_N||m0<0||m0>MAX_M||m0>n0*(n0-1)/2||q0<1||q0>MAX_Q)return -1;
     auto n=static_cast<std::size_t>(n0),m=static_cast<std::size_t>(m0),q=static_cast<std::size_t>(q0);if(length!=3+n+3*m+2*q)return -1;std::size_t pos=3;std::int64_t spokes[MAX_N],eu[MAX_M],ev[MAX_M],ew[MAX_M];
     for(std::size_t i=0;i<n;++i){spokes[i]=input[pos++];if(spokes[i]<0||spokes[i]>MAX_W)return -1;}bool seen[MAX_N][MAX_N]{};
     for(std::size_t e=0;e<m;++e){auto u=input[pos++],v=input[pos++],weight=input[pos++];if(u<0||u>=n0||v<0||v>=n0||u==v||weight<0||weight>MAX_W)return -1;auto a=static_cast<std::size_t>(std::min(u,v)),b=static_cast<std::size_t>(std::max(u,v));if(seen[a][b])return -1;seen[a][b]=true;eu[e]=u;ev[e]=v;ew[e]=weight;}

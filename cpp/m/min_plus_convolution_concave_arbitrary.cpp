@@ -4,7 +4,7 @@
 #include <limits>
 
 namespace {
-constexpr std::size_t MAX_INPUT=67, MAX_OUTPUT=504, MAX_N=32, MAX_H=63;
+constexpr std::size_t MAX_INPUT_VALUES=67, MAX_OUTPUT=504, MAX_N=32, MAX_H=63;
 struct Context {
     const std::int64_t *concave, *arbitrary;
     std::size_t n, m, h;
@@ -40,7 +40,7 @@ void partition(Context &c,std::size_t x1,std::size_t x2,std::size_t y1,std::size
 
 extern "C" std::int64_t min_plus_convolution_concave_arbitrary(
     const std::int64_t *input,std::size_t length,std::uint8_t *output,std::size_t capacity){
-    if(!input||length<4||length>MAX_INPUT)return -1;
+    if(!input||length<4||length>MAX_INPUT_VALUES)return -1;
     const auto n0=input[0],m0=input[1];if(n0<1||n0>MAX_N||m0<1||m0>MAX_N)return -1;
     const auto n=static_cast<std::size_t>(n0),m=static_cast<std::size_t>(m0);if(length!=2+n+m)return -1;
     const auto *a=input+2,*b=input+2+n;

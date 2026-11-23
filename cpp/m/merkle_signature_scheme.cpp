@@ -48,7 +48,7 @@ std::int64_t verify_signature(const std::int64_t* input,std::size_t height,std::
 }
 extern "C" std::int64_t merkle_signature_scheme(const std::int64_t* input,std::size_t length,std::uint8_t* output,std::size_t capacity){
  if(input==nullptr||length<4||length>8932)return -1;auto h0=input[0],w0=input[1],m0=input[2];if(h0<2||h0>10||(w0!=4&&w0!=16&&w0!=256)||m0<0||m0>64)return -1;
- auto height=static_cast<std::size_t>(h0),w=static_cast<std::size_t>(w0),msg=static_cast<std::size_t>(m0),l=w==4?133:(w==16?67:34),index_pos=3+msg,expected=4+msg+64*l+32*height+32;if(length!=expected)return -1;
+ auto height=static_cast<std::size_t>(h0),w=static_cast<std::size_t>(w0),msg=static_cast<std::size_t>(m0),l=static_cast<std::size_t>(w==4?133:(w==16?67:34)),index_pos=3+msg,expected=4+msg+64*l+32*height+32;if(length!=expected)return -1;
  for(std::size_t i=0;i<msg;i++)if(input[3+i]<0||input[3+i]>127)return -1;auto index0=input[index_pos];if(index0<0||static_cast<std::uint64_t>(index0)>=(std::uint64_t(1)<<height))return -1;
  auto sig=index_pos+1,pk=sig+32*l,auth=pk+32*l,root=auth+32*height;for(std::size_t i=sig;i<length;i++)if(input[i]<0||input[i]>255)return -1;if(output==nullptr||capacity<8)return -2;
  auto valid=verify_signature(input,height,w,msg,static_cast<std::size_t>(index0),sig,pk,auth,root,l);for(std::size_t i=0;i<8;i++)output[i]=0;output[0]=static_cast<std::uint8_t>(valid);return 8;
