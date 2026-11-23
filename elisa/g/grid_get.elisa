@@ -1,5 +1,5 @@
 def grid_get_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length < 3 or length > 4:
+    if values == null or length < 3 or length > 4:
         return -1
     operation: i64 = values[0]
     columns: i64 = values[1]
@@ -7,9 +7,9 @@ def grid_get_impl(values: i64&, length: usize) -> i64:
     if (operation != 0 and operation != 1) or columns < 1 or columns > 1000 or index < 0 or index > 10000:
         return -1
     if operation == 0:
-        remaining: i64 = index
+        remaining: mutable i64 = index
         while remaining + 1 > columns:
-            remaining = remaining - columns
+            remaining <- remaining - columns
         return remaining + 1
     index / columns + 1
 

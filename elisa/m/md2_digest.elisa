@@ -2,7 +2,7 @@ const MD2_MAX_INPUT_LENGTH: usize = 63
 const MD2_DIGEST_LENGTH: usize = 16
 
 def md2_digest_impl(input: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
-    if length > MD2_MAX_INPUT_LENGTH or (length > 0 and input.is_null()):
+    if length > MD2_MAX_INPUT_LENGTH or (length > 0 and input == null):
         return -1
     table: u8[256] = [
         41,46,67,201,162,216,124,1,61,54,84,161,236,240,6,19,98,167,5,243,192,199,115,140,152,147,43,217,188,76,130,202,
@@ -19,7 +19,7 @@ def md2_digest_impl(input: f64&, length: usize, output: mutable f64&, output_cap
         if value != value or value < 0.0 or value > 255.0 or value != value.i64().f64():
             return -1
         bytes[index] <- value.u8()
-    if output.is_null() or output_capacity < MD2_DIGEST_LENGTH:
+    if output == null or output_capacity < MD2_DIGEST_LENGTH:
         return -2
 
     padding_length: usize = MD2_DIGEST_LENGTH - length % MD2_DIGEST_LENGTH
@@ -39,9 +39,9 @@ def md2_digest_impl(input: f64&, length: usize, output: mutable f64&, output_cap
     offset <- 0
     while offset <= padded_length |bytes, checksum, state, offset|:
         for index in 0..<MD2_DIGEST_LENGTH:
-            value: u8 = checksum[index]
+            value: mutable u8 = checksum[index]
             if offset < padded_length:
-                value = bytes[offset + index]
+                value <- bytes[offset + index]
             state[index + 16] <- value
             state[index + 32] <- state[index] ^ value
         temporary: mutable u8 = 0

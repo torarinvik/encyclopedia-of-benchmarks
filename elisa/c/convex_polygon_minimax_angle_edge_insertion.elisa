@@ -69,21 +69,21 @@ def cmai_angle_cmp(points: view[CmaiPoint], left: CmaiAngle, right: CmaiAngle) -
     return 1 if lhs > rhs else -1
 
 def cmai_triangle_max(points: view[CmaiPoint], triangle: CmaiTriangle) -> CmaiAngle:
-    a: usize = triangle.a
-    b: usize = triangle.b
-    c: usize = triangle.c
+    a: mutable usize = triangle.a
+    b: mutable usize = triangle.b
+    c: mutable usize = triangle.c
     if a > b:
         temp: usize = a
-        a = b
-        b = temp
+        a <- b
+        b <- temp
     if b > c:
         temp: usize = b
-        b = c
-        c = temp
+        b <- c
+        c <- temp
     if a > b:
         temp: usize = a
-        a = b
-        b = temp
+        a <- b
+        b <- temp
     best: mutable CmaiAngle = CmaiAngle{a: a, b: b, c: c, vertex: 0}
     vertex: mutable usize = 1
     while vertex < 3:

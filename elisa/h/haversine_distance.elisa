@@ -18,9 +18,9 @@ def haversine_a(values: i64&) -> f64:
     sin_longitude: f64 = sin(delta_longitude / 2.0)
     a: mutable f64 = sin_latitude * sin_latitude + cos(latitude1) * cos(latitude2) * sin_longitude * sin_longitude
     if a < 0.0:
-        a = 0.0
+        a <- 0.0
     if a > 1.0:
-        a = 1.0
+        a <- 1.0
     a
 
 def haversine_distance(values: i64&, length: usize) -> f64:

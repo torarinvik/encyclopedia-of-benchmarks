@@ -3,12 +3,12 @@ const SORT_INPUT_MAX: usize = 129
 const SORT_OUTPUT_MAX: usize = 1024
 
 def sort_point_less(ax: i64, ay: i64, bx: i64, by: i64) -> bool:
-    ah: i64 = 2
-    bh: i64 = 2
-    if ay < 0: ah = 0
-    elif ay == 0 and ax >= 0: ah = 1
-    if by < 0: bh = 0
-    elif by == 0 and bx >= 0: bh = 1
+    ah: mutable i64 = 2
+    bh: mutable i64 = 2
+    if ay < 0: ah <- 0
+    elif ay == 0 and ax >= 0: ah <- 1
+    if by < 0: bh <- 0
+    elif by == 0 and bx >= 0: bh <- 1
     if ah != bh: return ah < bh
     cross: i64 = ax * by - ay * bx
     if cross != 0: return cross > 0
@@ -18,7 +18,7 @@ def sort_point_less(ax: i64, ay: i64, bx: i64, by: i64) -> bool:
     if ax != bx: return ax < bx
     return ay < by
 
-def sort_store_le(value: i64, output: mutable view[u8], position: usize) -> void:
+def sort_store_le(value: i64, output: mutable u8&, position: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -26,8 +26,8 @@ def sort_store_le(value: i64, output: mutable view[u8], position: usize) -> void
         byte <- byte + 1
 
 def sort_points_by_argument_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > SORT_INPUT_MAX: return -1
-    input_view: view[i64] = input[0:length]
+    if input == null or length < 1 or length > SORT_INPUT_MAX: return -1
+    input_view: i64& = input
     nr: i64 = input_view[0]
     if nr < 1 or nr > SORT_MAX_N.i64() or length != 1 + 2 * nr.usize(): return -1
     n: usize = nr.usize()
@@ -42,7 +42,7 @@ def sort_points_by_argument_impl(input: i64&, length: usize, output: mutable u8&
         ys[i] <- y
         i <- i + 1
     required: usize = 16 * n
-    if output.is_null() or capacity < required: return -2
+    if output == null or capacity < required: return -2
     i <- 1
     while i < n:
         item_x: i64 = xs[i]
@@ -55,7 +55,7 @@ def sort_points_by_argument_impl(input: i64&, length: usize, output: mutable u8&
         xs[j] <- item_x
         ys[j] <- item_y
         i <- i + 1
-    output_view: mutable view[u8] = output[0:required]
+    output_view: mutable u8& = output
     i <- 0
     while i < n:
         sort_store_le(xs[i], output_view, 16 * i)

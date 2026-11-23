@@ -2,14 +2,13 @@ const BKM_MAX_CAPACITY: usize = 64
 const BKM_MAX_TYPES: usize = 16
 const BKM_MAX_INPUT: usize = 51
 
-export fn bounded_knapsack_monotone_queue(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > BKM_MAX_INPUT:
+def bounded_knapsack_monotone_queue_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > BKM_MAX_INPUT:
         return -1
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     capacity_value: i64 = input_view[0]
     type_count_value: i64 = input_view[1]
-    if capacity_value < 0 or capacity_value > BKM_MAX_CAPACITY.i64() or
-       type_count_value < 0 or type_count_value > BKM_MAX_TYPES.i64():
+    if capacity_value < 0 or capacity_value > BKM_MAX_CAPACITY.i64() or type_count_value < 0 or type_count_value > BKM_MAX_TYPES.i64():
         return -1
     capacity: usize = capacity_value.usize()
     type_count: usize = type_count_value.usize()
@@ -40,22 +39,24 @@ export fn bounded_knapsack_monotone_queue(input: i64&, length: usize) -> i64:
             if residue > capacity:
                 break
             head: mutable usize = 0
-            tail: mutable usize = 0
+            tail_value: mutable usize = 0
             max_t: usize = (capacity - residue) / weight
             for t in 0..<max_t + 1:
                 current: usize = residue + t * weight
                 score: i64 = dp[current] - t.i64() * value
-                while tail > head and queue_score[tail - 1] <= score:
-                    tail <- tail - 1
-                queue_index[tail] <- t.i64()
-                queue_score[tail] <- score
-                tail <- tail + 1
-                first_allowed: usize = 0
+                while tail_value > head and queue_score[tail_value - 1] <= score:
+                    tail_value <- tail_value - 1
+                queue_index[tail_value] <- t.i64()
+                queue_score[tail_value] <- score
+                tail_value <- tail_value + 1
+                first_allowed: mutable usize = 0
                 if t > count:
-                    first_allowed = t - count
-                while head < tail and queue_index[head].usize() < first_allowed:
+                    first_allowed <- t - count
+                while head < tail_value and queue_index[head].usize() < first_allowed:
                     head <- head + 1
                 next[current] <- t.i64() * value + queue_score[head]
         for c in 0..<capacity + 1:
             dp[c] <- next[c]
     return dp[capacity]
+
+export fn bounded_knapsack_monotone_queue(input: i64&, length: usize) -> i64 = bounded_knapsack_monotone_queue_impl

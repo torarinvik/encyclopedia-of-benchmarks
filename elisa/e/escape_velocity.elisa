@@ -8,9 +8,9 @@ def round_three_even(value: f64) -> f64:
     lower: f64 = floor(scaled)
     midpoint: f64 = lower + 0.5
     exact_side: f64 = fma(value, 1000.0, -midpoint)
-    rounded: i64 = lower.i64()
+    rounded: mutable i64 = lower.i64()
     if exact_side > 0.0 or (exact_side == 0.0 and rounded % 2 != 0):
-        rounded = rounded + 1
+        rounded <- rounded + 1
     rounded.f64() / 1000.0
 
 def escape_velocity_impl(values: i64&, length: usize) -> f64:

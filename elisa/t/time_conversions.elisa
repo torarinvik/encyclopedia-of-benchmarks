@@ -27,9 +27,9 @@ def round_three_ties_even(value: f64) -> f64:
     lower: f64 = floor(scaled)
     fraction: f64 = scaled - lower
     residual: f64 = fma(value, 1000.0, -scaled)
-    rounded: f64 = lower
+    rounded: mutable f64 = lower
     if fraction > 0.5 or (fraction == 0.5 and (residual > 0.0 or (residual == 0.0 and fmod(lower, 2.0) != 0.0))):
-        rounded = lower + 1.0
+        rounded <- lower + 1.0
     rounded / 1000.0
 
 def time_conversions_impl(time_value: f64, from_code: f64, to_code: f64) -> f64:

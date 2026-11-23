@@ -43,9 +43,9 @@ def double_hash_hash_table_impl(input: i64&, length: usize) -> i64:
                 if states[slot] == 2 and tomb == cap:
                     tomb <- slot
                 if states[slot] == 0:
-                    target: usize = slot
+                    target: mutable usize = slot
                     if tomb != cap:
-                        target = tomb
+                        target <- tomb
                     states[target] <- 1
                     keys[target] <- key
                     inserted <- true

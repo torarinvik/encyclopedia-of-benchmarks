@@ -140,7 +140,7 @@ def graph_js_undirected_unweighted_impl(values: i64&, length: usize,
         if stack_next_edge[top] >= degree[vertex]:
             stack_depth <- stack_depth - 1
             continue
-        edge = stack_next_edge[top]
+        edge <- stack_next_edge[top]
         stack_next_edge[top] <- stack_next_edge[top] + 1
         neighbor: usize = adjacency[vertex * MAX_DEGREE + edge].usize()
         if not visited[neighbor]:

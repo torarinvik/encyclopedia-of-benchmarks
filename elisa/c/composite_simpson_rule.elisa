@@ -29,9 +29,9 @@ def composite_simpson_rule_impl(intervals_input: f64, function_id_input: f64) ->
     i: mutable i32 = 0
     while i <= intervals:
         y: f64 = sample(function_id, x)
-        weight: f64 = 1.0
+        weight: mutable f64 = 1.0
         if i != 0 and i != intervals:
-            weight = if i % 2 == 1: 4.0 else: 2.0
+            weight <- 4.0 if i % 2 == 1 else 2.0
         sum <- sum + weight * y
         x <- x + h
         i <- i + 1

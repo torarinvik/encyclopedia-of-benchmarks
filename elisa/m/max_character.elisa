@@ -7,16 +7,16 @@ def max_character_impl(values: i64&, length: usize) -> i64:
         if value < 97 or value > 122:
             return -1
         counts[value - 97] += 1
-    best: i64 = 0
-    code: i64 = -1
-    tied: bool = false
+    best: mutable i64 = 0
+    code: mutable i64 = -1
+    tied: mutable bool = false
     for index in 0..<26:
         if counts[index] > best:
-            best = counts[index]
-            code = 97 + index
-            tied = false
+            best <- counts[index]
+            code <- 97 + index
+            tied <- false
         elif counts[index] == best and best != 0:
-            tied = true
+            tied <- true
     if tied:
         return -1
     code

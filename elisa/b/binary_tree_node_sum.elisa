@@ -12,14 +12,14 @@ def binary_tree_node_sum_visit(nodes: i64&, node_count: usize, node: i64, depth:
         return INVALID_RESULT
     if (left >= 0 and left.u64() >= node_count.u64()) or (right >= 0 and right.u64() >= node_count.u64()):
         return INVALID_RESULT
-    left_sum: i64 = 0
+    left_sum: mutable i64 = 0
     if left >= 0:
-        left_sum = binary_tree_node_sum_visit(nodes, node_count, left, depth + 1)
+        left_sum <- binary_tree_node_sum_visit(nodes, node_count, left, depth + 1)
         if left_sum == INVALID_RESULT:
             return INVALID_RESULT
-    right_sum: i64 = 0
+    right_sum: mutable i64 = 0
     if right >= 0:
-        right_sum = binary_tree_node_sum_visit(nodes, node_count, right, depth + 1)
+        right_sum <- binary_tree_node_sum_visit(nodes, node_count, right, depth + 1)
         if right_sum == INVALID_RESULT:
             return INVALID_RESULT
     value + left_sum + right_sum

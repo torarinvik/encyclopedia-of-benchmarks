@@ -22,16 +22,15 @@ def dbsp_enqueue(record_vertex: mutable view[i64], record_distance: mutable view
         bucket_tail[bucket] <- record.i64()
     used <- used + 1
 
-export fn dial_bucket_shortest_paths(input: i64&, length: usize,
+def dial_bucket_shortest_paths_impl(input: i64&, length: usize,
                                      output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > DBSP_MAX_INPUT:
+    if input == null or length < 3 or length > DBSP_MAX_INPUT:
         return -1
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     n_value: i64 = input_view[0]
     m_value: i64 = input_view[1]
     source_value: i64 = input_view[2]
-    if n_value < 1 or n_value > DBSP_MAX_VERTICES.i64() or
-       m_value < 0 or m_value > DBSP_MAX_EDGES.i64():
+    if n_value < 1 or n_value > DBSP_MAX_VERTICES.i64() or m_value < 0 or m_value > DBSP_MAX_EDGES.i64():
         return -1
     n: usize = n_value.usize()
     m: usize = m_value.usize()
@@ -49,8 +48,7 @@ export fn dial_bucket_shortest_paths(input: i64&, length: usize,
         from_value: i64 = input_view[cursor]
         to_value: i64 = input_view[cursor + 1]
         weight: i64 = input_view[cursor + 2]
-        if from_value < 0 or from_value >= n_value or to_value < 0 or to_value >= n_value or
-           weight < 0 or weight > 8:
+        if from_value < 0 or from_value >= n_value or to_value < 0 or to_value >= n_value or weight < 0 or weight > 8:
             return -1
         from_vertex: usize = from_value.usize()
         edge_to[edge] <- to_value
@@ -60,7 +58,7 @@ export fn dial_bucket_shortest_paths(input: i64&, length: usize,
         cursor <- cursor + 3
 
     required: usize = 8 * n
-    if output.is_null() or capacity < required:
+    if output == null or capacity < required:
         return -2
 
     distance: mutable i64[DBSP_MAX_VERTICES] = zeroed
@@ -113,12 +111,14 @@ export fn dial_bucket_shortest_paths(input: i64&, length: usize,
 
     staged: mutable u8[DBSP_MAX_VERTICES * 8] = zeroed
     for vertex in 0..<n:
-        value: i64 = distance[vertex]
+        value: mutable i64 = distance[vertex]
         if value > DBSP_MAX_DISTANCE:
-            value = -1
+            value <- -1
         for byte in 0..<8:
             staged[vertex * 8 + byte] <- ((value >> (8 * byte)) & 255).u8()
-    output_view: mutable view[u8] = output[0:required]
+    output_view: mutable u8& = output
     for byte in 0..<required:
         output_view[byte] <- staged[byte]
     required.i64()
+
+export fn dial_bucket_shortest_paths(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = dial_bucket_shortest_paths_impl

@@ -1,7 +1,7 @@
 def normalized_mod(value: i64, modulus: i64) -> i64:
-    remainder: i64 = value % modulus
+    remainder: mutable i64 = value % modulus
     if remainder < 0:
-        remainder = remainder + modulus
+        remainder <- remainder + modulus
     remainder
 
 def modular_inverse_impl(a: i64, modulus: i64) -> i64:

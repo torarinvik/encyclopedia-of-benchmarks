@@ -1,16 +1,17 @@
 def welsh_powell_bit(vertex: usize) -> u64:
     return 1.u64() << vertex
 
-def welsh_powell_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def welsh_powell_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255.u64()).u8()
         byte <- byte + 1
 
-def welsh_powell_impl(input: view[i64],
+def welsh_powell_impl(input: i64&, input_length: usize,
                       output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+    neighbor: mutable usize = 0
+    length: usize = input_length
     if length < 2 or length > 1027:
         return -1
     n64: i64 = input[0]
@@ -36,9 +37,9 @@ def welsh_powell_impl(input: view[i64],
         edge <- edge + 1
 
     output_bytes: usize = n * 8
-    if output.is_null() or capacity < output_bytes:
+    if output == null or capacity < output_bytes:
         return -2
-    result: mutable view[u8] = output[0:output_bytes]
+    result: mutable u8& = output
 
     degrees: mutable usize[32] = zeroed
     order: mutable usize[32] = zeroed
@@ -47,7 +48,7 @@ def welsh_powell_impl(input: view[i64],
     while vertex < n:
         colors[vertex] <- -1
         order[vertex] <- vertex
-        neighbor: mutable usize = 0
+        neighbor <- 0
         while neighbor < n:
             if (adjacency[vertex] & welsh_powell_bit(neighbor)) != 0:
                 degrees[vertex] <- degrees[vertex] + 1
@@ -68,7 +69,7 @@ def welsh_powell_impl(input: view[i64],
     colored_vertices: mutable u64 = 0
     index <- 0
     while index < n:
-        vertex = order[index]
+        vertex <- order[index]
         if colors[vertex] >= 0:
             index <- index + 1
             continue
@@ -99,7 +100,9 @@ def welsh_powell_impl(input: view[i64],
         vertex <- vertex + 1
     output_bytes.i64()
 
-export fn welsh_powell(input: i64&, length: usize,
+def welsh_powell_entry(input: i64&, length: usize,
                        output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 1027: return -1
-    welsh_powell_impl(input[0:length], output, capacity)
+    if input == null or length < 2 or length > 1027: return -1
+    welsh_powell_impl(input, length, output, capacity)
+
+export fn welsh_powell(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = welsh_powell_entry

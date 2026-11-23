@@ -24,9 +24,9 @@ def lowest_common_ancestor_fcb_range_minimum(first: usize, last: usize, euler_co
         return block_a * block_size + micro[(pattern[block_a] * 4 + offset_a) * 4 + offset_b]
     base_a: usize = block_a * block_size
     base_b: usize = block_b * block_size
-    length_a: usize = block_size
+    length_a: mutable usize = block_size
     if euler_count - base_a < length_a: length_a <- euler_count - base_a
-    best: usize = base_a + micro[(pattern[block_a] * 4 + offset_a) * 4 + length_a - 1]
+    best:mutable  mutable usize = base_a + micro[(pattern[block_a] * 4 + offset_a) * 4 + length_a - 1]
     right_best: usize = base_b + micro[pattern[block_b] * 16 + offset_b]
     best <- lowest_common_ancestor_fcb_shallower(best, right_best, depth)
     if block_b > block_a + 1:
@@ -39,12 +39,11 @@ def lowest_common_ancestor_fcb_range_minimum(first: usize, last: usize, euler_co
         best <- lowest_common_ancestor_fcb_shallower(best, macro_table[level * MAX_BLOCKS + hi - span + 1], depth)
     best
 
-def lowest_common_ancestor_farach_colton_bender_impl(input: view[i64], length: usize,
-    output: mutable view[u8], output_capacity: usize, output_is_null: bool) -> i64:
+def lowest_common_ancestor_farach_colton_bender_impl(input: i64&, length: usize,
+    output: mutable u8&, output_capacity: usize, output_is_null: bool) -> i64:
     if length < 4 or input[0] < 1 or input[0] > i64(MAX_NODES): return -1
     node_count: usize = input[0].usize()
-    if input[1] < 0 or input[1] >= i64(node_count) or input[2] != i64(node_count - 1) or
-        input[3] < 0 or input[3] > i64(MAX_QUERIES): return -1
+    if input[1] < 0 or input[1] >= i64(node_count) or input[2] != i64(node_count - 1) or input[3] < 0 or input[3] > i64(MAX_QUERIES): return -1
     edge_count: usize = input[2].usize()
     query_count: usize = input[3].usize()
     query_offset: usize = 4 + 2 * edge_count
@@ -126,8 +125,8 @@ def lowest_common_ancestor_farach_colton_bender_impl(input: view[i64], length: u
     while value > 1 |value, logarithm|:
         value <- value / 2
         logarithm <- logarithm + 1
-    block_size: usize = logarithm / 2
-    if block_size < 1: block_size = 1
+    block_size: mutable usize = logarithm / 2
+    if block_size < 1: block_size <- 1
     block_count: usize = (euler_count + block_size - 1) / block_size
     micro: mutable usize[8 * MAX_MICRO * MAX_MICRO] = zeroed
     pattern: mutable usize[MAX_BLOCKS] = zeroed
@@ -137,8 +136,8 @@ def lowest_common_ancestor_farach_colton_bender_impl(input: view[i64], length: u
     for shape in 0..<shape_count:
         relative: mutable i64[MAX_MICRO] = zeroed
         for step in 0..<block_size - 1 |relative|:
-            direction: i64 = -1
-            if ((shape >> step) & 1) != 0: direction = 1
+            direction: mutable i64 = -1
+            if ((shape >> step) & 1) != 0: direction <- 1
             relative[step + 1] <- relative[step] + direction
         for left in 0..<block_size:
             for right in left..<block_size:
@@ -148,15 +147,16 @@ def lowest_common_ancestor_farach_colton_bender_impl(input: view[i64], length: u
                 micro[shape * 16 + left * 4 + right] <- best
     for block in 0..<block_count |pattern, macro_table|:
         base: usize = block * block_size
-        end: usize = base + block_size
-        if end > euler_count: end = euler_count
+        end: mutable usize = base + block_size
+        if end > euler_count: end <- euler_count
         best: mutable usize = base
         for at in base..<end - 1 |pattern, best|:
             if euler_depth[at + 1] > euler_depth[at]: pattern[block] <- pattern[block] | (1 << (at - base))
             candidate: usize = at + 1
             if euler_depth[candidate] < euler_depth[best] or (euler_depth[candidate] == euler_depth[best] and candidate < best): best <- candidate
         macro_table[block] <- best
-    for count in 2..<block_count + 1 |logs|: logs[count] <- logs[count / 2] + 1
+    for count in 2..<block_count + 1 |logs|:
+        logs[count] <- logs[count / 2] + 1
     macro_levels: mutable usize = 1
     while (1 << macro_levels) <= block_count and macro_levels < MAX_LEVELS:
         half: usize = 1 << (macro_levels - 1)
@@ -171,8 +171,8 @@ def lowest_common_ancestor_farach_colton_bender_impl(input: view[i64], length: u
     for query in 0..<query_count |input, query_offset, answers|:
         u: usize = input[query_offset + 2 * query].usize()
         v: usize = input[query_offset + 2 * query + 1].usize()
-        left: usize = first[u]
-        right: usize = first[v]
+        left: mutable usize = first[u]
+        right: mutable usize = first[v]
         if left > right:
             temp: usize = left
             left <- right
@@ -181,19 +181,22 @@ def lowest_common_ancestor_farach_colton_bender_impl(input: view[i64], length: u
             euler_depth[0:euler_count], pattern[0:block_count], micro[0:8 * MAX_MICRO * MAX_MICRO],
             macro_table[0:MAX_LEVELS * MAX_BLOCKS], logs[0:block_count + 1])
         answers[query] <- euler[at]
-    for query in 0..<query_count |output, answers|: output[query] <- answers[query].u8()
+    for query in 0..<query_count |output, answers|:
+        output[query] <- answers[query].u8()
     query_count.i64()
 
-export fn lowest_common_ancestor_farach_colton_bender(input: i64&, length: usize,
+def lowest_common_ancestor_farach_colton_bender_entry(input: i64&, length: usize,
     output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length > MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+    if input == null or length > MAX_INPUT: return -1
+    input_view: i64& = input
+    if output == null:
         dummy_output: mutable u8[1] = zeroed
         return lowest_common_ancestor_farach_colton_bender_impl(
-            input_view, length, dummy_output[0:0], output_capacity, true)
+            input_view, length, &dummy_output[0], output_capacity, true)
     view_capacity: mutable usize = output_capacity
     if view_capacity > MAX_QUERIES: view_capacity <- MAX_QUERIES
-    output_view: mutable view[u8] = output[0:view_capacity]
+    output_view: mutable u8& = output
     lowest_common_ancestor_farach_colton_bender_impl(
         input_view, length, output_view, output_capacity, false)
+
+export fn lowest_common_ancestor_farach_colton_bender(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = lowest_common_ancestor_farach_colton_bender_entry

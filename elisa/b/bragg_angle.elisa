@@ -7,9 +7,9 @@ def round_one_even(value: f64) -> f64:
     scaled: f64 = value * 10.0
     lower: f64 = floor(scaled)
     fraction: f64 = scaled - lower
-    rounded: i64 = lower.i64()
+    rounded: mutable i64 = lower.i64()
     if fraction > 0.5 or (fraction == 0.5 and rounded % 2 != 0):
-        rounded = rounded + 1
+        rounded <- rounded + 1
     rounded.f64() / 10.0
 
 def bragg_angle_impl(values: i64&, length: usize) -> f64:

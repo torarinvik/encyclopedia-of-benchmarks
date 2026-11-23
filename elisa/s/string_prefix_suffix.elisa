@@ -17,9 +17,9 @@ def string_prefix_suffix_impl(values: i64&, length: usize) -> i64:
             return -1
     if pattern_count > text_count:
         return 0
-    start: usize = 0
+    start: mutable usize = 0
     if mode == 1:
-        start = text_count - pattern_count
+        start <- text_count - pattern_count
     for index in 0..<pattern_count:
         if values[3 + start + index] != values[3 + text_count + index]:
             return 0

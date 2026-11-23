@@ -20,8 +20,8 @@ def thiele_guarded(value: f64) -> bool:
 def thiele_below_cap(value: f64) -> bool:
     thiele_finite(value) and value > -THIELE_CAP and value < THIELE_CAP
 
-def thiele_compute(input: view[f64], staged: mutable view[f64]) -> bool:
-    length: usize = input.len()
+def thiele_compute(input: f64&, input_length: usize, staged: mutable view[f64]) -> bool:
+    length: usize = input_length
     if length < 4 or length > THIELE_MAX_INPUT: return false
     if not thiele_grid_value(input[0]) or input[0] < 1.0 or input[0] > 6.0: return false
     count_value: i64 = input[0].i64()
@@ -51,36 +51,39 @@ def thiele_compute(input: view[f64], staged: mutable view[f64]) -> bool:
             difference[order * 6 + endpoint] <- value
         if not thiele_guarded(difference[order * 6 + order]): return false
 
-    at_node: bool = false
+    at_node: mutable bool = false
     result: mutable f64 = 0.0
     for i in 0..<count:
         if query == x[i]:
             result <- y[i]
-            at_node = true
+            at_node <- true
             break
     if not at_node and count == 1: result <- y[0]
     if not at_node and count > 1:
-        tail: mutable f64 = difference[(count - 1) * 6 + count - 1]
+        tail_value: mutable f64 = difference[(count - 1) * 6 + count - 1]
         order: mutable usize = count - 1
         while order > 1:
             order <- order - 1
-            if not thiele_guarded(tail): return false
-            tail <- difference[order * 6 + order] + (query - x[order]) / tail
-            if not thiele_below_cap(tail): return false
-        if not thiele_guarded(tail): return false
-        result <- y[0] + (query - x[0]) / tail
+            if not thiele_guarded(tail_value): return false
+            tail_value <- difference[order * 6 + order] + (query - x[order]) / tail_value
+            if not thiele_below_cap(tail_value): return false
+        if not thiele_guarded(tail_value): return false
+        result <- y[0] + (query - x[0]) / tail_value
     if not thiele_below_cap(result): return false
     staged[0] <- result
     true
 
-export fn thiele_rational_interpolation(input: f64&, input_length: usize,
+def thiele_rational_interpolation_impl(input: f64&, input_length: usize,
                                         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 4 or input_length > THIELE_MAX_INPUT: return -1
-    input_view: view[f64] = input[0:input_length]
+    if input == null or input_length < 4 or input_length > THIELE_MAX_INPUT: return -1
+    input_view: f64& = input
+    input_view_length: usize = input_length
     staged: mutable f64[1] = zeroed
     staged_view: mutable view[f64] = staged[0:1]
-    if not thiele_compute(input_view, staged_view): return -1
-    if output.is_null() or output_capacity < 1: return -2
-    output_view: mutable view[f64] = output[0:1]
+    if not thiele_compute(input_view, input_view_length, staged_view): return -1
+    if output == null or output_capacity < 1: return -2
+    output_view: mutable f64& = output
     output_view[0] <- staged_view[0]
     1
+
+export fn thiele_rational_interpolation(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = thiele_rational_interpolation_impl

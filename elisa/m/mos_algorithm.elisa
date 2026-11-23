@@ -83,7 +83,7 @@ def mos_algorithm_impl(input: i64&, length: usize) -> i64:
     aggregate: mutable i32 = 0
     sorted: mutable usize = 0
     while sorted < q:
-        query = order[sorted]
+        query <- order[sorted]
         left: i32 = lefts[query]
         right: i32 = rights[query]
         if operation == 0:

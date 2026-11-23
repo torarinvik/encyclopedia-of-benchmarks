@@ -9,7 +9,8 @@ def hpl_exact_integer(x: f64, lo: i64, hi: i64) -> bool:
     if not hpl_finite(x) or x < lo.f64() or x > hi.f64(): return false
     x.i64().f64() == x
 
-def hpl_compute(input: view[f64], staged: mutable view[f64], input_length: usize) -> i64:
+def hpl_compute(input: f64&, staged: mutable view[f64], input_length: usize) -> i64:
+    row: mutable usize = zeroed
     if input_length < 1 or input_length > HPL_MAX_INPUT: return -1
     if not hpl_exact_integer(input[0], 2, 8): return -1
     n: usize = input[0].usize()
@@ -22,17 +23,17 @@ def hpl_compute(input: view[f64], staged: mutable view[f64], input_length: usize
     pivots: mutable usize[8] = zeroed
     panel: mutable usize = 0
     while panel < n:
-        panel_end: usize = panel + 2
+        panel_end: mutable usize = panel + 2
         if panel_end > n: panel_end <- n
         col: mutable usize = panel
         while col < panel_end:
             pivot_row: mutable usize = col
             pivot_magnitude: mutable f64 = a[col*n+col]
             if pivot_magnitude < 0.0: pivot_magnitude <- -pivot_magnitude
-            row: mutable usize = col + 1
+            row <- col + 1
             while row < n:
-                magnitude: f64 = a[row*n+col]
-                if magnitude < 0.0: magnitude = -magnitude
+                magnitude: mutable f64 = a[row*n+col]
+                if magnitude < 0.0: magnitude <- -magnitude
                 if magnitude > pivot_magnitude:
                     pivot_magnitude <- magnitude
                     pivot_row <- row
@@ -87,22 +88,26 @@ def hpl_compute(input: view[f64], staged: mutable view[f64], input_length: usize
             row <- row + 1
         panel <- panel_end
 
-    for index in 0..<n: staged[index] <- pivots[index].f64()
+    for index in 0..<n:
+        staged[index] <- pivots[index].f64()
     for index in 0..<n*n:
         if not hpl_finite(a[index]): return -1
         staged[n+index] <- a[index]
     (n + n*n).i64()
 
-export fn hpl_blocked_partial_pivot_lu(input: f64&, input_length: usize,
+def hpl_blocked_partial_pivot_lu_impl(input: f64&, input_length: usize,
         output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > HPL_MAX_INPUT: return -1
-    input_view: view[f64] = input[0:input_length]
+    if input == null or input_length < 1 or input_length > HPL_MAX_INPUT: return -1
+    input_view: f64& = input
     staged: mutable f64[HPL_MAX_OUTPUT] = zeroed
     staged_view: mutable view[f64] = staged[0:HPL_MAX_OUTPUT]
     result: i64 = hpl_compute(input_view, staged_view, input_length)
     if result < 0: return result
     output_length: usize = result.usize()
-    if output.is_null() or capacity < output_length: return -2
-    output_view: mutable view[f64] = output[0:output_length]
-    for index in 0..<output_length: output_view[index] <- staged_view[index]
+    if output == null or capacity < output_length: return -2
+    output_view: mutable f64& = output
+    for index in 0..<output_length:
+        output_view[index] <- staged_view[index]
     result
+
+export fn hpl_blocked_partial_pivot_lu(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64 = hpl_blocked_partial_pivot_lu_impl

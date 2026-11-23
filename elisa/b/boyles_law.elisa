@@ -1,14 +1,14 @@
 # Solve Boyle's law for one omitted variable, rounded to 3 decimals.
 def rounded_milli(numerator: i64, denominator: i64) -> i64:
     scaled: i64 = numerator * 1000
-    quotient: i64 = scaled / denominator
+    quotient: mutable i64 = scaled / denominator
     remainder: i64 = scaled % denominator
     if 2 * remainder > denominator or (2 * remainder == denominator and quotient % 2 != 0):
-        quotient = quotient + 1
+        quotient <- quotient + 1
     quotient
 
 def boyles_law_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 4:
+    if values == null or length != 4:
         return -1.0e300
     target: i64 = values[0]
     a: i64 = values[1]
@@ -16,20 +16,20 @@ def boyles_law_impl(values: i64&, length: usize) -> f64:
     c: i64 = values[3]
     if target < 0 or target > 3 or a < 1 or a > 1000 or b < 1 or b > 1000 or c < 1 or c > 1000:
         return -1.0e300
-    numerator: i64 = 0
-    denominator: i64 = 1
+    numerator: mutable i64 = 0
+    denominator: mutable i64 = 1
     if target == 0:
-        numerator = c * a
-        denominator = b
-    else if target == 1:
-        numerator = b * a
-        denominator = c
-    else if target == 2:
-        numerator = c * b
-        denominator = a
+        numerator <- c * a
+        denominator <- b
+    elif target == 1:
+        numerator <- b * a
+        denominator <- c
+    elif target == 2:
+        numerator <- c * b
+        denominator <- a
     else:
-        numerator = c * a
-        denominator = b
+        numerator <- c * a
+        denominator <- b
     rounded_milli(numerator, denominator).f64() / 1000.0
 
 export fn boyles_law(values: i64&, length: usize) -> f64 = boyles_law_impl

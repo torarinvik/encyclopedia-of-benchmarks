@@ -25,9 +25,9 @@ def hpcc_random_access_impl(input: i64&, length: usize) -> i64:
 
     ran: mutable u64 = 1
     for _ in 0..<(4 * size):
-        feedback: u64 = 0
+        feedback: mutable u64 = 0
         if (ran >> 63) != 0:
-            feedback = 7
+            feedback <- 7
         # Masking the high bit before shifting is equivalent to a wrapping
         # u64 left shift and keeps the intermediate representable.
         ran <- ((ran & DIGEST_MASK) << 1) ^ feedback

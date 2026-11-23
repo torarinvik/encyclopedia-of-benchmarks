@@ -16,9 +16,9 @@ def palindrome_partitioning_impl(input: i64&, length: usize, output: mutable u8&
         for start in 0..<(end + 1):
             if input[start] == input[end] and (end - start < 2 or palindrome[(start + 1) * MAX_LENGTH + end - 1]):
                 palindrome[start * MAX_LENGTH + end] <- true
-                candidate: usize = 0
+                candidate: mutable usize = 0
                 if start > 0:
-                    candidate = cuts[start - 1].usize() + 1
+                    candidate <- cuts[start - 1].usize() + 1
                 if candidate < best:
                     best <- candidate
         cuts[end] <- best.i64()

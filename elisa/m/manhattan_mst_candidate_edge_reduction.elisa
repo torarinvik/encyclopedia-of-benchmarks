@@ -62,16 +62,14 @@ def mm_sift_points(order: mutable view[usize], keys: view[i64], size: usize,
         left: usize = root * 2 + 1
         largest: mutable usize = root
         left_point: usize = order[left]
-        largest_point: usize = order[largest]
-        if keys[left_point] > keys[largest_point] or
-           (keys[left_point] == keys[largest_point] and left_point > largest_point):
+        largest_point: mutable usize = order[largest]
+        if keys[left_point] > keys[largest_point] or (keys[left_point] == keys[largest_point] and left_point > largest_point):
             largest <- left
         right: usize = left + 1
         if right < size:
             right_point: usize = order[right]
-            largest_point = order[largest]
-            if keys[right_point] > keys[largest_point] or
-               (keys[right_point] == keys[largest_point] and right_point > largest_point):
+            largest_point <- order[largest]
+            if keys[right_point] > keys[largest_point] or (keys[right_point] == keys[largest_point] and right_point > largest_point):
                 largest <- right
         if largest == root: break
         temporary: usize = order[root]
@@ -99,15 +97,11 @@ def mm_sift_edges(edge_u: mutable view[usize], edge_v: mutable view[usize],
     while root * 2 + 1 < size:
         left: usize = root * 2 + 1
         largest: mutable usize = root
-        if edge_weight[largest] < edge_weight[left] or
-           (edge_weight[largest] == edge_weight[left] and edge_u[largest] < edge_u[left]) or
-           (edge_weight[largest] == edge_weight[left] and edge_u[largest] == edge_u[left] and edge_v[largest] < edge_v[left]):
+        if edge_weight[largest] < edge_weight[left] or (edge_weight[largest] == edge_weight[left] and edge_u[largest] < edge_u[left]) or (edge_weight[largest] == edge_weight[left] and edge_u[largest] == edge_u[left] and edge_v[largest] < edge_v[left]):
             largest <- left
         right: usize = left + 1
         if right < size:
-            if edge_weight[largest] < edge_weight[right] or
-               (edge_weight[largest] == edge_weight[right] and edge_u[largest] < edge_u[right]) or
-               (edge_weight[largest] == edge_weight[right] and edge_u[largest] == edge_u[right] and edge_v[largest] < edge_v[right]):
+            if edge_weight[largest] < edge_weight[right] or (edge_weight[largest] == edge_weight[right] and edge_u[largest] < edge_u[right]) or (edge_weight[largest] == edge_weight[right] and edge_u[largest] == edge_u[right] and edge_v[largest] < edge_v[right]):
                 largest <- right
         if largest == root: break
         temporary_u: usize = edge_u[root]
@@ -142,7 +136,7 @@ def mm_sort_edges(edge_u: mutable view[usize], edge_v: mutable view[usize],
         edge_weight[finish] <- temporary_weight
         mm_sift_edges(edge_u, edge_v, edge_weight, finish, 0)
 
-def manhattan_mst_candidate_edge_reduction_impl(input: view[i64], length: usize) -> i64:
+def manhattan_mst_candidate_edge_reduction_impl(input: i64&, length: usize) -> i64:
     if length < 1 or length > MM_MAX_INPUT: return -1
     n_value: i64 = input[0]
     if n_value < 0 or n_value > MM_MAX_N.i64(): return -1
@@ -204,19 +198,19 @@ def manhattan_mst_candidate_edge_reduction_impl(input: view[i64], length: usize)
         for position in 0..<n:
             current: usize = order[position]
             current_rank: usize = rank_of[current]
-            active_count: i64 = mm_fenwick_sum(fenwick[0:MM_MAX_N + 1], current_rank + 1)
+            active_count: mutable i64 = mm_fenwick_sum(fenwick[0:MM_MAX_N + 1], current_rank + 1)
             while active_count > 0:
                 candidate_rank: usize = mm_fenwick_select(fenwick[0:MM_MAX_N + 1], n, active_count)
                 candidate: usize = id_at_rank[candidate_rank]
                 if point_x[current] - point_y[current] > point_x[candidate] - point_y[candidate]: break
-                left_id: usize = current
-                right_id: usize = candidate
+                left_id: mutable usize = current
+                right_id: mutable usize = candidate
                 if left_id > right_id:
                     temporary: usize = left_id
                     left_id <- right_id
                     right_id <- temporary
-                dx: i64 = point_x[current] - point_x[candidate]
-                dy: i64 = point_y[current] - point_y[candidate]
+                dx: mutable i64 = point_x[current] - point_x[candidate]
+                dy: mutable i64 = point_y[current] - point_y[candidate]
                 if dx < 0: dx <- -dx
                 if dy < 0: dy <- -dy
                 edge_u[edge_count] <- left_id
@@ -254,7 +248,9 @@ def manhattan_mst_candidate_edge_reduction_impl(input: view[i64], length: usize)
     if components != 1: return -1
     total
 
-export fn manhattan_mst_candidate_edge_reduction(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MM_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
+def manhattan_mst_candidate_edge_reduction_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MM_MAX_INPUT: return -1
+    input_view: i64& = input
     manhattan_mst_candidate_edge_reduction_impl(input_view, length)
+
+export fn manhattan_mst_candidate_edge_reduction(input: i64&, length: usize) -> i64 = manhattan_mst_candidate_edge_reduction_entry

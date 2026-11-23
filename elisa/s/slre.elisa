@@ -16,54 +16,54 @@ def slre_impl(values: i64&, length: usize) -> i64:
     for index in 0..<text_length:
         if values[2 + index] < 97 or values[2 + index] > 122:
             return -2
-    low: usize = 0
-    high: usize = pattern_length
-    anchored_start: bool = false
-    anchored_end: bool = false
+    low: mutable usize = 0
+    high: mutable usize = pattern_length
+    anchored_start: mutable bool = false
+    anchored_end: mutable bool = false
     if values[pattern_start] == 94:
-        anchored_start = true
+        anchored_start <- true
         low += 1
     if low < high and values[pattern_start + high - 1] == 36:
-        anchored_end = true
+        anchored_end <- true
         high -= 1
-    index: usize = low
-    nonempty: bool = false
+    index:mutable  mutable usize = low
+    nonempty: mutable bool = false
     while index < high:
         symbol: i64 = values[pattern_start + index]
         if symbol == 124:
             if not nonempty:
                 return -2
-            nonempty = false
+            nonempty <- false
             index += 1
             continue
         if not slre_atom(symbol):
             return -2
-        nonempty = true
+        nonempty <- true
         index += 1
         if index < high and values[pattern_start + index] == 63:
             index += 1
     if not nonempty:
         return -2
-    for start in 0..text_length:
+    for start in 0..<text_length:
         if anchored_start and start > 0:
             break
-        branch: usize = low
+        branch: mutable usize = low
         while branch <= high:
-            finish: usize = branch
+            finish:mutable  mutable usize = branch
             while finish < high and values[pattern_start + finish] != 124:
                 finish += 1
                 if finish < high and values[pattern_start + finish] == 63:
                     finish += 1
-            cursor: usize = branch
-            position: usize = start
-            matched: bool = true
+            cursor:mutable  mutable usize = branch
+            position: mutable usize = start
+            matched: mutable bool = true
             while cursor < finish:
                 symbol: i64 = values[pattern_start + cursor]
                 optional: bool = cursor + 1 < finish and values[pattern_start + cursor + 1] == 63
                 if position < text_length and (symbol == 46 or symbol == values[2 + position]):
                     position += 1
                 elif not optional:
-                    matched = false
+                    matched <- false
                     break
                 if optional:
                     cursor += 2
@@ -73,7 +73,7 @@ def slre_impl(values: i64&, length: usize) -> i64:
                 return position.i64()
             if finish == high:
                 break
-            branch = finish + 1
+            branch <- finish + 1
     return -1
 
-export fn slre(values: i64&, length: usize) -> i64 = slre_impl(values, length)
+export fn slre(values: i64&, length: usize) -> i64 = slre_impl
