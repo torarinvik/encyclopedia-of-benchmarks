@@ -1,54 +1,54 @@
 const MAX_COUNT: usize = 64
 const MAX_INPUT_LENGTH: usize = 66
 
-def push_max(heap: mutable view[i64], count: mutable usize&, value: i64) -> void:
+def push_max(heap_value: mutable view[i64], count: mutable usize&, value: i64) -> void:
     position: mutable usize = count
     count <- count + 1
-    while position > 0 and heap[(position - 1) / 2] < value:
+    while position > 0 and heap_value[(position - 1) / 2] < value:
         parent: usize = (position - 1) / 2
-        heap[position] <- heap[parent]
+        heap_value[position] <- heap_value[parent]
         position <- parent
-    heap[position] <- value
+    heap_value[position] <- value
 
-def pop_max(heap: mutable view[i64], count: mutable usize&) -> i64:
-    result: i64 = heap[0]
+def pop_max(heap_value: mutable view[i64], count: mutable usize&) -> i64:
+    result: i64 = heap_value[0]
     count <- count - 1
-    value: i64 = heap[count]
+    value: i64 = heap_value[count]
     if count == 0:
         return result
     position: mutable usize = 0
     while 2 * position + 1 < count:
         child: mutable usize = 2 * position + 1
-        if child + 1 < count and heap[child + 1] > heap[child]: child <- child + 1
-        if heap[child] <= value: break
-        heap[position] <- heap[child]
+        if child + 1 < count and heap_value[child + 1] > heap_value[child]: child <- child + 1
+        if heap_value[child] <= value: break
+        heap_value[position] <- heap_value[child]
         position <- child
-    heap[position] <- value
+    heap_value[position] <- value
     result
 
-def push_min(heap: mutable view[i64], count: mutable usize&, value: i64) -> void:
+def push_min(heap_value: mutable view[i64], count: mutable usize&, value: i64) -> void:
     position: mutable usize = count
     count <- count + 1
-    while position > 0 and heap[(position - 1) / 2] > value:
+    while position > 0 and heap_value[(position - 1) / 2] > value:
         parent: usize = (position - 1) / 2
-        heap[position] <- heap[parent]
+        heap_value[position] <- heap_value[parent]
         position <- parent
-    heap[position] <- value
+    heap_value[position] <- value
 
-def pop_min(heap: mutable view[i64], count: mutable usize&) -> i64:
-    result: i64 = heap[0]
+def pop_min(heap_value: mutable view[i64], count: mutable usize&) -> i64:
+    result: i64 = heap_value[0]
     count <- count - 1
-    value: i64 = heap[count]
+    value: i64 = heap_value[count]
     if count == 0:
         return result
     position: mutable usize = 0
     while 2 * position + 1 < count:
         child: mutable usize = 2 * position + 1
-        if child + 1 < count and heap[child + 1] < heap[child]: child <- child + 1
-        if heap[child] >= value: break
-        heap[position] <- heap[child]
+        if child + 1 < count and heap_value[child + 1] < heap_value[child]: child <- child + 1
+        if heap_value[child] >= value: break
+        heap_value[position] <- heap_value[child]
         position <- child
-    heap[position] <- value
+    heap_value[position] <- value
     result
 
 def median_of_running_array_byte_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
@@ -73,12 +73,12 @@ def median_of_running_array_byte_impl(input: i32&, length: usize, output: mutabl
             push_min(upper[0:count], &upper_count, sample)
         if lower_count > upper_count + 1:
             push_min(upper[0:count], &upper_count, pop_max(lower[0:count], &lower_count))
-        else if upper_count > lower_count + 1:
+        elif upper_count > lower_count + 1:
             push_max(lower[0:count], &lower_count, pop_min(upper[0:count], &upper_count))
         median: mutable i64 = 0
         if lower_count > upper_count:
             median <- lower[0]
-        else if upper_count > lower_count:
+        elif upper_count > lower_count:
             median <- upper[0]
         else:
             sum: i64 = lower[0] + upper[0]

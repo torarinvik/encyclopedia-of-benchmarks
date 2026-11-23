@@ -2,7 +2,7 @@ extern trunc(value: f64) -> f64
 extern fabs(value: f64) -> f64
 
 def tsvc_s441_s443_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length < 7 or length > 259:
+    if input == null or length < 7 or length > 259:
         return -1
     mode_value: f64 = input[0]
     count: f64 = input[1]
@@ -16,36 +16,36 @@ def tsvc_s441_s443_impl(input: f64&, length: usize, output: mutable f64&, capaci
     passes: usize = repetitions.usize()
     if length != 3 + 4 * n:
         return -1
-    for i in 3..length:
+    for i in 3..<length:
         value: f64 = input[i]
         if value != value or trunc(value) != value or fabs(value) > 1:
             return -1
-    if output.is_null() or capacity < n:
+    if output == null or capacity < n:
         return -2
 
     a: mutable f64[64] = zeroed
     b_start: usize = 3 + n
     c_start: usize = 3 + 2 * n
     d_start: usize = 3 + 3 * n
-    for i in 0..n:
+    for i in 0..<n:
         a[i] <- input[3 + i]
-    for pass in 0..passes:
-        for i in 0..n:
+    for pass_value in 0..<passes:
+        for i in 0..<n:
             b: f64 = input[b_start + i]
             c: f64 = input[c_start + i]
             d: f64 = input[d_start + i]
             if mode == 0:
                 if d < 0:
                     a[i] <- a[i] + b * c
-                else if d == 0:
+                elif d == 0:
                     a[i] <- a[i] + b * b
                 else:
                     a[i] <- a[i] + c * c
-            else if d <= 0:
+            elif d <= 0:
                 a[i] <- a[i] + b * c
             else:
                 a[i] <- a[i] + b * b
-    for i in 0..n:
+    for i in 0..<n:
         output[i] <- a[i]
     return n.i64()
 

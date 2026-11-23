@@ -1,10 +1,10 @@
 # Fixed-capacity ring buffer with FIFO-relative reads and explicit error status.
 const MAX_Q: usize = 256
 const MAX_INPUT: usize = 513
-const VALUE_LIMIT: i64 = 1_000_000
-const VALUE_OFFSET: i64 = 1_000_001
-const HASH_MULTIPLIER: i64 = 1_000_003
-const HASH_MODULUS: i64 = 1_000_000_007
+const VALUE_LIMIT: i64 = 1000000
+const VALUE_OFFSET: i64 = 1000001
+const HASH_MULTIPLIER: i64 = 1000003
+const HASH_MODULUS: i64 = 1000000007
 
 def ring_buffer_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 1 or length > MAX_INPUT:
@@ -31,7 +31,7 @@ def ring_buffer_impl(input: i64&, length: usize) -> i64:
 
     values: mutable i64[8] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     count: mutable usize = 0
     hash: mutable i64 = 0
     for i in 0..<q:
@@ -43,8 +43,8 @@ def ring_buffer_impl(input: i64&, length: usize) -> i64:
             if count == 8:
                 status <- 1
             else:
-                values[tail] <- payload
-                tail <- (tail + 1) % 8
+                values[tail_value] <- payload
+                tail_value <- (tail_value + 1) % 8
                 count <- count + 1
         elif opcode == 1:
             if count == 0:
@@ -58,13 +58,13 @@ def ring_buffer_impl(input: i64&, length: usize) -> i64:
             else: result <- values[head]
         elif opcode == 3:
             if count == 0: status <- 2
-            else: result <- values[(tail + 7) % 8]
+            else: result <- values[(tail_value + 7) % 8]
         elif opcode == 4:
             if payload >= count.i64(): status <- 3
             else: result <- values[(head + payload.usize()) % 8]
         elif opcode == 5:
             head <- 0
-            tail <- 0
+            tail_value <- 0
             count <- 0
         elif opcode == 6:
             result <- count.i64()

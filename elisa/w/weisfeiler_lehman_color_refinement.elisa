@@ -12,7 +12,7 @@ def bit_count(value: i64) -> usize:
     return count
 
 def weisfeiler_lehman_color_refinement_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH + 1:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH + 1:
         return INVALID_RESULT
 
     values: mutable i64[10] = zeroed
@@ -121,13 +121,13 @@ def weisfeiler_lehman_color_refinement_impl(input: i64&, length: usize) -> i64:
             colors[vertex] <- next_colors[vertex]
             vertex <- vertex + 1
 
-    packed: mutable i64 = 0
+    packed_value: mutable i64 = 0
     place: mutable i64 = 1
     vertex <- 0
     while vertex < n:
-        packed <- packed + colors[vertex] * place
+        packed_value <- packed_value + colors[vertex] * place
         place <- place * 9
         vertex <- vertex + 1
-    packed
+    packed_value
 
 export fn weisfeiler_lehman_color_refinement(input: i64&, length: usize) -> i64 = weisfeiler_lehman_color_refinement_impl

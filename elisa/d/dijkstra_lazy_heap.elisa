@@ -21,12 +21,12 @@ def dijkstra_lazy_heap_impl(edges: i64&, vertices: usize, edge_count: usize, sou
         edge <- edge + 1
 
     head: mutable usize[64] = zeroed
-    tail: mutable usize[64] = zeroed
+    tail_value: mutable usize[64] = zeroed
     next: mutable usize[256] = zeroed
     vertex: mutable usize = 0
     while vertex < vertices:
         head[vertex] <- 256
-        tail[vertex] <- 256
+        tail_value[vertex] <- 256
         vertex <- vertex + 1
     edge <- 0
     while edge < edge_count:
@@ -35,8 +35,8 @@ def dijkstra_lazy_heap_impl(edges: i64&, vertices: usize, edge_count: usize, sou
         if head[origin] == 256:
             head[origin] <- edge
         else:
-            next[tail[origin]] <- edge
-        tail[origin] <- edge
+            next[tail_value[origin]] <- edge
+        tail_value[origin] <- edge
         edge <- edge + 1
 
     vertex <- 0

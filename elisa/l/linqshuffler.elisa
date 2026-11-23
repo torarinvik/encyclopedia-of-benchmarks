@@ -15,7 +15,7 @@ def linqshuffler_store_i64_le(output: mutable u8&, offset: usize, value: i64) ->
 
 def linqshuffler_impl(input: i64&, input_length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input == null or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
     n_value: i64 = input[0]
     seed: i64 = input[1]
     if n_value < 0 or n_value > MAX_N.i64() or seed < I32_MIN or seed > I32_MAX: return -1
@@ -33,7 +33,7 @@ def linqshuffler_impl(input: i64&, input_length: usize,
 
     subtraction: mutable i64 = seed
     if seed == I32_MIN: subtraction <- I32_MAX
-    else if seed < 0: subtraction <- 0 - seed
+    elif seed < 0: subtraction <- 0 - seed
     seed_array: mutable i64[56] = zeroed
     mj: mutable i64 = 161803398 - subtraction
     seed_array[55] <- mj
@@ -47,15 +47,15 @@ def linqshuffler_impl(input: i64&, input_length: usize,
         mj <- seed_array[ii]
         i <- i + 1
 
-    pass: mutable usize = 0
-    while pass < 4:
+    pass_value: mutable usize = 0
+    while pass_value < 4:
         i <- 1
         while i < 56:
             offset_index: usize = 1 + (i + 30) % 55
             seed_array[i] <- seed_array[i] - seed_array[offset_index]
             if seed_array[i] < 0: seed_array[i] <- seed_array[i] + MBIG
             i <- i + 1
-        pass <- pass + 1
+        pass_value <- pass_value + 1
 
     inext: mutable usize = 0
     inextp: mutable usize = 21
@@ -87,7 +87,7 @@ def linqshuffler_impl(input: i64&, input_length: usize,
         index <- index + 1
 
     output_bytes: usize = 8 * (n + 1)
-    if output_bytes > MAX_OUTPUT_BYTES or output.is_null() or output_capacity < output_bytes: return -2
+    if output_bytes > MAX_OUTPUT_BYTES or output == null or output_capacity < output_bytes: return -2
     linqshuffler_store_i64_le(output, 0, n_value)
     index <- 0
     while index < n:

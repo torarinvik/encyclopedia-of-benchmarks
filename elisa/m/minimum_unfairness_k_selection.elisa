@@ -28,11 +28,11 @@ def muks_heap_sort(values: mutable view[i64], length: usize) -> void:
         values[ending] <- temporary
         muks_sift_down(values, 0, ending)
 
-def minimum_unfairness_k_selection_impl(packed: i64&, length: usize) -> i64:
-    if packed == null or length < 4 or length > MUKS_MAX_N + 2:
+def minimum_unfairness_k_selection_impl(packed_value: i64&, length: usize) -> i64:
+    if packed_value == null or length < 4 or length > MUKS_MAX_N + 2:
         return -1
-    n_value: i64 = packed[0]
-    k_value: i64 = packed[1]
+    n_value: i64 = packed_value[0]
+    k_value: i64 = packed_value[1]
     if n_value < 2 or n_value > MUKS_MAX_N.i64() or k_value < 2 or k_value > n_value or length != n_value.usize() + 2:
         return -1
     n: usize = n_value.usize()
@@ -40,7 +40,7 @@ def minimum_unfairness_k_selection_impl(packed: i64&, length: usize) -> i64:
     sorted: mutable i64[MUKS_MAX_N] = zeroed
     index: mutable usize = 0
     while index < n:
-        value: i64 = packed[index + 2]
+        value: i64 = packed_value[index + 2]
         if value < MUKS_MIN_VALUE or value > MUKS_MAX_VALUE:
             return -1
         sorted[index] <- value
@@ -55,4 +55,4 @@ def minimum_unfairness_k_selection_impl(packed: i64&, length: usize) -> i64:
         first <- first + 1
     best
 
-export fn minimum_unfairness_k_selection(packed: i64&, length: usize) -> i64 = minimum_unfairness_k_selection_impl
+export fn minimum_unfairness_k_selection(packed_value: i64&, length: usize) -> i64 = minimum_unfairness_k_selection_impl

@@ -2,7 +2,7 @@
 ## Written by Man L. Li, modified by Wayne Iba, documented by Bob Webber.
 ## Upstream countlib/count are under GNU GPL version 1; this derivative is licensed under GNU GPL version 1.
 def prolangs_c_gnugo_liberty_count_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > 726: return -1
+    if input == null or length < 4 or length > 726: return -1
     row: i64 = input[0]
     col: i64 = input[1]
     color: i64 = input[2]
@@ -21,22 +21,30 @@ def prolangs_c_gnugo_liberty_count_impl(input: i64&, length: usize) -> i64:
         k <- k + 1
     start: usize = (row * 19 + col).usize()
     if board[start] != color.u8(): return -1
-    stack: mutable usize[361] = zeroed
+    stack_value: mutable usize[361] = zeroed
     top: mutable usize = 1
     total: mutable i64 = 0
-    stack[0] <- start
+    stack_value[0] <- start
     seen[start] <- true
     while top > 0:
         top <- top - 1
-        at: usize = stack[top]
+        at: usize = stack_value[top]
         r: usize = at / 19
         c: usize = at % 19
         neighbors: mutable usize[4] = zeroed
         n: mutable usize = 0
-        if r > 0: neighbors[n] <- at - 19; n <- n + 1
-        if r < 18: neighbors[n] <- at + 19; n <- n + 1
-        if c > 0: neighbors[n] <- at - 1; n <- n + 1
-        if c < 18: neighbors[n] <- at + 1; n <- n + 1
+        if r > 0:
+            neighbors[n] <- at - 19
+            n <- n + 1
+        if r < 18:
+            neighbors[n] <- at + 19
+            n <- n + 1
+        if c > 0:
+            neighbors[n] <- at - 1
+            n <- n + 1
+        if c < 18:
+            neighbors[n] <- at + 1
+            n <- n + 1
         j: mutable usize = 0
         while j < n:
             next: usize = neighbors[j]
@@ -44,9 +52,9 @@ def prolangs_c_gnugo_liberty_count_impl(input: i64&, length: usize) -> i64:
                 if not liberties[next]:
                     liberties[next] <- true
                     total <- total + 1
-            else if board[next] == color.u8() and not seen[next]:
+            elif board[next] == color.u8() and not seen[next]:
                 seen[next] <- true
-                stack[top] <- next
+                stack_value[top] <- next
                 top <- top + 1
             j <- j + 1
     total

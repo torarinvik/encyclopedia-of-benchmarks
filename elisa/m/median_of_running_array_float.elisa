@@ -8,54 +8,54 @@ def median_float_less(left: f32, right: f32) -> bool:
         return (1.0.f32() / left < 0.0.f32()) and (1.0.f32() / right >= 0.0.f32())
     false
 
-def median_float_push_max(heap: mutable view[f32], count: mutable usize&, value: f32) -> void:
+def median_float_push_max(heap_value: mutable view[f32], count: mutable usize&, value: f32) -> void:
     position: mutable usize = count
     count <- count + 1
-    while position > 0 and median_float_less(heap[(position - 1) / 2], value):
+    while position > 0 and median_float_less(heap_value[(position - 1) / 2], value):
         parent: usize = (position - 1) / 2
-        heap[position] <- heap[parent]
+        heap_value[position] <- heap_value[parent]
         position <- parent
-    heap[position] <- value
+    heap_value[position] <- value
 
-def median_float_pop_max(heap: mutable view[f32], count: mutable usize&) -> f32:
-    result: f32 = heap[0]
+def median_float_pop_max(heap_value: mutable view[f32], count: mutable usize&) -> f32:
+    result: f32 = heap_value[0]
     count <- count - 1
-    value: f32 = heap[count]
+    value: f32 = heap_value[count]
     if count == 0:
         return result
     position: mutable usize = 0
     while 2 * position + 1 < count:
         child: mutable usize = 2 * position + 1
-        if child + 1 < count and median_float_less(heap[child], heap[child + 1]): child <- child + 1
-        if not median_float_less(value, heap[child]): break
-        heap[position] <- heap[child]
+        if child + 1 < count and median_float_less(heap_value[child], heap_value[child + 1]): child <- child + 1
+        if not median_float_less(value, heap_value[child]): break
+        heap_value[position] <- heap_value[child]
         position <- child
-    heap[position] <- value
+    heap_value[position] <- value
     result
 
-def median_float_push_min(heap: mutable view[f32], count: mutable usize&, value: f32) -> void:
+def median_float_push_min(heap_value: mutable view[f32], count: mutable usize&, value: f32) -> void:
     position: mutable usize = count
     count <- count + 1
-    while position > 0 and median_float_less(value, heap[(position - 1) / 2]):
+    while position > 0 and median_float_less(value, heap_value[(position - 1) / 2]):
         parent: usize = (position - 1) / 2
-        heap[position] <- heap[parent]
+        heap_value[position] <- heap_value[parent]
         position <- parent
-    heap[position] <- value
+    heap_value[position] <- value
 
-def median_float_pop_min(heap: mutable view[f32], count: mutable usize&) -> f32:
-    result: f32 = heap[0]
+def median_float_pop_min(heap_value: mutable view[f32], count: mutable usize&) -> f32:
+    result: f32 = heap_value[0]
     count <- count - 1
-    value: f32 = heap[count]
+    value: f32 = heap_value[count]
     if count == 0:
         return result
     position: mutable usize = 0
     while 2 * position + 1 < count:
         child: mutable usize = 2 * position + 1
-        if child + 1 < count and median_float_less(heap[child + 1], heap[child]): child <- child + 1
-        if not median_float_less(heap[child], value): break
-        heap[position] <- heap[child]
+        if child + 1 < count and median_float_less(heap_value[child + 1], heap_value[child]): child <- child + 1
+        if not median_float_less(heap_value[child], value): break
+        heap_value[position] <- heap_value[child]
         position <- child
-    heap[position] <- value
+    heap_value[position] <- value
     result
 
 def median_of_running_array_float_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
@@ -85,11 +85,11 @@ def median_of_running_array_float_impl(input: f64&, length: usize, output: mutab
             median_float_push_min(upper[0:count], &upper_count, narrowed)
         if lower_count > upper_count + 1:
             median_float_push_min(upper[0:count], &upper_count, median_float_pop_max(lower[0:count], &lower_count))
-        else if upper_count > lower_count + 1:
+        elif upper_count > lower_count + 1:
             median_float_push_max(lower[0:count], &lower_count, median_float_pop_min(upper[0:count], &upper_count))
         if lower_count > upper_count:
             medians[index] <- lower[0]
-        else if upper_count > lower_count:
+        elif upper_count > lower_count:
             medians[index] <- upper[0]
         else:
             sum: f32 = lower[0] + upper[0]

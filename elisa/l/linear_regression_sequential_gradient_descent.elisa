@@ -48,8 +48,8 @@ def linear_regression_sequential_gradient_descent_impl(values: i64&, length: usi
         while index < count.usize():
             x: f64 = values[3 + 2 * index].f64()
             y: f64 = values[4 + 2 * index].f64()
-            error: f64 = slope * x + intercept - y
-            cost <- cost + error * error
+            error_value: f64 = slope * x + intercept - y
+            cost <- cost + error_value * error_value
             index <- index + 1
         cost <- cost / (2.0 * count.f64())
         epoch <- epoch + 1

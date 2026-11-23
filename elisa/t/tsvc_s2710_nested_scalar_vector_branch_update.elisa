@@ -2,7 +2,7 @@ extern trunc(value: f64) -> f64
 extern fabs(value: f64) -> f64
 
 def tsvc_s2710_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length < 58 or length > 323:
+    if input == null or length < 58 or length > 323:
         return -1
     count: f64 = input[0]
     repetitions: f64 = input[1]
@@ -15,22 +15,22 @@ def tsvc_s2710_impl(input: f64&, length: usize, output: mutable f64&, capacity: 
     passes: usize = repetitions.usize()
     if length != 3 + 5 * n:
         return -1
-    for i in 3..length:
+    for i in 3..<length:
         value: f64 = input[i]
         if value != value or trunc(value) != value or fabs(value) > 1:
             return -1
-    if output.is_null() or capacity < 3 * n:
+    if output == null or capacity < 3 * n:
         return -2
 
     a: mutable f64[64] = zeroed
     b: mutable f64[64] = zeroed
     c: mutable f64[64] = zeroed
-    for i in 0..n:
+    for i in 0..<n:
         a[i] <- input[3 + i]
         b[i] <- input[3 + n + i]
         c[i] <- input[3 + 2 * n + i]
-    for pass in 0..passes:
-        for i in 0..n:
+    for pass_value in 0..<passes:
+        for i in 0..<n:
             d: f64 = input[3 + 3 * n + i]
             e: f64 = input[3 + 4 * n + i]
             if a[i] > b[i]:
@@ -42,7 +42,7 @@ def tsvc_s2710_impl(input: f64&, length: usize, output: mutable f64&, capacity: 
                     c[i] <- a[i] + d * d
                 else:
                     c[i] <- c[i] + e * e
-    for i in 0..n:
+    for i in 0..<n:
         output[i] <- a[i]
         output[n + i] <- b[i]
         output[2 * n + i] <- c[i]

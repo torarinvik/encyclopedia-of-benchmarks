@@ -1,6 +1,6 @@
 def mini_batch_gradient_descent_impl(input: f64&, input_length: usize,
         output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 5 or input_length > 101: return -1
+    if input == null or input_length < 5 or input_length > 101: return -1
     sample_value: f64 = input[0]
     feature_value: f64 = input[1]
     batch_value: f64 = input[2]
@@ -56,7 +56,7 @@ def mini_batch_gradient_descent_impl(input: f64&, input_length: usize,
     while epoch < epochs:
         start: mutable usize = 0
         while start < samples:
-            batch_length: usize = if samples - start < batch_size: samples - start else: batch_size
+            batch_length: usize = samples - start if samples - start < batch_size else batch_size
             errors: mutable f64[8] = zeroed
             position: mutable usize = 0
             while position < batch_length:
@@ -67,9 +67,9 @@ def mini_batch_gradient_descent_impl(input: f64&, input_length: usize,
                     prediction <- prediction + matrix[sample * features + feature] * weights[feature]
                     feature <- feature + 1
                 prediction <- prediction + bias
-                error: f64 = prediction - targets[sample]
-                if prediction != prediction or error != error: return -1
-                errors[position] <- error
+                error_value: f64 = prediction - targets[sample]
+                if prediction != prediction or error_value != error_value: return -1
+                errors[position] <- error_value
                 position <- position + 1
             feature: mutable usize = 0
             while feature < features:
@@ -100,7 +100,7 @@ def mini_batch_gradient_descent_impl(input: f64&, input_length: usize,
         staged[i] <- weights[i]
         i <- i + 1
     staged[features] <- bias
-    if output.is_null() or capacity < features + 1: return -2
+    if output == null or capacity < features + 1: return -2
     i <- 0
     while i < features + 1:
         output[i] <- staged[i]

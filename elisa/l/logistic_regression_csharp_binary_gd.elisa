@@ -5,7 +5,7 @@ const MAX_FEATURES: usize = 8
 const INVALID_RESULT: f64 = -1.0e300
 
 def logistic_regression_csharp_binary_gd_impl(input: i64&, length: usize) -> f64:
-    if input.is_null() or length < 4:
+    if input == null or length < 4:
         return INVALID_RESULT
     m_value: i64 = input[0]
     d_value: i64 = input[1]
@@ -51,13 +51,13 @@ def logistic_regression_csharp_binary_gd_impl(input: i64&, length: usize) -> f64
                 feature <- feature + 1
             linear: f64 = dot + bias
             prediction: f64 = 1.0 / (1.0 + exp(-linear))
-            error: f64 = prediction - input[labels_offset + sample].f64()
+            error_value: f64 = prediction - input[labels_offset + sample].f64()
             feature <- 0
             while feature < d:
                 x: f64 = input[4 + sample * d + feature].f64() / 1000000.0
-                gradient[feature] <- gradient[feature] + error * x
+                gradient[feature] <- gradient[feature] + error_value * x
                 feature <- feature + 1
-            bias_gradient <- bias_gradient + error
+            bias_gradient <- bias_gradient + error_value
             sample <- sample + 1
         for feature in 0..<d:
             weights[feature] <- weights[feature] - learning_rate * gradient[feature] / m.f64()

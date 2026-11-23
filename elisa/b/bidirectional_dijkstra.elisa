@@ -1,6 +1,6 @@
 # Directed shortest distance using forward and reverse Dijkstra searches.
 def bidirectional_dijkstra_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4: return -1
+    if input == null or length < 4: return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]
     source_value: i64 = input[2]
@@ -12,9 +12,9 @@ def bidirectional_dijkstra_impl(input: i64&, length: usize) -> i64:
     if length != 4 + 3 * m: return -1
     for edge in 0..<m:
         from: i64 = input[4 + 3 * edge]
-        to: i64 = input[5 + 3 * edge]
+        to_value: i64 = input[5 + 3 * edge]
         weight: i64 = input[6 + 3 * edge]
-        if from < 0 or from >= n_value or to < 0 or to >= n_value or weight < 0 or weight > 1000000: return -1
+        if from < 0 or from >= n_value or to_value < 0 or to_value >= n_value or weight < 0 or weight > 1000000: return -1
     source: usize = source_value.usize()
     target: usize = target_value.usize()
     if source == target: return 0
@@ -52,11 +52,11 @@ def bidirectional_dijkstra_impl(input: i64&, length: usize) -> i64:
                 best <- forward[current] + backward[current]
             for edge in 0..<m:
                 if input[4 + 3 * edge].usize() != current: continue
-                to: usize = input[5 + 3 * edge].usize()
+                to_value: usize = input[5 + 3 * edge].usize()
                 candidate: i64 = forward[current] + input[6 + 3 * edge]
-                if not settled_forward[to] and candidate < forward[to]: forward[to] <- candidate
-                if backward[to] != 1000000000 and candidate + backward[to] < best:
-                    best <- candidate + backward[to]
+                if not settled_forward[to_value] and candidate < forward[to_value]: forward[to_value] <- candidate
+                if backward[to_value] != 1000000000 and candidate + backward[to_value] < best:
+                    best <- candidate + backward[to_value]
         else:
             current: usize = next_backward
             settled_backward[current] <- true

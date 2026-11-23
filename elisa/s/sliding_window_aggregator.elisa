@@ -28,8 +28,8 @@ def sliding_window_aggregator_impl(input: i64&, length: usize) -> i64:
     while index < count:
         value: i64 = input[index + 2]
         if size < capacity:
-            tail: usize = (head + size) % capacity
-            window[tail] <- value
+            tail_value: usize = (head + size) % capacity
+            window[tail_value] <- value
             sum <- sum + value
             size <- size + 1
         else:

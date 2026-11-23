@@ -16,7 +16,7 @@ def infix_to_postfix2_precedence(ch: i64) -> i64:
 def infix_to_postfix2_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
     if length == 0 or length > MAX_EXPRESSION:
         return -1
-    stack: mutable u8[MAX_STACK] = zeroed
+    stack_value: mutable u8[MAX_STACK] = zeroed
     result: mutable u8[MAX_EXPRESSION + 1] = zeroed
     top: mutable usize = 0
     count: mutable usize = 0
@@ -33,14 +33,14 @@ def infix_to_postfix2_impl(input: i64&, length: usize, output: mutable u8&, outp
         elif ch == 40:
             if not expect_operand or top == MAX_STACK:
                 return -1
-            stack[top] <- 40u8
+            stack_value[top] <- 40u8
             top <- top + 1
         elif ch == 41:
             if expect_operand:
                 return -1
-            while top > 0 and stack[top - 1] != 40u8:
+            while top > 0 and stack_value[top - 1] != 40u8:
                 top <- top - 1
-                result[count] <- stack[top]
+                result[count] <- stack_value[top]
                 count <- count + 1
             if top == 0:
                 return -1
@@ -49,13 +49,13 @@ def infix_to_postfix2_impl(input: i64&, length: usize, output: mutable u8&, outp
         elif infix_to_postfix2_is_operator(ch):
             if expect_operand:
                 return -1
-            while top > 0 and stack[top - 1] != 40u8 and infix_to_postfix2_precedence(ch) <= infix_to_postfix2_precedence(stack[top - 1].i64()):
+            while top > 0 and stack_value[top - 1] != 40u8 and infix_to_postfix2_precedence(ch) <= infix_to_postfix2_precedence(stack_value[top - 1].i64()):
                 top <- top - 1
-                result[count] <- stack[top]
+                result[count] <- stack_value[top]
                 count <- count + 1
             if top == MAX_STACK:
                 return -1
-            stack[top] <- ch.u8()
+            stack_value[top] <- ch.u8()
             top <- top + 1
             expect_operand <- true
         else:
@@ -65,9 +65,9 @@ def infix_to_postfix2_impl(input: i64&, length: usize, output: mutable u8&, outp
         return -1
     while top > 0:
         top <- top - 1
-        if stack[top] == 40u8:
+        if stack_value[top] == 40u8:
             return -1
-        result[count] <- stack[top]
+        result[count] <- stack_value[top]
         count <- count + 1
     result[count] <- 0u8
     count <- count + 1

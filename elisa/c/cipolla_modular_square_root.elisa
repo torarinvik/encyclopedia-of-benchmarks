@@ -31,11 +31,11 @@ def cipolla_pair_real(a: i64, b: i64, c: i64, e: i64, radicand: i64, prime: i64)
 def cipolla_pair_imaginary(a: i64, b: i64, c: i64, e: i64, prime: i64) -> i64:
     (a * e + b * c) % prime
 
-def cipolla_modular_square_root_impl(packed: i64&, length: usize) -> i64:
-    if packed.is_null() or length != 2:
+def cipolla_modular_square_root_impl(packed_value: i64&, length: usize) -> i64:
+    if packed_value == null or length != 2:
         return -1
-    residue: i64 = packed[0]
-    prime: i64 = packed[1]
+    residue: i64 = packed_value[0]
+    prime: i64 = packed_value[1]
     if prime < 3 or prime > CIPOLLA_MAX_PRIME or (prime & 1) == 0 or residue < 0 or residue >= prime:
         return -1
     if residue == 0:
@@ -78,4 +78,4 @@ def cipolla_modular_square_root_impl(packed: i64&, length: usize) -> i64:
         return result_real
     prime - result_real
 
-export fn cipolla_modular_square_root(packed: i64&, length: usize) -> i64 = cipolla_modular_square_root_impl
+export fn cipolla_modular_square_root(packed_value: i64&, length: usize) -> i64 = cipolla_modular_square_root_impl

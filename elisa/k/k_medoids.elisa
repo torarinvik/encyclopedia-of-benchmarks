@@ -2,11 +2,11 @@ def k_medoids_distance(a: i64, b: i64) -> i64:
     if a >= b: a - b
     else: b - a
 
-def k_medoids_impl(packed: i64&, length: usize) -> i64:
-    if packed.is_null() or length < 3 or length > 16: return -1
-    point_count: i64 = packed[0]
-    medoid_count: i64 = packed[1]
-    max_iter: i64 = packed[2]
+def k_medoids_impl(packed_value: i64&, length: usize) -> i64:
+    if packed_value == null or length < 3 or length > 16: return -1
+    point_count: i64 = packed_value[0]
+    medoid_count: i64 = packed_value[1]
+    max_iter: i64 = packed_value[2]
     if point_count < 2 or point_count > 8 or medoid_count < 1 or medoid_count > 4 or medoid_count > point_count: return -1
     if max_iter < 1 or max_iter > 16 or length != (3 + point_count + medoid_count).usize(): return -1
     n: usize = point_count.usize()
@@ -16,7 +16,7 @@ def k_medoids_impl(packed: i64&, length: usize) -> i64:
     labels: mutable i64[8] = zeroed
     slot: mutable usize = 0
     while slot < k:
-        medoids[slot] <- packed[3 + slot]
+        medoids[slot] <- packed_value[3 + slot]
         if medoids[slot] < 0 or medoids[slot] >= point_count: return -1
         earlier: mutable usize = 0
         while earlier < slot:
@@ -25,7 +25,7 @@ def k_medoids_impl(packed: i64&, length: usize) -> i64:
         slot <- slot + 1
     index: mutable usize = 0
     while index < n:
-        points[index] <- packed[3 + k + index]
+        points[index] <- packed_value[3 + k + index]
         if points[index] < -16 or points[index] > 16: return -1
         earlier: mutable usize = 0
         while earlier < index:
@@ -104,4 +104,4 @@ def k_medoids_impl(packed: i64&, length: usize) -> i64:
         index <- index + 1
     result
 
-export fn k_medoids(packed: i64&, length: usize) -> i64 = k_medoids_impl
+export fn k_medoids(packed_value: i64&, length: usize) -> i64 = k_medoids_impl

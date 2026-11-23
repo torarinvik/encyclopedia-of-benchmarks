@@ -13,7 +13,7 @@ def put_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
         byte <- byte + 1
 
 def list_based_stack_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
     raw_initial_count: i64 = input[0]
     if raw_initial_count < 0 or raw_initial_count > 32:
@@ -72,11 +72,11 @@ def list_based_stack_impl(input: i64&, length: usize, output: mutable u8&, capac
     if cursor != length:
         return -1
 
-    stack: mutable i64[MAX_STACK_SIZE] = zeroed
+    stack_value: mutable i64[MAX_STACK_SIZE] = zeroed
     stack_size: mutable usize = initial_count
     index <- 0
     while index < initial_count:
-        stack[index] <- initial_items[index]
+        stack_value[index] <- initial_items[index]
         index <- index + 1
     buffer: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     written: mutable usize = 0
@@ -85,19 +85,19 @@ def list_based_stack_impl(input: i64&, length: usize, output: mutable u8&, capac
         opcode: i64 = opcodes[index]
         result: mutable i64 = 0
         if opcode == 1:
-            stack[stack_size] <- arguments[index]
+            stack_value[stack_size] <- arguments[index]
             stack_size <- stack_size + 1
         elif opcode == 2:
             stack_size <- stack_size - 1
-            result <- stack[stack_size]
+            result <- stack_value[stack_size]
         elif opcode == 3:
-            result <- stack[stack_size - 1]
+            result <- stack_value[stack_size - 1]
         elif opcode == 4:
             result <- stack_size.i64()
         elif opcode == 5:
             item: mutable usize = 0
             while item < stack_size:
-                if stack[item] == arguments[index]:
+                if stack_value[item] == arguments[index]:
                     result <- 1
                     break
                 item <- item + 1
@@ -108,7 +108,7 @@ def list_based_stack_impl(input: i64&, length: usize, output: mutable u8&, capac
         written <- written + 16
         index <- index + 1
 
-    if output.is_null() or capacity < written:
+    if output == null or capacity < written:
         return -2
     index <- 0
     while index < written:

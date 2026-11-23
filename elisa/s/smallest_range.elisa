@@ -6,19 +6,19 @@ def less_head(values: view[i64], positions: view[usize], a: usize, b: usize) -> 
     right: i64 = values[b * 16 + positions[b]]
     left < right or (left == right and a < b)
 
-def sift_down(heap: mutable view[usize], size: usize, initial_root: usize, values: view[i64], positions: mutable view[usize]) -> void:
+def sift_down(heap_value: mutable view[usize], size: usize, initial_root: usize, values: view[i64], positions: mutable view[usize]) -> void:
     root: mutable usize = initial_root
     while true:
         child: mutable usize = root * 2 + 1
         if child >= size:
             break
-        if child + 1 < size and less_head(values, positions, heap[child + 1], heap[child]):
+        if child + 1 < size and less_head(values, positions, heap_value[child + 1], heap_value[child]):
             child <- child + 1
-        if not less_head(values, positions, heap[child], heap[root]):
+        if not less_head(values, positions, heap_value[child], heap_value[root]):
             break
-        temporary: usize = heap[root]
-        heap[root] <- heap[child]
-        heap[child] <- temporary
+        temporary: usize = heap_value[root]
+        heap_value[root] <- heap_value[child]
+        heap_value[child] <- temporary
         root <- child
 
 def smallest_range_impl(input: i64&, length: usize) -> i64:
@@ -28,7 +28,7 @@ def smallest_range_impl(input: i64&, length: usize) -> i64:
     values: mutable i64[256] = zeroed
     lengths: mutable usize[16] = zeroed
     positions: mutable usize[16] = zeroed
-    heap: mutable usize[16] = zeroed
+    heap_value: mutable usize[16] = zeroed
     offset: mutable usize = 1
     total: mutable usize = 0
     current_max: mutable i64 = -1000000001
@@ -46,7 +46,7 @@ def smallest_range_impl(input: i64&, length: usize) -> i64:
                 return -1
             values[i * 16 + j] <- value
             offset <- offset + 1
-        heap[i] <- i
+        heap_value[i] <- i
         if values[i * 16] > current_max:
             current_max <- values[i * 16]
     if offset != length:
@@ -55,12 +55,12 @@ def smallest_range_impl(input: i64&, length: usize) -> i64:
     start: mutable usize = heap_size / 2
     while start > 0:
         start <- start - 1
-        sift_down(heap[0:16], heap_size, start, values[0:256], positions[0:16])
+        sift_down(heap_value[0:16], heap_size, start, values[0:256], positions[0:16])
     best_lo: mutable i64 = 0
     best_hi: mutable i64 = 0
     best_width: mutable i64 = 9223372036854775807
     while true:
-        list: usize = heap[0]
+        list: usize = heap_value[0]
         lo: i64 = values[list * 16 + positions[list]]
         width: i64 = current_max - lo
         if width < best_width:
@@ -72,7 +72,7 @@ def smallest_range_impl(input: i64&, length: usize) -> i64:
             break
         if values[list * 16 + positions[list]] > current_max:
             current_max <- values[list * 16 + positions[list]]
-        sift_down(heap[0:16], heap_size, 0, values[0:256], positions[0:16])
+        sift_down(heap_value[0:16], heap_size, 0, values[0:256], positions[0:16])
     (best_lo + 1000000000) * 2000000001 + best_hi + 1000000000
 
 export fn smallest_range(input: i64&, length: usize) -> i64 = smallest_range_impl

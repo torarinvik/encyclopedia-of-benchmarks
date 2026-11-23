@@ -47,7 +47,7 @@ def lac_adpcm_clamp_sample(value: i32) -> i32:
 def lac_adpcm_encode_one(sample: i32, predictor: mutable i32&, index: mutable i32&) -> u8:
     step: mutable i32 = LAC_ADPCM_STEP[index.usize()]
     diff: mutable i32 = sample - predictor
-    sign: i32 = if diff < 0: 8 else: 0
+    sign: i32 = 8 if diff < 0 else 0
     if sign != 0:
         diff <- -diff
     code: mutable i32 = 0
@@ -65,7 +65,7 @@ def lac_adpcm_encode_one(sample: i32, predictor: mutable i32&, index: mutable i3
     if diff >= step:
         code <- code | 1
         change <- change + step
-    predictor <- lac_adpcm_clamp_sample(predictor + (if sign != 0: -change else: change))
+    predictor <- lac_adpcm_clamp_sample(predictor + ((-change if sign != 0 else change)))
     code <- code | sign
     index <- lac_adpcm_clamp_index(index + LAC_ADPCM_INDEX[code.usize()])
     code.u8()
@@ -81,11 +81,11 @@ def lac_adpcm_decode_one(code: i32, predictor: mutable i32&, index: mutable i32&
         change <- change + (step >> 1)
     if (magnitude & 1) != 0:
         change <- change + (step >> 2)
-    predictor <- lac_adpcm_clamp_sample(predictor + (if (code & 8) != 0: -change else: change))
+    predictor <- lac_adpcm_clamp_sample(predictor + ((-change if (code & 8) != 0 else change)))
     predictor
 
 def lac_adpcm_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 2 or input_length > 258:
+    if input == null or input_length < 2 or input_length > 258:
         return -1
     mode: i64 = input[0]
     count: i64 = input[1]
@@ -105,10 +105,10 @@ def lac_adpcm_impl(input: i64&, input_length: usize, output: mutable u8&, output
         return -1
 
     n: usize = count.usize()
-    required: usize = if mode == 1: (n + 1) / 2 else: n * 4
+    required: usize = (n + 1) / 2 if mode == 1 else n * 4
     if required == 0:
         return 0
-    if output.is_null() or output_capacity < required:
+    if output == null or output_capacity < required:
         return -2
     predictor: mutable i32 = 0
     index: mutable i32 = 0
@@ -121,9 +121,9 @@ def lac_adpcm_impl(input: i64&, input_length: usize, output: mutable u8&, output
                 output[i / 2] <- output[i / 2] | code
     else:
         for i in 0..<n:
-            packed: i32 = input[i + 2].i32()
+            packed_value: i32 = input[i + 2].i32()
             for half in 0..<2:
-                code: i32 = if half == 0: packed >> 4 else: packed & 15
+                code: i32 = packed_value >> 4 if half == 0 else packed_value & 15
                 sample: i32 = lac_adpcm_decode_one(code, predictor, index)
                 sample_bits: u16 = (sample & 65535).u16()
                 position: usize = (i * 2 + half) * 2

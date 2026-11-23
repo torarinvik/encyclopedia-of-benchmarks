@@ -29,7 +29,7 @@ def infix_to_postfix_conversion_impl(input: i64&, length: usize, output: mutable
     expression_length: i64 = input[0]
     if expression_length < 0 or expression_length > 256 or length != 1 + expression_length.usize():
         return -1
-    stack: mutable u8[256] = zeroed
+    stack_value: mutable u8[256] = zeroed
     result: mutable u8[512] = zeroed
     top: mutable usize = 0
     count: mutable usize = 0
@@ -45,14 +45,14 @@ def infix_to_postfix_conversion_impl(input: i64&, length: usize, output: mutable
         elif ch == 40:
             if not expect_operand or top == MAX_EXPRESSION:
                 return -1
-            stack[top] <- 40u8
+            stack_value[top] <- 40u8
             top <- top + 1
         elif ch == 41:
             if expect_operand:
                 return -1
-            while top > 0 and stack[top - 1] != 40u8:
+            while top > 0 and stack_value[top - 1] != 40u8:
                 top <- top - 1
-                count <- emit_token(result[0:MAX_OUTPUT], count, stack[top])
+                count <- emit_token(result[0:MAX_OUTPUT], count, stack_value[top])
             if top == 0:
                 return -1
             top <- top - 1
@@ -60,14 +60,14 @@ def infix_to_postfix_conversion_impl(input: i64&, length: usize, output: mutable
         elif infix_to_postfix_conversion_is_operator(ch):
             if expect_operand:
                 return -1
-            while top > 0 and stack[top - 1] != 40u8 and
-                  (infix_to_postfix_conversion_precedence(ch) < infix_to_postfix_conversion_precedence(stack[top - 1].i64()) or
-                   (infix_to_postfix_conversion_precedence(ch) == infix_to_postfix_conversion_precedence(stack[top - 1].i64()) and ch != 94)):
+            while top > 0 and stack_value[top - 1] != 40u8 and
+                  (infix_to_postfix_conversion_precedence(ch) < infix_to_postfix_conversion_precedence(stack_value[top - 1].i64()) or
+                   (infix_to_postfix_conversion_precedence(ch) == infix_to_postfix_conversion_precedence(stack_value[top - 1].i64()) and ch != 94)):
                 top <- top - 1
-                count <- emit_token(result[0:MAX_OUTPUT], count, stack[top])
+                count <- emit_token(result[0:MAX_OUTPUT], count, stack_value[top])
             if top == MAX_EXPRESSION:
                 return -1
-            stack[top] <- ch.u8()
+            stack_value[top] <- ch.u8()
             top <- top + 1
             expect_operand <- true
         else:
@@ -76,10 +76,10 @@ def infix_to_postfix_conversion_impl(input: i64&, length: usize, output: mutable
     if expression_length != 0 and expect_operand:
         return -1
     while top > 0:
-        if stack[top - 1] == 40u8:
+        if stack_value[top - 1] == 40u8:
             return -1
         top <- top - 1
-        count <- emit_token(result[0:MAX_OUTPUT], count, stack[top])
+        count <- emit_token(result[0:MAX_OUTPUT], count, stack_value[top])
     result[count] <- 0u8
     count <- count + 1
     if output_capacity < count:
