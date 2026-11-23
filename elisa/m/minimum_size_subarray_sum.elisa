@@ -5,16 +5,16 @@ def minimum_size_subarray_sum_impl(input_values: i64&, length: usize) -> i64:
     count: i64 = input_values[1]
     if target < 1 or target > 1000000 or count < 0 or count > 256 or length != count + 2:
         return -1
-    index: i64 = 0
+    index: mutable i64 = 0
     while index < count:
         value: i64 = input_values[index + 2]
         if value < 1 or value > 1000000:
             return -1
         index <- index + 1
-    left: i64 = 0
-    current_sum: i64 = 0
-    best: i64 = count + 1
-    right: i64 = 0
+    left: mutable i64 = 0
+    current_sum:mutable  mutable i64 = 0
+    best: mutable i64 = count + 1
+    right: mutable i64 = 0
     while right < count:
         current_sum <- current_sum + input_values[right + 2]
         while current_sum >= target:

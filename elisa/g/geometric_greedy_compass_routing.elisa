@@ -4,7 +4,7 @@ const MAX_OUTPUT: usize = 80
 const OUTPUT_VALUES: usize = 10
 
 def put64(value: i64, output: mutable view[u8], position: usize) -> void:
-    bits: u64 = value.u64()
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[position + byte] <- (bits & 255).u8()
@@ -21,9 +21,9 @@ def angle_better(da: i64, la: i64, db: i64, lb: i64) -> bool:
 def angle_equal(da: i64, la: i64, db: i64, lb: i64) -> bool:
     return (da >= 0) == (db >= 0) and da * da * lb == db * db * la
 
-def geometric_greedy_compass_routing(input: i64&, length: usize, output: mutable u8&,
-        capacity: usize) -> i64 @export("geometric_greedy_compass_routing"):
-    if input.is_null() or length < 12 or length > MAX_INPUT: return -1
+def geometric_greedy_compass_routing_impl(input: i64&, length: usize, output: mutable u8&,
+        capacity: usize) -> i64:
+    if input == null or length < 12 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     mode: i64 = input[1]
     source64: i64 = input[2]
@@ -55,7 +55,7 @@ def geometric_greedy_compass_routing(input: i64&, length: usize, output: mutable
             if (a != 0 and a != 1) or a != b or (i == j and a != 0): return -1
             j <- j + 1
         i <- i + 1
-    if output.is_null() or capacity < MAX_OUTPUT: return -2
+    if output == null or capacity < MAX_OUTPUT: return -2
     path: mutable usize[MAX_N] = zeroed
     visited: mutable bool[MAX_N] = zeroed
     count: mutable usize = 1
@@ -117,3 +117,5 @@ def geometric_greedy_compass_routing(input: i64&, length: usize, output: mutable
         output[i] <- staged[i]
         i <- i + 1
     return MAX_OUTPUT.i64()
+
+export fn geometric_greedy_compass_routing(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = geometric_greedy_compass_routing_impl

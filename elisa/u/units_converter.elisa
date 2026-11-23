@@ -62,18 +62,17 @@ def units_converter_add_all(known_present: view[i64], known_slopes: view[f64],
                 if units_converter_put_if_needed(result_present, result_slopes, result_intercepts,
                         first_source, target,
                         inverse_slopes[second_slot] * inverse_slopes[first_slot],
-                        inverse_slopes[second_slot] * inverse_intercepts[first_slot] +
-                            inverse_intercepts[second_slot]):
+                        inverse_slopes[second_slot] * inverse_intercepts[first_slot] + inverse_intercepts[second_slot]):
                     result_count <- result_count + 1
     result_count
 
 def units_converter_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length < 4 or length > 35:
+    if values == null or length < 4 or length > 35:
         return INVALID_RESULT
-    source_value: i64 = 0
-    target_value: i64 = 0
-    value_micro: i64 = 0
-    unit_count: usize = 0
+    source_value:mutable  mutable i64 = 0
+    target_value:mutable  mutable i64 = 0
+    value_micro:mutable  mutable i64 = 0
+    unit_count:mutable  mutable usize = 0
     known_present: mutable i64[MAX_CONVERSIONS] = zeroed
     known_slopes: mutable f64[MAX_CONVERSIONS] = zeroed
     known_intercepts: mutable f64[MAX_CONVERSIONS] = zeroed
@@ -102,7 +101,7 @@ def units_converter_impl(values: i64&, length: usize) -> f64:
         known_slopes[5 * MAX_UNITS] <- 5.0 / 9.0
         known_intercepts[5 * MAX_UNITS] <- 0.0
         known_count <- 5
-    else if values[0] == 1:
+    elif values[0] == 1:
         if length < 6:
             return INVALID_RESULT
         unit_count_value: i64 = values[1]
@@ -110,8 +109,7 @@ def units_converter_impl(values: i64&, length: usize) -> f64:
         source_value <- values[3]
         target_value <- values[4]
         value_micro <- values[5]
-        if unit_count_value < 2 or unit_count_value > 8 or edge_count < 0 or
-                edge_count > unit_count_value - 1 or length != (6 + 4 * edge_count).usize():
+        if unit_count_value < 2 or unit_count_value > 8 or edge_count < 0 or edge_count > unit_count_value - 1 or length != (6 + 4 * edge_count).usize():
             return INVALID_RESULT
         unit_count <- unit_count_value.usize()
         parent: mutable usize[MAX_UNITS] = zeroed
@@ -123,10 +121,7 @@ def units_converter_impl(values: i64&, length: usize) -> f64:
             to_value: i64 = values[offset + 1]
             slope_ppm: i64 = values[offset + 2]
             intercept_micro: i64 = values[offset + 3]
-            if from_value < 0 or from_value >= unit_count_value or to_value < 0 or
-                    to_value >= unit_count_value or from_value == to_value or slope_ppm == 0 or
-                    slope_ppm < -MAX_SLOPE_PPM or slope_ppm > MAX_SLOPE_PPM or
-                    intercept_micro < -MAX_INTERCEPT_MICRO or intercept_micro > MAX_INTERCEPT_MICRO:
+            if from_value < 0 or from_value >= unit_count_value or to_value < 0 or to_value >= unit_count_value or from_value == to_value or slope_ppm == 0 or slope_ppm < -MAX_SLOPE_PPM or slope_ppm > MAX_SLOPE_PPM or intercept_micro < -MAX_INTERCEPT_MICRO or intercept_micro > MAX_INTERCEPT_MICRO:
                 return INVALID_RESULT
             from_unit: usize = from_value.usize()
             to_unit: usize = to_value.usize()
@@ -143,9 +138,7 @@ def units_converter_impl(values: i64&, length: usize) -> f64:
     else:
         return INVALID_RESULT
 
-    if source_value < 0 or source_value >= unit_count.i64() or target_value < 0 or
-            target_value >= unit_count.i64() or source_value == target_value or
-            value_micro < -MAX_VALUE_MICRO or value_micro > MAX_VALUE_MICRO:
+    if source_value < 0 or source_value >= unit_count.i64() or target_value < 0 or target_value >= unit_count.i64() or source_value == target_value or value_micro < -MAX_VALUE_MICRO or value_micro > MAX_VALUE_MICRO:
         return INVALID_RESULT
 
     next_present: mutable i64[MAX_CONVERSIONS] = zeroed

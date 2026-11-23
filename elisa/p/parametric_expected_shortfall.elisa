@@ -48,13 +48,13 @@ def parametric_es_normal_quantile(probability: f64) -> f64:
     denominator <- denominator * r + 1.6763848301838038494
     denominator <- denominator * r + 2.05319162663775882187
     denominator <- denominator * r + 1.0
-    result: f64 = numerator / denominator
+    result: mutable f64 = numerator / denominator
     if q < 0.0: result <- -result
     result
 
 def calculate_es_parametric_impl(input: f64&, length: usize,
                                  output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 4 or length > PARAMETRIC_ES_MAX_PARSEABLE_LENGTH:
+    if input == null or length < 4 or length > PARAMETRIC_ES_MAX_PARSEABLE_LENGTH:
         return PARAMETRIC_ES_INVALID_RESULT
     for index in 0..<length:
         if input[index] != input[index]: return PARAMETRIC_ES_INVALID_RESULT
@@ -63,10 +63,7 @@ def calculate_es_parametric_impl(input: f64&, length: usize,
     confidence: f64 = input[1]
     horizon: f64 = input[2]
     raw_count: f64 = input[3]
-    if portfolio < 100.0 or portfolio > 1000000.0 or
-       confidence < 0.5 or confidence > 0.95 or
-       horizon < 1.0 or horizon > 10.0 or
-       raw_count < 20.0 or raw_count > 64.0 or floor(raw_count) != raw_count:
+    if portfolio < 100.0 or portfolio > 1000000.0 or confidence < 0.5 or confidence > 0.95 or horizon < 1.0 or horizon > 10.0 or raw_count < 20.0 or raw_count > 64.0 or floor(raw_count) != raw_count:
         return PARAMETRIC_ES_INVALID_RESULT
     count: usize = raw_count.usize()
     if length != 4 + count: return PARAMETRIC_ES_INVALID_RESULT
@@ -83,7 +80,7 @@ def calculate_es_parametric_impl(input: f64&, length: usize,
         squared_deviations <- squared_deviations + difference * difference
     sample_sd: f64 = sqrt(squared_deviations / (count - 1).f64())
 
-    if output.is_null() or output_capacity < 1: return PARAMETRIC_ES_OUTPUT_ERROR
+    if output == null or output_capacity < 1: return PARAMETRIC_ES_OUTPUT_ERROR
     z: f64 = parametric_es_normal_quantile(confidence)
     density: f64 = exp(-0.5 * z * z) / PARAMETRIC_ES_SQRT_TWO_PI
     multiplier: f64 = density / (1.0 - confidence)

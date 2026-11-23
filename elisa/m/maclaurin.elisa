@@ -11,7 +11,7 @@ def fact(n: i64) -> f64:
     f
 
 def term(mode: i64, x: f64, i: i64) -> f64:
-    e: i64 = i
+    e:mutable  mutable i64 = i
     sign: mutable f64 = 1.0
     if mode == 1:
         e <- 2 * i + 1
@@ -29,14 +29,14 @@ def maclaurin_impl(v: i64&, length: usize) -> f64:
     em: i64 = v[2]
     if mode < 0 or mode > 2 or xm < -2000 or xm > 2000 or em < 1 or em > 250: return BAD
     x: f64 = xm.f64() / 1000.0
-    error: f64 = em.f64() / 1000.0
+    error_value: f64 = em.f64() / 1000.0
     coefficient: mutable f64 = 0.0
     result: mutable f64 = 0.0
     i: mutable i64 = 0
-    while i < 32 |coefficient, result, i, mode, x, error|:
+    while i < 32 |coefficient, result, i, mode, x, error_value|:
         result <- result + coefficient
         coefficient <- term(mode, x, i)
-        if fabs(coefficient) <= error: return result
+        if fabs(coefficient) <= error_value: return result
         i <- i + 1
     BAD
 

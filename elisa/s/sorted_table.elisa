@@ -61,8 +61,7 @@ def sorted_table_impl(input: i64&, length: usize) -> i64:
     index: mutable usize = 0
     while index < initial_count:
         key: i64 = input[index + 1]
-        if key < SORTED_TABLE_MIN_KEY or key > SORTED_TABLE_MAX_KEY or
-           (index > 0 and items[index - 1] >= key): return -1
+        if key < SORTED_TABLE_MIN_KEY or key > SORTED_TABLE_MAX_KEY or (index > 0 and items[index - 1] >= key): return -1
         items[index] <- key
         index <- index + 1
     size: mutable usize = initial_count
@@ -118,8 +117,7 @@ def sorted_table_impl(input: i64&, length: usize) -> i64:
                 items[position] <- a
                 size <- size + 1
         elif opcode == 8 or opcode == 9:
-            if a < SORTED_TABLE_MIN_KEY or a > SORTED_TABLE_MAX_KEY or
-               b < SORTED_TABLE_MIN_KEY or b > SORTED_TABLE_MAX_KEY: return -1
+            if a < SORTED_TABLE_MIN_KEY or a > SORTED_TABLE_MAX_KEY or b < SORTED_TABLE_MIN_KEY or b > SORTED_TABLE_MAX_KEY: return -1
             if a <= b:
                 first: usize = sorted_table_lower_bound(items[0:256], size, a)
                 last: usize = sorted_table_upper_bound(items[0:256], size, b)
@@ -143,8 +141,7 @@ def sorted_table_impl(input: i64&, length: usize) -> i64:
 
     index <- 0
     while index < size:
-        checksum <- checksum + (operation_count.i64() + index.i64() + 1) *
-                    sorted_table_key_code(items[index])
+        checksum <- checksum + (operation_count.i64() + index.i64() + 1) * sorted_table_key_code(items[index])
         index <- index + 1
     checksum
 

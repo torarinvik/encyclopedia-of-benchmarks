@@ -13,19 +13,19 @@ def ntt_mod_pow(a_value: i64, exponent_value: i64) -> i64:
     result
 
 def number_theoretic_transform_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input == null || length < 2 || length > 65:
+    if input == null or length < 2 or length > 65:
         return -1
     n_value: i64 = input[0]
-    if n_value < 1 || n_value > 64 || (n_value & (n_value - 1)) != 0 || length != n_value.usize() + 1:
+    if n_value < 1 or n_value > 64 or (n_value & (n_value - 1)) != 0 or length != n_value.usize() + 1:
         return -1
     n: usize = n_value.usize()
     a: mutable i64[64] = zeroed
-    for i in 0..n:
+    for i in 0..<n:
         value: i64 = input[i + 1]
-        if value < 0 || value >= NTT_MODULUS:
+        if value < 0 or value >= NTT_MODULUS:
             return -1
         a[i] <- value
-    if output == null || capacity < 4 * n:
+    if output == null or capacity < 4 * n:
         return -2
     i: mutable usize = 1
     j: mutable usize = 0
@@ -46,7 +46,7 @@ def number_theoretic_transform_impl(input: i64&, length: usize, output: mutable 
         base: mutable usize = 0
         while base < n:
             w: mutable i64 = 1
-            for k in 0..(length_value / 2):
+            for k in 0..<(length_value / 2):
                 u: i64 = a[base + k]
                 v: i64 = (a[base + k + length_value / 2] * w) % NTT_MODULUS
                 a[base + k] <- (u + v) % NTT_MODULUS
@@ -54,9 +54,9 @@ def number_theoretic_transform_impl(input: i64&, length: usize, output: mutable 
                 w <- (w * step) % NTT_MODULUS
             base <- base + length_value
         length_value <- length_value * 2
-    for i in 0..n:
+    for i in 0..<n:
         x: u32 = a[i].u32()
-        for b in 0..4:
+        for b in 0..<4:
             output[4 * i + b] <- ((x >> (8 * b)) & 255).u8()
     (4 * n).i64()
 

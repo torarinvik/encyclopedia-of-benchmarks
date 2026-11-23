@@ -8,7 +8,7 @@ const MAX_PARSEABLE: usize = 453
 
 def graphai_ggnn_message_update_impl(input: f64&, length: usize,
                                      output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_PARSEABLE: return -1
+    if input == null or length < 3 or length > MAX_PARSEABLE: return -1
     for q in 0..<length:
         value: f64 = input[q]
         if value != value or value > 1.7976931348623157e308 or value < -1.7976931348623157e308: return -1
@@ -47,7 +47,7 @@ def graphai_ggnn_message_update_impl(input: f64&, length: usize,
     for q in wz_at..<length:
         if input[q] < -0.25 or input[q] > 0.25: return -1
     required: usize = n*d
-    if output.is_null() or capacity < required: return -2
+    if output == null or capacity < required: return -2
     aggregate: mutable f64[32] = zeroed
     update: mutable f64[32] = zeroed
     reset: mutable f64[32] = zeroed
@@ -59,10 +59,10 @@ def graphai_ggnn_message_update_impl(input: f64&, length: usize,
                 aggregate[v*d+f] <- aggregate[v*d+f] + input[h_at+cols[e]*d+f]
     for v in 0..<n:
         for f in 0..<d:
-            wz: f64 = 0.0
-            wr: f64 = 0.0
-            uz: f64 = 0.0
-            ur: f64 = 0.0
+            wz: mutable f64 = 0.0
+            wr: mutable f64 = 0.0
+            uz: mutable f64 = 0.0
+            ur: mutable f64 = 0.0
             for k in 0..<n:
                 a: usize = v*n+k
                 b: usize = k*d+f
@@ -75,8 +75,8 @@ def graphai_ggnn_message_update_impl(input: f64&, length: usize,
             reset[at] <- 1.0/(1.0+exp(-(wr+ur)))
     for v in 0..<n:
         for f in 0..<d:
-            from_graph: f64 = 0.0
-            from_state: f64 = 0.0
+            from_graph: mutable f64 = 0.0
+            from_state: mutable f64 = 0.0
             for k in 0..<n:
                 a: usize = v*n+k
                 b: usize = k*d+f
@@ -86,7 +86,8 @@ def graphai_ggnn_message_update_impl(input: f64&, length: usize,
             x: f64 = from_graph+from_state
             candidate[at] <- 2.0/(1.0+exp(-2.0*x))-1.0
             staged[at] <- (1.0-update[at])*input[h_at+at]+update[at]*candidate[at]
-    for q in 0..<required: output[q] <- staged[q]
+    for q in 0..<required:
+        output[q] <- staged[q]
     required.i64()
 
 export fn graphai_ggnn_message_update(input: f64&, length: usize,

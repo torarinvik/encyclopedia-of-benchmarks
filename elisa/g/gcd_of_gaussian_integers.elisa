@@ -3,7 +3,7 @@ const MAX_COMPONENT:i64=1000000
 
 def gaussian_nearest_quotient(numerator:i64,denominator:i64)->i64:
     sign:mutable i64=1
-    magnitude:i64=numerator
+    magnitude:mutable i64=numerator
     if numerator<0:
         sign<- -1
         magnitude<- -numerator
@@ -18,8 +18,8 @@ def gaussian_write_u32(output:mutable u8&,offset:usize,value:u32)->void:
     output[offset+2]<-((value>>16)&255).u8()
     output[offset+3]<-((value>>24)&255).u8()
 
-def gcd_of_gaussian_integers(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("gcd_of_gaussian_integers"):
-    if input.is_null() or length<5 or length>33:return -1
+def gcd_of_gaussian_integers_impl(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64:
+    if input == null or length<5 or length>33:return -1
     t64:i64=input[0]
     if t64<1 or t64>8:return -1
     t:usize=t64.usize()
@@ -33,7 +33,7 @@ def gcd_of_gaussian_integers(input:i64&,length:usize,output:mutable u8&,capacity
         values[index]<-value
         index<-index+1
     required:usize=8*t
-    if output.is_null() or capacity<required:return -2
+    if output == null or capacity<required:return -2
 
     test:mutable usize=0
     while test<t:
@@ -62,3 +62,5 @@ def gcd_of_gaussian_integers(input:i64&,length:usize,output:mutable u8&,capacity
         gaussian_write_u32(output,8*test+4,ai.u32())
         test<-test+1
     required.i64()
+
+export fn gcd_of_gaussian_integers(input:i64&,length:usize,output:mutable u8&,capacity:usize) -> i64 = gcd_of_gaussian_integers_impl

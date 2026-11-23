@@ -9,7 +9,7 @@ def lsb_image_steganography_impl(input: i64&, length: usize, output: mutable u8&
     pixel_count: usize = rows * columns
     if message_length * 8 > pixel_count or length != 3 + pixel_count + message_length:
         return -1
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < pixel_count:
         if input[3 + index] < 0 or input[3 + index] > 254:
             return -1
@@ -25,11 +25,11 @@ def lsb_image_steganography_impl(input: i64&, length: usize, output: mutable u8&
     while index < pixel_count:
         output[index] <- input[3 + index].u8()
         index <- index + 1
-    bit_index: usize = 0
+    bit_index: mutable usize = 0
     index <- 0
     while index < message_length:
         byte: usize = input[3 + pixel_count + index].usize()
-        shift: i64 = 7
+        shift: mutable i64 = 7
         while shift >= 0:
             bit: usize = (byte >> shift.usize()) & 1
             pixel: usize = input[3 + bit_index].usize()

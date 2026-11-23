@@ -1,5 +1,5 @@
 def substring_search_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length < 2 or length > 195:
+    if values == null or length < 2 or length > 195:
         return -2
     text_length: i64 = values[0]
     pattern_length: i64 = values[1]
@@ -18,7 +18,7 @@ def substring_search_impl(values: i64&, length: usize) -> i64:
     pattern_index: mutable usize = 0
     match_start: mutable i64 = -1
     while text_index < text_length.usize():
-        expected: i64 = 0
+        expected: mutable i64 = 0
         if pattern_index < pattern_length.usize():
             expected <- values[pattern_start + pattern_index]
         if values[text_start + text_index] == expected:

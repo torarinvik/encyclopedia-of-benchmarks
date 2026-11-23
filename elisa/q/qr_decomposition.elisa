@@ -12,7 +12,7 @@ def qr_decomposition_exact_integer(value: f64, minimum: i64, maximum: i64) -> bo
 
 def qr_decomposition_impl(input: f64&, input_length: usize,
                           output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if input == null or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
     if not qr_decomposition_exact_integer(input[0], 1, MAX_DIMENSION.i64()): return -1
     dimension: usize = input[0].usize()
     matrix_elements: usize = dimension * dimension
@@ -37,8 +37,7 @@ def qr_decomposition_impl(input: f64&, input_length: usize,
         while row < dimension:
             column: mutable usize = pivot_column + 1
             while column < dimension:
-                numerator: i64 = exact[row * dimension + column] * pivot -
-                    exact[row * dimension + pivot_column] * exact[pivot_column * dimension + column]
+                numerator: i64 = exact[row * dimension + column] * pivot - exact[row * dimension + pivot_column] * exact[pivot_column * dimension + column]
                 exact[row * dimension + column] <- numerator / previous_pivot
                 column <- column + 1
             exact[row * dimension + pivot_column] <- 0
@@ -113,7 +112,7 @@ def qr_decomposition_impl(input: f64&, input_length: usize,
     while index < 3:
         if result[index] != result[index] or result[index] >= 1.7976931348623157e308: return -1
         index <- index + 1
-    if output.is_null() or capacity < 3: return -2
+    if output == null or capacity < 3: return -2
     index <- 0
     while index < 3:
         output[index] <- result[index]

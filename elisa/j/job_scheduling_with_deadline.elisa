@@ -1,8 +1,8 @@
 # Stable greedy job scheduling with arrival times and deadlines.
 const MAX_JOBS: usize = 128
 const MAX_INPUT: usize = 513
-const MAX_PROFIT: i64 = 1_000_000
-const PACK_BASE: i64 = 4_294_967_296
+const MAX_PROFIT: i64 = 1000000
+const PACK_BASE: i64 = 4294967296
 
 def job_scheduling_with_deadline_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 1 or length > MAX_INPUT: return -1
@@ -23,10 +23,7 @@ def job_scheduling_with_deadline_impl(input: i64&, length: usize) -> i64:
         arrivals[i] <- input[base + 1]
         deadlines[i] <- input[base + 2]
         profits[i] <- input[base + 3]
-        if ids[i] < 0 or ids[i] > 2_147_483_647 or
-           arrivals[i] < 1 or arrivals[i] > 32 or
-           deadlines[i] < 1 or deadlines[i] > 32 or
-           profits[i] < -MAX_PROFIT or profits[i] > MAX_PROFIT: return -1
+        if ids[i] < 0 or ids[i] > 2147483647 or arrivals[i] < 1 or arrivals[i] > 32 or deadlines[i] < 1 or deadlines[i] > 32 or profits[i] < -MAX_PROFIT or profits[i] > MAX_PROFIT: return -1
         previous: mutable usize = 0
         while previous < i:
             if ids[previous] == ids[i]: return -1
@@ -60,7 +57,7 @@ def job_scheduling_with_deadline_impl(input: i64&, length: usize) -> i64:
     i <- 0
     while i < count:
         if arrivals[i] <= deadlines[i]:
-            last_slot: i64 = deadlines[i] - 1
+            last_slot: mutable i64 = deadlines[i] - 1
             if last_slot > max_deadline - 1: last_slot <- max_deadline - 1
             slot: mutable i64 = last_slot
             while slot >= arrivals[i] - 1:
@@ -73,7 +70,7 @@ def job_scheduling_with_deadline_impl(input: i64&, length: usize) -> i64:
                 slot <- slot - 1
         i <- i + 1
 
-    low_word: i64 = total_profit
+    low_word: mutable i64 = total_profit
     if low_word < 0: low_word <- low_word + PACK_BASE
     scheduled * PACK_BASE + low_word
 

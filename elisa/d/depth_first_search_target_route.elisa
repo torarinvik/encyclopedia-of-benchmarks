@@ -4,7 +4,7 @@ const MAX_INPUT_LENGTH: usize = 4 + MAX_NODES + 2 * MAX_EDGES
 const MAX_OUTPUT_BYTES: usize = 128
 
 def depth_first_search_target_route_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if values.is_null() or length < 5 or length > MAX_INPUT_LENGTH:
+    if values == null or length < 5 or length > MAX_INPUT_LENGTH:
         return -2
     node_count_value: i64 = values[0]
     start_label: i64 = values[1]
@@ -23,7 +23,7 @@ def depth_first_search_target_route_impl(values: i64&, length: usize, output: mu
         label: i64 = values[3 + index]
         if label < 0 or label > 255:
             return -2
-        prior: usize = 0
+        prior: mutable usize = 0
         while prior < index:
             if labels[prior] == label:
                 return -2
@@ -62,14 +62,14 @@ def depth_first_search_target_route_impl(values: i64&, length: usize, output: mu
         adjacency[right] <- adjacency[right] | (1.u64() << left)
         edge <- edge + 1
 
-    stack: mutable usize[64] = zeroed
+    stack_value: mutable usize[64] = zeroed
     stack_count: mutable usize = 1
-    stack[0] <- start_index
+    stack_value[0] <- start_index
     route: mutable u8[128] = zeroed
     route_count: mutable usize = 0
     while stack_count != 0:
         stack_count <- stack_count - 1
-        current: usize = stack[stack_count]
+        current: usize = stack_value[stack_count]
         if route_count == MAX_OUTPUT_BYTES:
             return -2
         route[route_count] <- labels[current].u8()
@@ -79,16 +79,16 @@ def depth_first_search_target_route_impl(values: i64&, length: usize, output: mu
             bit: u64 = 1.u64() << neighbor
             if (adjacency[current] & bit) != 0:
                 pending: mutable usize = 0
-                while pending < stack_count and stack[pending] != neighbor:
+                while pending < stack_count and stack_value[pending] != neighbor:
                     pending <- pending + 1
                 if pending == stack_count:
-                    stack[stack_count] <- neighbor
+                    stack_value[stack_count] <- neighbor
                     stack_count <- stack_count + 1
             adjacency[current] <- adjacency[current] & ~bit
             adjacency[neighbor] <- adjacency[neighbor] & ~(1.u64() << current)
             neighbor <- neighbor + 1
         if labels[current] == target_label:
-            if output_capacity < route_count or (route_count != 0 and output.is_null()):
+            if output_capacity < route_count or (route_count != 0 and output == null):
                 return -2
             index <- 0
             while index < route_count:

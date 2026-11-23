@@ -1,10 +1,10 @@
 def sort_the_odd_impl(input: i64&, length: usize) -> i64:
-    if length > 256 or (length != 0 and input.is_null()):
+    if length > 256 or (length != 0 and input == null):
         return -1
 
     odds: mutable i64[256] = zeroed
     odd_count: mutable usize = 0
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < length:
         value: i64 = input[index]
         if value < -1000000 or value > 1000000:

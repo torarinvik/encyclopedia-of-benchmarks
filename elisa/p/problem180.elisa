@@ -40,7 +40,7 @@ def problem180_record(numerators: mutable view[i64], denominators: mutable view[
                       zn_input: i64, zd_input: i64, order: i64) -> bool:
     if zn_input <= 0 or zd_input <= 0:
         return false
-    divisor: i64 = problem180_gcd(zn_input, zd_input)
+    divisor: mutable i64 = problem180_gcd(zn_input, zd_input)
     zn: i64 = zn_input / divisor
     zd: i64 = zd_input / divisor
     if zn >= zd or zd > order:

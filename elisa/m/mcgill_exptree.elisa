@@ -1,16 +1,16 @@
 const MCGILL_EXPTREE_MAX_LEAVES: usize = 4
 
 struct McGillExptreeCombination:
-    left: i64
-    right: i64
-    operation: usize
+    left: mutable i64
+    right: mutable i64
+    operation: mutable usize
 
 struct McGillExptreeState:
-    count: usize
-    depth_limit: usize
-    goal: i64
-    best: i64
-    stopped: bool
+    count: mutable usize
+    depth_limit: mutable usize
+    goal: mutable i64
+    best: mutable i64
+    stopped: mutable bool
     work: i64[8]
     current: McGillExptreeCombination[4]
     saved: McGillExptreeCombination[4]
@@ -31,7 +31,7 @@ def mcgill_exptree_search(state: mutable McGillExptreeState&, depth: usize, used
         candidate: i64 = state.work[state.count + depth - 1]
         if mcgill_exptree_distance(candidate, state.goal) < mcgill_exptree_distance(state.best, state.goal):
             state.best <- candidate
-            index: usize = 0
+            index: mutable usize = 0
             while index < depth:
                 state.saved[index] <- state.current[index]
                 index <- index + 1
@@ -74,7 +74,7 @@ def mcgill_exptree_impl(input: i64&, length: usize) -> i64:
     state: mutable McGillExptreeState = zeroed
     state.count <- count
     state.goal <- goal
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < count:
         value: i64 = input[2 + index]
         if value < 1 or value > 100: return -1
@@ -88,7 +88,7 @@ def mcgill_exptree_impl(input: i64&, length: usize) -> i64:
         index <- index + 1
     if state.best == state.goal: return state.best
 
-    depth_limit: usize = 1
+    depth_limit: mutable usize = 1
     while depth_limit < count:
         state.depth_limit <- depth_limit
         mcgill_exptree_search(state, 0, 0)

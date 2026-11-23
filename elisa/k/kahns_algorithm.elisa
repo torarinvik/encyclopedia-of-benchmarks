@@ -1,7 +1,7 @@
 def kahns_algorithm_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input == null || length < 1 || length > 257: return -1
+    if input == null or length < 1 or length > 257: return -1
     edge_count_value: i64 = input[0]
-    if edge_count_value < 0 || edge_count_value > 128: return -1
+    if edge_count_value < 0 or edge_count_value > 128: return -1
     edge_count: usize = edge_count_value.usize()
     if length != 1 + 2 * edge_count: return -1
 
@@ -21,7 +21,7 @@ def kahns_algorithm_impl(input: i64&, length: usize, output: mutable u8&, capaci
     while edge < edge_count:
         from_value: i64 = input[1 + 2 * edge]
         to_value: i64 = input[2 + 2 * edge]
-        if from_value < -2147483648 || from_value > 2147483647 || to_value < -2147483648 || to_value > 2147483647: return -1
+        if from_value < -2147483648 or from_value > 2147483647 or to_value < -2147483648 or to_value > 2147483647: return -1
         from_label: i32 = from_value.i32()
         to_label: i32 = to_value.i32()
         if from_label == to_label: return -1
@@ -61,7 +61,7 @@ def kahns_algorithm_impl(input: i64&, length: usize, output: mutable u8&, capaci
             queue[queue_tail] <- vertex
             queue_tail <- queue_tail + 1
         vertex <- vertex + 1
-    if vertex_count > 0 && queue_tail != 1: return -1
+    if vertex_count > 0 and queue_tail != 1: return -1
     while queue_head < queue_tail:
         if queue_tail - queue_head != 1: return -1
         current: usize = queue[queue_head]
@@ -80,7 +80,7 @@ def kahns_algorithm_impl(input: i64&, length: usize, output: mutable u8&, capaci
     if order_count != vertex_count: return -1
 
     output_bytes: usize = 4 * order_count
-    if output == null || capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     i: mutable usize = 0
     while i < order_count:
         bits: mutable u32 = labels[order[i]].u32()

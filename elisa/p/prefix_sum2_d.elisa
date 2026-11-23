@@ -17,8 +17,7 @@ def prefix_sum2_d_impl(input: i64&, length: usize) -> i64:
     col1v: i64 = input[query + 1]
     row2v: i64 = input[query + 2]
     col2v: i64 = input[query + 3]
-    if row1v < 0 or col1v < 0 or row2v < row1v or col2v < col1v or
-        row2v.u64() >= rows.u64() or col2v.u64() >= cols.u64():
+    if row1v < 0 or col1v < 0 or row2v < row1v or col2v < col1v or row2v.u64() >= rows.u64() or col2v.u64() >= cols.u64():
         return INVALID_RESULT
     prefix: mutable i64[289]
     for i in 0..<289:
@@ -34,7 +33,6 @@ def prefix_sum2_d_impl(input: i64&, length: usize) -> i64:
     col1: usize = col1v.usize()
     row2: usize = row2v.usize()
     col2: usize = col2v.usize()
-    prefix[(row2 + 1) * 17 + col2 + 1] - prefix[row1 * 17 + col2 + 1] -
-        prefix[(row2 + 1) * 17 + col1] + prefix[row1 * 17 + col1]
+    prefix[(row2 + 1) * 17 + col2 + 1] - prefix[row1 * 17 + col2 + 1] - prefix[(row2 + 1) * 17 + col1] + prefix[row1 * 17 + col1]
 
 export fn prefix_sum2_d(input: i64&, length: usize) -> i64 = prefix_sum2_d_impl

@@ -18,13 +18,13 @@ def cross(x1: i64, y1: i64, x2: i64, y2: i64) -> i64:
     x1 * y2 - x2 * y1
 
 def polygon_points_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length < 1 or length > 66:
+    if values == null or length < 1 or length > 66:
         return INVALID_RESULT
     n: i64 = values[0]
     if n < 3 or n > 32 or length != 1 + 2 * n.usize():
         return INVALID_RESULT
     count: usize = 2 * n.usize()
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < count:
         if values[1 + i] < -1000 or values[1 + i] > 1000:
             return INVALID_RESULT

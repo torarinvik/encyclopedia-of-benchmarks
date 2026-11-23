@@ -1,12 +1,12 @@
 const MAX_INPUT_LENGTH: usize = 4096
 
 def remove_duplicate_characters_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 1 or input[0] < 0 or input[0] > MAX_INPUT_LENGTH.i64():
+    if input == null or length < 1 or input[0] < 0 or input[0] > MAX_INPUT_LENGTH.i64():
         return -1
     text_length: usize = input[0].usize()
     if length != text_length + 1:
         return -1
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < text_length:
         value: i64 = input[index + 1]
         if value < 0 or value > 127:
@@ -22,7 +22,7 @@ def remove_duplicate_characters_impl(input: i64&, length: usize, output: mutable
             seen[byte] <- true
             output_length <- output_length + 1
         index <- index + 1
-    if output_length > output_capacity or (output_length > 0 and output.is_null()):
+    if output_length > output_capacity or (output_length > 0 and output == null):
         return -2
 
     index <- 0

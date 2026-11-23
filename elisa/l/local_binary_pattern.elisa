@@ -4,7 +4,7 @@ def local_binary_pattern_impl(v: i64&, length: usize) -> i64:
         if v[i] < 0 or v[i] > 255: return -1
     out: mutable i64 = 0
     for i in 0..<8:
-        index: usize = 0
+        index:mutable  mutable usize = 0
         if i == 0: index <- 2
         if i == 1: index <- 5
         if i == 2: index <- 1

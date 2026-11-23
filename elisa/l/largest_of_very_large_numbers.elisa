@@ -3,8 +3,8 @@ const MAX_VALUE: i64 = 1000000000000
 def largest_of_very_large_numbers_decimal_exponent(base: i64) -> i64:
     if base < 1:
         return -1
-    remaining: i64 = base
-    exponent: i64 = 0
+    remaining: mutable i64 = base
+    exponent: mutable i64 = 0
     while remaining > 1 and remaining % 10 == 0:
         remaining <- remaining / 10
         exponent <- exponent + 1
@@ -24,9 +24,9 @@ def largest_of_very_large_numbers_score(base: i64, exponent: i64) -> i64:
     largest_of_very_large_numbers_decimal_exponent(base) * exponent
 
 def largest_of_very_large_numbers_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length != 4:
+    if values == null or length != 4:
         return -2
-    index: usize = 0
+    index: mutable usize = 0
     while index < 4:
         if values[index] < 0 or values[index] > MAX_VALUE:
             return -2

@@ -1,6 +1,6 @@
 ## (c) William Landi 1991. Permission to use this code is granted as long as the copyright notice remains in place.
 def prolangs_c_simulator_format3_4_impl(v: i64&, n: usize) -> i64:
-    if v.is_null() or n != 7: return -1
+    if v == null or n != 7: return -1
     pc: i64 = v[0]
     x_reg: i64 = v[1]
     b_reg: i64 = v[2]
@@ -20,7 +20,7 @@ def prolangs_c_simulator_format3_4_impl(v: i64&, n: usize) -> i64:
     pf: i64 = (byte1 >> 5) & 1
     ef: i64 = (byte1 >> 4) & 1
     sic: bool = nf == 0 and inf == 0
-    fmt: i64 = 3
+    fmt: mutable i64 = 3
     if ef == 1 and not sic: fmt <- 4
     next_pc: i64 = pc + fmt
     address: mutable i64 = 0

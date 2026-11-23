@@ -9,7 +9,7 @@ const MAX_OUTPUT_LENGTH: usize = 10
 const TWO_PI: f64 = 6.283185307179586476925286766559
 
 def tdigest_quantile_limit(compression: f64, q: f64) -> f64:
-    bounded: f64 = q
+    bounded:mutable  mutable f64 = q
     if bounded < 0.0: bounded <- 0.0
     if bounded > 1.0: bounded <- 1.0
     k: f64 = compression / TWO_PI * asin(2.0 * bounded - 1.0) + 1.0

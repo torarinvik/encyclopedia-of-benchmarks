@@ -30,12 +30,12 @@ def skytale_cipher_impl(input: i64&, length: usize, output: mutable u8&, capacit
                 out <- out + 1
                 position <- position + key
     else:
-        starts: mutable [MAX_KEY]usize = zeroed
-        used: mutable [MAX_KEY]usize = zeroed
+        starts: mutable usize[MAX_KEY] = zeroed
+        used: mutable usize[MAX_KEY] = zeroed
         base: usize = n / key
         extra: usize = n % key
         for row in 1..<key |starts|:
-            increment: usize = 0
+            increment: mutable usize = 0
             if row - 1 < extra:
                 increment <- 1
             starts[row] <- starts[row - 1] + base + increment

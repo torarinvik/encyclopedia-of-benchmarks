@@ -8,7 +8,7 @@ def shuffled_shift_cipher_is_alphanumeric(value: i64) -> bool:
 
 def shuffled_shift_cipher_impl(input: i64&, input_length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+    if input == null or input_length < 2 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
     pass_length_value: i64 = input[0]
     text_length_value: i64 = input[1]
@@ -33,7 +33,7 @@ def shuffled_shift_cipher_impl(input: i64&, input_length: usize,
         if not ((value >= 32 and value <= 126) or value == 9 or value == 10): return -1
         plaintext[index] <- value.u8()
         index <- index + 1
-    if output.is_null() or output_capacity < text_length: return -2
+    if output == null or output_capacity < text_length: return -2
 
     breakpoints: mutable bool[128] = zeroed
     shift_sum: mutable i64 = 0
@@ -46,7 +46,7 @@ def shuffled_shift_cipher_impl(input: i64&, input_length: usize,
         else:
             shift_sum <- shift_sum - byte.i64()
         index <- index + 1
-    shift: usize = pass_length
+    shift: mutable usize = pass_length
     if shift_sum > 0: shift <- shift_sum.usize()
 
     alphabet: mutable u8[ALPHABET_LENGTH] = zeroed
@@ -72,9 +72,12 @@ def shuffled_shift_cipher_impl(input: i64&, input_length: usize,
             alphabet[alphabet_length] <- value.u8()
             alphabet_length <- alphabet_length + 1
         value <- value + 1
-    alphabet[alphabet_length] <- 32.u8(); alphabet_length <- alphabet_length + 1
-    alphabet[alphabet_length] <- 9.u8(); alphabet_length <- alphabet_length + 1
-    alphabet[alphabet_length] <- 10.u8(); alphabet_length <- alphabet_length + 1
+    alphabet[alphabet_length] <- 32.u8()
+    alphabet_length <- alphabet_length + 1
+    alphabet[alphabet_length] <- 9.u8()
+    alphabet_length <- alphabet_length + 1
+    alphabet[alphabet_length] <- 10.u8()
+    alphabet_length <- alphabet_length + 1
 
     key: mutable u8[ALPHABET_LENGTH] = zeroed
     segment: mutable u8[ALPHABET_LENGTH] = zeroed

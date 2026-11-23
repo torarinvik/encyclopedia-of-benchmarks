@@ -4,7 +4,7 @@ const MAX_OUTPUT_BYTES: usize = 1536
 
 def lz77_java_compress_impl(input: i64&, input_length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if input == null or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
     if input[0] < 0 or input[0] > 64: return -1
     text_length: usize = input[0].usize()
     if input_length != 1 + text_length: return -1
@@ -19,8 +19,8 @@ def lz77_java_compress_impl(input: i64&, input_length: usize,
     while current < text_length:
         best_distance: mutable usize = 0
         best_length: mutable usize = 0
-        search_start: usize = if current > 4096: current - 4096 else: 0
-        lookahead_end: usize = if current + 16 < text_length: current + 16 else: text_length
+        search_start: usize = current - 4096 if current > 4096 else 0
+        lookahead_end: usize = current + 16 if current + 16 < text_length else text_length
         candidate: mutable usize = search_start
         while candidate < current:
             match_length: mutable usize = 0
@@ -36,7 +36,7 @@ def lz77_java_compress_impl(input: i64&, input_length: usize,
                 best_length <- match_length
             candidate <- candidate + 1
 
-        next_character: i64 = 0
+        next_character: mutable i64 = 0
         if current + best_length < text_length: next_character <- input[current + best_length + 1]
         byte_offset: usize = token_count * 24
         fields: i64[3] = [best_distance.i64(), best_length.i64(), next_character]
@@ -54,7 +54,7 @@ def lz77_java_compress_impl(input: i64&, input_length: usize,
 
     output_bytes: usize = token_count * 24
     if output_bytes > MAX_OUTPUT_BYTES: return -1
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     index <- 0
     while index < output_bytes:
         output[index] <- staged[index]

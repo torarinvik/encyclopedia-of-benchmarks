@@ -3,7 +3,7 @@ const MAX_OPS: usize = 32
 const MAX_INPUT_LENGTH: usize = 66
 
 def bitmap_block_allocation_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if values.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    if values == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
     raw_bits: i64 = values[0]
     raw_ops: i64 = values[1]
     if raw_bits < 1 or raw_bits > 4096 or raw_ops < 0 or raw_ops > 32 or length != 2 + 2 * raw_ops.usize(): return -1
@@ -11,7 +11,7 @@ def bitmap_block_allocation_impl(values: i64&, length: usize, output: mutable u8
     ops: usize = raw_ops.usize()
     offsets: mutable usize[MAX_OPS] = zeroed
     runs: mutable usize[MAX_OPS] = zeroed
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < ops:
         offset: i64 = values[2 + 2 * index]
         run: i64 = values[3 + 2 * index]
@@ -29,21 +29,21 @@ def bitmap_block_allocation_impl(values: i64&, length: usize, output: mutable u8
         position: mutable usize = offsets[index]
         while position < offsets[index] + runs[index]:
             if index % 3 == 0: bitmap[position] <- true
-            else if index % 3 == 1: bitmap[position] <- false
+            elif index % 3 == 1: bitmap[position] <- false
             else: bitmap[position] <- not bitmap[position]
             position <- position + 1
         index <- index + 1
     byte_count: usize = (bits + 7) / 8
-    if output.is_null() or capacity < byte_count: return -2
+    if output == null or capacity < byte_count: return -2
     index <- 0
     while index < byte_count:
-        packed: mutable u8 = 0.u8()
-        bit: usize = 0
+        packed_value: mutable u8 = 0.u8()
+        bit: mutable usize = 0
         while bit < 8:
             position: usize = index * 8 + bit
-            if position < bits and bitmap[position]: packed <- packed | (1.u8() << bit)
+            if position < bits and bitmap[position]: packed_value <- packed_value | (1.u8() << bit)
             bit <- bit + 1
-        output[index] <- packed
+        output[index] <- packed_value
         index <- index + 1
     byte_count.i64()
 

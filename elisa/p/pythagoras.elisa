@@ -1,8 +1,8 @@
 extern sqrt(value: f64) -> f64
 
 def pythagoras_impl(input: i64&, length: usize) -> f64:
-    if input.is_null() or length != 6: return -1.0e300
-    i: usize = 0
+    if input == null or length != 6: return -1.0e300
+    i: mutable usize = 0
     while i < 6:
         if input[i] < -1000000 or input[i] > 1000000: return -1.0e300
         i <- i + 1

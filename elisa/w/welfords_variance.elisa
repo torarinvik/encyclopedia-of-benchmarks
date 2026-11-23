@@ -1,8 +1,8 @@
 def welfords_variance_impl(values:i64&,length:usize)->f64:
-    if values.is_null() or length<2 or length>64:return -1.0e300
+    if values == null or length<2 or length>64:return -1.0e300
     mean: mutable f64=0.0
     m2: mutable f64=0.0
-    index: usize=0
+    index: mutable usize=0
     while index<length:
         value:i64=values[index]
         if value < -1000000 or value > 1000000:return -1.0e300

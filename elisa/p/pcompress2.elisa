@@ -4,7 +4,7 @@ const PC_MAX_OUTPUT: usize = 8 + PC_MAX_LENGTH * 16
 const PC_SYMBOLS: usize = 257
 
 def pc_rotation_less(input: view[u8], n: usize, left: usize, right: usize) -> bool:
-    offset: usize = 0
+    offset: mutable usize = 0
     while offset < n:
         a: u8 = input[(left + offset) % n]
         b: u8 = input[(right + offset) % n]
@@ -36,11 +36,11 @@ def pc_encode_symbol(symbol: usize, cum: view[i64], low: mutable u32&, high: mut
     while not done:
         if high < 32768.u32():
             pc_bit_plus_follow(output, outpos, buffer, bits_to_go, follow, false)
-        else if low >= 32768.u32():
+        elif low >= 32768.u32():
             pc_bit_plus_follow(output, outpos, buffer, bits_to_go, follow, true)
             low <- low - 32768.u32()
             high <- high - 32768.u32()
-        else if low >= 16384.u32() and high < 49152.u32():
+        elif low >= 16384.u32() and high < 49152.u32():
             follow <- follow + 1
             low <- low - 16384.u32()
             high <- high - 16384.u32()
@@ -60,7 +60,8 @@ def pc_update_model(symbol: usize, char_to_index: mutable view[usize], index_to_
             total <- total + freq[i.usize()]
             i <- i - 1
     i: mutable usize = symbol
-    while freq[i] == freq[i - 1]: i <- i - 1
+    while freq[i] == freq[i - 1]:
+        i <- i - 1
     if i < symbol:
         old_i: u8 = index_to_char[i]
         old_symbol: u8 = index_to_char[symbol]
@@ -136,13 +137,14 @@ def pc_compress_bounded(input: view[u8], n: usize, output: mutable view[u8]) -> 
     while i < n:
         count: mutable usize = 1
         value: u8 = last[i]
-        while i + count < n and last[i + count] == value and count < 127: count <- count + 1
+        while i + count < n and last[i + count] == value and count < 127:
+            count <- count + 1
         if count == 1:
             while i + count < n and last[i + count - 1] != last[i + count] and (i + count + 1 == n or last[i + count] != last[i + count + 1]):
                 count <- count + 1
             rle[rle_length] <- (count & 0x7f).u8()
             rle_length <- rle_length + 1
-            j: usize = 0
+            j: mutable usize = 0
             while j < count:
                 rle[rle_length] <- last[i + j]
                 rle_length <- rle_length + 1
@@ -165,11 +167,11 @@ def pc_compress_bounded(input: view[u8], n: usize, output: mutable view[u8]) -> 
     8 + pc_arithmetic_encode(rle[0:rle_length], rle_length, output[8:PC_MAX_OUTPUT])
 
 def pcompress2_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if values.is_null() or length < 2 or values[0] < 1 or values[0] > PC_MAX_LENGTH.i64(): return -1
+    if values == null or length < 2 or values[0] < 1 or values[0] > PC_MAX_LENGTH.i64(): return -1
     n: usize = values[0].usize()
     if length != n + 1: return -1
     input: mutable u8[PC_MAX_LENGTH] = zeroed
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < n:
         value: i64 = values[i + 1]
         if value < 0 or value > 255: return -1
@@ -177,7 +179,7 @@ def pcompress2_impl(values: i64&, length: usize, output: mutable u8&, capacity: 
         i <- i + 1
     encoded: mutable u8[PC_MAX_OUTPUT] = zeroed
     encoded_length: usize = pc_compress_bounded(input[0:n], n, encoded[0:PC_MAX_OUTPUT])
-    if output.is_null() or capacity < encoded_length: return -2
+    if output == null or capacity < encoded_length: return -2
     i <- 0
     while i < encoded_length:
         output[i] <- encoded[i]

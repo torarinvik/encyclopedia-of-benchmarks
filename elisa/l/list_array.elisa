@@ -1,5 +1,5 @@
 def list_array_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 130: return -1
+    if input == null or length < 2 or length > 130: return -1
     capacity_value: i64 = input[0]
     operation_count_value: i64 = input[1]
     if capacity_value < 1 or capacity_value > 16 or operation_count_value < 1 or operation_count_value > 64: return -1
@@ -10,7 +10,7 @@ def list_array_impl(input: i64&, length: usize, output: mutable u8&, output_capa
     opcodes: mutable i64[64] = zeroed
     arguments: mutable i64[64] = zeroed
     sorted: mutable bool = false
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < operations:
         opcode: i64 = input[2 + 2 * i]
         argument: i64 = input[3 + 2 * i]
@@ -41,10 +41,10 @@ def list_array_impl(input: i64&, length: usize, output: mutable u8&, output_capa
             items[count] <- argument.u64()
             count <- count + 1
         elif opcode == 1:
-            a: usize = 0
+            a: mutable usize = 0
             while a < count:
                 minimum: mutable usize = a
-                b: usize = a + 1
+                b: mutable usize = a + 1
                 while b < count:
                     if items[b] < items[minimum]: minimum <- b
                     b <- b + 1
@@ -92,11 +92,11 @@ def list_array_impl(input: i64&, length: usize, output: mutable u8&, output_capa
         word_count <- word_count + 1
         i <- i + 1
     required: usize = word_count * 8
-    if output.is_null() or output_capacity < required: return -2
+    if output == null or output_capacity < required: return -2
     i <- 0
     while i < word_count:
         bits: mutable u64 = output_words[i].u64()
-        byte: usize = 0
+        byte: mutable usize = 0
         while byte < 8:
             output[i * 8 + byte] <- (bits & 255).u8()
             bits <- bits >> 8

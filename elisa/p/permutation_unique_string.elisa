@@ -1,6 +1,6 @@
 def permutation_unique_string_impl(input: i64&, input_length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or input_length == 0 or input_length > 7: return -1
+    if input == null or input_length == 0 or input_length > 7: return -1
     if input[0] < 0 or input[0] > 5: return -1
     length: usize = input[0].usize()
     if input_length != length + 1: return -1
@@ -32,13 +32,15 @@ def permutation_unique_string_impl(input: i64&, input_length: usize,
             running <- false
         else:
             pivot: mutable usize = length - 1
-            while pivot > 0 and current[pivot - 1] >= current[pivot]: pivot <- pivot - 1
+            while pivot > 0 and current[pivot - 1] >= current[pivot]:
+                pivot <- pivot - 1
             if pivot == 0:
                 running <- false
             else:
                 successor: mutable usize = length - 1
-                while current[successor] <= current[pivot - 1]: successor <- successor - 1
-                temp: u8 = current[pivot - 1]
+                while current[successor] <= current[pivot - 1]:
+                    successor <- successor - 1
+                temp: mutable u8 = current[pivot - 1]
                 current[pivot - 1] <- current[successor]
                 current[successor] <- temp
                 left: mutable usize = pivot
@@ -51,7 +53,7 @@ def permutation_unique_string_impl(input: i64&, input_length: usize,
                     right <- right - 1
     staged[0] <- count.u8()
     output_size: usize = 1 + count * length
-    if output.is_null() or capacity < output_size: return -2
+    if output == null or capacity < output_size: return -2
     i <- 0
     while i < output_size:
         output[i] <- staged[i]

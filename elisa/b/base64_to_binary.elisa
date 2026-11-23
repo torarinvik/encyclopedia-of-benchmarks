@@ -19,8 +19,10 @@ def base64_to_binary_impl(input: i64&, length: usize, output: mutable u8&, capac
         index <- index + 1
     begin: mutable usize = 0
     end: mutable usize = n
-    while begin < end and base64_to_binary_edge_space(input[1 + begin]): begin <- begin + 1
-    while end > begin and base64_to_binary_edge_space(input[end]): end <- end - 1
+    while begin < end and base64_to_binary_edge_space(input[1 + begin]):
+        begin <- begin + 1
+    while end > begin and base64_to_binary_edge_space(input[end]):
+        end <- end - 1
     if begin == end: return -1
     negative: bool = input[1 + begin] == 45
     if negative: begin <- begin + 1
@@ -28,11 +30,13 @@ def base64_to_binary_impl(input: i64&, length: usize, output: mutable u8&, capac
     while index < end:
         if base64_to_binary_digit(input[1 + index]) < 0: return -1
         index <- index + 1
-    output_length: usize = (end - begin) * 6
+    output_length: mutable usize = (end - begin) * 6
     if negative: output_length <- output_length + 1
-    if capacity < output_length or output.is_null(): return -2
+    if capacity < output_length or output == null: return -2
     offset: mutable usize = 0
-    if negative: output[offset] <- 45; offset <- offset + 1
+    if negative:
+        output[offset] <- 45
+        offset <- offset + 1
     index <- begin
     while index < end:
         value: usize = base64_to_binary_digit(input[1 + index]).usize()

@@ -1,11 +1,11 @@
 const MAX_INPUT_LENGTH: usize = 4096
 
 def remove_stars_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH + 1 or input[0] < 0 or input[0] > MAX_INPUT_LENGTH.i64(): return -1
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH + 1 or input[0] < 0 or input[0] > MAX_INPUT_LENGTH.i64(): return -1
     n: usize = input[0].usize()
     if length != n + 1: return -1
     result: mutable usize = 0
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < n:
         if input[i + 1] < 0 or input[i + 1] > 127: return -1
         if input[i + 1] == 42:
@@ -13,7 +13,7 @@ def remove_stars_impl(input: i64&, length: usize, output: mutable u8&, capacity:
         else:
             result <- result + 1
         i <- i + 1
-    if result > capacity or (result > 0 and output.is_null()): return -2
+    if result > capacity or (result > 0 and output == null): return -2
     i <- 0
     written: mutable usize = 0
     while i < n:

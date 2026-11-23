@@ -42,10 +42,10 @@ def johnson_shortest_paths_impl(input: i64&, length: usize) -> i64:
         updated: mutable bool = false
         for edge in 0..<edges:
             from: usize = edge_from[edge]
-            to: usize = edge_to[edge]
+            to_value: usize = edge_to[edge]
             candidate: i64 = potential[from] + edge_weight[edge]
-            if candidate < potential[to]:
-                potential[to] <- candidate
+            if candidate < potential[to_value]:
+                potential[to_value] <- candidate
                 updated <- true
         if not updated: break
     for edge in 0..<edges:
@@ -55,7 +55,8 @@ def johnson_shortest_paths_impl(input: i64&, length: usize) -> i64:
     for source in 0..<vertices:
         distance: mutable i64[32] = zeroed
         visited: mutable bool[32] = zeroed
-        for vertex in 0..<vertices: distance[vertex] <- UNREACHABLE
+        for vertex in 0..<vertices:
+            distance[vertex] <- UNREACHABLE
         distance[source] <- 0
         queue_vertices: mutable usize[257] = zeroed
         queue_distances: mutable i64[257] = zeroed
@@ -86,7 +87,7 @@ def johnson_shortest_paths_impl(input: i64&, length: usize) -> i64:
                     queue_length <- queue_length + 1
 
         for destination in 0..<vertices:
-            output: i64 = UNREACHABLE_SENTINEL
+            output: mutable i64 = UNREACHABLE_SENTINEL
             if distance[destination] != UNREACHABLE:
                 output <- distance[destination] - potential[source] + potential[destination]
             result <- johnson_shortest_paths_fnv_word(result, output)

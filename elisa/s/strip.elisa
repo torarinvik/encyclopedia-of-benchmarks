@@ -1,5 +1,5 @@
 # Remove leading and trailing members of a character set from bounded ASCII.
-fn strip_contains(value: i64, input: i64&, set_start: usize, set_length: i64) -> bool:
+def strip_contains(value: i64, input: i64&, set_start: usize, set_length: i64) -> bool:
     if set_length == -1:
         return value == 9 or value == 10 or value == 13 or value == 32
     index: mutable usize = 0
@@ -9,13 +9,13 @@ fn strip_contains(value: i64, input: i64&, set_start: usize, set_length: i64) ->
     false
 
 def strip_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 386: return -1
+    if input == null or length < 2 or length > 386: return -1
     if input[0] < 0 or input[0] > 256: return -1
     text_length: usize = input[0].usize()
     set_index: usize = 1 + text_length
     if set_index >= length: return -1
     set_length: i64 = input[set_index]
-    expected_length: usize = 0
+    expected_length:mutable  mutable usize = 0
     if set_length == -1:
         expected_length <- set_index + 1
     else:
@@ -39,7 +39,7 @@ def strip_impl(input: i64&, length: usize, output: mutable u8&, output_capacity:
     while ending > start and strip_contains(input[ending], input, set_index + 1, set_length):
         ending <- ending - 1
     output_length: usize = ending - start
-    if output_capacity < output_length or (output_length > 0 and output.is_null()): return -2
+    if output_capacity < output_length or (output_length > 0 and output == null): return -2
     index <- 0
     while index < output_length:
         output[index] <- input[1 + start + index].u8()

@@ -2,7 +2,7 @@ def all_construct_impl(input: i64&, length: usize, output: mutable u8&, output_c
     if length < 2 or input[0] < 0 or input[0] > 6:
         return -1
     target_length: usize = input[0].usize()
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < target_length:
         if input[index + 1] < 97 or input[index + 1] > 122:
             return -1

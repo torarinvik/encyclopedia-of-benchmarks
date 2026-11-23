@@ -1,12 +1,12 @@
 def lifocache_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 194: return -1
+    if input == null or length < 2 or length > 194: return -1
     capacity_value: i64 = input[0]
     operation_count_value: i64 = input[1]
     if capacity_value < 1 or capacity_value > 16 or operation_count_value < 1 or operation_count_value > 64: return -1
     capacity: usize = capacity_value.usize()
     operations: usize = operation_count_value.usize()
     if length != 2 + 3 * operations: return -1
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < operations:
         op: i64 = input[2 + 3 * i]
         key: i64 = input[3 + 3 * i]
@@ -21,7 +21,7 @@ def lifocache_impl(input: i64&, length: usize, output: mutable u8&, output_capac
         i <- i + 1
 
     required: usize = operations * 16
-    if output.is_null() or output_capacity < required: return -2
+    if output == null or output_capacity < required: return -2
     keys: mutable i64[16] = zeroed
     values: mutable i64[16] = zeroed
     count: mutable usize = 0
@@ -36,7 +36,7 @@ def lifocache_impl(input: i64&, length: usize, output: mutable u8&, output_capac
         second: mutable i64 = 0
         if op == 0:
             found: mutable usize = count
-            j: usize = 0
+            j:mutable  mutable usize = 0
             while j < count:
                 if keys[j] == key:
                     found <- j
@@ -56,7 +56,7 @@ def lifocache_impl(input: i64&, length: usize, output: mutable u8&, output_capac
             first <- 1
         elif op == 1:
             found: mutable usize = count
-            j: usize = 0
+            j:mutable  mutable usize = 0
             while j < count:
                 if keys[j] == key:
                     found <- j
@@ -69,7 +69,7 @@ def lifocache_impl(input: i64&, length: usize, output: mutable u8&, output_capac
             else: misses <- misses + 1
         elif op == 2:
             found: mutable usize = count
-            j: usize = 0
+            j:mutable  mutable usize = 0
             while j < count:
                 if keys[j] == key:
                     found <- j
@@ -94,7 +94,7 @@ def lifocache_impl(input: i64&, length: usize, output: mutable u8&, output_capac
             first <- 1
         first_bits: mutable u64 = first.u64()
         second_bits: mutable u64 = second.u64()
-        byte: usize = 0
+        byte: mutable usize = 0
         while byte < 8:
             output[i * 16 + byte] <- (first_bits & 255).u8()
             output[i * 16 + 8 + byte] <- (second_bits & 255).u8()

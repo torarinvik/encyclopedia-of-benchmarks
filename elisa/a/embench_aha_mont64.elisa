@@ -9,7 +9,7 @@ def wide(a: u64, b: u64, high: mutable u64&, low: mutable u64&) -> void:
     p10: u64 = a1 * b0
     p11: u64 = a1 * b1
     low <- p00
-    old: u64 = low
+    old: mutable u64 = low
     low <- low + (p01 << 32)
     high <- p11 + (p01 >> 32)
     if low < old: high <- high + 1
@@ -34,11 +34,12 @@ def mont(a: u64, b: u64, m: u64, np: u64) -> u64:
 
 def nprime(m: u64) -> u64:
     x: mutable u64 = 1
-    for _ in 0..<6: x <- x * (2 - m * x)
+    for _ in 0..<6:
+        x <- x * (2 - m * x)
     0 - x
 
 def embench_aha_mont64_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length != 3: return -1
+    if values == null or length != 3: return -1
     if values[0] < 0 or values[1] < 0 or values[2] < 3 or (values[2] & 1) == 0: return -1
     a: u64 = values[0].u64()
     b: u64 = values[1].u64()

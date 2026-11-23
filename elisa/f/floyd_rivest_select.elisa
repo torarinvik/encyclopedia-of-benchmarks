@@ -25,12 +25,9 @@ def floyd_rivest_select_range(values: mutable view[i64], left_value: usize,
                 direction <- -1.0
             elif 2 * relative_rank > active_count:
                 direction <- 1.0
-            spread: f64 = 0.5 * sqrt(z * sample_size *
-                (active_count_f - sample_size) / active_count_f) * direction
-            lower_estimate: f64 = target.f64() -
-                relative_rank_f * sample_size / active_count_f + spread
-            upper_estimate: f64 = target.f64() +
-                (active_count_f - relative_rank_f) * sample_size / active_count_f + spread
+            spread: f64 = 0.5 * sqrt(z * sample_size * (active_count_f - sample_size) / active_count_f) * direction
+            lower_estimate: f64 = target.f64() - relative_rank_f * sample_size / active_count_f + spread
+            upper_estimate: f64 = target.f64() + (active_count_f - relative_rank_f) * sample_size / active_count_f + spread
             lower_rounded: i64 = floor(lower_estimate).i64()
             upper_rounded: i64 = ceil(upper_estimate).i64()
             sample_left: mutable usize = left
@@ -70,8 +67,8 @@ def floyd_rivest_select_range(values: mutable view[i64], left_value: usize,
         else:
             return
 
-export fn floyd_rivest_select(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+def floyd_rivest_select_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
         return -1
     count64: i64 = input[0]
     rank64: i64 = input[1]
@@ -94,3 +91,5 @@ export fn floyd_rivest_select(input: i64&, length: usize) -> i64:
     target: usize = rank64.usize()
     floyd_rivest_select_range(values[0:count], 0, count - 1, target)
     values[target]
+
+export fn floyd_rivest_select(input: i64&, length: usize) -> i64 = floyd_rivest_select_impl

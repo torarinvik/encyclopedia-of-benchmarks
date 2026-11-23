@@ -49,7 +49,7 @@ def k_nearest_neighbors_binary_impl(input: i64&, length: usize, output: mutable 
     ones: mutable i64 = 0
     for index in 0..<k:
         ones <- ones + labels[index]
-    prediction: i64 = 0
+    prediction: mutable i64 = 0
     if ones > (k / 2).i64():
         prediction <- 1
     if output == null or capacity < 8:

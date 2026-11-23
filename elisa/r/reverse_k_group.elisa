@@ -2,15 +2,15 @@ const MAX_N: usize = 256
 const MAX_INPUT_LENGTH: usize = 258
 
 def reverse_k_group_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input == null || length < 2 || length > MAX_INPUT_LENGTH: return -1
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
     n_value: i64 = input[0]
     k_value: i64 = input[1]
-    if n_value < 0 || n_value > MAX_N.i64() || k_value < 1 || k_value > MAX_N.i64(): return -1
+    if n_value < 0 or n_value > MAX_N.i64() or k_value < 1 or k_value > MAX_N.i64(): return -1
     n: usize = n_value.usize()
     k: usize = k_value.usize()
     if length != n + 2: return -1
     output_bytes: usize = 8 * n
-    if output == null || capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
 
     nodes: mutable i64[256] = zeroed
     next: mutable i64[257] = zeroed
@@ -21,9 +21,10 @@ def reverse_k_group_impl(input: i64&, length: usize, output: mutable u8&, capaci
         next[i] <- -1
         if head < 0: head <- i.i64()
         else:
-            tail: mutable i64 = head
-            while next[tail.usize()] >= 0: tail <- next[tail.usize()]
-            next[tail.usize()] <- i.i64()
+            tail_value: mutable i64 = head
+            while next[tail_value.usize()] >= 0:
+                tail_value <- next[tail_value.usize()]
+            next[tail_value.usize()] <- i.i64()
         i <- i + 1
 
     remaining: mutable usize = 0

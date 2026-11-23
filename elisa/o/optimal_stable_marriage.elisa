@@ -14,7 +14,7 @@ def optimal_stable_marriage_impl(input: i64&, length: usize, output: mutable u8&
     row: mutable usize = 0
     while row < 2 * n:
         seen: mutable bool[8] = zeroed
-        start: usize = 1 + row * n
+        start: mutable usize = 1 + row * n
         if row >= n: start <- 1 + side_size + (row - n) * n
         rank: mutable usize = 0
         while rank < n:
@@ -46,7 +46,7 @@ def optimal_stable_marriage_impl(input: i64&, length: usize, output: mutable u8&
             queue[index] <- index
             index <- index + 1
         head: mutable usize = 0
-        tail: mutable usize = 0
+        tail_value: mutable usize = 0
         queued: mutable usize = n
         while queued > 0:
             man: usize = queue[head]
@@ -63,12 +63,12 @@ def optimal_stable_marriage_impl(input: i64&, length: usize, output: mutable u8&
                     man_partner[man] <- woman.i64()
                     if incumbent >= 0:
                         man_partner[incumbent.usize()] <- -1
-                        queue[tail] <- incumbent.usize()
-                        tail <- (tail + 1) % n
+                        queue[tail_value] <- incumbent.usize()
+                        tail_value <- (tail_value + 1) % n
                         queued <- queued + 1
                     break
-                queue[tail] <- man
-                tail <- (tail + 1) % n
+                queue[tail_value] <- man
+                tail_value <- (tail_value + 1) % n
                 queued <- queued + 1
                 break
         matched: mutable usize = 0

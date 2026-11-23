@@ -15,7 +15,7 @@ def mfl_floor_sqrt(value: i64) -> i64:
     low
 
 def mfl_normalize(value: i64) -> i64:
-    remainder: i64 = value % MODULUS
+    remainder: mutable i64 = value % MODULUS
     if remainder < 0:
         remainder <- remainder + MODULUS
     remainder
@@ -35,7 +35,7 @@ def mfl_index(value: i64, n: i64, root: i64, size: usize) -> usize:
     (n / value).usize()
 
 def sum_of_multiplicative_function_large_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 3:
+    if input == null or length != 3:
         return -1
     n: i64 = input[0]
     a: i64 = input[1]

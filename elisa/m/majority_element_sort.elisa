@@ -1,8 +1,8 @@
 const MAX_N: usize = 128
 def majority_element_sort_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_N: return -1
+    if input == null or length < 2 or length > MAX_N: return -1
     values: mutable i32[MAX_N]
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < length:
         if input[i] < -2147483648 or input[i] > 2147483647: return -1
         values[i] <- input[i].i32()

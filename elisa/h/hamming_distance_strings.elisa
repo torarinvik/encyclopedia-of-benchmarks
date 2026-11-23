@@ -1,5 +1,5 @@
 def hamming_distance_strings_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 260:
+    if input == null or length < 2 or length > 260:
         return -1
     left_length: i64 = input[0]
     right_length: i64 = input[1]
@@ -7,7 +7,7 @@ def hamming_distance_strings_impl(input: i64&, length: usize) -> i64:
         return -1
     if length != (2 + left_length.usize() + right_length.usize()):
         return -1
-    index: usize = 2
+    index:mutable  mutable usize = 2
     while index < length:
         if input[index] < 0 or input[index] > 255:
             return -1

@@ -54,7 +54,7 @@ def scan_text(text: mutable view[u8], n: usize, finals: mutable view[u32], trans
         finals[state] <- finals[state] + 1
 
 def numeric_token_state_machine_impl(values: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if values.is_null() or length < 4 or length > MAX_TEXT + 3:
+    if values == null or length < 4 or length > MAX_TEXT + 3:
         return -1
     raw_n: i64 = values[0]
     step: i64 = values[1]
@@ -64,7 +64,7 @@ def numeric_token_state_machine_impl(values: i64&, length: usize, output: mutabl
     n: usize = raw_n.usize()
     text: mutable u8[MAX_TEXT] = zeroed
     original: mutable u8[MAX_TEXT] = zeroed
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < n:
         ch: i64 = values[3 + i]
         if ch < 32 or ch > 126:
@@ -101,11 +101,11 @@ def numeric_token_state_machine_impl(values: i64&, length: usize, output: mutabl
     while i < n:
         if text[i] != original[i]: return -1
         i <- i + 1
-    if output.is_null() or capacity < 64:
+    if output == null or capacity < 64:
         return -2
     i <- 0
     while i < 8:
-        b: usize = 0
+        b: mutable usize = 0
         while b < 4:
             output[i * 8 + b] <- ((finals[i] >> (8 * b)) & 255).u8()
             output[i * 8 + 4 + b] <- ((transitions[i] >> (8 * b)) & 255).u8()

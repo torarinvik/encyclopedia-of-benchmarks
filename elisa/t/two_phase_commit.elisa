@@ -26,11 +26,11 @@ def two_phase_commit_impl(input: i64&, length: usize) -> i64:
             votes_received <- votes_received + 1
             has_abort <- true
 
-    state: i64 = 1
+    state:mutable  mutable i64 = 1
     if votes_received == participant_count:
         if has_abort: state <- 3
         else: state <- 2
-    timed_out: i64 = 0
+    timed_out: mutable i64 = 0
     if current_time_ms - start_time_ms > timeout_ms: timed_out <- 1
     (((state * 65 + votes_received) * 65 + commit_votes) * 2 + timed_out)
 

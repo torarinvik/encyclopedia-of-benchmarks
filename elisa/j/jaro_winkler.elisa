@@ -22,15 +22,15 @@ def jaro_winkler_impl(input_values: i64&, length: usize) -> f64:
     while i < n2:
         if input_values[p2 + 1 + i] < 0 or input_values[p2 + 1 + i] > 127: return -1e300
         i <- i + 1
-    radius: usize = if n1 < n2: n1 / 2 else: n2 / 2
+    radius: usize = n1 / 2 if n1 < n2 else n2 / 2
     used2: mutable bool[32] = zeroed
     matched1: mutable i64[32] = zeroed
     count1: mutable usize = 0
     a: mutable usize = 0
     b: mutable usize = 0
     while a < n1:
-        lo: usize = if a > radius: a - radius else: 0
-        hi: usize = a + radius + 1
+        lo: usize = a - radius if a > radius else 0
+        hi: mutable usize = a + radius + 1
         if hi > n2: hi <- n2
         b <- lo
         while b < hi:
@@ -46,8 +46,8 @@ def jaro_winkler_impl(input_values: i64&, length: usize) -> f64:
     count2: mutable usize = 0
     a <- 0
     while a < n2:
-        lo: usize = if a > radius: a - radius else: 0
-        hi: usize = a + radius + 1
+        lo: usize = a - radius if a > radius else 0
+        hi: mutable usize = a + radius + 1
         if hi > n1: hi <- n1
         b <- lo
         while b < hi:
@@ -64,10 +64,11 @@ def jaro_winkler_impl(input_values: i64&, length: usize) -> f64:
         if matched1[a] != matched2[a]: trans <- trans + 1
         a <- a + 1
     trans <- trans / 2
-    jaro: f64 = 0.0
+    jaro: mutable f64 = 0.0
     if count1 > 0:
         jaro <- ((count1.f64() / n1.f64()) + (count1.f64() / n2.f64()) + ((count1 - trans).f64() / count1.f64())) / 3.0
     prefix: mutable usize = 0
-    while prefix < 4 and prefix < n1 and prefix < n2 and input_values[1 + prefix] == input_values[p2 + 1 + prefix]: prefix <- prefix + 1
+    while prefix < 4 and prefix < n1 and prefix < n2 and input_values[1 + prefix] == input_values[p2 + 1 + prefix]:
+        prefix <- prefix + 1
     jaro + 0.1 * prefix.f64() * (1.0 - jaro)
 export fn jaro_winkler(input_values: i64&, length: usize) -> f64 = jaro_winkler_impl

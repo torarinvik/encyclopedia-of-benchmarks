@@ -10,9 +10,9 @@ def treewidth_exact_elimination_order_put(value: i64, output: mutable view[u8], 
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def treewidth_exact_elimination_order(input: i64&, length: usize,
-    output: mutable u8&, capacity: usize) -> i64 @export("treewidth_exact_elimination_order"):
-    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+def treewidth_exact_elimination_order_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     if n64 < 1 or n64 > MAX_N.i64() or m64 < 0 or m64 > MAX_EDGES.i64(): return -1
@@ -34,15 +34,21 @@ def treewidth_exact_elimination_order(input: i64&, length: usize,
     permutation: mutable usize[MAX_N] = zeroed
     best_order: mutable usize[MAX_N] = zeroed
     index: mutable usize = 0
-    while index < n: permutation[index] <- index; index <- index + 1
+    while index < n:
+        permutation[index] <- index
+        index <- index + 1
     best_width: mutable usize = MAX_N + 1
     while true:
         adjacent: mutable bool[MAX_N * MAX_N] = zeroed
         index <- 0
-        while index < MAX_N * MAX_N: adjacent[index] <- base[index]; index <- index + 1
+        while index < MAX_N * MAX_N:
+            adjacent[index] <- base[index]
+            index <- index + 1
         active: mutable bool[MAX_N] = zeroed
         index <- 0
-        while index < n: active[index] <- true; index <- index + 1
+        while index < n:
+            active[index] <- true
+            index <- index + 1
         width: mutable usize = 0
         step: mutable usize = 0
         while step < n:
@@ -51,7 +57,9 @@ def treewidth_exact_elimination_order(input: i64&, length: usize,
             count: mutable usize = 0
             other: mutable usize = 0
             while other < n:
-                if active[other] and adjacent[vertex * MAX_N + other]: neighbors[count] <- other; count <- count + 1
+                if active[other] and adjacent[vertex * MAX_N + other]:
+                    neighbors[count] <- other
+                    count <- count + 1
                 other <- other + 1
             if count > width: width <- count
             i: mutable usize = 0
@@ -69,13 +77,17 @@ def treewidth_exact_elimination_order(input: i64&, length: usize,
         if width < best_width:
             best_width <- width
             index <- 0
-            while index < n: best_order[index] <- permutation[index]; index <- index + 1
+            while index < n:
+                best_order[index] <- permutation[index]
+                index <- index + 1
         pivot: mutable i64 = n.i64() - 2
-        while pivot >= 0 and permutation[pivot.usize()] >= permutation[pivot.usize() + 1]: pivot <- pivot - 1
+        while pivot >= 0 and permutation[pivot.usize()] >= permutation[pivot.usize() + 1]:
+            pivot <- pivot - 1
         if pivot < 0: break
         successor: mutable usize = n - 1
-        while permutation[successor] <= permutation[pivot.usize()]: successor <- successor - 1
-        temp: usize = permutation[pivot.usize()]
+        while permutation[successor] <= permutation[pivot.usize()]:
+            successor <- successor - 1
+        temp: mutable usize = permutation[pivot.usize()]
         permutation[pivot.usize()] <- permutation[successor]
         permutation[successor] <- temp
         left: mutable usize = pivot.usize() + 1
@@ -87,7 +99,7 @@ def treewidth_exact_elimination_order(input: i64&, length: usize,
             left <- left + 1
             right <- right - 1
     bytes: usize = 8 * (n + 1)
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
     treewidth_exact_elimination_order_put(best_width.i64(), staged[0:MAX_OUTPUT], 0)
     index <- 0
@@ -95,5 +107,9 @@ def treewidth_exact_elimination_order(input: i64&, length: usize,
         treewidth_exact_elimination_order_put(best_order[index].i64(), staged[0:MAX_OUTPUT], 8 * (index + 1))
         index <- index + 1
     index <- 0
-    while index < bytes: output[index] <- staged[index]; index <- index + 1
+    while index < bytes:
+        output[index] <- staged[index]
+        index <- index + 1
     bytes.i64()
+
+export fn treewidth_exact_elimination_order(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = treewidth_exact_elimination_order_impl

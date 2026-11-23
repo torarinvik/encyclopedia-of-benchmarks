@@ -9,10 +9,10 @@ def shuffle_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
 
 def shuffle_impl(input: f64&, input_length: usize,
                  output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if input == null or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
     if not shuffle_exact_integer(input[0], 0, MAX_LENGTH.i64()): return -1
     count: usize = input[0].usize()
-    offset_count: usize = 0
+    offset_count: mutable usize = 0
     if count > 0: offset_count <- count - 1
     if input_length != 1 + count + offset_count: return -1
 
@@ -41,7 +41,7 @@ def shuffle_impl(input: f64&, input_length: usize,
         items[other] <- temporary
         index <- index + 1
 
-    if output.is_null() or capacity < count: return -2
+    if output == null or capacity < count: return -2
     index <- 0
     while index < count:
         output[index] <- items[index].f64()

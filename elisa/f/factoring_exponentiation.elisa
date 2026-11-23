@@ -17,7 +17,7 @@ def factoring_mask(d: usize) -> u64:
 def factoring_log(remainder_input: u64, value_input: u64, d: usize, modulus: u64, mask: u64) -> u64:
     remainder: mutable u64 = remainder_input
     value: mutable u64 = value_input
-    bit: usize = 2
+    bit: mutable usize = 2
     while bit < d:
         if (value & (1.u64() << bit)) != 0.u64():
             value <- (value + (value << bit)) & mask
@@ -28,7 +28,7 @@ def factoring_log(remainder_input: u64, value_input: u64, d: usize, modulus: u64
 def factoring_exp(remainder_input: u64, exponent_input: u64, d: usize, modulus: u64, mask: u64) -> u64:
     remainder: mutable u64 = remainder_input
     exponent: mutable u64 = exponent_input
-    bit: usize = 2
+    bit: mutable usize = 2
     while bit < d:
         if (exponent & (1.u64() << bit)) != 0.u64():
             remainder <- (remainder + (remainder << bit)) & mask
@@ -48,8 +48,8 @@ def factoring_exponentiation_impl(input: i64&, length: usize) -> i64:
     d: usize = d_input.usize()
     mask: u64 = factoring_mask(d)
     modulus: u64 = mask + 1.u64()
-    remainder: u64 = remainder_input.u64()
-    base: u64 = base_input.u64()
+    remainder: mutable u64 = remainder_input.u64()
+    base: mutable u64 = base_input.u64()
     exponent: u64 = exponent_input.u64()
     if remainder >= modulus or base >= modulus or (base & 1.u64()) == 0.u64():
         return -1

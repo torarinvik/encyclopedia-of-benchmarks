@@ -3,7 +3,7 @@ def time_and_half_pay_impl(hours_worked: f64, pay_rate: f64, threshold_hours: f6
     if not (hours_worked >= 0.0 and hours_worked <= 1000.0 and pay_rate >= 0.0 and pay_rate <= 1000.0 and threshold_hours >= 0.0 and threshold_hours <= 1000.0):
         return -1e300
     normal_pay: f64 = hours_worked * pay_rate
-    over_time: f64 = hours_worked - threshold_hours
+    over_time: mutable f64 = hours_worked - threshold_hours
     if over_time < 0.0:
         over_time <- 0.0
     over_time_pay: f64 = over_time * pay_rate / 2.0

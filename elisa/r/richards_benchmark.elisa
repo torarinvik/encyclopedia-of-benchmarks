@@ -20,30 +20,30 @@ const HOLD_WAIT: usize = 6
 const HOLD_WAIT_PKT: usize = 7
 
 struct RichardsPacket:
-    link: usize
-    id: usize
+    link: mutable usize
+    id: mutable usize
     kind: usize
-    a1: i64
+    a1: mutable i64
     a2: i64[4]
 struct RichardsTask:
-    link: usize
-    id: usize
+    link: mutable usize
+    id: mutable usize
     priority: usize
-    queue: usize
-    state: usize
-    v1: i64
-    v2: i64
+    queue: mutable usize
+    state: mutable usize
+    v1: mutable i64
+    v2: mutable i64
 struct RichardsState:
     packets: RichardsPacket[9]
     tasks: RichardsTask[7]
-    packet_used: usize
-    task_list: usize
-    current: usize
-    task_id: usize
-    packet_count: i64
-    hold_count: i64
-    v1: i64
-    v2: i64
+    packet_used: mutable usize
+    task_list: mutable usize
+    current: mutable usize
+    task_id: mutable usize
+    packet_count: mutable i64
+    hold_count: mutable i64
+    v1: mutable i64
+    v2: mutable i64
 
 def richards_make_packet(state: mutable RichardsState&, link: usize, id: usize, kind: usize) -> usize:
     state.packet_used <- state.packet_used + 1
@@ -58,9 +58,10 @@ def richards_make_task(state: mutable RichardsState&, id: usize, priority: usize
 def richards_append_packet(state: mutable RichardsState&, packet: usize, head: usize) -> usize:
     state.packets[packet].link <- 0
     if head == 0: return packet
-    tail: mutable usize = head
-    while state.packets[tail].link != 0: tail <- state.packets[tail].link
-    state.packets[tail].link <- packet
+    tail_value: mutable usize = head
+    while state.packets[tail_value].link != 0:
+        tail_value <- state.packets[tail_value].link
+    state.packets[tail_value].link <- packet
     head
 
 def richards_queue_packet(state: mutable RichardsState&, packet: usize) -> usize:
@@ -161,7 +162,7 @@ def richards_schedule(state: mutable RichardsState&) -> bool:
     true
 
 def richards_benchmark_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 1: return -1
+    if input == null or length != 1: return -1
     iterations: i64 = input[0]
     if iterations < 1 or iterations > MAX_ITERATIONS: return -1
     state: mutable RichardsState = zeroed

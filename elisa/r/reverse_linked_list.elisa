@@ -2,13 +2,13 @@ const MAX_N: usize = 256
 const MAX_INPUT_LENGTH: usize = 257
 
 def reverse_linked_list_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input == null || length < 1 || length > MAX_INPUT_LENGTH: return -1
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
     n_value: i64 = input[0]
-    if n_value < 1 || n_value > MAX_N.i64(): return -1
+    if n_value < 1 or n_value > MAX_N.i64(): return -1
     n: usize = n_value.usize()
     if length != n + 1: return -1
     output_bytes: usize = 8 * n
-    if output == null || capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
 
     nodes: mutable i64[256] = zeroed
     next: mutable i64[256] = zeroed
@@ -34,7 +34,7 @@ def reverse_linked_list_impl(input: i64&, length: usize, output: mutable u8&, ca
     result: mutable i64[256] = zeroed
     i <- 0
     while i < n:
-        if node < 0 || previous_link[node.usize()] != expected_previous: return -1
+        if node < 0 or previous_link[node.usize()] != expected_previous: return -1
         result[i] <- nodes[node.usize()]
         expected_previous <- node
         node <- next[node.usize()]

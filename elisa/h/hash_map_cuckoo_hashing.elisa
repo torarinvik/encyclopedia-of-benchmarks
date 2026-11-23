@@ -15,7 +15,7 @@ def hash_map_cuckoo_hashing_hash1(key: i64, capacity: usize) -> usize:
     value.usize()
 
 def hash_map_cuckoo_hashing_hash2(key: i64, capacity: usize) -> usize:
-    magnitude: i64 = key
+    magnitude: mutable i64 = key
     if magnitude < 0: magnitude <- -magnitude
     quotient_magnitude: i64 = magnitude / capacity.i64()
     quotient: mutable i64 = quotient_magnitude
@@ -42,11 +42,10 @@ def hash_map_cuckoo_hashing_impl(input: i64&, length: usize) -> i64:
         for j in 0..<i:
             if keys[j] == key: return -1
 
-    class_a: bool = false
-    if count == 2 and buckets[0] == buckets[1] and
-        hash_map_cuckoo_hashing_hash2(keys[0], capacity) != buckets[0]:
+    class_a: mutable bool = false
+    if count == 2 and buckets[0] == buckets[1] and hash_map_cuckoo_hashing_hash2(keys[0], capacity) != buckets[0]:
         class_a <- true
-    class_b: bool = true
+    class_b: mutable bool = true
     for i in 0..<count:
         for j in 0..<i:
             if buckets[i] == buckets[j]: class_b <- false
@@ -58,7 +57,8 @@ def hash_map_cuckoo_hashing_impl(input: i64&, length: usize) -> i64:
         positions[0] <- hash_map_cuckoo_hashing_hash2(keys[0], capacity).i64()
         positions[1] <- buckets[0].i64()
     else:
-        while count * 10 > final_capacity * 7: final_capacity <- final_capacity * 2
+        while count * 10 > final_capacity * 7:
+            final_capacity <- final_capacity * 2
         for i in 0..<count:
             positions[i] <- hash_map_cuckoo_hashing_hash1(keys[i], final_capacity).i64()
 

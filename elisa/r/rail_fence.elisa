@@ -19,7 +19,7 @@ def rail_fence_impl(input: i64&, length: usize, output: mutable u8&, output_capa
     byte_length: usize = raw_length.usize()
     if length != byte_length + 3:
         return -1
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < byte_length:
         value: i64 = input[index + 3]
         if value < 0 or value > 127:
@@ -29,8 +29,8 @@ def rail_fence_impl(input: i64&, length: usize, output: mutable u8&, output_capa
         return -2
 
     if mode == 0:
-        out_index: usize = 0
-        rail: usize = 0
+        out_index: mutable usize = 0
+        rail: mutable usize = 0
         while rail < rails:
             index <- 0
             while index < byte_length:
@@ -44,7 +44,7 @@ def rail_fence_impl(input: i64&, length: usize, output: mutable u8&, output_capa
     counts: mutable usize[8] = zeroed
     starts: mutable usize[8] = zeroed
     used: mutable usize[8] = zeroed
-    current_rail: usize = 0
+    current_rail:mutable  mutable usize = 0
     index <- 0
     while index < byte_length:
         current_rail <- rail_fence_rail(index, rails)

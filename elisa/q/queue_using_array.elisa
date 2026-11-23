@@ -40,7 +40,7 @@ def queue_using_array_impl(input: i64&, length: usize) -> i64:
                 rear <- rear + 1
                 values[rear.usize()] <- value
         else:
-            dequeued: i64 = 0
+            dequeued:mutable  mutable i64 = 0
             if front != -1:
                 if front == rear:
                     dequeued <- values[front.usize()]

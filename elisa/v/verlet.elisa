@@ -12,7 +12,7 @@ def verlet_impl(values: f64&, length: usize, output: mutable f64&, capacity: usi
 
     n: usize = values[0].usize()
     code: usize = values[3].usize()
-    dt: f64 = 0.00390625
+    dt:mutable  mutable f64 = 0.00390625
     if code == 1: dt <- 0.0078125
     elif code == 2: dt <- 0.015625
     elif code == 3: dt <- 0.03125

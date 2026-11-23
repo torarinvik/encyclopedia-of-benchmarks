@@ -6,8 +6,7 @@ def legendre_prime_count_phi(primes: view[i64], value: i64, count: usize) -> i64
     if count == 1: return value - value / 2
     prime: i64 = primes[count - 1]
     if value < prime: return 1
-    legendre_prime_count_phi(primes, value, count - 1) -
-        legendre_prime_count_phi(primes, value / prime, count - 1)
+    legendre_prime_count_phi(primes, value, count - 1) - legendre_prime_count_phi(primes, value / prime, count - 1)
 
 def legendre_prime_count_impl(value: i64) -> i64:
     if value < 0 or value > MAX_INPUT: return -1

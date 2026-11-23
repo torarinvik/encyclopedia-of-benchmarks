@@ -5,16 +5,16 @@ const MAX_OUTPUT: usize = 48
 const MAX_STEPS: usize = 121
 
 def put64(value: i64, output: mutable view[u8], position: usize) -> void:
-    bits: u64 = value.u64()
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[position + byte] <- (bits & 255).u8()
         bits <- bits >> 8
         byte <- byte + 1
 
-def kiraly_max_smt_i_approx(input: i64&, length: usize, output: mutable u8&,
-        capacity: usize) -> i64 @export("kiraly_max_smt_i_approx"):
-    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+def kiraly_max_smt_i_approx_impl(input: i64&, length: usize, output: mutable u8&,
+        capacity: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT: return -1
     m64: i64 = input[0]
     w64: i64 = input[1]
     if m64 < 1 or m64 > 6 or w64 < 1 or w64 > 6: return -1
@@ -58,7 +58,7 @@ def kiraly_max_smt_i_approx(input: i64&, length: usize, output: mutable u8&,
             woman <- woman + 1
         man <- man + 1
     output_bytes: usize = 8 * m
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     steps: mutable usize = 0
     while true:
         steps <- steps + 1
@@ -80,7 +80,7 @@ def kiraly_max_smt_i_approx(input: i64&, length: usize, output: mutable u8&,
                     rank_new: i64 = men_rank[man * MAX_W + x1]
                     rank_old: i64 = men_rank[man * MAX_W + woman]
                     if rank_new < rank_old: better <- true
-                    else if rank_new == rank_old:
+                    elif rank_new == rank_old:
                         new_maiden: bool = woman_partner[x1] == -1
                         old_maiden: bool = woman_partner[woman] == -1
                         if new_maiden != old_maiden: better <- new_maiden
@@ -124,7 +124,7 @@ def kiraly_max_smt_i_approx(input: i64&, length: usize, output: mutable u8&,
             rank_new: i64 = women_rank[woman * MAX_M + man]
             rank_old: i64 = women_rank[woman * MAX_M + incumbent]
             if rank_new < rank_old: accept <- true
-            else if rank_new == rank_old:
+            elif rank_new == rank_old:
                 if status[man] != status[incumbent]: accept <- status[man] > status[incumbent]
                 else: accept <- man < incumbent
         if accept:
@@ -144,3 +144,5 @@ def kiraly_max_smt_i_approx(input: i64&, length: usize, output: mutable u8&,
         output[byte] <- staged[byte]
         byte <- byte + 1
     return output_bytes.i64()
+
+export fn kiraly_max_smt_i_approx(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = kiraly_max_smt_i_approx_impl

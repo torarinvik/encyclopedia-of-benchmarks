@@ -1,20 +1,20 @@
 def simulated_annealing_score(x: i64, y: i64) -> i64:
     x * x + y * y
 
-def simulated_annealing_impl(packed: i64&, length: usize) -> i64:
-    if packed.is_null() or length < 13 or length > 366: return -1
-    x0: i64 = packed[0]
-    y0: i64 = packed[1]
-    step: i64 = packed[2]
-    min_x: i64 = packed[3]
-    max_x: i64 = packed[4]
-    min_y: i64 = packed[5]
-    max_y: i64 = packed[6]
-    find_max: i64 = packed[7]
-    start_raw: i64 = packed[8]
-    rate_raw: i64 = packed[9]
-    threshold_raw: i64 = packed[10]
-    selection_count: i64 = packed[11]
+def simulated_annealing_impl(packed_value: i64&, length: usize) -> i64:
+    if packed_value == null or length < 13 or length > 366: return -1
+    x0: i64 = packed_value[0]
+    y0: i64 = packed_value[1]
+    step: i64 = packed_value[2]
+    min_x: i64 = packed_value[3]
+    max_x: i64 = packed_value[4]
+    min_y: i64 = packed_value[5]
+    max_y: i64 = packed_value[6]
+    find_max: i64 = packed_value[7]
+    start_raw: i64 = packed_value[8]
+    rate_raw: i64 = packed_value[9]
+    threshold_raw: i64 = packed_value[10]
+    selection_count: i64 = packed_value[11]
     if x0 < -16 or x0 > 16 or y0 < -16 or y0 > 16 or step < 1 or step > 4: return -1
     if min_x < -16 or max_x > 16 or min_x > max_x or min_y < -16 or max_y > 16 or min_y > max_y: return -1
     if x0 < min_x or x0 > max_x or y0 < min_y or y0 > max_y or (find_max != 0 and find_max != 1): return -1
@@ -23,18 +23,18 @@ def simulated_annealing_impl(packed: i64&, length: usize) -> i64:
     if selection_count < 0 or selection_count > 176 or selection_count > (length - 13).i64(): return -1
     selection_n: usize = selection_count.usize()
     acceptance_count_index: usize = 12 + selection_n
-    acceptance_count: i64 = packed[acceptance_count_index]
+    acceptance_count: i64 = packed_value[acceptance_count_index]
     if acceptance_count < 0 or acceptance_count > 176: return -1
     if length != 13 + selection_n + acceptance_count.usize(): return -1
 
     index: mutable usize = 0
     while index < selection_n:
-        if packed[12 + index] < 0 or packed[12 + index] > 7: return -1
+        if packed_value[12 + index] < 0 or packed_value[12 + index] > 7: return -1
         index <- index + 1
     acceptance_start: usize = acceptance_count_index + 1
     index <- 0
     while index < acceptance_count.usize():
-        draw: i64 = packed[acceptance_start + index]
+        draw: i64 = packed_value[acceptance_start + index]
         if draw != 0 and draw != 999999: return -1
         index <- index + 1
 
@@ -81,7 +81,7 @@ def simulated_annealing_impl(packed: i64&, length: usize) -> i64:
         next_y: mutable i64 = 0
         while not found and remaining > 0:
             if selection_cursor >= selection_n: return -1
-            rank: usize = packed[12 + selection_cursor].usize()
+            rank: usize = packed_value[12 + selection_cursor].usize()
             selection_cursor <- selection_cursor + 1
             if rank >= remaining: return -1
             candidate_x: i64 = neighbor_x[rank]
@@ -95,13 +95,13 @@ def simulated_annealing_impl(packed: i64&, length: usize) -> i64:
             remaining <- remaining - 1
             if candidate_x < min_x or candidate_x > max_x or candidate_y < min_y or candidate_y > max_y:
                 continue
-            change: i64 = raw_change
+            change: mutable i64 = raw_change
             if find_max == 0: change <- -raw_change
             if change > 0:
                 found <- true
             else:
                 if acceptance_cursor >= acceptance_count.usize(): return -1
-                draw: i64 = packed[acceptance_start + acceptance_cursor]
+                draw: i64 = packed_value[acceptance_start + acceptance_cursor]
                 acceptance_cursor <- acceptance_cursor + 1
                 if change == 0 or draw == 0: found <- true
             if found:
@@ -117,4 +117,4 @@ def simulated_annealing_impl(packed: i64&, length: usize) -> i64:
     if not stopped: return -1
     (best_x + 16) * 33 + (best_y + 16)
 
-export fn simulated_annealing(packed: i64&, length: usize) -> i64 = simulated_annealing_impl
+export fn simulated_annealing(packed_value: i64&, length: usize) -> i64 = simulated_annealing_impl

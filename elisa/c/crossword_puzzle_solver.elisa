@@ -19,7 +19,7 @@ def crossword_puzzle_solver_search(grid: mutable view[i64], rows: usize, cols: u
                     valid: mutable bool = true
                     i: mutable usize = 0
                     while i < word_length:
-                        cell: usize = row * cols + col + i
+                        cell: mutable usize = row * cols + col + i
                         if vertical:
                             cell <- (row + i) * cols + col
                         cells[i] <- cell
@@ -46,7 +46,7 @@ def crossword_puzzle_solver_search(grid: mutable view[i64], rows: usize, cols: u
     false
 
 def crossword_puzzle_solver_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if values.is_null() or length < 3:
+    if values == null or length < 3:
         return -1
     rows_value: i64 = values[0]
     cols_value: i64 = values[1]
@@ -108,7 +108,7 @@ def crossword_puzzle_solver_impl(values: i64&, length: usize, output: mutable u8
 
     solved: bool = crossword_puzzle_solver_search(grid[0:rows * cols], rows, cols, words[0:word_count * 8], word_lengths[0:word_count], order[0:word_count], 0, word_count)
     required: usize = (1 + rows * cols) * 8
-    if output.is_null() or output_capacity < required:
+    if output == null or output_capacity < required:
         return -2
     i <- 0
     while i < 1 + rows * cols:

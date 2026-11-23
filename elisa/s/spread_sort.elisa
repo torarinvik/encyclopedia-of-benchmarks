@@ -33,7 +33,7 @@ def spread_sort_segment(values: mutable view[i32], start: usize, length: usize) 
     bucket_sizes: mutable usize[MAX_BUCKETS] = zeroed
     index <- 0
     while index < length:
-        bucket: usize = 0
+        bucket: mutable usize = 0
         if values[start + index] != minimum: bucket <- middle_bucket
         position: usize = bucket * BUCKET_STRIDE + bucket_sizes[bucket]
         bucket_values[position] <- values[start + index]

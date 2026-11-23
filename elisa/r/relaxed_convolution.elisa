@@ -2,25 +2,25 @@
 const RELAXED_MODULUS: i64 = 998244353
 
 def relaxed_convolution_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() || length < 3 || length > 33:
+    if input == null or length < 3 or length > 33:
         return -1
     n_value: i64 = input[0]
-    if n_value < 1 || n_value > 16 || length != 1 + 2 * n_value.usize():
+    if n_value < 1 or n_value > 16 or length != 1 + 2 * n_value.usize():
         return -1
     n: usize = n_value.usize()
     a: mutable i64[16] = zeroed
     b: mutable i64[16] = zeroed
     c: mutable i64[16] = zeroed
-    for i in 0..n:
+    for i in 0..<n:
         a[i] <- input[1 + i]
         b[i] <- input[1 + n + i]
-        if a[i] < 0 || a[i] >= RELAXED_MODULUS || b[i] < 0 || b[i] >= RELAXED_MODULUS:
+        if a[i] < 0 or a[i] >= RELAXED_MODULUS or b[i] < 0 or b[i] >= RELAXED_MODULUS:
             return -1
-    if output.is_null() || capacity < 4 * n:
+    if output == null or capacity < 4 * n:
         return -2
     index: mutable usize = 0
     while index < n:
-        value: i64 = a[index] * b[0]
+        value: mutable i64 = a[index] * b[0]
         if index > 0:
             value <- value + b[index] * a[0]
         c[index] <- (c[index] + value) % RELAXED_MODULUS
@@ -28,7 +28,7 @@ def relaxed_convolution_impl(input: i64&, length: usize, output: mutable u8&, ca
         d: mutable usize = 1
         while d <= q:
             if q % (2 * d) == d:
-                end_index: usize = q + d
+                end_index: mutable usize = q + d
                 if end_index > n: end_index <- n
                 if q == d:
                     i: mutable usize = q
@@ -53,9 +53,10 @@ def relaxed_convolution_impl(input: i64&, length: usize, output: mutable u8&, ca
                         i <- i + 1
             d <- d * 2
         index <- index + 1
-    for i in 0..n:
+    for i in 0..<n:
         x: u32 = c[i].u32()
-        for j in 0..4: output[4 * i + j] <- ((x >> (8 * j)) & 255).u8()
+        for j in 0..<4:
+            output[4 * i + j] <- ((x >> (8 * j)) & 255).u8()
     (4 * n).i64()
 
 export fn relaxed_convolution(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = relaxed_convolution_impl

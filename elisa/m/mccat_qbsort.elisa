@@ -37,13 +37,14 @@ def mccat_qbsort_quick(head: i64, nodes: mutable view[i32], links: mutable view[
     nodes[pivot_node] <- pivot
     links[pivot_node] <- sorted_upper
     if sorted_lower < 0: return pivot_node.i64()
-    tail: mutable i64 = sorted_lower
-    while links[tail.usize()] >= 0: tail <- links[tail.usize()]
-    links[tail.usize()] <- pivot_node.i64()
+    tail_value: mutable i64 = sorted_lower
+    while links[tail_value.usize()] >= 0:
+        tail_value <- links[tail_value.usize()]
+    links[tail_value.usize()] <- pivot_node.i64()
     return sorted_lower
 
 def mccat_qbsort_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > 34: return -1
+    if input == null or length < 3 or length > 34: return -1
     mode: i64 = input[0]
     count_value: i64 = input[1]
     if (mode != 0 and mode != 1) or count_value < 1 or count_value > 32: return -1
@@ -56,10 +57,12 @@ def mccat_qbsort_impl(input: i64&, length: usize, output: mutable u8&, output_ca
         if value < -2147483648 or value > 2147483647: return -1
         values[i] <- value.i32()
         i <- i + 1
-    pass: mutable usize = 0
-    while pass < 1000:
+    pass_value: mutable usize = 0
+    while pass_value < 1000:
         i <- 0
-        while i < count: values[i] <- input[i + 2].i32(); i <- i + 1
+        while i < count:
+            values[i] <- input[i + 2].i32()
+            i <- i + 1
         if mode == 0: mccat_qbsort_bubble(values[0:count], count)
         else:
             nodes: mutable i32[560] = zeroed
@@ -78,14 +81,17 @@ def mccat_qbsort_impl(input: i64&, length: usize, output: mutable u8&, output_ca
                 values[i] <- nodes[current.usize()]
                 current <- links[current.usize()]
                 i <- i + 1
-        pass <- pass + 1
+        pass_value <- pass_value + 1
     required: usize = 4 * count
-    if output.is_null() or output_capacity < required: return -2
+    if output == null or output_capacity < required: return -2
     i <- 0
     while i < count:
         bits: mutable u32 = values[i].u32()
-        b: usize = 0
-        while b < 4: output[i * 4 + b] <- (bits & 255).u8(); bits <- bits >> 8; b <- b + 1
+        b: mutable usize = 0
+        while b < 4:
+            output[i * 4 + b] <- (bits & 255).u8()
+            bits <- bits >> 8
+            b <- b + 1
         i <- i + 1
     return required.i64()
 

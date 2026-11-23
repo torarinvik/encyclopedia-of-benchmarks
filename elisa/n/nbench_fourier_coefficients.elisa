@@ -25,14 +25,14 @@ def nbench_fourier_integrate(omega: f64, select: usize) -> f64:
     (value + nbench_fourier_term(2.0, omega, select) / 2.0) * dx
 
 def nbench_fourier_impl(input: i64&, length: usize) -> f64:
-    if input.is_null() or length < 1 or length > 2: return INVALID_RESULT
+    if input == null or length < 1 or length > 2: return INVALID_RESULT
     raw: i64 = input[0]
     if raw < 1 or raw > 16 or length != 1: return INVALID_RESULT
     n: usize = raw.usize()
     a: mutable f64[MAX_N] = zeroed
     b: mutable f64[MAX_N] = zeroed
     a[0] <- nbench_fourier_integrate(0.0, 0) / 2.0
-    index: usize = 1
+    index:mutable  mutable usize = 1
     while index < n:
         omega: f64 = 3.1415926535897932 * index.f64()
         a[index] <- nbench_fourier_integrate(omega, 1)

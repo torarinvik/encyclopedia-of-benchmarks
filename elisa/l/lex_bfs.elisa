@@ -9,14 +9,13 @@ def lex_bfs_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def lex_bfs(input: i64&, length: usize,
-             output: mutable u8&, capacity: usize) -> i64 @export("lex_bfs"):
-    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+def lex_bfs_impl(input: i64&, length: usize,
+             output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     start64: i64 = input[2]
-    if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 120 or start64 < 0 or
-            start64 >= n64 or length != 3 + 2 * m64.usize(): return -1
+    if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 120 or start64 < 0 or start64 >= n64 or length != 3 + 2 * m64.usize(): return -1
     n: usize = n64.usize()
     m: usize = m64.usize()
     start: usize = start64.usize()
@@ -33,7 +32,7 @@ def lex_bfs(input: i64&, length: usize,
         adjacency[v][u] <- true
         edge <- edge + 1
     output_bytes: usize = 8 * n
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     labels: mutable i64[16][16] = zeroed
     label_len: mutable usize[16] = zeroed
     order: mutable i64[16] = zeroed
@@ -50,7 +49,7 @@ def lex_bfs(input: i64&, length: usize,
                         current <- vertex
                         have_best <- true
                     else:
-                        shared: usize = label_len[vertex]
+                        shared: mutable usize = label_len[vertex]
                         if label_len[current] < shared: shared <- label_len[current]
                         position: mutable usize = 0
                         decided: mutable bool = false
@@ -60,8 +59,7 @@ def lex_bfs(input: i64&, length: usize,
                                 decided <- true
                                 break
                             position <- position + 1
-                        if not decided and (label_len[vertex] > label_len[current] or
-                                (label_len[vertex] == label_len[current] and vertex < current)):
+                        if not decided and (label_len[vertex] > label_len[current] or (label_len[vertex] == label_len[current] and vertex < current)):
                             current <- vertex
                 vertex <- vertex + 1
         selected[current] <- true
@@ -78,3 +76,5 @@ def lex_bfs(input: i64&, length: usize,
         lex_bfs_store_i64_le(order[index], output, 8 * index)
         index <- index + 1
     output_bytes.i64()
+
+export fn lex_bfs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = lex_bfs_impl

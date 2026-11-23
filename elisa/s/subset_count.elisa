@@ -5,13 +5,12 @@ const MAX_INPUT_LENGTH: usize = 33
 const INVALID_RESULT: i64 = -1
 
 def subset_count_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if values == null or length < 2 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
 
     count_value: i64 = values[0]
     target: i64 = values[1]
-    if count_value < 1 or count_value > MAX_COUNT or target < 0 or target > MAX_TARGET or
-        length != count_value.usize() + 2:
+    if count_value < 1 or count_value > MAX_COUNT or target < 0 or target > MAX_TARGET or length != count_value.usize() + 2:
         return INVALID_RESULT
 
     count: usize = count_value.usize()
@@ -36,7 +35,7 @@ def subset_count_impl(values: i64&, length: usize) -> i64:
         while amount <= target_size:
             not_taken: i64 = previous[amount]
             value: i64 = values[item_index + 2]
-            taken: i64 = 0
+            taken: mutable i64 = 0
             if value <= amount.i64():
                 taken <- previous[(amount.i64() - value).usize()]
             current[amount] <- not_taken + taken

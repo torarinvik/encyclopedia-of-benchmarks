@@ -32,7 +32,7 @@ def mos_algorithm_impl(input: i64&, length: usize) -> i64:
     target: i32 = target64.i32()
 
     values: mutable i32[MAX_N] = zeroed
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < n:
         value: i64 = input[4 + index]
         if value < -1000000 or value > 1000000:
@@ -81,7 +81,7 @@ def mos_algorithm_impl(input: i64&, length: usize) -> i64:
     current_left: mutable i32 = 0
     current_right: mutable i32 = -1
     aggregate: mutable i32 = 0
-    sorted: usize = 0
+    sorted: mutable usize = 0
     while sorted < q:
         query = order[sorted]
         left: i32 = lefts[query]

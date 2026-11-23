@@ -7,8 +7,7 @@ def problem31_recursive_count(target: i64, coin_index: usize) -> i64:
     if coin_index == 0:
         return 1
     coin: i64 = COINS[coin_index]
-    problem31_recursive_count(target - coin, coin_index) +
-        problem31_recursive_count(target, coin_index - 1)
+    problem31_recursive_count(target - coin, coin_index) + problem31_recursive_count(target, coin_index - 1)
 
 def problem31_recursive_impl(target: i64) -> i64:
     if target < 0 or target > MAX_TARGET:

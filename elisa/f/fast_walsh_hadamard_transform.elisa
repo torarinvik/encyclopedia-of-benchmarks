@@ -1,11 +1,11 @@
 const MAX_LENGTH: usize = 128
 
 def fast_walsh_hadamard_transform_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 130 or (input[0] != 0 and input[0] != 1) or input[1] < 1 or input[1] > 128: return -1
+    if input == null or length < 2 or length > 130 or (input[0] != 0 and input[0] != 1) or input[1] < 1 or input[1] > 128: return -1
     n: usize = input[1].usize()
     if (n & (n - 1)) != 0 or length != n + 2: return -1
     a: mutable i64[128] = zeroed
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < n:
         if input[i + 2] < -10000 or input[i + 2] > 10000: return -1
         a[i] <- input[i + 2]
@@ -14,7 +14,7 @@ def fast_walsh_hadamard_transform_impl(input: i64&, length: usize, output: mutab
     while h < n:
         b: mutable usize = 0
         while b < n:
-            j: usize = 0
+            j: mutable usize = 0
             while j < h:
                 x: i64 = a[b + j]
                 y: i64 = a[b + j + h]
@@ -29,11 +29,11 @@ def fast_walsh_hadamard_transform_impl(input: i64&, length: usize, output: mutab
             if a[i] % n.i64() != 0: return -1
             a[i] <- a[i] / n.i64()
             i <- i + 1
-    if n * 8 > capacity or output.is_null(): return -2
+    if n * 8 > capacity or output == null: return -2
     i <- 0
     while i < n:
         value: u64 = a[i].u64()
-        k: usize = 0
+        k: mutable usize = 0
         while k < 8:
             output[i * 8 + k] <- ((value >> (k * 8).u64()) & 255).u8()
             k <- k + 1

@@ -26,7 +26,7 @@ def crc8_model_impl(input: i64&, length: usize) -> i64:
         return -1
     crc: mutable i64 = initial
     for i in 0..<byte_count:
-        byte: i64 = input[6 + i]
+        byte: mutable i64 = input[6 + i]
         if byte < 0 or byte > 255:
             return -1
         if ref_in == 1:

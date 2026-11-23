@@ -4,7 +4,7 @@ def reverse_words_impl(input: i64&, length: usize, output: mutable u8&, output_c
     byte_length: usize = input[0].usize()
     if length != byte_length + 1:
         return -1
-    index: usize = 0
+    index:mutable  mutable usize = 0
     while index < byte_length:
         value: i64 = input[index + 1]
         if not (value == 32 or (value >= 33 and value <= 126)):

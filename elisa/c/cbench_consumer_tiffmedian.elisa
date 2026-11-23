@@ -5,13 +5,13 @@ const MAX_PIXELS: usize = 16
 const MAX_INPUT_LENGTH: usize = 50
 
 struct CtmBox:
-    rmin: i64
-    rmax: i64
-    gmin: i64
-    gmax: i64
-    bmin: i64
-    bmax: i64
-    total: i64
+    rmin: mutable i64
+    rmax: mutable i64
+    gmin: mutable i64
+    gmax: mutable i64
+    bmin: mutable i64
+    bmax: mutable i64
+    total: mutable i64
 
 def ctm_hist_at(histogram: view[i64], r: usize, g: usize, b: usize) -> i64:
     histogram[(r * BIN_SIDE + g) * BIN_SIDE + b]
@@ -39,9 +39,12 @@ def ctm_shrink_box(histogram: view[i64], box: mutable CtmBox&) -> void:
                 b <- b + 1
             g <- g + 1
         r <- r + 1
-    box.rmin <- rmin.i64(); box.rmax <- rmax
-    box.gmin <- gmin.i64(); box.gmax <- gmax
-    box.bmin <- bmin.i64(); box.bmax <- bmax
+    box.rmin <- rmin.i64()
+    box.rmax <- rmax
+    box.gmin <- gmin.i64()
+    box.gmax <- gmax
+    box.bmin <- bmin.i64()
+    box.bmax <- bmax
 
 def ctm_largest_box(boxes: view[CtmBox], count: usize) -> i64:
     selected: mutable i64 = -1
@@ -65,8 +68,8 @@ def ctm_split_box(histogram: view[i64], boxes: mutable view[CtmBox], count: muta
     if not (rspan >= gspan and rspan >= bspan):
         if gspan >= bspan: axis <- 1
         else: axis <- 2
-    first: usize = if axis == 0: upper.rmin.usize() else if axis == 1: upper.gmin.usize() else: upper.bmin.usize()
-    last: usize = if axis == 0: upper.rmax.usize() else if axis == 1: upper.gmax.usize() else: upper.bmax.usize()
+    first: usize = upper.rmin.usize() if axis == 0 else (upper.gmin.usize() if axis == 1 else upper.bmin.usize())
+    last: usize = upper.rmax.usize() if axis == 0 else (upper.gmax.usize() if axis == 1 else upper.bmax.usize())
     along: mutable i64[32] = zeroed
     r: mutable usize = upper.rmin.usize()
     while r <= upper.rmax.usize():
@@ -74,7 +77,7 @@ def ctm_split_box(histogram: view[i64], boxes: mutable view[CtmBox], count: muta
         while g <= upper.gmax.usize():
             b: mutable usize = upper.bmin.usize()
             while b <= upper.bmax.usize():
-                coordinate: usize = if axis == 0: r else if axis == 1: g else: b
+                coordinate: usize = r if axis == 0 else (g if axis == 1 else b)
                 along[coordinate] <- along[coordinate] + ctm_hist_at(histogram, r, g, b)
                 b <- b + 1
             g <- g + 1
@@ -103,7 +106,7 @@ def ctm_split_box(histogram: view[i64], boxes: mutable view[CtmBox], count: muta
     if axis == 0:
         lower.rmax <- split.i64() - 1
         upper.rmin <- split.i64()
-    else if axis == 1:
+    elif axis == 1:
         lower.gmax <- split.i64() - 1
         upper.gmin <- split.i64()
     else:
@@ -153,9 +156,12 @@ def cbench_consumer_tiffmedian_impl(input: i64&, input_length: usize, output: mu
         if b < bmin: bmin <- b
         if b.i64() > bmax: bmax <- b.i64()
         p <- p + 1
-    boxes[0].rmin <- rmin.i64(); boxes[0].rmax <- rmax
-    boxes[0].gmin <- gmin.i64(); boxes[0].gmax <- gmax
-    boxes[0].bmin <- bmin.i64(); boxes[0].bmax <- bmax
+    boxes[0].rmin <- rmin.i64()
+    boxes[0].rmax <- rmax
+    boxes[0].gmin <- gmin.i64()
+    boxes[0].gmax <- gmax
+    boxes[0].bmin <- bmin.i64()
+    boxes[0].bmax <- bmax
     boxes[0].total <- pixel_count.i64()
     box_count: mutable usize = 1
     while box_count < palette_limit:

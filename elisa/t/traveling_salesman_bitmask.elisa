@@ -17,15 +17,14 @@ def traveling_salesman_bitmask_solve(position: usize, mask: usize, city_count: u
     while city < city_count:
         bit: usize = 1 << city
         if (mask & bit) == 0:
-            cost: i64 = distances[position * city_count + city] +
-                traveling_salesman_bitmask_solve(city, mask | bit, city_count, distances, memo, seen)
+            cost: i64 = distances[position * city_count + city] + traveling_salesman_bitmask_solve(city, mask | bit, city_count, distances, memo, seen)
             if cost < best: best <- cost
         city <- city + 1
     memo[state] <- best
     best
 
 def traveling_salesman_bitmask_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 1 or length > MAX_INPUT_VALUES: return -1
     city_count_value: i64 = input[0]
     if city_count_value < 2 or city_count_value > 10: return -1
     city_count: usize = city_count_value.usize()

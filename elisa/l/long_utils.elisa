@@ -4,11 +4,11 @@ def long_utils_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
     if output == null or capacity < 8: return -2
     bits: u64 = input[1].u64()
     distance: usize = input[2].usize()
-    rotated: u64 = bits
+    rotated:mutable  mutable u64 = bits
     if distance != 0:
         if input[0] < 2: rotated <- (bits << distance) | (bits >> (64 - distance))
         else: rotated <- (bits >> distance) | (bits << (64 - distance))
-    index: usize = 0
+    index: mutable usize = 0
     while index < 8:
         output[index] <- ((rotated >> (8 * index)) & 255).u8()
         index <- index + 1

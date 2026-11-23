@@ -5,7 +5,7 @@ extern sqrt(value: f64) -> f64
 
 def rmsprop_impl(input: f64&, input_length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 5 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+    if input == null or input_length < 5 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
     count_value: f64 = input[0]
     if count_value != count_value or count_value < 0.0 or count_value > 32.0:
@@ -17,7 +17,7 @@ def rmsprop_impl(input: f64&, input_length: usize,
     if mode_value != 0.0 and mode_value != 1.0:
         return -1
     mode: usize = mode_value.usize()
-    expected_length: usize = 5 + 2 * count
+    expected_length: mutable usize = 5 + 2 * count
     if mode == 1:
         expected_length <- expected_length + count
     if input_length != expected_length:
@@ -33,9 +33,9 @@ def rmsprop_impl(input: f64&, input_length: usize,
     if epsilon != epsilon or epsilon < 0.00000001 or epsilon > 1.0:
         return -1
 
-    params: mutable [32]f64 = [0.0; 32]
-    gradients: mutable [32]f64 = [0.0; 32]
-    moving_avg: mutable [32]f64 = [0.0; 32]
+    params: mutable f64[32] = zeroed
+    gradients: mutable f64[32] = zeroed
+    moving_avg: mutable f64[32] = zeroed
     index: mutable usize = 0
     while index < count:
         param: f64 = input[5 + index]
@@ -56,7 +56,7 @@ def rmsprop_impl(input: f64&, input_length: usize,
                 return -1
             moving_avg[index] <- value
             index <- index + 1
-    if output.is_null() or output_capacity < 2 * count:
+    if output == null or output_capacity < 2 * count:
         return -2
 
     index <- 0

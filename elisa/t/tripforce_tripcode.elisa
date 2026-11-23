@@ -48,23 +48,23 @@ def tripforce_tripcode_impl(input: i64&, length: usize, output: mutable u8&, cap
     if salt0 < 46 or salt0 > 122: salt0 <- 46
     if salt1 < 46 or salt1 > 122: salt1 <- 46
     if salt0 >= 58 and salt0 <= 64: salt0 <- salt0 + 6
-    else if salt0 >= 91 and salt0 <= 96: salt0 <- salt0 + 6
+    elif salt0 >= 91 and salt0 <= 96: salt0 <- salt0 + 6
     if salt1 >= 58 and salt1 <= 64: salt1 <- salt1 + 6
-    else if salt1 >= 91 and salt1 <= 96: salt1 <- salt1 + 6
-    crypt0: i64 = -1
-    crypt1: i64 = -1
+    elif salt1 >= 91 and salt1 <= 96: salt1 <- salt1 + 6
+    crypt0:mutable  mutable i64 = -1
+    crypt1:mutable  mutable i64 = -1
     if salt0 == 64: crypt0 <- 11
-    else if salt0 == 46: crypt0 <- 0
-    else if salt0 == 47: crypt0 <- 1
-    else if salt0 >= 48 and salt0 <= 57: crypt0 <- (salt0 - 48).i64() + 2
-    else if salt0 >= 65 and salt0 <= 90: crypt0 <- (salt0 - 65).i64() + 12
-    else if salt0 >= 97 and salt0 <= 122: crypt0 <- (salt0 - 97).i64() + 38
+    elif salt0 == 46: crypt0 <- 0
+    elif salt0 == 47: crypt0 <- 1
+    elif salt0 >= 48 and salt0 <= 57: crypt0 <- (salt0 - 48).i64() + 2
+    elif salt0 >= 65 and salt0 <= 90: crypt0 <- (salt0 - 65).i64() + 12
+    elif salt0 >= 97 and salt0 <= 122: crypt0 <- (salt0 - 97).i64() + 38
     if salt1 == 64: crypt1 <- 11
-    else if salt1 == 46: crypt1 <- 0
-    else if salt1 == 47: crypt1 <- 1
-    else if salt1 >= 48 and salt1 <= 57: crypt1 <- (salt1 - 48).i64() + 2
-    else if salt1 >= 65 and salt1 <= 90: crypt1 <- (salt1 - 65).i64() + 12
-    else if salt1 >= 97 and salt1 <= 122: crypt1 <- (salt1 - 97).i64() + 38
+    elif salt1 == 46: crypt1 <- 0
+    elif salt1 == 47: crypt1 <- 1
+    elif salt1 >= 48 and salt1 <= 57: crypt1 <- (salt1 - 48).i64() + 2
+    elif salt1 >= 65 and salt1 <= 90: crypt1 <- (salt1 - 65).i64() + 12
+    elif salt1 >= 97 and salt1 <= 122: crypt1 <- (salt1 - 97).i64() + 38
     if crypt0 < 0 or crypt1 < 0:
         return -1
     salt: u64 = (crypt0.u64() | (crypt1.u64() << 6))
@@ -99,7 +99,7 @@ def tripforce_tripcode_impl(input: i64&, length: usize, output: mutable u8&, cap
                 pos: mutable i64 = E[bit_index]
                 if bit_index < 12 and ((salt >> bit_index) & 1) != 0:
                     pos <- E[bit_index + 24]
-                else if bit_index >= 24 and bit_index < 36 and ((salt >> (bit_index - 24)) & 1) != 0:
+                elif bit_index >= 24 and bit_index < 36 and ((salt >> (bit_index - 24)) & 1) != 0:
                     pos <- E[bit_index - 24]
                 expanded <- (expanded << 1) | ((right.u32().u64() >> (32 - pos.u32())) & 1)
                 bit_index <- bit_index + 1
