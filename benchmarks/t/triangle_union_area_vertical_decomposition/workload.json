@@ -19,7 +19,7 @@
     "method": "Create exact rational x-events at every vertex and side intersection. In each open stripe, merge each triangle's vertical interval at the midpoint and integrate each resulting trapezoid exactly.",
     "output": "Two little-endian signed 64-bit words: reduced nonnegative area numerator followed by positive denominator.",
     "exact_bounds": "Event x denominators divide 840; endpoint-height denominators divide 1680; area denominator is at most 2822400 and numerator at most 11289600. All rational intermediates are reduced.",
-    "The straightforward bounded ports use O(S^4) worst-case work: O(S^2) candidate intersections, linear event deduplication and insertion sorting of O(S^2) events; stripe processing is lower order. S=3n<=9."
+    "complexity": "The straightforward bounded ports use O(S^4) worst-case work: O(S^2) candidate intersections, linear event deduplication and insertion sorting of O(S^2) events; stripe processing is lower order. S=3n<=9."
   },
   "input": {
     "kind": "signed_64_bit_integer_array",

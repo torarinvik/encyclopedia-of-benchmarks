@@ -36,7 +36,8 @@
     "maximum_bytes": 24,
     "success_result": "number of class bytes written",
     "invalid_result": -1,
-    "null_output_result": -2 when at least one result byte is required,
+    "null_output_result": -2,
+    "null_output_note": "-2 only when at least one result byte is required",
     "insufficient_capacity_result": -2,
     "output_untouched_on_error": true
   },

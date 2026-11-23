@@ -3,15 +3,15 @@ const MAX_PAGES: usize = 16
 const MAX_INPUT: usize = 67
 const MAX_OUTPUT_BYTES: usize = 536
 
-def marking_store64(output: mutable view[u8], offset: usize, value: i64): void:
+def marking_store64(output: mutable view[u8], offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def randomized_marking_page_caching_impl(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize): i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT: return -1
     cache_raw: i64 = input[0]
     requests_raw: i64 = input[1]
     if cache_raw < 1 or cache_raw > 8 or requests_raw < 0 or requests_raw > MAX_REQUESTS.i64(): return -1
@@ -35,7 +35,8 @@ def randomized_marking_page_caching_impl(input: i64&, length: usize,
     marked: mutable bool[MAX_PAGES] = zeroed
     hits: mutable i64[MAX_REQUESTS] = zeroed
     victims: mutable i64[MAX_REQUESTS] = zeroed
-    for i in 0..<MAX_REQUESTS: victims[i] <- -1
+    for i in 0..<MAX_REQUESTS:
+        victims[i] <- -1
     resident_count: mutable usize = 0
     choice_at: mutable usize = 0
     misses: mutable i64 = 0
@@ -83,12 +84,14 @@ def randomized_marking_page_caching_impl(input: i64&, length: usize,
         words[3 + i] <- hits[i]
         words[3 + request_count + i] <- victims[i]
     output_bytes: usize = 8 * (3 + 2 * request_count)
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     staged_view: mutable view[u8] = staged[0:output_bytes]
-    for word in 0..<(3 + 2 * request_count): marking_store64(staged_view, 8 * word, words[word])
-    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+    for word in 0..<(3 + 2 * request_count):
+        marking_store64(staged_view, 8 * word, words[word])
+    for byte in 0..<output_bytes:
+        output[byte] <- staged[byte]
     output_bytes.i64()
 
 export fn randomized_marking_page_caching(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize): i64 = randomized_marking_page_caching_impl
+        output: mutable u8&, capacity: usize) -> i64 = randomized_marking_page_caching_impl
