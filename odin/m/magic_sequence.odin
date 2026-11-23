@@ -16,7 +16,7 @@ enumerate :: proc "contextless" (n: int, hash: ^u64, hash_rows: bool) -> u32 {
 
     vector := [11]u8{}
     frequencies := [11]u8{}
-    next_candidate := [11]u8{}
+    next_candidate := [12]u8{}
     prefix_sum := [12]u8{}
     depth := 0
     solution_count := u32(0)

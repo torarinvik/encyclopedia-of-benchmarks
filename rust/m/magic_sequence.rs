@@ -12,7 +12,7 @@ fn enumerate(n: usize, hash: &mut u64, hash_rows: bool) -> u32 {
 
     let mut vector = [0u8; MAX_N];
     let mut frequencies = [0u8; MAX_N];
-    let mut next_candidate = [0u8; MAX_N];
+    let mut next_candidate = [0u8; MAX_N + 1];
     let mut prefix_sum = [0u8; MAX_N + 1];
     let mut depth = 0usize;
     let mut solution_count = 0u32;

@@ -1,7 +1,7 @@
 const MAX_N: usize = 11
-const FNV_OFFSET_BASIS: u64 = 14695981039346656037.u64()
-const FNV_PRIME: u64 = 1099511628211.u64()
-const I64_RESULT_MASK: u64 = 9223372036854775807.u64()
+const FNV_OFFSET_BASIS: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+const I64_RESULT_MASK: u64 = 9223372036854775807
 
 def magic_sequence_fnv_byte(hash: mutable u64&, value: u8) -> void:
     hash <- (hash ^ value.u64()) * FNV_PRIME
@@ -12,7 +12,7 @@ def magic_sequence_enumerate(n: usize, hash: mutable u64&, hash_rows: bool) -> u
 
     vector: mutable u8[MAX_N] = zeroed
     frequencies: mutable u8[MAX_N] = zeroed
-    next_candidate: mutable u8[MAX_N] = zeroed
+    next_candidate: mutable u8[MAX_N + 1] = zeroed
     prefix_sum: mutable u8[MAX_N + 1] = zeroed
     depth: mutable usize = 0
     solution_count: mutable u32 = 0
@@ -20,7 +20,7 @@ def magic_sequence_enumerate(n: usize, hash: mutable u64&, hash_rows: bool) -> u
     while true:
         if depth == n:
             is_magic: mutable bool = true
-            symbol: usize = 0
+            symbol: mutable usize = 0
             while symbol < n:
                 if frequencies[symbol] != vector[symbol]:
                     is_magic <- false

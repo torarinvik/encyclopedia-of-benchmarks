@@ -11,7 +11,7 @@ proc enumerate(n: int, hash: var uint64, hashRows: bool): uint32 =
 
   var vector: array[MaxN, uint8]
   var frequencies: array[MaxN, uint8]
-  var nextCandidate: array[MaxN, uint8]
+  var nextCandidate: array[MaxN + 1, uint8]
   var prefixSum: array[MaxN + 1, uint8]
   var depth = 0
   var solutionCount = 0'u32

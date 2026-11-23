@@ -13,7 +13,7 @@ fn enumerate(n int, mut hash u64, hash_rows bool) u32 {
 	if n == 0 { return 1 }
 	mut vector := [11]u8{}
 	mut frequencies := [11]u8{}
-	mut next_candidate := [11]u8{}
+	mut next_candidate := [12]u8{}
 	mut prefix_sum := [12]u8{}
 	mut depth := 0
 	mut solution_count := u32(0)

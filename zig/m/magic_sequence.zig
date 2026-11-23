@@ -12,7 +12,7 @@ fn enumerate(n: usize, hash: *u64, hash_rows: bool) u32 {
 
     var vector: [MAX_N]u8 = @splat(0);
     var frequencies: [MAX_N]u8 = @splat(0);
-    var next_candidate: [MAX_N]u8 = @splat(0);
+    var next_candidate: [MAX_N + 1]u8 = @splat(0);
     var prefix_sum: [MAX_N + 1]u8 = @splat(0);
     var depth: usize = 0;
     var solution_count: u32 = 0;

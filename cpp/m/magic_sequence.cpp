@@ -19,7 +19,7 @@ std::uint32_t enumerate(std::uint8_t n, std::uint64_t &hash, bool hash_rows)
 
     std::array<std::uint8_t, MAX_N> vector{};
     std::array<std::uint8_t, MAX_N> frequencies{};
-    std::array<std::uint8_t, MAX_N> next_candidate{};
+    std::array<std::uint8_t, MAX_N + 1> next_candidate{};
     std::array<std::uint8_t, MAX_N + 1> prefix_sum{};
     std::size_t depth = 0;
     std::uint32_t solution_count = 0;

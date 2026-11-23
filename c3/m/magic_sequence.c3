@@ -14,7 +14,7 @@ fn uint enumerate(uint8 n, ulong* hash, bool hash_rows) {
 
     uint8[MAX_N] vector = zeroed;
     uint8[MAX_N] frequencies = zeroed;
-    uint8[MAX_N] next_candidate = zeroed;
+    uint8[MAX_N + 1] next_candidate = zeroed;
     uint8[MAX_N + 1] prefix_sum = zeroed;
     usz depth = 0;
     uint solution_count = 0;

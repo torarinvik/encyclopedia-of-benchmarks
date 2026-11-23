@@ -19,7 +19,7 @@ static uint32_t enumerate(uint8_t n, uint64_t *hash, bool hash_rows)
 
     uint8_t vector[MAX_N] = {0};
     uint8_t frequencies[MAX_N] = {0};
-    uint8_t next_candidate[MAX_N] = {0};
+    uint8_t next_candidate[MAX_N + 1] = {0};
     uint8_t prefix_sum[MAX_N + 1] = {0};
     size_t depth = 0;
     uint32_t solution_count = 0;

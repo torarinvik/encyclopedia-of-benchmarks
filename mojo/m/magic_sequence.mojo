@@ -11,7 +11,7 @@ fn magic_sequence(v: UnsafePointer[Int64, ImmutAnyOrigin], n_values: c_size_t) a
     let n = Int(v[0])
     var vector = InlineArray[UInt8, 11](fill=0)
     var frequencies = InlineArray[UInt8, 11](fill=0)
-    var next_candidate = InlineArray[UInt8, 11](fill=0)
+    var next_candidate = InlineArray[UInt8, 12](fill=0)
     var prefix_sum = InlineArray[UInt8, 12](fill=0)
     var rows = InlineArray[UInt8, 4096](fill=0)
     var depth = 0; var solution_count = 0; var row_bytes = 0
