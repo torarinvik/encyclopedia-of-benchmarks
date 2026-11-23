@@ -1,5 +1,5 @@
-def store_i64_le(value: i64, output: mutable view[u8], position: usize) -> void:
-    bits: u64 = if value < 0: (value + 18_446_744_073_709_551_616).u64() else: value.u64()
+def store_i64_le(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[position + byte] <- ((bits >> (byte * 8)) & 255).u8()
@@ -12,29 +12,30 @@ def maximum_minimum_window_impl(input: i64&, length: usize, output: mutable u8&,
     n: usize = n0.usize()
     index: mutable usize = 0
     while index < n:
-        if input[index + 1] < 0 or input[index + 1] > 1_000_000: return -2
+        if input[index + 1] < 0 or input[index + 1] > 1000000: return -2
         index <- index + 1
     if output_capacity < n * 8: return -3
-    output_view: mutable view[u8] = output[0:n * 8]
     result: mutable i64[257] = zeroed
     left: mutable i64[256] = zeroed
     right: mutable i64[256] = zeroed
-    stack: mutable usize[256] = zeroed
+    stack_value: mutable usize[256] = zeroed
     top: mutable usize = 0
     index <- 0
     while index < n:
-        while top > 0 and input[stack[top - 1] + 1] >= input[index + 1]: top <- top - 1
-        left[index] <- if top > 0: stack[top - 1].i64() else: -1
-        stack[top] <- index
+        while top > 0 and input[stack_value[top - 1] + 1] >= input[index + 1]:
+            top <- top - 1
+        left[index] <- stack_value[top - 1].i64() if top > 0 else -1
+        stack_value[top] <- index
         top <- top + 1
         index <- index + 1
     top <- 0
     index <- n
     while index > 0:
         index <- index - 1
-        while top > 0 and input[stack[top - 1] + 1] >= input[index + 1]: top <- top - 1
-        right[index] <- if top > 0: stack[top - 1].i64() else: n.i64()
-        stack[top] <- index
+        while top > 0 and input[stack_value[top - 1] + 1] >= input[index + 1]:
+            top <- top - 1
+        right[index] <- stack_value[top - 1].i64() if top > 0 else n.i64()
+        stack_value[top] <- index
         top <- top + 1
     index <- 0
     while index < n:
@@ -47,7 +48,7 @@ def maximum_minimum_window_impl(input: i64&, length: usize, output: mutable u8&,
         if result[index] < result[index + 1]: result[index] <- result[index + 1]
     index <- 1
     while index <= n:
-        store_i64_le(result[index], output_view, (index - 1) * 8)
+        store_i64_le(result[index], output, (index - 1) * 8)
         index <- index + 1
     n.i64()
 

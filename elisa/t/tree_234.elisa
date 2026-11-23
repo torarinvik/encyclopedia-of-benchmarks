@@ -8,7 +8,7 @@ def new_node(keys: mutable view[i64], counts: mutable view[i64], children: mutab
     index: usize = next
     next <- next + 1
     counts[index] <- 0
-    leaves[index] <- if leaf: 1 else: 0
+    leaves[index] <- 1 if leaf else 0
     for slot in 0..<3 |keys|:
         keys[index * 3 + slot] <- 0
     for slot in 0..<4 |children|:
@@ -16,10 +16,10 @@ def new_node(keys: mutable view[i64], counts: mutable view[i64], children: mutab
     index.i64()
 
 def contains(keys: view[i64], counts: view[i64], children: view[i64], leaves: view[i64],
-        node: i64, key: i64) -> bool:
+        node: mutable i64, key: i64) -> bool:
     if node < 0: return false
     node_index: usize = node.usize()
-    slot: usize = 0
+    slot: mutable usize = 0
     while slot < counts[node_index].usize() and key > keys[node_index * 3 + slot]:
         slot <- slot + 1
     if slot < counts[node_index].usize() and key == keys[node_index * 3 + slot]: return true
@@ -27,9 +27,9 @@ def contains(keys: view[i64], counts: view[i64], children: view[i64], leaves: vi
     contains(keys, counts, children, leaves, children[node_index * 4 + slot], key)
 
 def split_child(keys: mutable view[i64], counts: mutable view[i64], children: mutable view[i64],
-        leaves: mutable view[i64], next: mutable usize&, parent: i64, child_slot: usize) -> void:
+        leaves: mutable view[i64], next: mutable usize&, parent: i64, child_slot: mutable usize) -> void:
     parent_index: usize = parent.usize()
-    child: usize = children[parent_index * 4 + child_slot].usize()
+    child: mutable usize = children[parent_index * 4 + child_slot].usize()
     leaf: bool = leaves[child] != 0
     right: usize = new_node(keys, counts, children, leaves, next, leaf).usize()
     counts[right] <- 1
@@ -40,18 +40,22 @@ def split_child(keys: mutable view[i64], counts: mutable view[i64], children: mu
     middle: i64 = keys[child * 3 + 1]
     counts[child] <- 1
     parent_count: usize = counts[parent_index].usize()
-    for slot in child_slot..<parent_count |keys, parent_index|:
-        keys[parent_index * 3 + slot + 1] <- keys[parent_index * 3 + slot]
-    for slot in (child_slot + 1)..<(parent_count + 1) |children, parent_index|:
-        children[parent_index * 4 + slot + 1] <- children[parent_index * 4 + slot]
+    key_slot: mutable usize = parent_count
+    while key_slot > child_slot:
+        keys[parent_index * 3 + key_slot] <- keys[parent_index * 3 + key_slot - 1]
+        key_slot <- key_slot - 1
+    child_position: mutable usize = parent_count + 1
+    while child_position > child_slot + 1:
+        children[parent_index * 4 + child_position] <- children[parent_index * 4 + child_position - 1]
+        child_position <- child_position - 1
     keys[parent_index * 3 + child_slot] <- middle
     children[parent_index * 4 + child_slot + 1] <- right.i64()
     counts[parent_index] <- counts[parent_index] + 1
 
 def insert_nonfull(keys: mutable view[i64], counts: mutable view[i64], children: mutable view[i64],
-        leaves: mutable view[i64], next: mutable usize&, node: i64, key: i64) -> void:
+        leaves: mutable view[i64], next: mutable usize&, node: mutable i64, key: i64) -> void:
     node_index: usize = node.usize()
-    slot: i64 = counts[node_index] - 1
+    slot: mutable i64 = counts[node_index] - 1
     if leaves[node_index] != 0:
         while slot >= 0 and key < keys[node_index * 3 + slot.usize()]:
             keys[node_index * 3 + slot.usize() + 1] <- keys[node_index * 3 + slot.usize()]
@@ -59,10 +63,11 @@ def insert_nonfull(keys: mutable view[i64], counts: mutable view[i64], children:
         keys[node_index * 3 + (slot + 1).usize()] <- key
         counts[node_index] <- counts[node_index] + 1
         return
-    while slot >= 0 and key < keys[node_index * 3 + slot.usize()]: slot <- slot - 1
+    while slot >= 0 and key < keys[node_index * 3 + slot.usize()]:
+        slot <- slot - 1
     slot <- slot + 1
-    child_slot: usize = slot.usize()
-    child: i64 = children[node_index * 4 + child_slot]
+    child_slot: mutable usize = slot.usize()
+    child: mutable i64 = children[node_index * 4 + child_slot]
     if counts[child.usize()] == 3:
         split_child(keys, counts, children, leaves, next, node, child_slot)
         if key > keys[node_index * 3 + child_slot]: child_slot <- child_slot + 1
@@ -81,19 +86,21 @@ def insert_key(keys: mutable view[i64], counts: mutable view[i64], children: mut
         old_root: i64 = root
         new_root: i64 = new_node(keys, counts, children, leaves, next, false)
         children[new_root.usize() * 4] <- old_root
+        split_child(keys, counts, children, leaves, next, new_root, 0)
         root <- new_root
-        split_child(keys, counts, children, leaves, next, root, 0)
-    insert_nonfull(keys, counts, children, leaves, next, root, key)
+    root_node: i64 = root
+    insert_nonfull(keys, counts, children, leaves, next, root_node, key)
 
 def predecessor(keys: view[i64], counts: view[i64], children: view[i64], leaves: view[i64], start: i64) -> i64:
-    node: usize = start.usize()
+    node: mutable usize = start.usize()
     while leaves[node] == 0:
         node <- children[node * 4 + counts[node].usize()].usize()
     keys[node * 3 + counts[node].usize() - 1]
 
 def successor(keys: view[i64], children: view[i64], leaves: view[i64], start: i64) -> i64:
-    node: usize = start.usize()
-    while leaves[node] == 0: node <- children[node * 4].usize()
+    node: mutable usize = start.usize()
+    while leaves[node] == 0:
+        node <- children[node * 4].usize()
     keys[node * 3]
 
 def merge_children(keys: mutable view[i64], counts: mutable view[i64], children: mutable view[i64],
@@ -119,9 +126,9 @@ def merge_children(keys: mutable view[i64], counts: mutable view[i64], children:
     left.i64()
 
 def borrow_previous(keys: mutable view[i64], counts: mutable view[i64], children: mutable view[i64],
-        leaves: view[i64], parent: i64, child_slot: usize) -> void:
+        leaves: view[i64], parent: i64, child_slot: mutable usize) -> void:
     parent_index: usize = parent.usize()
-    child: usize = children[parent_index * 4 + child_slot].usize()
+    child: mutable usize = children[parent_index * 4 + child_slot].usize()
     sibling: usize = children[parent_index * 4 + child_slot - 1].usize()
     child_count: usize = counts[child].usize()
     sibling_count: usize = counts[sibling].usize()
@@ -137,31 +144,35 @@ def borrow_previous(keys: mutable view[i64], counts: mutable view[i64], children
     counts[sibling] <- counts[sibling] - 1
 
 def borrow_next(keys: mutable view[i64], counts: mutable view[i64], children: mutable view[i64],
-        leaves: view[i64], parent: i64, child_slot: usize) -> void:
+        leaves: view[i64], parent: i64, child_slot: mutable usize) -> void:
     parent_index: usize = parent.usize()
-    child: usize = children[parent_index * 4 + child_slot].usize()
+    child: mutable usize = children[parent_index * 4 + child_slot].usize()
     sibling: usize = children[parent_index * 4 + child_slot + 1].usize()
     child_count: usize = counts[child].usize()
     sibling_count: usize = counts[sibling].usize()
     keys[child * 3 + child_count] <- keys[parent_index * 3 + child_slot]
     if leaves[child] == 0: children[child * 4 + child_count + 1] <- children[sibling * 4]
     keys[parent_index * 3 + child_slot] <- keys[sibling * 3]
-    for slot in 0..<(sibling_count - 1) |keys|: keys[sibling * 3 + slot] <- keys[sibling * 3 + slot + 1]
+    for slot in 0..<(sibling_count - 1) |keys|:
+        keys[sibling * 3 + slot] <- keys[sibling * 3 + slot + 1]
     if leaves[sibling] == 0:
-        for slot in 0..<sibling_count |children|: children[sibling * 4 + slot] <- children[sibling * 4 + slot + 1]
+        for slot in 0..<sibling_count |children|:
+            children[sibling * 4 + slot] <- children[sibling * 4 + slot + 1]
     counts[child] <- counts[child] + 1
     counts[sibling] <- counts[sibling] - 1
 
 def remove_from_node(keys: mutable view[i64], counts: mutable view[i64], children: mutable view[i64],
-        leaves: view[i64], node: i64, key: i64) -> void:
+        leaves: view[i64], node: mutable i64, key: i64) -> void:
     node_index: usize = node.usize()
-    slot: usize = 0
-    while slot < counts[node_index].usize() and keys[node_index * 3 + slot] < key: slot <- slot + 1
+    slot: mutable usize = 0
+    while slot < counts[node_index].usize() and keys[node_index * 3 + slot] < key:
+        slot <- slot + 1
     found: bool = slot < counts[node_index].usize() and keys[node_index * 3 + slot] == key
     if found:
         if leaves[node_index] != 0:
             count: usize = counts[node_index].usize()
-            for index in slot..<(count - 1) |keys|: keys[node_index * 3 + index] <- keys[node_index * 3 + index + 1]
+            for index in slot..<(count - 1) |keys|:
+                keys[node_index * 3 + index] <- keys[node_index * 3 + index + 1]
             counts[node_index] <- counts[node_index] - 1
             return
         left: i64 = children[node_index * 4 + slot]
@@ -179,8 +190,8 @@ def remove_from_node(keys: mutable view[i64], counts: mutable view[i64], childre
             remove_from_node(keys, counts, children, leaves, merged, key)
         return
     if leaves[node_index] != 0: return
-    child_slot: usize = slot
-    child: i64 = children[node_index * 4 + child_slot]
+    child_slot: mutable usize = slot
+    child: mutable i64 = children[node_index * 4 + child_slot]
     if counts[child.usize()] == 1:
         if child_slot > 0 and counts[children[node_index * 4 + child_slot - 1].usize()] >= 2:
             borrow_previous(keys, counts, children, leaves, node, child_slot)
@@ -194,7 +205,7 @@ def remove_from_node(keys: mutable view[i64], counts: mutable view[i64], childre
     remove_from_node(keys, counts, children, leaves, child, key)
 
 def traverse(keys: view[i64], counts: view[i64], children: view[i64], leaves: view[i64],
-        final_keys: mutable view[i64], final_count: mutable usize&, node: i64) -> void:
+        final_keys: mutable view[i64], final_count: mutable usize&, node: mutable i64) -> void:
     if node < 0: return
     node_index: usize = node.usize()
     count: usize = counts[node_index].usize()
@@ -204,14 +215,14 @@ def traverse(keys: view[i64], counts: view[i64], children: view[i64], leaves: vi
         final_count <- final_count + 1
     if leaves[node_index] == 0: traverse(keys, counts, children, leaves, final_keys, final_count, children[node_index * 4 + count])
 
-def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8 |output, bits|:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def tree_234_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input == null or length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
     if input[0] < 0 or input[0] > MAX_OPERATIONS.i64(): return -1
     operations: usize = input[0].usize()
     if length != 1 + 2 * operations: return -1
@@ -232,10 +243,10 @@ def tree_234_impl(input: i64&, length: usize, output: mutable u8&, capacity: usi
         if code == 0: insert_key(keys[0:MAX_NODES * 3], counts[0:MAX_NODES], children[0:MAX_NODES * 4], leaves[0:MAX_NODES], next, root, key)
         else:
             present: bool = contains(keys[0:MAX_NODES * 3], counts[0:MAX_NODES], children[0:MAX_NODES * 4], leaves[0:MAX_NODES], root, key)
-            remove_results[remove_count] <- if present: 1 else: 0
+            remove_results[remove_count] <- 1 if present else 0
             if present: remove_from_node(keys[0:MAX_NODES * 3], counts[0:MAX_NODES], children[0:MAX_NODES * 4], leaves[0:MAX_NODES], root, key)
             if root >= 0 and counts[root.usize()] == 0:
-                root <- if leaves[root.usize()] != 0: -1 else: children[root.usize() * 4]
+                root <- -1 if leaves[root.usize()] != 0 else children[root.usize() * 4]
             remove_count <- remove_count + 1
     final_keys: mutable i64[MAX_OPERATIONS] = zeroed
     final_count: mutable usize = 0
@@ -243,14 +254,17 @@ def tree_234_impl(input: i64&, length: usize, output: mutable u8&, capacity: usi
         leaves[0:MAX_NODES], final_keys[0:MAX_OPERATIONS], final_count, root)
     words: mutable i64[MAX_OUTPUT_WORDS] = zeroed
     words[0] <- remove_count.i64()
-    for index in 0..<remove_count |words|: words[1 + index] <- remove_results[index]
+    for index in 0..<remove_count |words|:
+        words[1 + index] <- remove_results[index]
     words[1 + remove_count] <- final_count.i64()
-    for index in 0..<final_count |words|: words[2 + remove_count + index] <- final_keys[index]
+    for index in 0..<final_count |words|:
+        words[2 + remove_count + index] <- final_keys[index]
     word_count: usize = 2 + remove_count + final_count
     output_bytes: usize = word_count * 8
     if output_bytes > 1040: return -1
-    if output.is_null() or capacity < output_bytes: return -2
-    for index in 0..<word_count |output, words|: put_i64(output[0:capacity], index * 8, words[index])
+    if output == null or capacity < output_bytes: return -2
+    for index in 0..<word_count |output, words|:
+        put_i64(output, index * 8, words[index])
     output_bytes.i64()
 
 export fn tree_234(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = tree_234_impl

@@ -19,14 +19,14 @@ def adjugate_minor_determinant(matrix: view[i64], n: usize, skip_row: usize, ski
             target_row <- target_row + 1
         row <- row + 1
 
-    dp: mutable i64[1 << (MAX_N - 1)] = zeroed
+    dp: mutable i64[32] = zeroed  # 1 << (MAX_N - 1)
     dp[0] <- 1
     limit: usize = 1 << dimension
     mask: mutable usize = 0
     dp_column: mutable usize = 0
     while mask < limit:
         row_count: mutable usize = 0
-        bits: mutable usize = mask
+        bits: mutable  mutable usize = mask
         while bits != 0:
             row_count <- row_count + (bits & 1)
             bits <- bits >> 1
@@ -49,8 +49,8 @@ def adjugate_minor_determinant(matrix: view[i64], n: usize, skip_row: usize, ski
         mask <- mask + 1
     dp[limit - 1]
 
-def adjugate_matrix_store(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
+def adjugate_matrix_store(value: mutable i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
@@ -60,7 +60,7 @@ def adjugate_matrix_store(value: i64, output: mutable view[u8], offset: usize) -
 export fn adjugate_matrix(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = adjugate_matrix_impl
 
 def adjugate_matrix_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 1 + MAX_N * MAX_N: return -1
+    if input == null or length < 2 or length > 1 + MAX_N * MAX_N: return -1
     n_value: i64 = input[0]
     if n_value < 1 or n_value > MAX_N.i64(): return -1
     n: usize = n_value.usize()
@@ -69,20 +69,20 @@ def adjugate_matrix_impl(input: i64&, length: usize, output: mutable u8&, capaci
     matrix: mutable i64[MAX_N * MAX_N] = zeroed
     index: mutable usize = 0
     while index < n * n:
-        value: i64 = input[1 + index]
+        value: mutable i64 = input[1 + index]
         if value < 0 or value >= MODULUS: return -1
         matrix[index] <- value
         index <- index + 1
 
     output_bytes: usize = 8 * n * n
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     row: mutable usize = 0
     while row < n:
         column: mutable usize = 0
         while column < n:
-            value: i64 = adjugate_minor_determinant(matrix[0:MAX_N * MAX_N], n, column, row)
+            value: mutable i64 = adjugate_minor_determinant(matrix[0:MAX_N * MAX_N], n, column, row)
             if ((row + column) & 1) != 0 and value != 0: value <- MODULUS - value
-            adjugate_matrix_store(value, output[0:output_bytes], 8 * (row * n + column))
+            adjugate_matrix_store(value, output, 8 * (row * n + column))
             column <- column + 1
         row <- row + 1
     output_bytes.i64()

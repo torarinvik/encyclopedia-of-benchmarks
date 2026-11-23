@@ -2,8 +2,8 @@ const MAX_N: usize = 48
 const MAX_NODES: usize = 2 * MAX_N - 1
 const GRID: usize = MAX_N * MAX_N
 
-def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
@@ -11,13 +11,12 @@ def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
         byte <- byte + 1
 
 def intervals_overlap(left_a: usize, right_a: usize, left_b: usize, right_b: usize) -> bool:
-    (left_a < left_b and left_b <= right_a and right_a < right_b) or
-    (left_b < left_a and left_a <= right_b and right_b < right_a)
+    (left_a < left_b and left_b <= right_a and right_a < right_b) or (left_b < left_a and left_a <= right_b and right_b < right_a)
 
 def common_interval_decomposition_tree_impl(
     input: i64&, length: usize, output: mutable u8&, capacity: usize
 ) -> i64:
-    if input.is_null() or length < 2 or length > 1 + MAX_N: return -1
+    if input == null or length < 2 or length > 1 + MAX_N: return -1
     n_value: i64 = input[0]
     if n_value < 1 or n_value > MAX_N.i64(): return -1
     n: usize = n_value.usize()
@@ -61,8 +60,7 @@ def common_interval_decomposition_tree_impl(
                     right_b: mutable usize = left_b
                     while right_b < n:
                         slot_b: usize = left_b * MAX_N + right_b
-                        if slot_b > slot_a and connected[slot_b] and
-                            intervals_overlap(left_a, right_a, left_b, right_b):
+                        if slot_b > slot_a and connected[slot_b] and intervals_overlap(left_a, right_a, left_b, right_b):
                             strong[slot_a] <- false
                             strong[slot_b] <- false
                         right_b <- right_b + 1
@@ -97,8 +95,7 @@ def common_interval_decomposition_tree_impl(
         candidate: mutable usize = 0
         while candidate < node_count:
             candidate_span: usize = node_right[candidate] - node_left[candidate] + 1
-            if candidate_span > node_span and candidate_span < best_span and
-                node_left[candidate] <= node_left[node] and node_right[node] <= node_right[candidate]:
+            if candidate_span > node_span and candidate_span < best_span and node_left[candidate] <= node_left[node] and node_right[node] <= node_right[candidate]:
                 parent[node] <- candidate.i64()
                 best_span <- candidate_span
             candidate <- candidate + 1
@@ -141,16 +138,15 @@ def common_interval_decomposition_tree_impl(
         node <- node + 1
 
     output_bytes: usize = (1 + 4 * node_count) * 8
-    if output.is_null() or capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
-    store_i64_le(node_count.i64(), output_view, 0)
+    if output == null or capacity < output_bytes: return -2
+    store_i64_le(node_count.i64(), output, 0)
     node <- 0
     while node < node_count:
         offset: usize = 8 + 32 * node
-        store_i64_le(parent[node], output_view, offset)
-        store_i64_le(node_left[node].i64(), output_view, offset + 8)
-        store_i64_le(node_right[node].i64(), output_view, offset + 16)
-        store_i64_le(node_type[node], output_view, offset + 24)
+        store_i64_le(parent[node], output, offset)
+        store_i64_le(node_left[node].i64(), output, offset + 8)
+        store_i64_le(node_right[node].i64(), output, offset + 16)
+        store_i64_le(node_type[node], output, offset + 24)
         node <- node + 1
     output_bytes.i64()
 
