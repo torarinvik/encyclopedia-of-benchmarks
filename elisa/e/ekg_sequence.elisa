@@ -11,16 +11,16 @@ def gcd_i64(left: i64, right: i64) -> i64:
         b <- remainder
     a
 
-def write_i64_le(output: mutable view[u8], offset: usize, value: u64) -> void:
+def write_i64_le(output: mutable u8&, offset: usize, value: u64) -> void:
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((value >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def ekg_sequence_impl(input: view[i64], output: mutable u8&, output_capacity: usize) -> i64:
-    if input.length < 1 or input.length > MAX_PARSEABLE_LENGTH: return -1
+def ekg_sequence_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input_length < 1 or input_length > MAX_PARSEABLE_LENGTH: return -1
     requested: i64 = input[0]
-    if input.length != 1 or requested < 1 or requested > MAX_N: return -1
+    if input_length != 1 or requested < 1 or requested > MAX_N: return -1
 
     terms: mutable i64[8] = zeroed
     used: mutable u8[MAX_CANDIDATE + 1] = zeroed
@@ -49,16 +49,19 @@ def ekg_sequence_impl(input: view[i64], output: mutable u8&, output_capacity: us
         term_count <- term_count + 1
 
     output_bytes: usize = requested.usize() * 8
-    if output.is_null() or output_capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
+    if output == null or output_capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     index: mutable usize = 0
     while index < term_count:
         write_i64_le(output_view, index * 8, terms_view[index].u64())
         index <- index + 1
     output_bytes.i64()
 
-export fn ekg_sequence(input: i64&, length: usize,
+def ekg_sequence_entry(input: i64&, length: usize,
     output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
-    ekg_sequence_impl(input_view, output, output_capacity)
+    if input == null or length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    ekg_sequence_impl(input_view, input_view_length, output, output_capacity)
+
+export fn ekg_sequence(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = ekg_sequence_entry

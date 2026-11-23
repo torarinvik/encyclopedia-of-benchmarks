@@ -5,10 +5,9 @@ def k_means_clust_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
     value.i64().f64() == value
 
 def k_means_clust_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > MAX_INPUT_LENGTH: return -1
-    if not k_means_clust_exact_integer(input[0], 1, 16) or
-        not k_means_clust_exact_integer(input[1], 1, 4) or
-        not k_means_clust_exact_integer(input[2], 1, 4): return -1
+    feature: mutable usize = 0
+    if input == null or input_length < 3 or input_length > MAX_INPUT_LENGTH: return -1
+    if not k_means_clust_exact_integer(input[0], 1, 16) or not k_means_clust_exact_integer(input[1], 1, 4) or not k_means_clust_exact_integer(input[2], 1, 4): return -1
     point_count: usize = input[0].usize()
     dimension: usize = input[1].usize()
     cluster_count: usize = input[2].usize()
@@ -29,7 +28,7 @@ def k_means_clust_impl(input: f64&, input_length: usize, output: mutable f64&, c
     while point < point_count:
         best_cluster: mutable usize = 0
         best_distance: mutable i64 = 0
-        feature: mutable usize = 0
+        feature <- 0
         while feature < dimension:
             value: i64 = input[data_start + point * dimension + feature].i64()
             center: i64 = input[centroid_start + feature].i64()
@@ -54,8 +53,7 @@ def k_means_clust_impl(input: f64&, input_length: usize, output: mutable f64&, c
         counts[best_cluster] <- counts[best_cluster] + 1
         feature <- 0
         while feature < dimension:
-            sums[best_cluster * dimension + feature] <- sums[best_cluster * dimension + feature] +
-                input[data_start + point * dimension + feature].i64()
+            sums[best_cluster * dimension + feature] <- sums[best_cluster * dimension + feature] + input[data_start + point * dimension + feature].i64()
             feature <- feature + 1
         point <- point + 1
     cluster: mutable usize = 0
@@ -63,7 +61,7 @@ def k_means_clust_impl(input: f64&, input_length: usize, output: mutable f64&, c
         if counts[cluster] == 0: return -1
         cluster <- cluster + 1
     output_length: usize = point_count + cluster_count * dimension
-    if output.is_null() or capacity < output_length: return -2
+    if output == null or capacity < output_length: return -2
     point <- 0
     while point < point_count:
         output[point] <- assignments[point].f64()

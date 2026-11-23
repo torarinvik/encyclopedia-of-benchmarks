@@ -37,7 +37,7 @@ def maze_recursion_put_i32_le(value: i64, output: mutable view[u8], offset: usiz
         byte <- byte + 1
 
 def maze_recursion_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length != INPUT_WORDS:
+    if input == null or length != INPUT_WORDS:
         return -1
     if input[0] < 0 or input[0] > 1:
         return -1
@@ -62,13 +62,13 @@ def maze_recursion_impl(input: i64&, length: usize, output: mutable u8&, capacit
         row <- row + 1
     if grid[START_INDEX] != 0 or grid[TARGET_INDEX] != 0:
         return -1
-    if output.is_null() or capacity < OUTPUT_BYTES:
+    if output == null or capacity < OUTPUT_BYTES:
         return -2
 
     found: bool = maze_recursion_solve(grid[0:GRID_CELLS], 1, 1, strategy)
     buffer: mutable u8[OUTPUT_BYTES] = zeroed
     buffer_view: mutable view[u8] = buffer[0:OUTPUT_BYTES]
-    maze_recursion_put_i32_le(if found then 1 else 0, buffer_view, 0)
+    maze_recursion_put_i32_le((1 if found else 0), buffer_view, 0)
     index <- 0
     while index < GRID_CELLS:
         maze_recursion_put_i32_le(grid[index].i64(), buffer_view, 4 * (index + 1))

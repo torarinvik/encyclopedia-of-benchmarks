@@ -14,7 +14,7 @@ def gcd_nonnegative(left_value: i64, right_value: i64) -> i64:
     left
 
 def pollard_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 1: return -1
+    if input == null or length != 1: return -1
     n: i64 = input[0]
     if n < MIN_N or n > MAX_N: return -1
 
@@ -27,6 +27,6 @@ def pollard_impl(input: i64&, length: usize) -> i64:
         difference: mutable i64 = x - y
         if difference < 0: difference <- -difference
         divisor <- gcd_nonnegative(difference, n)
-    if divisor == n: 0 else: divisor
+    0 if divisor == n else divisor
 
 export fn pollard(input: i64&, length: usize) -> i64 = pollard_impl

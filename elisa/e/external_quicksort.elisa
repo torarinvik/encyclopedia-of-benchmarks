@@ -13,7 +13,7 @@ def sort_buffer(buffer: mutable view[i64], length: usize) -> void:
         buffer[position] <- value
         index <- index + 1
 
-def sort_range(values: mutable view[i64], first_arg: i64, last_arg: i64) -> void:
+def sort_range(values: mutable i64&, first_arg: i64, last_arg: i64) -> void:
     first: mutable i64 = first_arg
     last: mutable i64 = last_arg
     while last > first:
@@ -89,7 +89,9 @@ def sort_range(values: mutable view[i64], first_arg: i64, last_arg: i64) -> void
             sort_range(values, upper_written_bound, last)
             last <- lower_written_bound
 
-export fn external_quicksort(values: mutable i64&, length: usize) -> void:
-    if length == 0 or length > MAX_LENGTH or values.is_null(): return
-    values_view: mutable view[i64] = values[0:length]
+def external_quicksort_impl(values: mutable i64&, length: usize) -> void:
+    if length == 0 or length > MAX_LENGTH or values == null: return
+    values_view: mutable i64& = values
     sort_range(values_view, 0, length.i64() - 1)
+
+export fn external_quicksort(values: mutable i64&, length: usize) -> void = external_quicksort_impl

@@ -1,6 +1,7 @@
 def power_for_huge_numbers_impl(input: i64&, length: usize,
                                 output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length != 2:
+    index: mutable usize = 0
+    if input == null or length != 2:
         return -1
     base: i64 = input[0]
     exponent: i64 = input[1]
@@ -12,7 +13,7 @@ def power_for_huge_numbers_impl(input: i64&, length: usize,
     power: mutable i64 = 0
     while power < exponent:
         carry: mutable i64 = 0
-        index: mutable usize = 0
+        index <- 0
         while index < digit_count:
             product: i64 = digits[index].i64() * base + carry
             digits[index] <- (product % 10).u8()
@@ -25,7 +26,7 @@ def power_for_huge_numbers_impl(input: i64&, length: usize,
             digit_count <- digit_count + 1
             carry <- carry / 10
         power <- power + 1
-    if output.is_null() or capacity < digit_count:
+    if output == null or capacity < digit_count:
         return -2
     index <- 0
     while index < digit_count:

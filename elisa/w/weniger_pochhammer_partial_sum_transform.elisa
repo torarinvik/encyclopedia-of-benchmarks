@@ -11,18 +11,17 @@ def weniger_gcd(a_input: i64, b_input: i64) -> i64:
         b <- remainder
     a
 
-def weniger_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def weniger_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-@export("weniger_pochhammer_partial_sum_transform")
-def weniger_pochhammer_partial_sum_transform(input: i64&, length: usize,
+def weniger_pochhammer_partial_sum_transform_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < MIN_WORDS or length > MAX_WORDS: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < MIN_WORDS or length > MAX_WORDS: return -1
+    values: i64& = input
     n0: i64 = values[0]
     k0: i64 = values[1]
     if n0 < 0 or n0 > 8 or k0 < 3 or k0 > 4: return -1
@@ -70,12 +69,14 @@ def weniger_pochhammer_partial_sum_transform(input: i64&, length: usize,
     if denominator < 0:
         numerator <- -numerator
         denominator <- -denominator
-    magnitude: i64 = if numerator < 0: -numerator else: numerator
+    magnitude: i64 = -numerator if numerator < 0 else numerator
     divisor: i64 = weniger_gcd(magnitude, denominator)
     numerator <- numerator / divisor
     denominator <- denominator / divisor
-    if output.is_null() or capacity < OUTPUT_BYTES: return -2
-    result: mutable view[u8] = output[0:OUTPUT_BYTES]
+    if output == null or capacity < OUTPUT_BYTES: return -2
+    result: mutable u8& = output
     weniger_store_i64(result, 0, numerator)
     weniger_store_i64(result, 8, denominator)
     OUTPUT_BYTES.i64()
+
+export fn weniger_pochhammer_partial_sum_transform(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = weniger_pochhammer_partial_sum_transform_impl

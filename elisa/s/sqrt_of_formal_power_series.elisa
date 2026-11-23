@@ -1,4 +1,4 @@
-const FPS_MODULUS: i64 = 998_244_353
+const FPS_MODULUS: i64 = 998244353
 const FPS_MAX_N: usize = 64
 const FPS_MAX_INPUT: usize = 66
 
@@ -35,23 +35,24 @@ def fps_mod_sqrt(value: i64) -> i64:
             index <- index + 1
         if index >= order or probe != 1: return -1
         exponent: mutable i64 = 1
-        for bit in 0..<(order - index - 1): exponent <- exponent * 2
+        for bit in 0..<(order - index - 1):
+            exponent <- exponent * 2
         factor: i64 = fps_mod_pow(c, exponent)
         root <- root * factor % FPS_MODULUS
         factor_squared: i64 = factor * factor % FPS_MODULUS
         remainder <- remainder * factor_squared % FPS_MODULUS
         c <- factor_squared
         order <- index
-    if root < FPS_MODULUS - root: root else: FPS_MODULUS - root
+    root if root < FPS_MODULUS - root else FPS_MODULUS - root
 
-def fps_store_le(value: i64, output: mutable view[u8], position: usize) -> void:
+def fps_store_le(value: i64, output: mutable u8&, position: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[position + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def sqrt_of_formal_power_series_impl(input: view[i64], length: usize,
-    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+def sqrt_of_formal_power_series_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize, output_is_null: bool) -> i64:
     if length < 2 or length > FPS_MAX_INPUT: return -1
     n_value: i64 = input[0]
     if n_value < 1 or n_value > FPS_MAX_N.i64(): return -1
@@ -63,19 +64,21 @@ def sqrt_of_formal_power_series_impl(input: view[i64], length: usize,
     bytes: usize = 8 * n
     if output_is_null or capacity < bytes: return -2
 
-    result: mutable [FPS_MAX_N]i64 = [0; FPS_MAX_N]
+    result: mutable i64[FPS_MAX_N] = zeroed
     valuation: mutable usize = 0
-    while valuation < n and input[valuation + 1] == 0: valuation <- valuation + 1
+    while valuation < n and input[valuation + 1] == 0:
+        valuation <- valuation + 1
     if valuation == n:
-        for i in 0..<n: fps_store_le(0, output[0:bytes], 8 * i)
+        for i in 0..<n:
+            fps_store_le(0, output, 8 * i)
         return bytes.i64()
     if valuation % 2 == 1:
-        fps_store_le(-1, output[0:8], 0)
+        fps_store_le(-1, output, 0)
         return 8
     shift: usize = valuation / 2
     leading_root: i64 = fps_mod_sqrt(input[valuation + 1])
     if leading_root < 0:
-        fps_store_le(-1, output[0:8], 0)
+        fps_store_le(-1, output, 0)
         return 8
     inverse_twice_root: i64 = fps_mod_pow((2 * leading_root) % FPS_MODULUS, FPS_MODULUS - 2)
     width: usize = n - valuation
@@ -87,17 +90,20 @@ def sqrt_of_formal_power_series_impl(input: view[i64], length: usize,
         delta: mutable i64 = (input[valuation + degree + 1] - cross_terms) % FPS_MODULUS
         if delta < 0: delta <- delta + FPS_MODULUS
         result[shift + degree] <- delta * inverse_twice_root % FPS_MODULUS
-    for i in 0..<n: fps_store_le(result[i], output[0:bytes], 8 * i)
+    for i in 0..<n:
+        fps_store_le(result[i], output, 8 * i)
     bytes.i64()
 
-export fn sqrt_of_formal_power_series(input: i64&, length: usize,
+def sqrt_of_formal_power_series_entry(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > FPS_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+    if input == null or length < 2 or length > FPS_MAX_INPUT: return -1
+    input_view: i64& = input
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return sqrt_of_formal_power_series_impl(input_view, length, scratch[0:1], 0, true)
+        return sqrt_of_formal_power_series_impl(input_view, length, &scratch[0], 0, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > 8 * FPS_MAX_N: safe_capacity <- 8 * FPS_MAX_N
-    output_view: mutable view[u8] = output[0:safe_capacity]
+    output_view: mutable u8& = output
     sqrt_of_formal_power_series_impl(input_view, length, output_view, capacity, false)
+
+export fn sqrt_of_formal_power_series(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = sqrt_of_formal_power_series_entry

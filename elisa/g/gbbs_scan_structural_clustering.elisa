@@ -2,7 +2,7 @@ const MAX_N: usize = 16
 const MAX_M: usize = 64
 const MAX_INPUT: usize = 130
 
-def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -25,7 +25,8 @@ def epsilon_similar(numerator: usize, denominator_sq: usize) -> bool:
 
 def gbbs_scan_structural_clustering_impl(input: i64&, length: usize,
                                           output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+    v: mutable usize = zeroed
+    if input == null or length < 2 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 64: return -1
@@ -40,7 +41,7 @@ def gbbs_scan_structural_clustering_impl(input: i64&, length: usize,
         v64: i64 = input[3 + 2 * edge]
         if u64 < 0 or v64 <= u64 or v64 >= n64: return -1
         u: usize = u64.usize()
-        v: usize = v64.usize()
+        v <- v64.usize()
         if adjacent[u * MAX_N + v]: return -1
         adjacent[u * MAX_N + v] <- true
         adjacent[v * MAX_N + u] <- true
@@ -48,14 +49,14 @@ def gbbs_scan_structural_clustering_impl(input: i64&, length: usize,
         degree[v] <- degree[v] + 1
         edge <- edge + 1
     output_bytes: usize = 8 * n
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
 
     core: mutable bool[16] = zeroed
     labels: mutable i64[16] = zeroed
     u: mutable usize = 0
     while u < n:
         similar_count: mutable usize = 0
-        v: mutable usize = 0
+        v <- 0
         while v < n:
             if adjacent[u * MAX_N + v]:
                 numerator: mutable usize = 0
@@ -73,10 +74,10 @@ def gbbs_scan_structural_clustering_impl(input: i64&, length: usize,
         if core[root] and labels[root] == -1:
             queue: mutable usize[16] = zeroed
             head: mutable usize = 0
-            tail: mutable usize = 1
+            tail_value: mutable usize = 1
             labels[root] <- root.i64()
             queue[0] <- root
-            while head < tail:
+            while head < tail_value:
                 node: usize = queue[head]
                 head <- head + 1
                 neighbor: mutable usize = 0
@@ -87,8 +88,8 @@ def gbbs_scan_structural_clustering_impl(input: i64&, length: usize,
                         similarity_parts(node, neighbor, adjacent[0:256], degree[0:16], numerator, denominator_sq)
                         if epsilon_similar(numerator, denominator_sq):
                             labels[neighbor] <- root.i64()
-                            queue[tail] <- neighbor
-                            tail <- tail + 1
+                            queue[tail_value] <- neighbor
+                            tail_value <- tail_value + 1
                     neighbor <- neighbor + 1
         root <- root + 1
 
@@ -115,9 +116,9 @@ def gbbs_scan_structural_clustering_impl(input: i64&, length: usize,
             if best_core != MAX_N:
                 labels[u] <- labels[best_core]
         u <- u + 1
-    v: mutable usize = 0
+    v <- 0
     while v < n:
-        store_i64_le(labels[v], output[0:output_bytes], 8 * v)
+        store_i64_le(labels[v], output, 8 * v)
         v <- v + 1
     output_bytes.i64()
 

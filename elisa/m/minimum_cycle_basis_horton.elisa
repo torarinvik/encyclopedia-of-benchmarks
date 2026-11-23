@@ -19,6 +19,7 @@ def mcb_cycle_weight(mask: i64, edges: view[McbEdge], m: usize) -> i64:
     total
 
 def mcb_horton_weight(n: usize, m: usize, edges: view[McbEdge]) -> i64:
+    e: mutable usize = 0
     candidates: mutable i64[MCB_MAX_CANDIDATES] = zeroed
     costs: mutable i64[MCB_MAX_CANDIDATES] = zeroed
     candidate_count: mutable usize = 0
@@ -43,13 +44,12 @@ def mcb_horton_weight(n: usize, m: usize, edges: view[McbEdge]) -> i64:
             vertex: mutable usize = MCB_MAX_N
             v <- 0
             while v < n:
-                if not settled[v] and distance[v] != MCB_INF and
-                        (vertex == MCB_MAX_N or distance[v] < distance[vertex] or (distance[v] == distance[vertex] and v < vertex)):
+                if not settled[v] and distance[v] != MCB_INF and (vertex == MCB_MAX_N or distance[v] < distance[vertex] or (distance[v] == distance[vertex] and v < vertex)):
                     vertex <- v
                 v <- v + 1
             if vertex == MCB_MAX_N: break
             settled[vertex] <- true
-            e: mutable usize = 0
+            e <- 0
             while e < m:
                 neighbor: mutable usize = MCB_MAX_N
                 if edges[e].u == vertex: neighbor <- edges[e].v
@@ -126,9 +126,9 @@ def mcb_horton_weight(n: usize, m: usize, edges: view[McbEdge]) -> i64:
                 total <- total + costs[i]
                 break
         i <- i + 1
-    if rank == dimension: total else: -1
+    total if rank == dimension else -1
 
-def mcb_impl(input: view[i64], length: usize) -> i64:
+def mcb_impl(input: i64&, length: usize) -> i64:
     if length < 2 or length > MCB_MAX_LENGTH: return -1
     if input[0] < 3 or input[0] > MCB_MAX_N.i64(): return -1
     n: usize = input[0].usize()
@@ -157,17 +157,17 @@ def mcb_impl(input: view[i64], length: usize) -> i64:
     seen: mutable bool[MCB_MAX_N] = zeroed
     queue: mutable usize[MCB_MAX_N] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 1
+    tail_value: mutable usize = 1
     seen[0] <- true
-    while head < tail:
+    while head < tail_value:
         u: usize = queue[head]
         head <- head + 1
         v: mutable usize = 0
         while v < n:
             if adjacent[u * MCB_MAX_N + v] and not seen[v]:
                 seen[v] <- true
-                queue[tail] <- v
-                tail <- tail + 1
+                queue[tail_value] <- v
+                tail_value <- tail_value + 1
             v <- v + 1
     v: mutable usize = 0
     while v < n:
@@ -175,6 +175,8 @@ def mcb_impl(input: view[i64], length: usize) -> i64:
         v <- v + 1
     mcb_horton_weight(n,m,edges[0:m])
 
-export fn minimum_cycle_basis_horton(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MCB_MAX_LENGTH: return -1
-    mcb_impl(input[0:length],length)
+def minimum_cycle_basis_horton_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MCB_MAX_LENGTH: return -1
+    mcb_impl(input,length)
+
+export fn minimum_cycle_basis_horton(input: i64&, length: usize) -> i64 = minimum_cycle_basis_horton_impl

@@ -36,8 +36,7 @@ def rs_make_generator(alpha: view[i32], index_of: view[i32], generator: mutable 
         index: mutable i32 = (root - 1).i32()
         while index > 0:
             if generator[index.usize()] != 0:
-                generator[index.usize()] <- generator[(index - 1).usize()] ^
-                    alpha[((index_of[generator[index.usize()].usize()] + root.i32()) % FULL_BYTES.i32()).usize()]
+                generator[index.usize()] <- generator[(index - 1).usize()] ^ alpha[((index_of[generator[index.usize()].usize()] + root.i32()) % FULL_BYTES.i32()).usize()]
             else:
                 generator[index.usize()] <- generator[(index - 1).usize()]
             index <- index - 1
@@ -45,7 +44,7 @@ def rs_make_generator(alpha: view[i32], index_of: view[i32], generator: mutable 
     for index in 0..<17:
         generator[index] <- index_of[generator[index].usize()]
 
-def rs_encode(values: view[i64], alpha: view[i32], index_of: view[i32], generator: view[i32],
+def rs_encode(values: i64&, alpha: view[i32], index_of: view[i32], generator: view[i32],
               codeword: mutable view[i32]) -> void:
     data: mutable i32[239] = zeroed
     parity: mutable i32[16] = zeroed
@@ -58,8 +57,7 @@ def rs_encode(values: view[i64], alpha: view[i32], index_of: view[i32], generato
             parity_index: mutable i32 = 15
             while parity_index > 0:
                 if generator[parity_index.usize()] != -1:
-                    parity[parity_index.usize()] <- parity[(parity_index - 1).usize()] ^
-                        alpha[((generator[parity_index.usize()] + feedback) % FULL_BYTES.i32()).usize()]
+                    parity[parity_index.usize()] <- parity[(parity_index - 1).usize()] ^ alpha[((generator[parity_index.usize()] + feedback) % FULL_BYTES.i32()).usize()]
                 else:
                     parity[parity_index.usize()] <- parity[(parity_index - 1).usize()]
                 parity_index <- parity_index - 1
@@ -128,22 +126,20 @@ def rs_correct_one(codeword: mutable view[i32], expected_position: i32,
     true
 
 def misc_reed_solomon_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or (length != MESSAGE_BYTES + 1 and length != MESSAGE_BYTES + 3):
+    if input == null or (length != MESSAGE_BYTES + 1 and length != MESSAGE_BYTES + 3):
         return -1
     for index in 0..<MESSAGE_BYTES:
         if input[index] < 0 or input[index] > 255:
             return -1
     error_count: i64 = input[MESSAGE_BYTES]
-    if (error_count == 0 and length != MESSAGE_BYTES + 1) or
-       (error_count == 1 and length != MESSAGE_BYTES + 3) or
-       (error_count != 0 and error_count != 1):
+    if (error_count == 0 and length != MESSAGE_BYTES + 1) or (error_count == 1 and length != MESSAGE_BYTES + 3) or (error_count != 0 and error_count != 1):
         return -1
     error_position: mutable i32 = -1
     if error_count == 1:
         if input[189] < 0 or input[189] >= CODEWORD_BYTES.i64() or input[190] < 0 or input[190] > 255:
             return -1
         error_position <- input[189].i32()
-    if output.is_null() or output_capacity < CODEWORD_BYTES:
+    if output == null or output_capacity < CODEWORD_BYTES:
         return -2
 
     alpha: mutable i32[255] = zeroed
@@ -156,7 +152,7 @@ def misc_reed_solomon_impl(input: i64&, length: usize, output: mutable u8&, outp
     staged_view: mutable view[i32] = staged[0:204]
     rs_make_tables(alpha_view, index_of_view)
     rs_make_generator(alpha_view, index_of_view, generator_view)
-    rs_encode(input[0:MESSAGE_BYTES], alpha_view, index_of_view, generator_view, staged_view)
+    rs_encode(input, alpha_view, index_of_view, generator_view, staged_view)
     if error_count == 1:
         staged[error_position.usize()] <- input[190].i32()
     if not rs_correct_one(staged_view, error_position, alpha_view, index_of_view):

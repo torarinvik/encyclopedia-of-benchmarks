@@ -31,4 +31,4 @@ def complementary_filter_impl(values: i64&, length: usize) -> f64:
             value <- coefficient * (value + rate * elapsed) + (1.0 - coefficient) * reference
     value
 
-export fn complementary_filter(values: i64&, length: usize) f64 = complementary_filter_impl
+export fn complementary_filter(values: i64&, length: usize) -> f64 = complementary_filter_impl

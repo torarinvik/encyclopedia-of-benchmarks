@@ -2,7 +2,7 @@ const POLYPHASE_MAX_ITEMS: usize = 256
 const POLYPHASE_RUN_SIZE: usize = 8
 const POLYPHASE_MAX_RUNS: usize = 34
 
-def polyphase_place_run(input: view[i64], input_length: usize, run_index: usize,
+def polyphase_place_run(input: i64&, input_length: usize, run_index: usize,
                         tape: usize, tapes: mutable view[i64],
                         starts: mutable view[u32], lengths: mutable view[u32],
                         counts: mutable view[u32], write_offsets: mutable view[u32]) -> void:
@@ -10,7 +10,7 @@ def polyphase_place_run(input: view[i64], input_length: usize, run_index: usize,
     counts[tape] <- counts[tape] + 1
     start: usize = write_offsets[tape].usize()
     source: usize = run_index * POLYPHASE_RUN_SIZE
-    run_length: usize = input_length - source
+    run_length: mutable usize = input_length - source
     if run_length > POLYPHASE_RUN_SIZE: run_length <- POLYPHASE_RUN_SIZE
     i: mutable usize = 0
     while i < run_length:
@@ -75,8 +75,8 @@ def polyphase_merge_run(tapes: mutable view[i64], starts: mutable view[u32],
     lengths[output_tape * POLYPHASE_MAX_RUNS + output_slot] <- written.u32()
     write_offsets[output_tape] <- write_offsets[output_tape] + written.u32()
 
-def polyphase_merge_sort_impl(values: mutable view[i64]) -> void:
-    n: usize = values.len()
+def polyphase_merge_sort_impl(values: mutable i64&, values_length: usize) -> void:
+    n: usize = values_length
     if n < 2 or n > POLYPHASE_MAX_ITEMS: return
     tapes: mutable i64[3 * POLYPHASE_MAX_ITEMS] = zeroed
     starts: mutable u32[3 * POLYPHASE_MAX_RUNS] = zeroed
@@ -130,7 +130,7 @@ def polyphase_merge_sort_impl(values: mutable view[i64]) -> void:
         counts_view[output_tape] <- 0
         reads_view[output_tape] <- 0
         offsets_view[output_tape] <- 0
-        pairs: u32 = available_a
+        pairs: mutable u32 = available_a
         if available_b < pairs: pairs <- available_b
         pair: mutable u32 = 0
         while pair < pairs:
@@ -159,7 +159,10 @@ def polyphase_merge_sort_impl(values: mutable view[i64]) -> void:
                 return
         tape <- tape + 1
 
-export fn polyphase_merge_sort(values: mutable i64&, length: usize) -> void:
-    if values.is_null() or length < 2 or length > POLYPHASE_MAX_ITEMS: return
-    input_view: mutable view[i64] = values[0:length]
-    polyphase_merge_sort_impl(input_view)
+def polyphase_merge_sort_entry(values: mutable i64&, length: usize) -> void:
+    if values == null or length < 2 or length > POLYPHASE_MAX_ITEMS: return
+    input_view: mutable i64& = values
+    input_view_length: usize = length
+    polyphase_merge_sort_impl(input_view, input_view_length)
+
+export fn polyphase_merge_sort(values: mutable i64&, length: usize) -> void = polyphase_merge_sort_entry

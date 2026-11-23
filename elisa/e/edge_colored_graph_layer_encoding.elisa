@@ -3,15 +3,17 @@ const MAX_M: usize = 28
 const MAX_INPUT: usize = 97
 const MAX_VERTICES: usize = 24
 
-def put_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def put_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def edge_colored_graph_layer_encoding_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+def edge_colored_graph_layer_encoding_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    v: mutable usize = zeroed
+    u: mutable usize = zeroed
+    length: usize = input_length
     if length < 5 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
@@ -39,8 +41,8 @@ def edge_colored_graph_layer_encoding_impl(input: view[i64], output: mutable u8&
         color64: i64 = input[offset + 2]
         offset <- offset + 3
         if left64 < 0 or left64 >= n64 or right64 < 0 or right64 >= n64 or left64 == right64 or color64 < 1 or color64 >= (1 << d64): return -1
-        u: usize = left64.usize()
-        v: usize = right64.usize()
+        u <- left64.usize()
+        v <- right64.usize()
         if u > v:
             temp: usize = u
             u <- v
@@ -55,9 +57,9 @@ def edge_colored_graph_layer_encoding_impl(input: view[i64], output: mutable u8&
     layer: mutable usize = 0
     while layer < layers:
         bit: u8 = (1 << layer).u8()
-        u: mutable usize = 0
+        u <- 0
         while u < n:
-            v: mutable usize = u + 1
+            v <- u + 1
             while v < n:
                 if (source_edges[u * MAX_N + v] & bit) != 0:
                     adjacency[(layer * n + u) * MAX_VERTICES + layer * n + v] <- true
@@ -74,14 +76,14 @@ def edge_colored_graph_layer_encoding_impl(input: view[i64], output: mutable u8&
     edge_count: mutable usize = 0
     u <- 0
     while u < nodes:
-        v: mutable usize = u + 1
+        v <- u + 1
         while v < nodes:
             if adjacency[u * MAX_VERTICES + v]: edge_count <- edge_count + 1
             v <- v + 1
         u <- u + 1
     output_bytes: usize = 8 * (2 + nodes + 2 * edge_count)
-    if output.is_null() or capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
+    if output == null or capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     put_le(nodes.i64(), output_view, 0)
     put_le(edge_count.i64(), output_view, 8)
     word: mutable usize = 2
@@ -106,7 +108,9 @@ def edge_colored_graph_layer_encoding_impl(input: view[i64], output: mutable u8&
         u <- u + 1
     output_bytes.i64()
 
-export fn edge_colored_graph_layer_encoding(input: i64&, length: usize,
+def edge_colored_graph_layer_encoding_entry(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 5 or length > MAX_INPUT: return -1
-    edge_colored_graph_layer_encoding_impl(input[0:length], output, capacity)
+    if input == null or length < 5 or length > MAX_INPUT: return -1
+    edge_colored_graph_layer_encoding_impl(input, length, output, capacity)
+
+export fn edge_colored_graph_layer_encoding(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = edge_colored_graph_layer_encoding_entry

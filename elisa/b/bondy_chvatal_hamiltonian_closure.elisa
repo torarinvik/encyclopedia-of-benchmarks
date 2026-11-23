@@ -3,16 +3,18 @@ const CLOSURE_MAX_EDGES: usize = 28
 const CLOSURE_MAX_INPUT_WORDS: usize = 59
 const CLOSURE_MAX_OUTPUT_WORDS: usize = 10
 
-def closure_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
-    for byte in 0 .. 8:
+def closure_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
+    for byte in 0 ..< 8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def bondy_chvatal_hamiltonian_closure_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > CLOSURE_MAX_INPUT_WORDS: return -1
-    input_view: view[i64] = input[0:length]
+    u: mutable usize = zeroed
+    v: mutable usize = zeroed
+    if input == null or length < 2 or length > CLOSURE_MAX_INPUT_WORDS: return -1
+    input_view: i64& = input
     n_word: i64 = input_view[0]
     m_word: i64 = input_view[1]
     if n_word < 3 or n_word > CLOSURE_MAX_VERTICES.i64() or m_word < 0 or m_word > CLOSURE_MAX_EDGES.i64(): return -1
@@ -26,8 +28,8 @@ def bondy_chvatal_hamiltonian_closure_impl(input: i64&, length: usize,
         u_word: i64 = input_view[2 + 2 * edge]
         v_word: i64 = input_view[3 + 2 * edge]
         if u_word < 0 or u_word >= n_word or v_word < 0 or v_word >= n_word or u_word == v_word: return -1
-        u: usize = u_word.usize()
-        v: usize = v_word.usize()
+        u <- u_word.usize()
+        v <- v_word.usize()
         if adjacency[u * CLOSURE_MAX_VERTICES + v]: return -1
         adjacency[u * CLOSURE_MAX_VERTICES + v] <- true
         adjacency[v * CLOSURE_MAX_VERTICES + u] <- true
@@ -36,9 +38,9 @@ def bondy_chvatal_hamiltonian_closure_impl(input: i64&, length: usize,
     added: mutable usize = 0
     while true:
         degree: mutable usize[CLOSURE_MAX_VERTICES] = zeroed
-        u: mutable usize = 0
+        u <- 0
         while u < n:
-            v: mutable usize = 0
+            v <- 0
             while v < n:
                 if adjacency[u * CLOSURE_MAX_VERTICES + v]: degree[u] <- degree[u] + 1
                 v <- v + 1
@@ -66,7 +68,7 @@ def bondy_chvatal_hamiltonian_closure_impl(input: i64&, length: usize,
     u <- 0
     while u < n:
         row: mutable usize = 0
-        v: mutable usize = 0
+        v <- 0
         while v < n:
             if adjacency[u * CLOSURE_MAX_VERTICES + v]: row <- row | (1 << v)
             v <- v + 1
@@ -77,8 +79,8 @@ def bondy_chvatal_hamiltonian_closure_impl(input: i64&, length: usize,
     staged[1] <- added.i64()
 
     output_bytes: usize = (2 + n) * 8
-    if output.is_null() or capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:capacity]
+    if output == null or capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     word: mutable usize = 0
     while word < 2 + n:
         closure_store_i64_le(staged[word], output_view, word * 8)

@@ -1,7 +1,7 @@
 # Clean-room adaptation of Ispell lookup.c; license in package docs.
 def cbench_ispell_lookup_hash(a: i64&, start: i64, size: i64, modulus: i64) -> i64:
     h: mutable u32 = 0
-    first: i64 = if size < 4: size else: 4
+    first: i64 = size if size < 4 else 4
     i: mutable i64 = 0
     while i < first:
         h <- (h << 8) | (a[start + i] - 32).u32()
@@ -12,7 +12,8 @@ def cbench_ispell_lookup_hash(a: i64&, start: i64, size: i64, modulus: i64) -> i
     return (h % modulus.u32()).i64()
 
 def cbench_ispell_lookup_chain_impl(a: i64&, length: i64) -> i64:
-    if a.is_null() or length < 3 or length > 108: return -1
+    node: mutable i64 = zeroed
+    if a == null or length < 3 or length > 108: return -1
     if a[0] < 1 or a[0] > 8 or a[1] < 1 or a[1] > 8 or a[2] < 0 or a[2] > 8: return -1
     m: i64 = a[0]
     q: i64 = a[1]
@@ -44,7 +45,7 @@ def cbench_ispell_lookup_chain_impl(a: i64&, length: i64) -> i64:
     seen: mutable bool[8] = zeroed
     count: mutable i64 = 0
     for b in 0..<m:
-        node: mutable i64 = heads[b]
+        node <- heads[b]
         while node != -1:
             entry: i64 = node
             if seen[entry]: return -1
@@ -59,7 +60,8 @@ def cbench_ispell_lookup_chain_impl(a: i64&, length: i64) -> i64:
         entry: i64 = node
         if lens[entry] == q:
             j: mutable i64 = 0
-            while j < q and a[offs[entry] + j] == a[3 + j]: j <- j + 1
+            while j < q and a[offs[entry] + j] == a[3 + j]:
+                j <- j + 1
             if j == q: return entry + 1
         node <- links[entry]
     return 0

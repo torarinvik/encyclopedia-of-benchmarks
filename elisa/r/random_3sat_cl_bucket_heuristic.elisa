@@ -14,8 +14,8 @@ def cl_put(value: i64, output: mutable view[u8], offset: usize) -> void:
 def cl_reduce(clauses: mutable view[i64], lengths: mutable view[usize],
         active: mutable view[bool], assigned: mutable view[i64],
         clause_count: usize, literal: i64) -> bool:
-    variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
-    value: i64 = if literal > 0: 1 else: -1
+    variable: usize = (literal - 1).usize() if literal > 0 else (-literal - 1).usize()
+    value: i64 = 1 if literal > 0 else -1
     if assigned[variable] != 0 and assigned[variable] != value: return false
     assigned[variable] <- value
     clause: mutable usize = 0
@@ -77,7 +77,7 @@ def cl_degrees(clauses: view[i64], lengths: view[usize], active: view[bool],
             at: mutable usize = 0
             while at < lengths[clause]:
                 literal: i64 = clauses[3 * clause + at]
-                variable <- if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+                variable <- (literal - 1).usize() if literal > 0 else (-literal - 1).usize()
                 if literal > 0: positive[variable] <- positive[variable] + 1
                 else: negative[variable] <- negative[variable] + 1
                 at <- at + 1
@@ -88,11 +88,11 @@ def cl_member(clauses: view[i64], lengths: view[usize], active: view[bool],
     positive: mutable usize[MAX_N] = zeroed
     negative: mutable usize[MAX_N] = zeroed
     cl_degrees(clauses, lengths, active, clause_count, n, positive[0:n], negative[0:n])
-    variable: usize = 0
+    variable: mutable usize = 0
     while variable < n:
         if assigned[variable] == 0:
-            p: usize = if positive[variable] < 10: positive[variable] else: 10
-            q: usize = if negative[variable] < 10: negative[variable] else: 10
+            p: usize = positive[variable] if positive[variable] < 10 else 10
+            q: usize = negative[variable] if negative[variable] < 10 else 10
             if p == bi and q == bj: return (variable + 1).i64()
             if q == bi and p == bj: return -((variable + 1).i64())
         variable <- variable + 1
@@ -114,7 +114,7 @@ def cl_flows(clauses: view[i64], lengths: view[usize], active: view[bool],
                 at: mutable usize = 0
                 while at < lengths[clause]:
                     literal: i64 = clauses[3 * clause + at]
-                    variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+                    variable: usize = (literal - 1).usize() if literal > 0 else (-literal - 1).usize()
                     if lengths[clause] == 2:
                         if literal > 0: p2[variable] <- p2[variable] + 1
                         else: n2[variable] <- n2[variable] + 1
@@ -131,7 +131,7 @@ def cl_flows(clauses: view[i64], lengths: view[usize], active: view[bool],
             at: mutable usize = 0
             while at < 2:
                 literal: i64 = -clauses[3 * clause + at]
-                variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+                variable: usize = (literal - 1).usize() if literal > 0 else (-literal - 1).usize()
                 if literal > 0:
                     s2_out <- s2_out + p2[variable].i64()
                     s3_out <- s3_out + p3[variable].i64()
@@ -140,7 +140,7 @@ def cl_flows(clauses: view[i64], lengths: view[usize], active: view[bool],
                     s3_out <- s3_out + n3[variable].i64()
                 at <- at + 1
         clause <- clause + 1
-    den_out <- if c2 == 0: 1 else: 2 * c2
+    den_out <- 1 if c2 == 0 else 2 * c2
 
 def cl_choose(clauses: view[i64], lengths: view[usize], active: view[bool],
         assigned: view[i64], clause_count: usize, n: usize,
@@ -192,8 +192,7 @@ def cl_choose(clauses: view[i64], lengths: view[usize], active: view[bool],
                             if denominator < 0:
                                 numerator <- -numerator
                                 denominator <- -denominator
-                            if not found or numerator * best_den > best_num * denominator or
-                                    (numerator * best_den == best_num * denominator and (bi < best_i or (bi == best_i and bj < best_j))):
+                            if not found or numerator * best_den > best_num * denominator or (numerator * best_den == best_num * denominator and (bi < best_i or (bi == best_i and bj < best_j))):
                                 found <- true
                                 best_num <- numerator
                                 best_den <- denominator
@@ -203,8 +202,9 @@ def cl_choose(clauses: view[i64], lengths: view[usize], active: view[bool],
         bi <- bi + 1
     found
 
-def random_3sat_cl_bucket_heuristic_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+def random_3sat_cl_bucket_heuristic_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    variable: mutable usize = zeroed
+    length: usize = input_length
     if length < 2 or length > MAX_PARSEABLE_INPUT: return -1
     if input[0] < 1 or input[0] > 8 or input[1] < 0 or input[1] > 24: return -1
     n: usize = input[0].usize()
@@ -225,11 +225,11 @@ def random_3sat_cl_bucket_heuristic_impl(input: view[i64], output: mutable u8&, 
             raw: i64 = input[base + 1 + at]
             if at < k:
                 if raw == 0 or raw < -n.i64() or raw > n.i64(): return -1
-                variable: usize = if raw > 0: (raw - 1).usize() else: (-raw - 1).usize()
+                variable <- (raw - 1).usize() if raw > 0 else (-raw - 1).usize()
                 if seen[variable]: return -1
                 seen[variable] <- true
                 clauses[3 * clause + at] <- raw
-            else if raw != 0:
+            elif raw != 0:
                 return -1
             at <- at + 1
         lengths[clause] <- k
@@ -247,7 +247,7 @@ def random_3sat_cl_bucket_heuristic_impl(input: view[i64], output: mutable u8&, 
         status <- 1
     while status == 0:
         pending: mutable bool = false
-        variable: usize = 0
+        variable <- 0
         while variable < n:
             if assigned[variable] == 0: pending <- true
             variable <- variable + 1
@@ -293,7 +293,7 @@ def random_3sat_cl_bucket_heuristic_impl(input: view[i64], output: mutable u8&, 
         variable <- variable + 1
     words[at] <- event_count.i64()
     at <- at + 1
-    event: usize = 0
+    event: mutable usize = 0
     while event < event_count:
         words[at] <- ev_lit[event]
         words[at + 1] <- ev_kind[event]
@@ -302,7 +302,7 @@ def random_3sat_cl_bucket_heuristic_impl(input: view[i64], output: mutable u8&, 
         at <- at + 4
         event <- event + 1
     byte_count: usize = at * 8
-    if output.is_null() or capacity < byte_count: return -2
+    if output == null or capacity < byte_count: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
     staged_view: mutable view[u8] = staged[0:byte_count]
     at <- 0
@@ -315,7 +315,9 @@ def random_3sat_cl_bucket_heuristic_impl(input: view[i64], output: mutable u8&, 
         at <- at + 1
     byte_count.i64()
 
-export fn random_3sat_cl_bucket_heuristic(input: i64&, length: usize,
+def random_3sat_cl_bucket_heuristic_entry(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT: return -1
-    random_3sat_cl_bucket_heuristic_impl(input[0:length], output, capacity)
+    if input == null or length < 2 or length > MAX_PARSEABLE_INPUT: return -1
+    random_3sat_cl_bucket_heuristic_impl(input, length, output, capacity)
+
+export fn random_3sat_cl_bucket_heuristic(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = random_3sat_cl_bucket_heuristic_entry

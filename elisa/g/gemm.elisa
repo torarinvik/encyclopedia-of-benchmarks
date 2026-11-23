@@ -3,11 +3,10 @@ const GEMM_MAX_CELLS: usize = GEMM_MAX_DIMENSION * GEMM_MAX_DIMENSION
 const GEMM_INVALID_RESULT: f64 = -1e300
 
 def gemm_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 3:
+    j: mutable usize = 0
+    if values == null or length != 3:
         return GEMM_INVALID_RESULT
-    if values[0] < 1 or values[0] > GEMM_MAX_DIMENSION.i64() or
-       values[1] < 1 or values[1] > GEMM_MAX_DIMENSION.i64() or
-       values[2] < 1 or values[2] > GEMM_MAX_DIMENSION.i64():
+    if values[0] < 1 or values[0] > GEMM_MAX_DIMENSION.i64() or values[1] < 1 or values[1] > GEMM_MAX_DIMENSION.i64() or values[2] < 1 or values[2] > GEMM_MAX_DIMENSION.i64():
         return GEMM_INVALID_RESULT
     ni: usize = values[0].usize()
     nj: usize = values[1].usize()
@@ -19,7 +18,7 @@ def gemm_impl(values: i64&, length: usize) -> f64:
     b: mutable f64[GEMM_MAX_CELLS] = zeroed
     i: mutable usize = 0
     while i < ni:
-        j: mutable usize = 0
+        j <- 0
         while j < nj:
             c[i * nj + j] <- ((i * j + 1) % ni).f64() / ni.f64()
             j <- j + 1
@@ -33,7 +32,7 @@ def gemm_impl(values: i64&, length: usize) -> f64:
         i <- i + 1
     k: mutable usize = 0
     while k < nk:
-        j: mutable usize = 0
+        j <- 0
         while j < nj:
             b[k * nj + j] <- (k * (j + 2) % nj).f64() / nj.f64()
             j <- j + 1

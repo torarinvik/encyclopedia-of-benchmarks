@@ -60,7 +60,7 @@ def minimizing_lateness_impl(input: i64&, length: usize,
         start_times[index] <- start_time
         finish_time: i64 = start_time + processing[index]
         difference: i64 = finish_time - deadlines[index]
-        lateness[index] <- if difference > 0: difference else: 0
+        lateness[index] <- difference if difference > 0 else 0
         start_time <- finish_time
 
     needed: usize = 4 + 12 * count

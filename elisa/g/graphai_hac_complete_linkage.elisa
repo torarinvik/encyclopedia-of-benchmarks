@@ -5,15 +5,15 @@ const GRAPH_HAC_MAX_INPUT: usize = 74
 const GRAPH_HAC_MAX_NODES: usize = 15
 const GRAPH_HAC_ROOT_PARENT: i64 = 4294967295
 
-def graph_hac_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def graph_hac_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def graphai_hac_complete_linkage(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("graphai_hac_complete_linkage"):
-    if input.is_null() or length < 2 or length > GRAPH_HAC_MAX_INPUT: return -1
+def graphai_hac_complete_linkage_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > GRAPH_HAC_MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     if n64 < 1 or n64 > 8 or m64 < 0 or m64 > 24: return -1
@@ -39,24 +39,24 @@ def graphai_hac_complete_linkage(input: i64&, length: usize, output: mutable u8&
     reached: mutable bool[8] = zeroed
     queue: mutable usize[8] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 1
+    tail_value: mutable usize = 1
     reached[0] <- true
     queue[0] <- 0
-    while head < tail:
+    while head < tail_value:
         u: usize = queue[head]
         head <- head + 1
         v: mutable usize = 0
         while v < n:
             if adjacent[u * 8 + v] != 0 and not reached[v]:
                 reached[v] <- true
-                queue[tail] <- v
-                tail <- tail + 1
+                queue[tail_value] <- v
+                tail_value <- tail_value + 1
             v <- v + 1
-    for v in 0..n:
+    for v in 0..<n:
         if not reached[v]: return -1
     node_count: usize = 2 * n - 1
     output_bytes: usize = 16 * node_count
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
 
     active: mutable bool[8] = zeroed
     current_id: mutable usize[8] = zeroed
@@ -90,30 +90,30 @@ def graphai_hac_complete_linkage(input: i64&, length: usize, output: mutable u8&
         if best_u == n: return -1
         degree_u: mutable usize = 0
         degree_v: mutable usize = 0
-        for z in 0..n:
+        for z in 0..<n:
             if active[z] and adjacent[best_u * 8 + z] != 0: degree_u <- degree_u + 1
             if active[z] and adjacent[best_v * 8 + z] != 0: degree_v <- degree_v + 1
-        larger: usize = if degree_u < degree_v: best_v else: best_u
-        smaller: usize = if larger == best_u: best_v else: best_u
+        larger: usize = best_v if degree_u < degree_v else best_u
+        smaller: usize = best_v if larger == best_u else best_u
         new_id: usize = n + merge
         parent[current_id[best_u]] <- new_id.i64()
         parent[current_id[best_v]] <- new_id.i64()
         merge_weight[current_id[best_u]] <- best_weight.i64()
         merge_weight[current_id[best_v]] <- best_weight.i64()
         merged_weight: mutable usize[8] = zeroed
-        for z in 0..n:
+        for z in 0..<n:
             if active[z] and z != best_u and z != best_v:
                 a: usize = adjacent[best_u * 8 + z]
                 b: usize = adjacent[best_v * 8 + z]
                 if a != 0 or b != 0:
-                    merged_weight[z] <- if a != 0 and b != 0: (if a < b: a else: b) else: (if a != 0: a else: b)
-        for z in 0..n:
+                    merged_weight[z] <- ((a if a < b else b)) if a != 0 and b != 0 else ((a if a != 0 else b))
+        for z in 0..<n:
             adjacent[best_u * 8 + z] <- 0
             adjacent[z * 8 + best_u] <- 0
             adjacent[best_v * 8 + z] <- 0
             adjacent[z * 8 + best_v] <- 0
         active[smaller] <- false
-        for z in 0..n:
+        for z in 0..<n:
             if active[z] and z != larger and merged_weight[z] != 0:
                 adjacent[larger * 8 + z] <- merged_weight[z]
                 adjacent[z * 8 + larger] <- merged_weight[z]
@@ -121,7 +121,9 @@ def graphai_hac_complete_linkage(input: i64&, length: usize, output: mutable u8&
         merge <- merge + 1
     node <- 0
     while node < node_count:
-        graph_hac_store_i64_le(parent[node], output[0:output_bytes], 16 * node)
-        graph_hac_store_i64_le(merge_weight[node], output[0:output_bytes], 16 * node + 8)
+        graph_hac_store_i64_le(parent[node], output, 16 * node)
+        graph_hac_store_i64_le(merge_weight[node], output, 16 * node + 8)
         node <- node + 1
     output_bytes.i64()
+
+export fn graphai_hac_complete_linkage(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = graphai_hac_complete_linkage_impl

@@ -2,7 +2,8 @@ extern sqrt(value: f64) -> f64
 
 def qr_eigen_values_impl(input: f64&, input_length: usize,
         output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length != 5: return -1
+    row: mutable usize = 0
+    if input == null or input_length != 5: return -1
     if input[0] != 2.0: return -1
     entries: mutable f64[4] = zeroed
     for index in 0..<4:
@@ -13,16 +14,18 @@ def qr_eigen_values_impl(input: f64&, input_length: usize,
         entries[index] <- value
     if entries[1] != entries[2] or entries[1] == 0.0 or entries[0] == entries[3]: return -1
     matrix: mutable f64[4] = zeroed
-    for index in 0..<4: matrix[index] <- entries[index]
+    for index in 0..<4:
+        matrix[index] <- entries[index]
     last_eigenvalue: mutable f64 = 0.0
     iterations: mutable usize = 0
-    lower_left: f64 = matrix[2]
+    lower_left:mutable  mutable f64 = matrix[2]
     if lower_left < 0.0: lower_left <- -lower_left
     while lower_left > 1e-10:
         if iterations >= 256: return -1
         last_eigenvalue <- matrix[3]
         shifted: mutable f64[4] = zeroed
-        for index in 0..<4: shifted[index] <- matrix[index]
+        for index in 0..<4:
+            shifted[index] <- matrix[index]
         shifted[0] <- shifted[0] - last_eigenvalue
         shifted[3] <- shifted[3] - last_eigenvalue
         q: mutable f64[4] = zeroed
@@ -31,7 +34,7 @@ def qr_eigen_values_impl(input: f64&, input_length: usize,
         while column < 2:
             original: mutable f64[2] = zeroed
             residual: mutable f64[2] = zeroed
-            row: mutable usize = 0
+            row <- 0
             while row < 2:
                 original[row] <- shifted[row * 2 + column]
                 residual[row] <- original[row]
@@ -92,7 +95,7 @@ def qr_eigen_values_impl(input: f64&, input_length: usize,
     staged: mutable f64[2] = zeroed
     staged[0] <- result0
     staged[1] <- result1
-    if output.is_null() or capacity < 2: return -2
+    if output == null or capacity < 2: return -2
     output[0] <- staged[0]
     output[1] <- staged[1]
     return 2

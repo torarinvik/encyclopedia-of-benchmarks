@@ -14,7 +14,7 @@ def put_f64_le(value: f64, output: mutable view[u8], offset: usize) -> void:
         byte <- byte + 1
 
 def max_pooling_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_PARSEABLE_INPUT_WORDS: return -1
+    if input == null or length < 3 or length > MAX_PARSEABLE_INPUT_WORDS: return -1
     n: i32 = input[0]
     size: i32 = input[1]
     stride: i32 = input[2]
@@ -27,7 +27,7 @@ def max_pooling_impl(input: i32&, length: usize, output: mutable u8&, capacity: 
     out_side: usize = ((n - size) / stride + 1).usize()
     output_count: usize = out_side * out_side
     bytes: usize = output_count * 8
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     buffer: mutable u8[2048] = zeroed
     buffer_view: mutable view[u8] = buffer[0:bytes]
     position: mutable usize = 0

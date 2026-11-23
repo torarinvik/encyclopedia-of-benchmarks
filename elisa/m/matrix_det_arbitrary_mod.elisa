@@ -1,14 +1,14 @@
 const MAX_N: usize = 8
 const MAX_INPUT_VALUES: usize = 2 + MAX_N * MAX_N + 1
-const MAX_MODULUS: i64 = 1_000_000_000
+const MAX_MODULUS: i64 = 1000000000
 
 def matrix_det_arbitrary_mod_normalize(value: i64, modulus: i64) -> i64:
     residue: mutable i64 = value % modulus
     if residue < 0: residue <- residue + modulus
     return residue
 
-def matrix_det_arbitrary_mod_store(value: i64, output: mutable view[u8], offset: usize) -> void:
-    bits: u64 = value.u64()
+def matrix_det_arbitrary_mod_store(value: i64, output: mutable u8&, offset: usize) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
@@ -17,7 +17,9 @@ def matrix_det_arbitrary_mod_store(value: i64, output: mutable view[u8], offset:
 
 def matrix_det_arbitrary_mod_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES: return -1
+    k: mutable usize = 0
+    column: mutable usize = 0
+    if input == null or length < 2 or length > MAX_INPUT_VALUES: return -1
     n_value: i64 = input[0]
     modulus: i64 = input[1]
     if n_value < 0 or n_value > MAX_N.i64() or modulus < 2 or modulus > MAX_MODULUS: return -1
@@ -27,7 +29,7 @@ def matrix_det_arbitrary_mod_impl(input: i64&, length: usize,
     matrix: mutable i64[MAX_N * MAX_N] = zeroed
     row: mutable usize = 0
     while row < n:
-        column: mutable usize = 0
+        column <- 0
         while column < n:
             value: i64 = input[2 + row * n + column]
             if value < 0 or value >= modulus: return -1
@@ -40,12 +42,13 @@ def matrix_det_arbitrary_mod_impl(input: i64&, length: usize,
     column <- 0
     while column < n:
         pivot: mutable usize = column
-        while pivot < n and matrix[pivot * n + column] == 0: pivot <- pivot + 1
+        while pivot < n and matrix[pivot * n + column] == 0:
+            pivot <- pivot + 1
         if pivot == n:
             determinant <- 0
             break
         if pivot != column:
-            k: mutable usize = 0
+            k <- 0
             while k < n:
                 temporary: i64 = matrix[column * n + k]
                 matrix[column * n + k] <- matrix[pivot * n + k]
@@ -92,8 +95,8 @@ def matrix_det_arbitrary_mod_impl(input: i64&, length: usize,
         if determinant == 0: break
         column <- column + 1
     if sign and determinant != 0: determinant <- modulus - determinant
-    if output.is_null() or capacity < 8: return -2
-    matrix_det_arbitrary_mod_store(determinant, output[0:8], 0)
+    if output == null or capacity < 8: return -2
+    matrix_det_arbitrary_mod_store(determinant, output, 0)
     return 8
 
 export fn matrix_det_arbitrary_mod(input: i64&, length: usize,

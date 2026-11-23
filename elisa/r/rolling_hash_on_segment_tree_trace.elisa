@@ -36,7 +36,7 @@ def rht_hash_range(tree_hash: view[i64], tree_length: view[usize],
         right <- right / 2
     rht_concat(left_hash, right_hash, right_length, powers)
 
-def rolling_hash_on_segment_tree_trace_impl(input: view[i64], length: usize) -> i64:
+def rolling_hash_on_segment_tree_trace_impl(input: i64&, length: usize) -> i64:
     if length < 2 or length > RHT_MAX_INPUT: return -1
     n_value: i64 = input[0]
     q_value: i64 = input[1]
@@ -88,16 +88,14 @@ def rolling_hash_on_segment_tree_trace_impl(input: view[i64], length: usize) -> 
                 leaf <- leaf / 2
                 rht_pull(tree_hash_view, tree_length_view, leaf, powers_view)
         elif opcode == 1:
-            if a_value < 0 or a_value > n_value or b_value < 0 or b_value > n_value or
-               c_value < 0 or c_value > n_value or d_value < 0 or d_value > n_value or
-               a_value > b_value or c_value > d_value:
+            if a_value < 0 or a_value > n_value or b_value < 0 or b_value > n_value or c_value < 0 or c_value > n_value or d_value < 0 or d_value > n_value or a_value > b_value or c_value > d_value:
                 return -1
             if b_value - a_value == d_value - c_value:
                 first_hash: i64 = rht_hash_range(tree_hash_view, tree_length_view,
                     RHT_TREE_BASE + a_value.usize(), RHT_TREE_BASE + b_value.usize(), powers_view)
                 second_hash: i64 = rht_hash_range(tree_hash_view, tree_length_view,
                     RHT_TREE_BASE + c_value.usize(), RHT_TREE_BASE + d_value.usize(), powers_view)
-                response <- if first_hash == second_hash then 1 else 0
+                response <- 1 if first_hash == second_hash else 0
             else:
                 response <- 0
         else:
@@ -108,7 +106,9 @@ def rolling_hash_on_segment_tree_trace_impl(input: view[i64], length: usize) -> 
         operation <- operation + 1
     score
 
-export fn rolling_hash_on_segment_tree_trace(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > RHT_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
+def rolling_hash_on_segment_tree_trace_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > RHT_MAX_INPUT: return -1
+    input_view: i64& = input
     rolling_hash_on_segment_tree_trace_impl(input_view, length)
+
+export fn rolling_hash_on_segment_tree_trace(input: i64&, length: usize) -> i64 = rolling_hash_on_segment_tree_trace_entry

@@ -6,7 +6,8 @@ const MAX_OUTPUT_BYTES: usize = 256
 
 def ceil_sqrt(n: usize) -> usize:
     block: mutable usize = 1
-    while block * block < n: block <- block + 1
+    while block * block < n:
+        block <- block + 1
     block
 
 def before(left_a: usize, right_a: usize, left_b: usize, right_b: usize, block_size: usize) -> bool:
@@ -24,7 +25,7 @@ def put_i32_le(value: i32, output: mutable view[u8], offset: usize) -> void:
         byte <- byte + 1
 
 def mo_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT_WORDS: return -1
+    if input == null or length < 2 or length > MAX_PARSEABLE_INPUT_WORDS: return -1
     n_raw: i32 = input[0]
     if n_raw < 1 or n_raw > 64: return -1
     n: usize = n_raw.usize()
@@ -51,7 +52,7 @@ def mo_impl(input: i32&, length: usize, output: mutable u8&, capacity: usize) ->
         ids[index] <- index
         index <- index + 1
     bytes: usize = 4 * q_count
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     block_size: usize = ceil_sqrt(n)
     index <- 1
     while index < q_count:

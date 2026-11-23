@@ -19,8 +19,7 @@ def binary_genetic_algorithm_mul64(left: u64, right: u64) -> u64:
     right_low: u64 = right & MASK32
     right_high: u64 = right >> 32
     low_product: u64 = left_low * right_low
-    high_product: u64 = (low_product >> 32) +
-        ((left_low * right_high) & MASK32) + ((left_high * right_low) & MASK32)
+    high_product: u64 = (low_product >> 32) + ((left_low * right_high) & MASK32) + ((left_high * right_low) & MASK32)
     ((high_product & MASK32) << 32) | (low_product & MASK32)
 
 def binary_genetic_algorithm_next_word(state: mutable u64&) -> u64:
@@ -39,8 +38,7 @@ def binary_genetic_algorithm_bounded(state: mutable u64&, bound: u64) -> u64:
     0.u64()
 
 def binary_genetic_algorithm_unit(state: mutable u64&) -> f64:
-    (binary_genetic_algorithm_next_word(state) >> 11).f64() /
-        9007199254740992.0
+    (binary_genetic_algorithm_next_word(state) >> 11).f64() / 9007199254740992.0
 
 def binary_genetic_algorithm_cost(candidate: u64, n_var: usize) -> i64:
     cost: mutable i64 = 0
@@ -111,9 +109,7 @@ def binary_genetic_algorithm_impl(input: i64&, length: usize) -> i64:
     n_var_value: i64 = input[1]
     n_pop_value: i64 = input[2]
     max_it_value: i64 = input[3]
-    if length != 4 or seed_value < 0 or n_var_value < 2 or n_var_value > 32 or
-        n_pop_value < 2 or n_pop_value > 16 or n_pop_value % 2 != 0 or
-        max_it_value < 1 or max_it_value > 32:
+    if length != 4 or seed_value < 0 or n_var_value < 2 or n_var_value > 32 or n_pop_value < 2 or n_pop_value > 16 or n_pop_value % 2 != 0 or max_it_value < 1 or max_it_value > 32:
         return -1
 
     n_var: usize = n_var_value.usize()
@@ -184,8 +180,7 @@ def binary_genetic_algorithm_impl(input: i64&, length: usize) -> i64:
             selected: u64 = merged[index]
             selected_cost: i64 = binary_genetic_algorithm_cost(selected, n_var)
             insertion: mutable usize = index
-            while insertion > 0 and
-                binary_genetic_algorithm_cost(merged[insertion - 1], n_var) > selected_cost:
+            while insertion > 0 and binary_genetic_algorithm_cost(merged[insertion - 1], n_var) > selected_cost:
                 merged[insertion] <- merged[insertion - 1]
                 insertion <- insertion - 1
             merged[insertion] <- selected
@@ -193,5 +188,4 @@ def binary_genetic_algorithm_impl(input: i64&, length: usize) -> i64:
             population[member] <- merged[member]
     best_cost
 
-export fn binary_genetic_algorithm(input: i64&, length: usize) -> i64 =
-    binary_genetic_algorithm_impl
+export fn binary_genetic_algorithm(input: i64&, length: usize) -> i64 = binary_genetic_algorithm_impl

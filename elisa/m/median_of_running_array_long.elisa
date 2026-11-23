@@ -3,60 +3,60 @@ const MAX_INPUT_LENGTH: usize = 66
 const MIN_SAMPLE: i64 = -4611686018427387904
 const MAX_SAMPLE: i64 = 4611686018427387903
 
-def median_long_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def median_long_store_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255.u64()).u8()
         bits <- bits >> 8
 
-def median_long_push_max(heap: mutable view[i64], count: mutable usize&, value: i64) -> void:
+def median_long_push_max(heap_value: mutable view[i64], count: mutable usize&, value: i64) -> void:
     position: mutable usize = count
     count <- count + 1
-    while position > 0 and heap[(position - 1) / 2] < value:
+    while position > 0 and heap_value[(position - 1) / 2] < value:
         parent: usize = (position - 1) / 2
-        heap[position] <- heap[parent]
+        heap_value[position] <- heap_value[parent]
         position <- parent
-    heap[position] <- value
+    heap_value[position] <- value
 
-def median_long_pop_max(heap: mutable view[i64], count: mutable usize&) -> i64:
-    result: i64 = heap[0]
+def median_long_pop_max(heap_value: mutable view[i64], count: mutable usize&) -> i64:
+    result: i64 = heap_value[0]
     count <- count - 1
-    value: i64 = heap[count]
+    value: i64 = heap_value[count]
     if count == 0:
         return result
     position: mutable usize = 0
     while 2 * position + 1 < count:
         child: mutable usize = 2 * position + 1
-        if child + 1 < count and heap[child + 1] > heap[child]: child <- child + 1
-        if heap[child] <= value: break
-        heap[position] <- heap[child]
+        if child + 1 < count and heap_value[child + 1] > heap_value[child]: child <- child + 1
+        if heap_value[child] <= value: break
+        heap_value[position] <- heap_value[child]
         position <- child
-    heap[position] <- value
+    heap_value[position] <- value
     result
 
-def median_long_push_min(heap: mutable view[i64], count: mutable usize&, value: i64) -> void:
+def median_long_push_min(heap_value: mutable view[i64], count: mutable usize&, value: i64) -> void:
     position: mutable usize = count
     count <- count + 1
-    while position > 0 and heap[(position - 1) / 2] > value:
+    while position > 0 and heap_value[(position - 1) / 2] > value:
         parent: usize = (position - 1) / 2
-        heap[position] <- heap[parent]
+        heap_value[position] <- heap_value[parent]
         position <- parent
-    heap[position] <- value
+    heap_value[position] <- value
 
-def median_long_pop_min(heap: mutable view[i64], count: mutable usize&) -> i64:
-    result: i64 = heap[0]
+def median_long_pop_min(heap_value: mutable view[i64], count: mutable usize&) -> i64:
+    result: i64 = heap_value[0]
     count <- count - 1
-    value: i64 = heap[count]
+    value: i64 = heap_value[count]
     if count == 0:
         return result
     position: mutable usize = 0
     while 2 * position + 1 < count:
         child: mutable usize = 2 * position + 1
-        if child + 1 < count and heap[child + 1] < heap[child]: child <- child + 1
-        if heap[child] >= value: break
-        heap[position] <- heap[child]
+        if child + 1 < count and heap_value[child + 1] < heap_value[child]: child <- child + 1
+        if heap_value[child] >= value: break
+        heap_value[position] <- heap_value[child]
         position <- child
-    heap[position] <- value
+    heap_value[position] <- value
     result
 
 def median_of_running_array_long_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
@@ -83,11 +83,11 @@ def median_of_running_array_long_impl(input: i64&, length: usize, output: mutabl
             median_long_push_min(upper_view, upper_count, sample)
         if lower_count > upper_count + 1:
             median_long_push_min(upper_view, upper_count, median_long_pop_max(lower_view, lower_count))
-        else if upper_count > lower_count + 1:
+        elif upper_count > lower_count + 1:
             median_long_push_max(lower_view, lower_count, median_long_pop_min(upper_view, upper_count))
         if lower_count > upper_count:
             medians[index] <- lower[0]
-        else if upper_count > lower_count:
+        elif upper_count > lower_count:
             medians[index] <- upper[0]
         else:
             sum: i64 = lower[0] + upper[0]
@@ -99,7 +99,7 @@ def median_of_running_array_long_impl(input: i64&, length: usize, output: mutabl
     output_bytes: usize = count * 8
     if output == null or capacity < output_bytes:
         return -2
-    output_view: mutable view[u8] = output[0:capacity]
+    output_view: mutable u8& = output
     for index in 0..<count:
         median_long_store_i64(output_view, index * 8, medians[index])
     output_bytes.i64()

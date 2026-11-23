@@ -49,7 +49,8 @@ def generic_hash_map_impl(a: i64&, n: usize) -> i64:
             else:
                 if size >= 64: return -1
                 slot: mutable usize = 0
-                while active[slot]: slot <- slot + 1
+                while active[slot]:
+                    slot <- slot + 1
                 active[slot] <- true
                 keys[slot] <- key
                 vals[slot] <- value
@@ -112,4 +113,4 @@ def generic_hash_map_impl(a: i64&, n: usize) -> i64:
         h <- generic_hash_map_hash(h, vals[best.usize()])
         rank <- rank + 1
     h.i64()
-export generic_hash_map(a: i64&, n: usize) -> i64 = generic_hash_map_impl
+export fn generic_hash_map(a: i64&, n: usize) -> i64 = generic_hash_map_impl

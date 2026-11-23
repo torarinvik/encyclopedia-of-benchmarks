@@ -1,4 +1,4 @@
-const SEPM_MODULUS: i64 = 998_244_353
+const SEPM_MODULUS: i64 = 998244353
 const SEPM_MAX_DEGREE: usize = 32
 const SEPM_MOMENT_COUNT: usize = 33
 const SEPM_CHOOSE_COUNT: usize = 1089
@@ -17,13 +17,12 @@ def sepm_shift(source: view[i64], shift: u64, degree: usize,
             total <- (total + term * source[k]) % SEPM_MODULUS
         destination[d] <- total
 
-def sepm_evaluate(input: view[i64], length: usize) -> i64:
+def sepm_evaluate(input: i64&, length: usize) -> i64:
     if length != 3: return -1
     r: i64 = input[0]
     degree_value: i64 = input[1]
     n_value: i64 = input[2]
-    if r < 0 or r >= SEPM_MODULUS or degree_value < 0 or degree_value > SEPM_MAX_DEGREE.i64() or
-        n_value < 0 or n_value > 1_000_000_000_000_000_000: return -1
+    if r < 0 or r >= SEPM_MODULUS or degree_value < 0 or degree_value > SEPM_MAX_DEGREE.i64() or n_value < 0 or n_value > 1000000000000000000: return -1
     degree: usize = degree_value.usize()
     choose: mutable i64[SEPM_CHOOSE_COUNT] = zeroed
     choose[0] <- 1
@@ -32,8 +31,7 @@ def sepm_evaluate(input: view[i64], length: usize) -> i64:
         choose[d * SEPM_MOMENT_COUNT + d] <- 1
         for k in 1..<d:
             choose[d * SEPM_MOMENT_COUNT + k] <-
-                (choose[(d - 1) * SEPM_MOMENT_COUNT + k - 1] +
-                 choose[(d - 1) * SEPM_MOMENT_COUNT + k]) % SEPM_MODULUS
+                (choose[(d - 1) * SEPM_MOMENT_COUNT + k - 1] + choose[(d - 1) * SEPM_MOMENT_COUNT + k]) % SEPM_MODULUS
 
     accumulated: mutable i64[SEPM_MOMENT_COUNT] = zeroed
     block: mutable i64[SEPM_MOMENT_COUNT] = zeroed
@@ -62,7 +60,9 @@ def sepm_evaluate(input: view[i64], length: usize) -> i64:
         remaining <- remaining >> 1
     accumulated[degree]
 
-export fn sum_of_exponential_times_polynomial(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 3: return -1
-    input_view: view[i64] = input[0:length]
+def sum_of_exponential_times_polynomial_impl(input: i64&, length: usize) -> i64:
+    if input == null or length != 3: return -1
+    input_view: i64& = input
     sepm_evaluate(input_view, length)
+
+export fn sum_of_exponential_times_polynomial(input: i64&, length: usize) -> i64 = sum_of_exponential_times_polynomial_impl

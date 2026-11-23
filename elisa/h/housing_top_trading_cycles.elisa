@@ -1,9 +1,10 @@
 const TTC_MAX_AGENTS: usize = 8
 const TTC_MAX_INPUT: usize = 66
 
-export fn housing_top_trading_cycles(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > TTC_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
+def housing_top_trading_cycles_impl(input: i64&, length: usize) -> i64:
+    rank: mutable usize = 0
+    if input == null or length < 2 or length > TTC_MAX_INPUT: return -1
+    input_view: i64& = input
     n_value: i64 = input_view[0]
     if n_value < 1 or n_value > TTC_MAX_AGENTS.i64(): return -1
     n: usize = n_value.usize()
@@ -13,7 +14,7 @@ export fn housing_top_trading_cycles(input: i64&, length: usize) -> i64:
     agent: mutable usize = 0
     while agent < n:
         seen: mutable bool[TTC_MAX_AGENTS] = zeroed
-        rank: mutable usize = 0
+        rank <- 0
         while rank < n:
             house: i64 = input_view[1 + agent * n + rank]
             if house < 0 or house >= n_value or seen[house.usize()]: return -1
@@ -96,3 +97,5 @@ export fn housing_top_trading_cycles(input: i64&, length: usize) -> i64:
         result <- result + (allocation[agent] << (3 * agent))
         agent <- agent + 1
     result + 1
+
+export fn housing_top_trading_cycles(input: i64&, length: usize) -> i64 = housing_top_trading_cycles_impl

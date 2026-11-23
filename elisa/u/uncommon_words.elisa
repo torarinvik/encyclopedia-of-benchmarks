@@ -1,7 +1,8 @@
 const INVALID_RESULT: i64 = -1
 
 def uncommon_words_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if values.is_null() or length < 1 or length > 1089 or values[0] < 0 or values[0] > 64:
+    offset: mutable usize = 0
+    if values == null or length < 1 or length > 1089 or values[0] < 0 or values[0] > 64:
         return INVALID_RESULT
     words: mutable u8[1024] = zeroed
     lens: mutable usize[64] = zeroed
@@ -16,7 +17,7 @@ def uncommon_words_impl(values: i64&, length: usize, output: mutable u8&, output
         position <- position + 1
         if word_length > length - position:
             return INVALID_RESULT
-        offset: mutable usize = 0
+        offset <- 0
         while offset < word_length:
             if values[position + offset] < 97 or values[position + offset] > 122:
                 return INVALID_RESULT
@@ -59,9 +60,9 @@ def uncommon_words_impl(values: i64&, length: usize, output: mutable u8&, output
         output_length <- output_length - 1
     temporary[output_length] <- 0.u8()
     output_length <- output_length + 1
-    if output.is_null() or output_capacity < output_length:
+    if output == null or output_capacity < output_length:
         return -2
-    offset: mutable usize = 0
+    offset <- 0
     while offset < output_length:
         output[offset] <- temporary[offset]
         offset <- offset + 1

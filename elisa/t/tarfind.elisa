@@ -9,6 +9,7 @@ const MAX_INPUT_LENGTH: usize = 2 + MAX_RECORDS * (1 + MAX_NAME_LENGTH) + MAX_QU
 
 def tarfind_impl(input: i64&, input_length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
+    offset: mutable usize = 0
     if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH:
         return -1
     if input[0] < 1 or input[0] > MAX_RECORDS.i64() or input[1] < 1 or input[1] > MAX_QUERIES.i64():
@@ -35,7 +36,7 @@ def tarfind_impl(input: i64&, input_length: usize,
             return -1
         record_offsets[index] <- position
         record_lengths[index] <- name_length
-        offset: mutable usize = 0
+        offset <- 0
         while offset < name_length:
             value: i64 = input[position + offset]
             if value < 65 or value > 90:
@@ -76,7 +77,7 @@ def tarfind_impl(input: i64&, input_length: usize,
         record: mutable usize = 0
         while record < record_count:
             if record_lengths[record] == query_lengths[query]:
-                offset: mutable usize = 0
+                offset <- 0
                 while offset < query_lengths[query] and input[record_offsets[record] + offset] == input[query_offsets[query] + offset]:
                     offset <- offset + 1
                 if offset == query_lengths[query]:

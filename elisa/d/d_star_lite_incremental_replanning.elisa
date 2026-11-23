@@ -10,13 +10,13 @@ def dsl_manhattan(left: usize, right: usize, width: usize) -> i64:
     right_row: usize = right / width
     left_col: usize = left % width
     right_col: usize = right % width
-    row_delta: usize = if left_row > right_row: left_row - right_row else: right_row - left_row
-    col_delta: usize = if left_col > right_col: left_col - right_col else: right_col - left_col
+    row_delta: usize = left_row - right_row if left_row > right_row else right_row - left_row
+    col_delta: usize = left_col - right_col if left_col > right_col else right_col - left_col
     (row_delta + col_delta).i64()
 
 def dsl_key1(g: view[i64], rhs: view[i64], node: usize, start: usize,
              width: usize, km: i64) -> i64:
-    base: i64 = if g[node] < rhs[node]: g[node] else: rhs[node]
+    base: i64 = g[node] if (g[node] < rhs[node]) else rhs[node]
     if base >= DSL_INF: return DSL_INF
     base + dsl_manhattan(start, node, width) + km
 
@@ -42,10 +42,10 @@ def dsl_update_vertex(node: usize, goal: usize, edge_count: usize,
     if g[node] != rhs[node]:
         open[node] <- 1
         queue_first[node] <- dsl_key1(g, rhs, node, start, width, km)
-        queue_second[node] <- if g[node] < rhs[node]: g[node] else: rhs[node]
+        queue_second[node] <- g[node] if (g[node] < rhs[node]) else rhs[node]
 
-def d_star_lite_incremental_replanning_impl(values: view[i64]) -> i64:
-    length: usize = values.len()
+def d_star_lite_incremental_replanning_impl(values: i64&, values_length: usize) -> i64:
+    length: usize = values_length
     if length < 6 or length > DSL_MAX_PARSEABLE: return -1
     height_value: i64 = values[0]
     width_value: i64 = values[1]
@@ -143,14 +143,12 @@ def d_star_lite_incremental_replanning_impl(values: view[i64]) -> i64:
                     if selected == node_count:
                         selected <- candidate_node
                     elif dsl_pair_less(queue_first[candidate_node], queue_second[candidate_node],
-                                       queue_first[selected], queue_second[selected]) or
-                         (queue_first[candidate_node] == queue_first[selected] and
-                          queue_second[candidate_node] == queue_second[selected] and candidate_node < selected):
+                                       queue_first[selected], queue_second[selected]) or (queue_first[candidate_node] == queue_first[selected] and queue_second[candidate_node] == queue_second[selected] and candidate_node < selected):
                         selected <- candidate_node
                 candidate_node <- candidate_node + 1
             if selected == node_count: break
             start_key_first: i64 = dsl_key1(g[0:node_count], rhs[0:node_count], start, start, width, km)
-            start_key_second: i64 = if g[start] < rhs[start]: g[start] else: rhs[start]
+            start_key_second: i64 = g[start] if (g[start] < rhs[start]) else rhs[start]
             top_before_start: bool = dsl_pair_less(queue_first[selected], queue_second[selected], start_key_first, start_key_second)
             if not top_before_start and rhs[start] == g[start]: break
 
@@ -158,7 +156,7 @@ def d_star_lite_incremental_replanning_impl(values: view[i64]) -> i64:
             old_second: i64 = queue_second[selected]
             in_open[selected] <- 0
             new_first: i64 = dsl_key1(g[0:node_count], rhs[0:node_count], selected, start, width, km)
-            new_second: i64 = if g[selected] < rhs[selected]: g[selected] else: rhs[selected]
+            new_second: i64 = g[selected] if (g[selected] < rhs[selected]) else rhs[selected]
             if dsl_pair_less(old_first, old_second, new_first, new_second):
                 in_open[selected] <- 1
                 queue_first[selected] <- new_first
@@ -201,11 +199,13 @@ def d_star_lite_incremental_replanning_impl(values: view[i64]) -> i64:
                         best_node <- edge_to[edge]
                 edge <- edge + 1
             if best == g[start] and best_node < node_count: next_code <- best_node.i64() + 1
-        distance_code: i64 = if g[start] < DSL_INF: g[start] else: 136
+        distance_code: i64 = g[start] if g[start] < DSL_INF else 136
         checksum <- checksum + (event.i64() + 1) * (distance_code + 1) * (next_code + 1)
         event <- event + 1
     checksum
 
-export fn d_star_lite_incremental_replanning(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 6 or length > DSL_MAX_PARSEABLE: return -1
-    d_star_lite_incremental_replanning_impl(input[0:length])
+def d_star_lite_incremental_replanning_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 6 or length > DSL_MAX_PARSEABLE: return -1
+    d_star_lite_incremental_replanning_impl(input, length)
+
+export fn d_star_lite_incremental_replanning(input: i64&, length: usize) -> i64 = d_star_lite_incremental_replanning_entry

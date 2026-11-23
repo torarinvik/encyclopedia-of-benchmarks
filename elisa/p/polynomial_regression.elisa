@@ -15,10 +15,9 @@ def polynomial_regression_exact_integer(value: f64, minimum: i64, maximum: i64) 
     value.i64().f64() == value
 
 def polynomial_regression_impl(input: f64&, input_length: usize, output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > MAX_INPUT_LENGTH: return -1
-    if not polynomial_regression_exact_integer(input[0], 0, 3) or
-        not polynomial_regression_exact_integer(input[1], 1, MAX_TRAINING_COUNT.i64()) or
-        not polynomial_regression_exact_integer(input[2], 1, 4): return -1
+    column: mutable usize = 0
+    if input == null or input_length < 3 or input_length > MAX_INPUT_LENGTH: return -1
+    if not polynomial_regression_exact_integer(input[0], 0, 3) or not polynomial_regression_exact_integer(input[1], 1, MAX_TRAINING_COUNT.i64()) or not polynomial_regression_exact_integer(input[2], 1, 4): return -1
     degree: usize = input[0].usize()
     training_count: usize = input[1].usize()
     query_count: usize = input[2].usize()
@@ -32,7 +31,7 @@ def polynomial_regression_impl(input: f64&, input_length: usize, output: mutable
     x_query: mutable f64[4] = zeroed
     index: mutable usize = 0
     while index < training_count:
-        value: f64 = input[3 + index]
+        value: mutable f64 = input[3 + index]
         if not polynomial_regression_exact_integer(value, -2, 2): return -1
         x_train[index] <- value
         value <- input[3 + training_count + index]
@@ -56,7 +55,7 @@ def polynomial_regression_impl(input: f64&, input_length: usize, output: mutable
     design: mutable f64[20] = zeroed
     row: mutable usize = 0
     while row < training_count:
-        column: mutable usize = 0
+        column <- 0
         power: mutable f64 = 1.0
         while column < columns:
             design[row * columns + column] <- power
@@ -143,7 +142,7 @@ def polynomial_regression_impl(input: f64&, input_length: usize, output: mutable
         query <- query + 1
 
     output_length: usize = columns + query_count
-    if output.is_null() or capacity < output_length: return -2
+    if output == null or capacity < output_length: return -2
     index <- 0
     while index < output_length:
         output[index] <- results[index]

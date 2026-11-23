@@ -6,52 +6,55 @@ const MAX_OUTPUT: usize = 112
 const INF: i64 = 1152921504606846976
 
 def rna_mfe_pair_type(a: i64, b: i64) -> i64:
-    if a == 0 && b == 3: return 0
-    if a == 3 && b == 0: return 1
-    if a == 1 && b == 2: return 2
-    if a == 2 && b == 1: return 3
-    if a == 2 && b == 3: return 4
-    if a == 3 && b == 2: return 5
+    if a == 0 and b == 3: return 0
+    if a == 3 and b == 0: return 1
+    if a == 1 and b == 2: return 2
+    if a == 2 and b == 1: return 3
+    if a == 2 and b == 3: return 4
+    if a == 3 and b == 2: return 5
     -1
 
 def rna_mfe_lex_less(left: u64, right: u64, count: usize) -> bool:
     li: mutable usize = 0
     ri: mutable usize = 0
     while true:
-        while li < count && ((left >> li) & 1) == 0: li <- li + 1
-        while ri < count && ((right >> ri) & 1) == 0: ri <- ri + 1
-        if li == count || ri == count: return li == count && ri < count
+        while li < count and ((left >> li) & 1) == 0:
+            li <- li + 1
+        while ri < count and ((right >> ri) & 1) == 0:
+            ri <- ri + 1
+        if li == count or ri == count: return li == count and ri < count
         if li != ri: return li < ri
         li <- li + 1
         ri <- ri + 1
 
 def rna_mfe_put64(output: mutable view[u8], offset: usize, value: i64) -> void:
-    bits: u64 = value.u64()
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
         byte <- byte + 1
 
-def rna_mfe_loop_cost(input: view[i64], n: usize, kind: usize, unpaired: usize, children: usize) -> i64:
+def rna_mfe_loop_cost(input: i64&, n: usize, kind: usize, unpaired: usize, children: usize) -> i64:
     input[1 + n + kind * 39 + unpaired * 3 + children]
 
 def rna_mfe_loop_energy_dp_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input == null || length < 239 || length > MAX_INPUT: return -1
+    b: mutable usize = zeroed
+    if input == null or length < 239 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
-    if n64 < 4 || n64 > 12: return -1
+    if n64 < 4 or n64 > 12: return -1
     n: usize = n64.usize()
     if length != 1 + n + TABLE_VALUES: return -1
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     bases: mutable i64[MAX_N] = zeroed
     i: mutable usize = 0
     while i < n:
         bases[i] <- input[1 + i]
-        if bases[i] < 0 || bases[i] > 3: return -1
+        if bases[i] < 0 or bases[i] > 3: return -1
         i <- i + 1
     i <- 1 + n
     while i < length:
-        if input[i] < -1000 || input[i] > 1000: return -1
+        if input[i] < -1000 or input[i] > 1000: return -1
         i <- i + 1
 
     types: mutable i64[MAX_N][MAX_N] = zeroed
@@ -102,18 +105,18 @@ def rna_mfe_loop_energy_dp_impl(input: i64&, length: usize, output: mutable u8&,
                 best: mutable i64 = INF
                 best_mask: mutable u64 = 0
                 candidate: mutable i64 = rna_mfe_loop_cost(input_view, n, kind, span - 1, 0)
-                if candidate < best || (candidate == best && rna_mfe_lex_less(outer, best_mask, pair_count)):
+                if candidate < best or (candidate == best and rna_mfe_lex_less(outer, best_mask, pair_count)):
                     best <- candidate
                     best_mask <- outer
                 a: mutable usize = i + 1
                 while a < j:
-                    b: mutable usize = a + 4
+                    b <- a + 4
                     while b < j:
-                        if ids[a][b] >= 0 && ve[a][b] != INF:
+                        if ids[a][b] >= 0 and ve[a][b] != INF:
                             unpaired: usize = (a - i - 1) + (j - b - 1)
                             candidate <- rna_mfe_loop_cost(input_view, n, kind, unpaired, 1) + ve[a][b]
                             mask: u64 = outer | vm[a][b]
-                            if candidate < best || (candidate == best && rna_mfe_lex_less(mask, best_mask, pair_count)):
+                            if candidate < best or (candidate == best and rna_mfe_lex_less(mask, best_mask, pair_count)):
                                 best <- candidate
                                 best_mask <- mask
                         b <- b + 1
@@ -122,16 +125,16 @@ def rna_mfe_loop_energy_dp_impl(input: i64&, length: usize, output: mutable u8&,
                 while a < j:
                     b <- a + 4
                     while b < j:
-                        if ids[a][b] >= 0 && ve[a][b] != INF:
+                        if ids[a][b] >= 0 and ve[a][b] != INF:
                             c: mutable usize = b + 1
                             while c < j:
                                 d: mutable usize = c + 4
                                 while d < j:
-                                    if ids[c][d] >= 0 && ve[c][d] != INF:
+                                    if ids[c][d] >= 0 and ve[c][d] != INF:
                                         unpaired: usize = (a - i - 1) + (c - b - 1) + (j - d - 1)
                                         candidate <- rna_mfe_loop_cost(input_view, n, kind, unpaired, 2) + ve[a][b] + ve[c][d]
                                         mask: u64 = outer | vm[a][b] | vm[c][d]
-                                        if candidate < best || (candidate == best && rna_mfe_lex_less(mask, best_mask, pair_count)):
+                                        if candidate < best or (candidate == best and rna_mfe_lex_less(mask, best_mask, pair_count)):
                                             best <- candidate
                                             best_mask <- mask
                                     d <- d + 1
@@ -154,15 +157,15 @@ def rna_mfe_loop_energy_dp_impl(input: i64&, length: usize, output: mutable u8&,
             best_mask <- wm[j - 1]
         i <- 0
         while i + 4 <= j:
-            if types[i][j] >= 0 && ve[i][j] != INF:
-                prefix: i64 = 0
-                prefix_mask: u64 = 0
+            if types[i][j] >= 0 and ve[i][j] != INF:
+                prefix: mutable i64 = 0
+                prefix_mask: mutable u64 = 0
                 if i > 0:
                     prefix <- we[i - 1]
                     prefix_mask <- wm[i - 1]
                 candidate: i64 = prefix + ve[i][j]
                 mask: u64 = prefix_mask | vm[i][j]
-                if candidate < best || (candidate == best && rna_mfe_lex_less(mask, best_mask, pair_count)):
+                if candidate < best or (candidate == best and rna_mfe_lex_less(mask, best_mask, pair_count)):
                     best <- candidate
                     best_mask <- mask
             i <- i + 1
@@ -176,7 +179,7 @@ def rna_mfe_loop_energy_dp_impl(input: i64&, length: usize, output: mutable u8&,
         if ((wm[n - 1] >> p) & 1) != 0: count <- count + 1
         p <- p + 1
     bytes: usize = 8 * (2 + 2 * count)
-    if output == null || capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
     staged_view: mutable view[u8] = staged[0:bytes]
     rna_mfe_put64(staged_view, 0, we[n - 1])

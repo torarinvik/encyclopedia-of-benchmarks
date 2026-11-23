@@ -22,8 +22,8 @@ struct SqrtTreeState:
     block_count: usize[512]
     child_start: usize[512]
     children: usize[512]
-    node_count: usize
-    child_count: usize
+    node_count: mutable usize
+    child_count: mutable usize
 
 def sqrt_tree_min(left: i64, right: i64) -> i64:
     if left < right:
@@ -39,6 +39,8 @@ def sqrt_tree_create_node(state: mutable SqrtTreeState&, left: usize, right: usi
     node
 
 def sqrt_tree_build_node(state: mutable SqrtTreeState&, input: i64&, node: usize) -> void:
+    end: mutable usize = zeroed
+    start: mutable usize = zeroed
     left: usize = state.node_left[node]
     right: usize = state.node_right[node]
     node_length: usize = right - left
@@ -61,8 +63,8 @@ def sqrt_tree_build_node(state: mutable SqrtTreeState&, input: i64&, node: usize
     block_min: mutable i64[256] = zeroed
     block: mutable usize = 0
     while block < block_count:
-        start: usize = left + block * block_size
-        end: mutable usize = start + block_size
+        start <- left + block * block_size
+        end <- start + block_size
         if end > right: end <- right
         first: usize = value_offset + start - left
         state.prefix[depth * MAX_ITEMS + first] <- input[2 + start]
@@ -136,7 +138,7 @@ def sqrt_tree_query_node(state: mutable SqrtTreeState&, input: i64&, node: usize
     answer <- sqrt_tree_min(answer, state.prefix[depth * MAX_ITEMS + offset + right - node_left])
     answer
 
-def sqrt_tree_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def sqrt_tree_store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -145,27 +147,27 @@ def sqrt_tree_store_i64_le(output: mutable view[u8], offset: usize, value: i64) 
         byte <- byte + 1
 
 def sqrt_tree_impl(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input == null || length < 2 || length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 2 or length > MAX_INPUT_VALUES: return -1
     item_count_value: i64 = input[0]
     query_count_value: i64 = input[1]
-    if item_count_value < 1 || item_count_value > 256 || query_count_value < 0 || query_count_value > 256:
+    if item_count_value < 1 or item_count_value > 256 or query_count_value < 0 or query_count_value > 256:
         return -1
     item_count: usize = item_count_value.usize()
     query_count: usize = query_count_value.usize()
     if length != 2 + item_count + 2 * query_count: return -1
     index: mutable usize = 0
     while index < item_count:
-        if input[2 + index] < -VALUE_LIMIT || input[2 + index] > VALUE_LIMIT: return -1
+        if input[2 + index] < -VALUE_LIMIT or input[2 + index] > VALUE_LIMIT: return -1
         index <- index + 1
     query_offset: usize = 2 + item_count
     query: mutable usize = 0
     while query < query_count:
         left: i64 = input[query_offset + 2 * query]
         right: i64 = input[query_offset + 2 * query + 1]
-        if left < 0 || right < left || right >= item_count_value: return -1
+        if left < 0 or right < left or right >= item_count_value: return -1
         query <- query + 1
     required: usize = 8 * query_count
-    if output_capacity < required || (required > 0 && output.is_null()): return -2
+    if output_capacity < required or (required > 0 and output == null): return -2
 
     state: mutable SqrtTreeState = zeroed
     root: usize = sqrt_tree_create_node(state, 0, item_count, 0)
@@ -174,7 +176,7 @@ def sqrt_tree_impl(input: i64&, length: usize, output: mutable u8&, output_capac
     while query < query_count:
         left: usize = input[query_offset + 2 * query].usize()
         right: usize = input[query_offset + 2 * query + 1].usize()
-        sqrt_tree_store_i64_le(output[0:required], 8 * query, sqrt_tree_query_node(state, input, root, left, right))
+        sqrt_tree_store_i64_le(output, 8 * query, sqrt_tree_query_node(state, input, root, left, right))
         query <- query + 1
     required.i64()
 

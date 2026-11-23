@@ -1,5 +1,5 @@
 def in_static_equilibrium_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length < 5:
+    if values == null or length < 5:
         return -1
     n_value: i64 = values[0]
     if n_value < 1 or n_value > 100 or length != 1 + 4 * n_value.usize():
@@ -19,4 +19,4 @@ def in_static_equilibrium_impl(values: i64&, length: usize) -> i64:
     else:
         0
 
-export fn in_static_equilibrium(values: i64&, length: usize) i64 = in_static_equilibrium_impl
+export fn in_static_equilibrium(values: i64&, length: usize) -> i64 = in_static_equilibrium_impl

@@ -4,7 +4,7 @@ const MAX_EDGES: usize = 64
 const MAX_INPUT_LENGTH: usize = 131
 
 def undirected_four_cycle_count_degree_order_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]
     if n_value < 1 or n_value > 16 or m_value < 0 or m_value > 64: return -1
@@ -82,5 +82,4 @@ def undirected_four_cycle_count_degree_order_impl(input: i64&, length: usize) ->
         position <- position + 1
     total
 
-export fn undirected_four_cycle_count_degree_order(input: i64&, length: usize) -> i64 =
-    undirected_four_cycle_count_degree_order_impl(input, length)
+export fn undirected_four_cycle_count_degree_order(input: i64&, length: usize) -> i64 = undirected_four_cycle_count_degree_order_impl

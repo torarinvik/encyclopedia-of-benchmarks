@@ -1,7 +1,6 @@
 # Clean-room McCreight radix priority-search-tree profile.
-@export("priority_search_tree_three_sided_reporting")
-def priority_search_tree_three_sided_reporting(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > 48: return -1
+def priority_search_tree_three_sided_reporting_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > 48: return -1
     n64: i64 = input[0]
     q64: i64 = input[1]
     if n64 < 0 or n64 > 8 or q64 < 0 or q64 > 7: return -1
@@ -17,7 +16,7 @@ def priority_search_tree_three_sided_reporting(input: i64&, length: usize) -> i6
     right: mutable i64[8] = zeroed
     seen_x: mutable bool[32] = zeroed
     seen_label: mutable bool[8] = zeroed
-    i: usize = 0
+    i: mutable usize = 0
     while i < 8:
         left[i] <- -1
         right[i] <- -1
@@ -25,7 +24,7 @@ def priority_search_tree_three_sided_reporting(input: i64&, length: usize) -> i6
     root: mutable i64 = -1
     node_count: mutable i64 = 0
     at: mutable usize = 2
-    record: usize = 0
+    record: mutable usize = 0
     while record < n:
         x: i64 = input[at]
         y: i64 = input[at + 1]
@@ -54,7 +53,7 @@ def priority_search_tree_three_sided_reporting(input: i64&, length: usize) -> i6
             while searching:
                 c: usize = current.usize()
                 if py < ny[c]:
-                    temp: i64 = nx[c]
+                    temp:mutable  mutable i64 = nx[c]
                     nx[c] <- px
                     px <- temp
                     temp <- ny[c]
@@ -96,7 +95,7 @@ def priority_search_tree_three_sided_reporting(input: i64&, length: usize) -> i6
     qx0: mutable i64[7] = zeroed
     qx1: mutable i64[7] = zeroed
     qy1: mutable i64[7] = zeroed
-    qi: usize = 0
+    qi:mutable  mutable usize = 0
     while qi < q:
         x0: i64 = input[at]
         x1: i64 = input[at + 1]
@@ -112,20 +111,22 @@ def priority_search_tree_three_sided_reporting(input: i64&, length: usize) -> i6
     while qi < q:
         mask: mutable i64 = 0
         if root >= 0:
-            stack: mutable i64[8] = zeroed
+            stack_value: mutable i64[8] = zeroed
             top: mutable usize = 1
-            stack[0] <- root
+            stack_value[0] <- root
             while top > 0:
                 top <- top - 1
-                node: usize = stack[top].usize()
+                node: usize = stack_value[top].usize()
                 if qx1[qi] < nlo[node] or qx0[qi] >= nhi[node] or ny[node] > qy1[qi]: continue
                 if qx0[qi] <= nx[node] and nx[node] <= qx1[qi]: mask <- mask | (1 << nl[node])
                 if left[node] >= 0:
-                    stack[top] <- left[node]
+                    stack_value[top] <- left[node]
                     top <- top + 1
                 if right[node] >= 0:
-                    stack[top] <- right[node]
+                    stack_value[top] <- right[node]
                     top <- top + 1
         result <- result | (mask << (8 * qi.i64()))
         qi <- qi + 1
     result
+
+export fn priority_search_tree_three_sided_reporting(input: i64&, length: usize) -> i64 = priority_search_tree_three_sided_reporting_impl

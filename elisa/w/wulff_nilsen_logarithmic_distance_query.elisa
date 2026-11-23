@@ -8,7 +8,7 @@ const WN_NODES: usize = 31
 const WN_LOG_K: i32 = 4
 const WN_INF: i64 = 2305843009213693951
 
-def wn_store_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def wn_store_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -20,7 +20,7 @@ def wn_midpoint(low: i32, high: i32) -> i32:
     best: mutable i32 = 2147483647
     candidate: mutable i32 = low + 2
     while candidate <= high - 2:
-        gap: i32 = 2 * candidate - low - high
+        gap: mutable i32 = 2 * candidate - low - high
         if gap < 0: gap <- -gap
         if gap < best:
             best <- gap
@@ -49,8 +49,8 @@ def wn_build_tree(source: usize, low: i32, high: i32,
     middle: i32 = wn_midpoint(low, high)
     if middle < 0: return -1
     selected: mutable i32 = low
-    near_index: usize = nearest[low.usize() * WN_N + source].usize()
-    far_index: usize = nearest[(low + 2).usize() * WN_N + source].usize()
+    near_index: mutable usize = nearest[low.usize() * WN_N + source].usize()
+    far_index: mutable usize = nearest[(low + 2).usize() * WN_N + source].usize()
     best_delta: mutable i64 = distance[source * WN_N + far_index] - distance[source * WN_N + near_index]
     level: mutable i32 = low + 2
     while level <= middle - 2:
@@ -91,8 +91,10 @@ def wn_dist_k(source_value: usize, target_value: usize, start: usize,
         level <- level + 1
     false
 
-def wn_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+def wn_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    candidate: mutable usize = 0
+    j: mutable usize = 0
+    length: usize = input_length
     if length < 18 or length > WN_INPUT: return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]
@@ -116,9 +118,9 @@ def wn_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
     distance: mutable i64[WN_N * WN_N] = zeroed
     i: mutable usize = 0
     while i < n:
-        j: mutable usize = 0
+        j <- 0
         while j < n:
-            distance[i * WN_N + j] <- if i == j: 0 else: WN_INF
+            distance[i * WN_N + j] <- 0 if i == j else WN_INF
             j <- j + 1
         i <- i + 1
     previous_u: mutable i64 = -1
@@ -166,11 +168,10 @@ def wn_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
         i <- 0
         while i < n:
             best: mutable i64 = -1
-            candidate: mutable usize = 0
+            candidate <- 0
             while candidate < n:
                 if ((masks[level] >> candidate) & 1) != 0:
-                    if best < 0 or distance[i * WN_N + candidate] < distance[i * WN_N + best.usize()] or
-                        (distance[i * WN_N + candidate] == distance[i * WN_N + best.usize()] and candidate < best.usize()):
+                    if best < 0 or distance[i * WN_N + candidate] < distance[i * WN_N + best.usize()] or (distance[i * WN_N + candidate] == distance[i * WN_N + best.usize()] and candidate < best.usize()):
                         best <- candidate.i64()
                 candidate <- candidate + 1
             if best < 0: return -1
@@ -183,8 +184,8 @@ def wn_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
     while center < n:
         level <- 0
         while level < WN_K:
-            current: u64 = if level == 0: valid_bits else: masks[level]
-            following: u64 = if level + 1 == WN_K: 0 else: masks[level + 1]
+            current: u64 = valid_bits if level == 0 else masks[level]
+            following: u64 = 0 if level + 1 == WN_K else masks[level + 1]
             next_distance: mutable i64 = WN_INF
             candidate <- 0
             while candidate < n:
@@ -232,11 +233,11 @@ def wn_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
         node_index: mutable usize = source * WN_NODES
         probes: mutable i64 = 0
         while tree_high[node_index] - tree_low[node_index] > WN_LOG_K:
-            j: usize = tree_gap[node_index].usize()
+            j <- tree_gap[node_index].usize()
             first: bool = bunch[target * WN_N + nearest[j * WN_N + source].usize()]
             second: bool = bunch[source * WN_N + nearest[(j + 1) * WN_N + target].usize()]
             probes <- probes + 2
-            child: i32 = if not first and not second: tree_right[node_index] else: tree_left[node_index]
+            child: i32 = tree_right[node_index] if not first and not second else tree_left[node_index]
             node_index <- source * WN_NODES + child.usize()
         estimate: mutable i64 = 0
         if not wn_dist_k(source, target, tree_low[node_index].usize(), distance[0:WN_N * WN_N],
@@ -247,15 +248,17 @@ def wn_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
 
     words: usize = 1 + 2 * q
     output_bytes: usize = words * 8
-    if output.is_null() or capacity < output_bytes: return -2
-    result: mutable view[u8] = output[0:output_bytes]
+    if output == null or capacity < output_bytes: return -2
+    result: mutable u8& = output
     i <- 0
     while i < words:
         wn_store_i64(staged[i], result, i * 8)
         i <- i + 1
     output_bytes.i64()
 
-export fn wulff_nilsen_logarithmic_distance_query(input: i64&, length: usize,
+def wulff_nilsen_logarithmic_distance_query_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 18 or length > WN_INPUT: return -1
-    wn_impl(input[0:length], output, capacity)
+    if input == null or length < 18 or length > WN_INPUT: return -1
+    wn_impl(input, length, output, capacity)
+
+export fn wulff_nilsen_logarithmic_distance_query(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = wulff_nilsen_logarithmic_distance_query_impl

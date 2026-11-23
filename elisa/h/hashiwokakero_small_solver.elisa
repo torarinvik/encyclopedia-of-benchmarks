@@ -12,10 +12,10 @@ def hashi_edges_cross(x: view[i64], y: view[i64], edge_u: view[usize],
     second_horizontal: bool = y[c] == y[d]
     if first_horizontal == second_horizontal:
         return false
-    h0: usize = a
-    h1: usize = b
-    v0: usize = c
-    v1: usize = d
+    h0: mutable usize = a
+    h1: mutable usize = b
+    v0: mutable usize = c
+    v1: mutable usize = d
     if not first_horizontal:
         h0 <- c
         h1 <- d
@@ -23,14 +23,14 @@ def hashi_edges_cross(x: view[i64], y: view[i64], edge_u: view[usize],
         v1 <- b
     hx: i64 = x[v0]
     hy: i64 = y[h0]
-    hmin: i64 = x[h0]
-    hmax: i64 = x[h1]
+    hmin: mutable i64 = x[h0]
+    hmax: mutable i64 = x[h1]
     if hmin > hmax:
         swap: i64 = hmin
         hmin <- hmax
         hmax <- swap
-    vmin: i64 = y[v0]
-    vmax: i64 = y[v1]
+    vmin: mutable i64 = y[v0]
+    vmax: mutable i64 = y[v1]
     if vmin > vmax:
         swap: i64 = vmin
         vmin <- vmax
@@ -41,14 +41,14 @@ def hashi_possible_connected(x: view[i64], y: view[i64], edge_u: view[usize],
         edge_v: view[usize], multiplicity: view[i64], edge_count: usize,
         island_count: usize, assigned_through: usize) -> bool:
     reached: mutable bool[MAX_ISLANDS] = zeroed
-    stack: mutable usize[MAX_ISLANDS] = zeroed
+    stack_value: mutable usize[MAX_ISLANDS] = zeroed
     top: mutable usize = 1
     reached[0] <- true
-    stack[0] <- 0
-    while top != 0 |reached, stack, top, edge_count, island_count, assigned_through, x, y, edge_u, edge_v, multiplicity|:
+    stack_value[0] <- 0
+    while top != 0 |reached, stack_value, top, edge_count, island_count, assigned_through, x, y, edge_u, edge_v, multiplicity|:
         top <- top - 1
-        island: usize = stack[top]
-        for edge in 0..<edge_count |edge, edge_count, island, assigned_through, multiplicity, x, y, edge_u, edge_v, reached, stack, top|:
+        island: usize = stack_value[top]
+        for edge in 0..<edge_count |edge, edge_count, island, assigned_through, multiplicity, x, y, edge_u, edge_v, reached, stack_value, top|:
             usable: mutable bool = edge <= assigned_through and multiplicity[edge] != 0
             if edge > assigned_through:
                 usable <- true
@@ -65,7 +65,7 @@ def hashi_possible_connected(x: view[i64], y: view[i64], edge_u: view[usize],
                 neighbor <- edge_u[edge]
             if neighbor < island_count and not reached[neighbor]:
                 reached[neighbor] <- true
-                stack[top] <- neighbor
+                stack_value[top] <- neighbor
                 top <- top + 1
     for island in 0..<island_count |island, reached|:
         if not reached[island]:
@@ -112,9 +112,7 @@ def hashi_search(x: view[i64], y: view[i64], residual: mutable view[i64],
         multiplicity[depth] <- amount.i64()
         residual[u] <- residual[u] - amount.i64()
         residual[v] <- residual[v] - amount.i64()
-        if hashi_residuals_feasible(residual[0:island_count], remaining[0:island_count], island_count) and
-            hashi_possible_connected(x, y, edge_u, edge_v, multiplicity[0:edge_count], edge_count, island_count, depth) and
-            hashi_search(x, y, residual[0:island_count], remaining[0:island_count], edge_u[0:edge_count], edge_v[0:edge_count], multiplicity[0:edge_count], solution[0:edge_count], island_count, edge_count, depth + 1):
+        if hashi_residuals_feasible(residual[0:island_count], remaining[0:island_count], island_count) and hashi_possible_connected(x, y, edge_u, edge_v, multiplicity[0:edge_count], edge_count, island_count, depth) and hashi_search(x, y, residual[0:island_count], remaining[0:island_count], edge_u[0:edge_count], edge_v[0:edge_count], multiplicity[0:edge_count], solution[0:edge_count], island_count, edge_count, depth + 1):
             residual[u] <- residual[u] + amount.i64()
             residual[v] <- residual[v] + amount.i64()
             remaining[u] <- remaining[u] + 1
@@ -127,8 +125,8 @@ def hashi_search(x: view[i64], y: view[i64], residual: mutable view[i64],
     remaining[v] <- remaining[v] + 1
     false
 
-def hashiwokakero_small_solver_impl(values: view[i64]) -> i64:
-    length: usize = values.len()
+def hashiwokakero_small_solver_impl(values: i64&, values_length: usize) -> i64:
+    length: usize = values_length
     if length < 1 or length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
     if values[0] < 2 or values[0] > MAX_ISLANDS.i64():
@@ -167,11 +165,9 @@ def hashiwokakero_small_solver_impl(values: view[i64]) -> i64:
             for middle in 0..<island_count |middle, first, second, island_count, x, y, blocked|:
                 if middle == first or middle == second:
                     continue
-                if y[first] == y[second] and y[middle] == y[first] and
-                    ((x[first] < x[middle] and x[middle] < x[second]) or (x[second] < x[middle] and x[middle] < x[first])):
+                if y[first] == y[second] and y[middle] == y[first] and ((x[first] < x[middle] and x[middle] < x[second]) or (x[second] < x[middle] and x[middle] < x[first])):
                     blocked <- true
-                if x[first] == x[second] and x[middle] == x[first] and
-                    ((y[first] < y[middle] and y[middle] < y[second]) or (y[second] < y[middle] and y[middle] < y[first])):
+                if x[first] == x[second] and x[middle] == x[first] and ((y[first] < y[middle] and y[middle] < y[second]) or (y[second] < y[middle] and y[middle] < y[first])):
                     blocked <- true
             if not blocked:
                 if edge_count == MAX_EDGE_SLOTS:
@@ -189,8 +185,11 @@ def hashiwokakero_small_solver_impl(values: view[i64]) -> i64:
         result <- result | (solution[edge] << (2 * edge))
     result
 
-export fn hashiwokakero_small_solver(input: i64&, input_length: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+def hashiwokakero_small_solver_entry(input: i64&, input_length: usize) -> i64:
+    if input == null or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
-    let values: view[i64] = input[0:input_length]
-    hashiwokakero_small_solver_impl(values)
+    values: i64& = input
+    values_length: usize = input_length
+    hashiwokakero_small_solver_impl(values, values_length)
+
+export fn hashiwokakero_small_solver(input: i64&, input_length: usize) -> i64 = hashiwokakero_small_solver_entry

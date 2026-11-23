@@ -5,7 +5,7 @@ const BW_MAX_VARS: usize = 8
 const BW_MAX_POLY: usize = 5
 
 def bw_mod7(value: i64) -> i64:
-    remainder: i64 = value % 7
+    remainder: mutable i64 = value % 7
     if remainder < 0: remainder <- remainder + 7
     remainder
 
@@ -20,6 +20,7 @@ def bw_inverse7(value: i64) -> i64:
 
 def bw_decode(n: usize, k: usize, errors: usize,
     received: view[i64]) -> i64:
+    degree: mutable usize = 1
     q_count: usize = k + errors
     e_count: usize = errors + 1
     variable_count: usize = q_count + e_count
@@ -29,7 +30,7 @@ def bw_decode(n: usize, k: usize, errors: usize,
     while row < n:
         powers: mutable i64[BW_MAX_POLY] = zeroed
         powers[0] <- 1
-        degree: mutable usize = 1
+        degree <- 1
         while degree < BW_MAX_POLY:
             powers[degree] <- powers[degree - 1] * row.i64() % 7
             degree <- degree + 1
@@ -182,7 +183,7 @@ def bw_decode(n: usize, k: usize, errors: usize,
         degree <- degree + 1
     result
 
-def bw_impl(input: view[i64], length: usize) -> i64:
+def bw_impl(input: i64&, length: usize) -> i64:
     if length < 3 or length > 11: return -1
     n_value: i64 = input[0]
     k_value: i64 = input[1]
@@ -204,7 +205,9 @@ def bw_impl(input: view[i64], length: usize) -> i64:
         index <- index + 1
     bw_decode(n, k, errors, received[0:n])
 
-export fn berlekamp_welch_rs_decode(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > 11: return -1
-    input_view: view[i64] = input[0:length]
+def berlekamp_welch_rs_decode_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > 11: return -1
+    input_view: i64& = input
     bw_impl(input_view, length)
+
+export fn berlekamp_welch_rs_decode(input: i64&, length: usize) -> i64 = berlekamp_welch_rs_decode_impl

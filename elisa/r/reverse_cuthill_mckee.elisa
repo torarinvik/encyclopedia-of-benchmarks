@@ -6,9 +6,9 @@ def rcm_neighbor_precedes(left: usize, right: usize, degree: view[usize]) -> boo
     if degree[left] != degree[right]: return degree[left] < degree[right]
     left < right
 
-def reverse_cuthill_mckee(input: i64&, length: usize) -> i64 @export("reverse_cuthill_mckee"):
-    if input.is_null() or length < 2 or length > RCM_MAX_INPUT_LENGTH: return -1
-    values: view[i64] = input[0:length]
+def reverse_cuthill_mckee_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > RCM_MAX_INPUT_LENGTH: return -1
+    values: i64& = input
     n64: i64 = values[0]
     m64: i64 = values[1]
     if n64 < 1 or n64 > 8 or m64 < 0 or m64 > 28: return -1
@@ -43,18 +43,17 @@ def reverse_cuthill_mckee(input: i64&, length: usize) -> i64 @export("reverse_cu
             if visited[vertex]: continue
             if root == RCM_MAX_VERTICES:
                 root <- vertex
-            else if degree[vertex] < degree[root] or
-                    (degree[vertex] == degree[root] and vertex < root):
+            elif degree[vertex] < degree[root] or (degree[vertex] == degree[root] and vertex < root):
                 root <- vertex
         queue: mutable usize[8] = zeroed
         head: mutable usize = 0
-        tail: mutable usize = 0
+        tail_value: mutable usize = 0
         visited[root] <- true
-        queue[tail] <- root
-        tail <- tail + 1
+        queue[tail_value] <- root
+        tail_value <- tail_value + 1
         order[order_count] <- root
         order_count <- order_count + 1
-        while head < tail:
+        while head < tail_value:
             vertex: usize = queue[head]
             head <- head + 1
             neighbors: mutable usize[8] = zeroed
@@ -74,8 +73,8 @@ def reverse_cuthill_mckee(input: i64&, length: usize) -> i64 @export("reverse_cu
                 neighbor: usize = neighbors[i]
                 if visited[neighbor]: continue
                 visited[neighbor] <- true
-                queue[tail] <- neighbor
-                tail <- tail + 1
+                queue[tail_value] <- neighbor
+                tail_value <- tail_value + 1
                 order[order_count] <- neighbor
                 order_count <- order_count + 1
 
@@ -95,10 +94,12 @@ def reverse_cuthill_mckee(input: i64&, length: usize) -> i64 @export("reverse_cu
         rank_word <- rank_word | (order[rank].i64() << (3 * rank))
     bandwidth: mutable usize = 0
     for edge in 0..<m:
-        difference: usize = 0
+        difference:mutable  mutable usize = 0
         if position[edge_u[edge]] > position[edge_v[edge]]:
             difference <- position[edge_u[edge]] - position[edge_v[edge]]
         else:
             difference <- position[edge_v[edge]] - position[edge_u[edge]]
         if difference > bandwidth: bandwidth <- difference
     (bandwidth.i64() << 24) | rank_word
+
+export fn reverse_cuthill_mckee(input: i64&, length: usize) -> i64 = reverse_cuthill_mckee_impl

@@ -25,7 +25,7 @@ def ppsz_clause_true(clauses: i64[MAX_CLAUSES * 3], clause_id: usize, mask: u64)
     literal_index: mutable usize = 0
     while literal_index < 3:
         literal: i64 = clauses[3 * clause_id + literal_index]
-        variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+        variable: usize = (literal - 1).usize() if literal > 0 else (-literal - 1).usize()
         bit: bool = ((mask >> variable) & 1.u64()) != 0
         if (literal > 0 and bit) or (literal < 0 and not bit): return true
         literal_index <- literal_index + 1
@@ -56,10 +56,13 @@ def ppsz_current_sat(n: usize, m: usize, clauses: i64[MAX_CLAUSES * 3], assigned
 def ppsz_find_force(n: usize, m: usize, clauses: i64[MAX_CLAUSES * 3], assigned: i64[MAX_N]) -> i64:
     if not ppsz_current_sat(n, m, clauses, assigned): return -1
     threshold: mutable usize = 0
-    while (1.u64() << (threshold + 1)) <= n.u64(): threshold <- threshold + 1
+    while (1.u64() << (threshold + 1)) <= n.u64():
+        threshold <- threshold + 1
     implied: mutable i64[MAX_N] = zeroed
     variable: mutable usize = 0
-    while variable < MAX_N: implied[variable] <- -1; variable <- variable + 1
+    while variable < MAX_N:
+        implied[variable] <- -1
+        variable <- variable + 1
     subset: mutable usize = 1
     while subset < (1.usize() << m):
         if ppsz_popcount(subset) <= threshold:
@@ -79,7 +82,7 @@ def ppsz_find_force(n: usize, m: usize, clauses: i64[MAX_CLAUSES * 3], assigned:
             variable <- 0
             while variable < n:
                 if assigned[variable] < 0 and seen_zero[variable] != seen_one[variable] and implied[variable] < 0:
-                    implied[variable] <- if seen_one[variable]: 1 else: 0
+                    implied[variable] <- 1 if (seen_one[variable]) else 0
                 variable <- variable + 1
         subset <- subset + 1
     variable <- 0
@@ -88,8 +91,9 @@ def ppsz_find_force(n: usize, m: usize, clauses: i64[MAX_CLAUSES * 3], assigned:
         variable <- variable + 1
     -1
 
-def ppsz_k_sat_trace(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("ppsz_k_sat_trace"):
-    if input.is_null() or length < 2 or length > MAX_INPUT or input[0] < 3 or input[0] > 8 or input[1] < 0 or input[1] > 12: return -1
+def ppsz_k_sat_trace_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    variable: mutable usize = zeroed
+    if input == null or length < 2 or length > MAX_INPUT or input[0] < 3 or input[0] > 8 or input[1] < 0 or input[1] > 12: return -1
     n: usize = input[0].usize()
     m: usize = input[1].usize()
     if length != 2 + 3 * m + 2 * n: return -1
@@ -101,7 +105,7 @@ def ppsz_k_sat_trace(input: i64&, length: usize, output: mutable u8&, capacity: 
         while literal_index < 3:
             literal: i64 = input[2 + 3 * clause_id + literal_index]
             if literal == 0 or literal < -n.i64() or literal > n.i64(): return -1
-            variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+            variable <- (literal - 1).usize() if literal > 0 else (-literal - 1).usize()
             if seen[variable]: return -1
             seen[variable] <- true
             clauses[3 * clause_id + literal_index] <- literal
@@ -113,7 +117,9 @@ def ppsz_k_sat_trace(input: i64&, length: usize, output: mutable u8&, capacity: 
     seen_var: mutable bool[MAX_N] = zeroed
     assigned: mutable i64[MAX_N] = zeroed
     variable <- 0
-    while variable < MAX_N: assigned[variable] <- -1; variable <- variable + 1
+    while variable < MAX_N:
+        assigned[variable] <- -1
+        variable <- variable + 1
     variable <- 0
     while variable < n:
         x: i64 = input[start + variable]
@@ -142,13 +148,19 @@ def ppsz_k_sat_trace(input: i64&, length: usize, output: mutable u8&, capacity: 
     while variable < n:
         if assigned[variable] == 1: mask <- mask | (1.u64() << variable)
         variable <- variable + 1
-    verdict: i64 = if ppsz_selected_true(clauses, m, (1.u64() << m) - 1, mask): 1 else: 0
+    verdict: i64 = 1 if ppsz_selected_true(clauses, m, (1.u64() << m) - 1, mask) else 0
     bytes: usize = 8 * (n + 1)
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
     ppsz_put(verdict, staged[0:MAX_OUTPUT], 0)
     variable <- 0
-    while variable < n: ppsz_put(assigned[variable], staged[0:MAX_OUTPUT], 8 * (variable + 1)); variable <- variable + 1
+    while variable < n:
+        ppsz_put(assigned[variable], staged[0:MAX_OUTPUT], 8 * (variable + 1))
+        variable <- variable + 1
     variable <- 0
-    while variable < bytes: output[variable] <- staged[variable]; variable <- variable + 1
+    while variable < bytes:
+        output[variable] <- staged[variable]
+        variable <- variable + 1
     bytes.i64()
+
+export fn ppsz_k_sat_trace(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = ppsz_k_sat_trace_impl

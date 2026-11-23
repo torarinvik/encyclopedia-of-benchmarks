@@ -5,7 +5,7 @@ const MAX_ARCS: usize = 2 * MAX_EDGES
 const MAX_INPUT_LENGTH: usize = 259
 
 def strong_orientation_append_arc(from: usize, target: usize, edge: usize,
-        head: mutable view[i64], tail: mutable view[i64], adjacency_to: mutable view[i64],
+        head: mutable view[i64], tail_value: mutable view[i64], adjacency_to: mutable view[i64],
         adjacency_next: mutable view[i64], adjacency_edge: mutable view[i64], arc_count: mutable usize&) -> void:
     arc: usize = arc_count
     arc_count <- arc_count + 1
@@ -15,8 +15,8 @@ def strong_orientation_append_arc(from: usize, target: usize, edge: usize,
     if head[from] == -1:
         head[from] <- arc.i64()
     else:
-        adjacency_next[tail[from].usize()] <- arc.i64()
-    tail[from] <- arc.i64()
+        adjacency_next[tail_value[from].usize()] <- arc.i64()
+    tail_value[from] <- arc.i64()
 
 def strong_orientation_visit(vertex: usize, head: view[i64], adjacency_to: view[i64],
         adjacency_next: view[i64], adjacency_edge: view[i64], edge_u: view[i64],
@@ -33,7 +33,7 @@ def strong_orientation_visit(vertex: usize, head: view[i64], adjacency_to: view[
         edge: usize = adjacency_edge[arc_index].usize()
         if edge_used[edge] == 0:
             edge_used[edge] <- 1
-            direction[edge] <- if vertex.i64() == edge_u[edge] then 1 else -1
+            direction[edge] <- 1 if (vertex.i64() == edge_u[edge]) else -1
             neighbor: usize = adjacency_to[arc_index].usize()
             if discovery[neighbor] == -1:
                 strong_orientation_visit(neighbor, head, adjacency_to, adjacency_next, adjacency_edge,
@@ -46,9 +46,9 @@ def strong_orientation_visit(vertex: usize, head: view[i64], adjacency_to: view[
                 low[vertex] <- discovery[neighbor]
         arc <- next_arc
 
-def strong_orientation_store_i64(value: i64, output: mutable view[u8], position: usize) -> void:
+def strong_orientation_store_i64(value: i64, output: mutable u8&, position: usize) -> void:
     bits: u64 = value.u64()
-    byte: usize = 0
+    byte: mutable usize = 0
     while byte < 8:
         output[position + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
@@ -74,7 +74,7 @@ def strong_orientation_impl(input: i64&, length: usize, output: mutable u8&, out
         return -2
 
     head: mutable i64[MAX_VERTICES] = zeroed
-    tail: mutable i64[MAX_VERTICES] = zeroed
+    tail_value: mutable i64[MAX_VERTICES] = zeroed
     adjacency_to: mutable i64[MAX_ARCS] = zeroed
     adjacency_next: mutable i64[MAX_ARCS] = zeroed
     adjacency_edge: mutable i64[MAX_ARCS] = zeroed
@@ -83,18 +83,18 @@ def strong_orientation_impl(input: i64&, length: usize, output: mutable u8&, out
     direction: mutable i64[MAX_EDGES] = zeroed
     discovery: mutable i64[MAX_VERTICES] = zeroed
     low: mutable i64[MAX_VERTICES] = zeroed
-    for vertex in 0..<MAX_VERTICES |head, tail, discovery|:
+    for vertex in 0..<MAX_VERTICES |head, tail_value, discovery|:
         head[vertex] <- -1
-        tail[vertex] <- -1
+        tail_value[vertex] <- -1
         discovery[vertex] <- -1
     arc_count: mutable usize = 0
-    for edge in 0..<edge_count |input, edge_u, head, tail, adjacency_to, adjacency_next, adjacency_edge, arc_count|:
+    for edge in 0..<edge_count |input, edge_u, head, tail_value, adjacency_to, adjacency_next, adjacency_edge, arc_count|:
         left: usize = input[2 + 2 * edge].usize()
         right: usize = input[3 + 2 * edge].usize()
         edge_u[edge] <- left.i64()
-        strong_orientation_append_arc(left, right, edge, head[0:MAX_VERTICES], tail[0:MAX_VERTICES],
+        strong_orientation_append_arc(left, right, edge, head[0:MAX_VERTICES], tail_value[0:MAX_VERTICES],
             adjacency_to[0:MAX_ARCS], adjacency_next[0:MAX_ARCS], adjacency_edge[0:MAX_ARCS], arc_count)
-        strong_orientation_append_arc(right, left, edge, head[0:MAX_VERTICES], tail[0:MAX_VERTICES],
+        strong_orientation_append_arc(right, left, edge, head[0:MAX_VERTICES], tail_value[0:MAX_VERTICES],
             adjacency_to[0:MAX_ARCS], adjacency_next[0:MAX_ARCS], adjacency_edge[0:MAX_ARCS], arc_count)
     timer: mutable i64 = 0
     bridges: mutable i64 = 0
@@ -108,9 +108,9 @@ def strong_orientation_impl(input: i64&, length: usize, output: mutable u8&, out
                 edge_used[0:MAX_EDGES], direction[0:MAX_EDGES], discovery[0:MAX_VERTICES],
                 low[0:MAX_VERTICES], timer, bridges)
         vertex <- vertex + 1
-    strong_orientation_store_i64(components + bridges, output[0:output_bytes], 0)
+    strong_orientation_store_i64(components + bridges, output, 0)
     for edge in 0..<edge_count |edge, direction, output|:
-        strong_orientation_store_i64(direction[edge], output[0:output_bytes], (edge + 1) * 8)
+        strong_orientation_store_i64(direction[edge], output, (edge + 1) * 8)
     output_bytes.i64()
 
 export fn strong_orientation(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = strong_orientation_impl

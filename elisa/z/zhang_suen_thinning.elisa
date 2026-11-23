@@ -48,8 +48,7 @@ def zst_thin_phase(image: mutable view[u8], marked: mutable view[u8],
                     blocked <- (p2 != 0 and p4 != 0 and p8 != 0) or (p2 != 0 and p6 != 0 and p8 != 0)
                 else:
                     blocked <- (p2 != 0 and p4 != 0 and p6 != 0) or (p4 != 0 and p6 != 0 and p8 != 0)
-                if black_neighbors >= 2 and black_neighbors <= 6 and
-                        transitions == 1 and not blocked:
+                if black_neighbors >= 2 and black_neighbors <= 6 and transitions == 1 and not blocked:
                     marked[index] <- 1
                     changed <- true
             column <- column + 1
@@ -68,8 +67,7 @@ def zhang_suen_thinning_impl(input: i64&, length: usize,
         return -1
     rows_value: i64 = input[0]
     columns_value: i64 = input[1]
-    if rows_value < 1 or rows_value > MAX_ROWS or
-            columns_value < 1 or columns_value > MAX_COLUMNS:
+    if rows_value < 1 or rows_value > MAX_ROWS or columns_value < 1 or columns_value > MAX_COLUMNS:
         return -1
     rows: usize = rows_value.usize()
     columns: usize = columns_value.usize()
@@ -98,7 +96,7 @@ def zhang_suen_thinning_impl(input: i64&, length: usize,
         second_changed: bool = zst_thin_phase(image_view, marked_view, rows, columns, true)
         if not first_changed and not second_changed:
             break
-    output_view: mutable view[u8] = output[0:cells]
+    output_view: mutable u8& = output
     index <- 0
     while index < cells:
         output_view[index] <- image[index]

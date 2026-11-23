@@ -5,7 +5,8 @@ const MON_DAG_MAX_INPUT: usize = 531
 const MON_DAG_MAX_FRAMES: usize = 64
 const MON_DAG_INF: i64 = 1152921504606846976
 
-def monge_dag_fixed_edge_shortest_path_impl(input: view[i64], length: usize) -> i64:
+def monge_dag_fixed_edge_shortest_path_impl(input: i64&, length: usize) -> i64:
+    v: mutable usize = zeroed
     if length < 2 or length > MON_DAG_MAX_INPUT: return -1
     n_value: i64 = input[0]
     d_value: i64 = input[1]
@@ -18,7 +19,7 @@ def monge_dag_fixed_edge_shortest_path_impl(input: view[i64], length: usize) -> 
     offset: mutable usize = 2
     u: mutable usize = 0
     while u < n:
-        v: mutable usize = u + 1
+        v <- u + 1
         while v <= n:
             weight: i64 = input[offset]
             offset <- offset + 1
@@ -28,7 +29,7 @@ def monge_dag_fixed_edge_shortest_path_impl(input: view[i64], length: usize) -> 
         u <- u + 1
     u <- 0
     while u + 1 < n:
-        v: mutable usize = u + 2
+        v <- u + 2
         while v < n:
             if cost[u * MON_DAG_SIDE + v] + cost[(u + 1) * MON_DAG_SIDE + v + 1] > cost[u * MON_DAG_SIDE + v + 1] + cost[(u + 1) * MON_DAG_SIDE + v]: return -1
             v <- v + 1
@@ -65,7 +66,7 @@ def monge_dag_fixed_edge_shortest_path_impl(input: view[i64], length: usize) -> 
             col_end: usize = stack_col_end[top]
             if row_begin >= row_end: continue
             row: usize = (row_begin + row_end) / 2
-            upper: usize = if col_end < row then col_end else row
+            upper: usize = col_end if col_end < row else row
             best_column: mutable usize = col_begin
             best_value: mutable i64 = MON_DAG_INF
             column: mutable usize = col_begin
@@ -96,6 +97,8 @@ def monge_dag_fixed_edge_shortest_path_impl(input: view[i64], length: usize) -> 
         layer <- layer + 1
     dp[n]
 
-export fn monge_dag_fixed_edge_shortest_path(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MON_DAG_MAX_INPUT: return -1
-    monge_dag_fixed_edge_shortest_path_impl(input[0:length], length)
+def monge_dag_fixed_edge_shortest_path_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MON_DAG_MAX_INPUT: return -1
+    monge_dag_fixed_edge_shortest_path_impl(input, length)
+
+export fn monge_dag_fixed_edge_shortest_path(input: i64&, length: usize) -> i64 = monge_dag_fixed_edge_shortest_path_entry

@@ -7,10 +7,10 @@ const KRP_BITS: usize = 39
 const KRP_OUTPUT: usize = 11912
 
 struct KrpRecord:
-    start: usize
-    finish: usize
-    period: usize
-    errors: usize
+    start: mutable usize
+    finish: mutable usize
+    period: mutable usize
+    errors: mutable usize
 
 def krp_bit(start: usize, finish: usize, period: usize) -> usize:
     (start * (KRP_N + 1) + finish) * KRP_PERIODS + period
@@ -61,7 +61,7 @@ def krp_factors_valid(text: view[i32], n: usize, starts: view[usize], ends: view
         for earlier in 0..<a:
             matched: usize = krp_lce(text, n, earlier, a)
             if matched > longest: longest <- matched
-        expected_end: usize = a + longest + 1
+        expected_end: mutable usize = a + longest + 1
         if expected_end > n: expected_end <- n
         if b != expected_end: return false
         prefix: usize = b - a - 1
@@ -86,10 +86,10 @@ def krp_seed_valid(text: view[i32], n: usize, budget: usize, record: KrpRecord) 
     errors: usize = krp_mismatches(text, a, b, p)
     if errors != record.errors or errors > budget: return false
     if a > 0:
-        left_error: usize = if text[a - 1] != text[a + p - 1]: 1 else: 0
+        left_error: usize = 1 if (text[a - 1] != text[a + p - 1]) else 0
         if errors + left_error <= budget: return false
     if b < n:
-        right_error: usize = if text[b - p] != text[b]: 1 else: 0
+        right_error: usize = 1 if (text[b - p] != text[b]) else 0
         if errors + right_error <= budget: return false
     true
 
@@ -116,7 +116,7 @@ def krp_propagate(records: mutable view[KrpRecord], record_count: mutable usize&
                 if source.finish > copy_end: break
                 target_end: usize = source.finish + delta
                 if target_end <= b - 2:
-                    var shifted: mutable KrpRecord = zeroed
+                    shifted: mutable KrpRecord = zeroed
                     shifted.start <- target
                     shifted.finish <- target_end
                     shifted.period <- source.period
@@ -124,16 +124,16 @@ def krp_propagate(records: mutable view[KrpRecord], record_count: mutable usize&
                     krp_add(records, record_count, known, generated, shifted, true)
                 index <- index + 1
 
-def krp_put(output: mutable view[u8], offset: mutable usize&, value: i64) -> void:
-    var bits: mutable u64 = value.u64()
+def krp_put(output: mutable u8&, offset: mutable usize&, value: i64) -> void:
+    bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset] <- (bits & 255).u8()
         bits <- bits >> 8
         offset <- offset + 1
 
-def krp_impl(values: view[i64], output: mutable view[u8], capacity: usize,
+def krp_impl(values: i64&, values_length: usize, output: mutable u8&, capacity: usize,
              output_is_null: bool) -> i64:
-    length: usize = values.len()
+    length: usize = values_length
     if length < 2 or length > KRP_INPUT: return -1
     n_value: i64 = values[0]
     budget_value: i64 = values[1]
@@ -141,26 +141,26 @@ def krp_impl(values: view[i64], output: mutable view[u8], capacity: usize,
     n: usize = n_value.usize()
     budget: usize = budget_value.usize()
     if length < n + 3: return -1
-    var word: mutable i32[KRP_N] = zeroed
-    var starts: mutable usize[KRP_N] = zeroed
-    var ends: mutable usize[KRP_N] = zeroed
-    var copies: mutable i64[KRP_N] = zeroed
-    var records: mutable KrpRecord[KRP_RECORDS] = zeroed
-    var known: mutable u64[KRP_BITS] = zeroed
-    var generated: mutable u64[KRP_BITS] = zeroed
-    var text: mutable view[i32] = word[0:KRP_N]
-    var starts_view: mutable view[usize] = starts[0:KRP_N]
-    var ends_view: mutable view[usize] = ends[0:KRP_N]
-    var copies_view: mutable view[i64] = copies[0:KRP_N]
-    var records_view: mutable view[KrpRecord] = records[0:KRP_RECORDS]
-    var known_view: mutable view[u64] = known[0:KRP_BITS]
-    var generated_view: mutable view[u64] = generated[0:KRP_BITS]
+    word: mutable i32[KRP_N] = zeroed
+    starts: mutable usize[KRP_N] = zeroed
+    ends: mutable usize[KRP_N] = zeroed
+    copies: mutable i64[KRP_N] = zeroed
+    records: mutable KrpRecord[KRP_RECORDS] = zeroed
+    known: mutable u64[KRP_BITS] = zeroed
+    generated: mutable u64[KRP_BITS] = zeroed
+    text: mutable view[i32] = word[0:KRP_N]
+    starts_view: mutable view[usize] = starts[0:KRP_N]
+    ends_view: mutable view[usize] = ends[0:KRP_N]
+    copies_view: mutable view[i64] = copies[0:KRP_N]
+    records_view: mutable view[KrpRecord] = records[0:KRP_RECORDS]
+    known_view: mutable view[u64] = known[0:KRP_BITS]
+    generated_view: mutable view[u64] = generated[0:KRP_BITS]
     for i in 0..<n:
         if values[2 + i] < 0 or values[2 + i] > 5: return -1
         text[i] <- values[2 + i].i32()
     for i in 0..<n - 1:
         if text[i] == text[n - 1]: return -1
-    var cursor: mutable usize = n + 2
+    cursor: mutable usize = n + 2
     if cursor >= length or values[cursor] < 1 or values[cursor] > n.i64(): return -1
     factor_count: usize = values[cursor].usize()
     cursor <- cursor + 1
@@ -180,14 +180,14 @@ def krp_impl(values: view[i64], output: mutable view[u8], capacity: usize,
     if seed_count_value < 0 or seed_count_value > KRP_RECORDS.i64(): return -1
     seed_count: usize = seed_count_value.usize()
     if cursor + 4 * seed_count != length: return -1
-    var record_count: mutable usize = 0
+    record_count: mutable usize = 0
     for _ in 0..<seed_count:
         a: i64 = values[cursor]
         b: i64 = values[cursor + 1]
         p: i64 = values[cursor + 2]
         e: i64 = values[cursor + 3]
         if a < 0 or a > n.i64() or b < 0 or b > n.i64() or p < 0 or p > n.i64() or e < 0 or e > KRP_K.i64(): return -1
-        var seed: mutable KrpRecord = zeroed
+        seed: mutable KrpRecord = zeroed
         seed.start <- a.usize()
         seed.finish <- b.usize()
         seed.period <- p.usize()
@@ -197,14 +197,14 @@ def krp_impl(values: view[i64], output: mutable view[u8], capacity: usize,
         cursor <- cursor + 4
     krp_propagate(records_view, record_count, known_view, generated_view,
                   starts_view, ends_view, copies_view, factor_count)
-    var count: mutable usize = 0
+    count: mutable usize = 0
     for i in 0..<record_count:
         r: KrpRecord = records_view[i]
         if krp_marked(generated_view, krp_bit(r.start, r.finish, r.period)): count <- count + 1
     written: usize = 8 + count * 32
     if written > KRP_OUTPUT: return -1
     if output_is_null or capacity < written: return -2
-    var offset: mutable usize = 0
+    offset: mutable usize = 0
     krp_put(output, offset, count.i64())
     for i in 0..<record_count:
         r: KrpRecord = records_view[i]
@@ -215,14 +215,17 @@ def krp_impl(values: view[i64], output: mutable view[u8], capacity: usize,
         krp_put(output, offset, r.errors.i64())
     written.i64()
 
-export fn k_repetition_within_factor_copy_propagation(input: i64&, length: usize,
+def k_repetition_within_factor_copy_propagation_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > KRP_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
-        var scratch: mutable u8[1] = zeroed
-        return krp_impl(input_view, scratch[0:0], capacity, true)
+    if input == null or length < 2 or length > KRP_INPUT: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    if output == null:
+        scratch: mutable u8[1] = zeroed
+        return krp_impl(input_view, input_view_length, &scratch[0], capacity, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > KRP_OUTPUT: safe_capacity <- KRP_OUTPUT
-    output_view: mutable view[u8] = output[0:safe_capacity]
-    krp_impl(input_view, output_view, capacity, false)
+    output_view: mutable u8& = output
+    krp_impl(input_view, input_view_length, output_view, capacity, false)
+
+export fn k_repetition_within_factor_copy_propagation(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = k_repetition_within_factor_copy_propagation_impl

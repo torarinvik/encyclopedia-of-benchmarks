@@ -3,12 +3,11 @@ const BKB_MAX_TYPES: usize = 16
 const BKB_MAX_CAPACITY: usize = 64
 const BKB_MAX_INPUT: usize = 51
 
-def bounded_knapsack_binary_grouping_impl(values: view[i64], length: usize) -> i64:
-    if length < 2 or length > BKB_MAX_INPUT or values.len() != length: return -1
+def bounded_knapsack_binary_grouping_impl(values: i64&, values_length: usize, length: usize) -> i64:
+    if length < 2 or length > BKB_MAX_INPUT or values_length != length: return -1
     n_value: i64 = values[0]
     capacity_value: i64 = values[1]
-    if n_value < 0 or n_value > BKB_MAX_TYPES.i64() or
-       capacity_value < 0 or capacity_value > BKB_MAX_CAPACITY.i64(): return -1
+    if n_value < 0 or n_value > BKB_MAX_TYPES.i64() or capacity_value < 0 or capacity_value > BKB_MAX_CAPACITY.i64(): return -1
     n: usize = n_value.usize()
     capacity: usize = capacity_value.usize()
     if length != 2 + 3 * n: return -1
@@ -30,7 +29,7 @@ def bounded_knapsack_binary_grouping_impl(values: view[i64], length: usize) -> i
         remaining: mutable usize = values[4 + 3 * item].usize()
         bundle_size: mutable usize = 1
         while remaining > 0:
-            copies: usize = bundle_size
+            copies: mutable usize = bundle_size
             if copies > remaining: copies <- remaining
             bundle_weight: usize = weight * copies
             bundle_value: i64 = value * copies.i64()
@@ -46,7 +45,10 @@ def bounded_knapsack_binary_grouping_impl(values: view[i64], length: usize) -> i
         item <- item + 1
     best[capacity]
 
-export fn bounded_knapsack_binary_grouping(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > BKB_MAX_INPUT: return -1
-    let values: view[i64] = input[0:length]
-    bounded_knapsack_binary_grouping_impl(values, length)
+def bounded_knapsack_binary_grouping_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > BKB_MAX_INPUT: return -1
+    values: i64& = input
+    values_length: usize = length
+    bounded_knapsack_binary_grouping_impl(values, values_length, length)
+
+export fn bounded_knapsack_binary_grouping(input: i64&, length: usize) -> i64 = bounded_knapsack_binary_grouping_entry

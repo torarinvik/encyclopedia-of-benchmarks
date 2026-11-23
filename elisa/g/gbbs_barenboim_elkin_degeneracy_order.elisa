@@ -1,18 +1,20 @@
-// Clean-room bounded GBBS Barenboim-Elkin degeneracy-order profile.
+# Clean-room bounded GBBS Barenboim-Elkin degeneracy-order profile.
 const GBBS_BE_MAX_N: usize = 20
 const GBBS_BE_MAX_M: usize = 190
 const GBBS_BE_MAX_INPUT: usize = 382
 
-def gbbs_be_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def gbbs_be_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def gbbs_barenboim_elkin_degeneracy_order(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 @export("gbbs_barenboim_elkin_degeneracy_order"):
-    if input.is_null() or length < 2 or length > GBBS_BE_MAX_INPUT: return -1
+def gbbs_barenboim_elkin_degeneracy_order_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    index: mutable usize = 0
+    count: mutable usize = 0
+    if input == null or length < 2 or length > GBBS_BE_MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     if n64 < 1 or n64 > 20 or m64 < 0 or m64 > 190: return -1
@@ -34,7 +36,7 @@ def gbbs_barenboim_elkin_degeneracy_order(input: i64&, length: usize,
         initial_degree[u] <- initial_degree[u] + 1
         initial_degree[v] <- initial_degree[v] + 1
         edge <- edge + 1
-    if output.is_null() or capacity < 8 * n: return -2
+    if output == null or capacity < 8 * n: return -2
     degree: mutable i64[20] = zeroed
     alive: mutable bool[20] = zeroed
     vertex: mutable usize = 0
@@ -55,7 +57,7 @@ def gbbs_barenboim_elkin_degeneracy_order(input: i64&, length: usize,
             best_num <- total
             best_den <- remaining.i64()
         removed: mutable bool[20] = zeroed
-        count: mutable usize = 0
+        count <- 0
         vertex <- 0
         while vertex < n:
             if alive[vertex] and 10 * degree[vertex] * remaining.i64() <= 11 * total:
@@ -104,7 +106,7 @@ def gbbs_barenboim_elkin_degeneracy_order(input: i64&, length: usize,
                     count <- count + 1
                     break
                 vertex <- vertex + 1
-        index: mutable usize = 0
+        index <- 0
         while index < count:
             alive[shell[index]] <- false
             order[used] <- shell[index]
@@ -127,6 +129,8 @@ def gbbs_barenboim_elkin_degeneracy_order(input: i64&, length: usize,
         index <- index + 1
     vertex <- 0
     while vertex < n:
-        gbbs_be_store_i64_le(rank[vertex], output[0:8 * n], 8 * vertex)
+        gbbs_be_store_i64_le(rank[vertex], output, 8 * vertex)
         vertex <- vertex + 1
     return (8 * n).i64()
+
+export fn gbbs_barenboim_elkin_degeneracy_order(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = gbbs_barenboim_elkin_degeneracy_order_impl

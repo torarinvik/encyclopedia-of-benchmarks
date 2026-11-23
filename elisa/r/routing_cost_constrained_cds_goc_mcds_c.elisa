@@ -1,18 +1,20 @@
-// Clean-room bounded GOC-MCDS-C construction trace.
+# Clean-room bounded GOC-MCDS-C construction trace.
 const MAX_N: usize = 8
 const MAX_INPUT: usize = 17
 
-def put64(value: i64, output: mutable view[u8], position: usize) -> void:
-    bits: u64 = value.u64()
+def put64(value: i64, output: mutable u8&, position: usize) -> void:
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[position + byte] <- (bits & 255).u8()
         bits <- bits >> 8
         byte <- byte + 1
 
-def routing_cost_constrained_cds_goc_mcds_c(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 @export("routing_cost_constrained_cds_goc_mcds_c"):
-    if input.is_null() or length < 3 or length > MAX_INPUT or input[0] < 1 or input[0] > 8: return -1
+def routing_cost_constrained_cds_goc_mcds_c_impl(input: i64&, length: usize,
+        output: mutable u8&, capacity: usize) -> i64:
+    j: mutable usize = zeroed
+    u: mutable usize = 0
+    if input == null or length < 3 or length > MAX_INPUT or input[0] < 1 or input[0] > 8: return -1
     n: usize = input[0].usize()
     if length != 1 + 2 * n: return -1
     full: u64 = (1.u64() << n) - 1
@@ -24,7 +26,7 @@ def routing_cost_constrained_cds_goc_mcds_c(input: i64&, length: usize,
         ids[v] <- input[1 + n + v]
         if mask < 0 or mask.u64() > full or (mask.u64() & (1.u64() << v)) != 0 or ids[v] < 1 or ids[v] > 1000: return -1
         adjacency[v] <- mask.u64()
-        u: mutable usize = 0
+        u <- 0
         while u < v:
             if ids[u] == ids[v]: return -1
             u <- u + 1
@@ -74,7 +76,7 @@ def routing_cost_constrained_cds_goc_mcds_c(input: i64&, length: usize,
     i: mutable usize = 0
     while i < n:
         order[i] <- i
-        j: mutable usize = i
+        j <- i
         while j > 0 and ids[order[j - 1]] > ids[order[j]]:
             temp: usize = order[j - 1]
             order[j - 1] <- order[j]
@@ -92,13 +94,15 @@ def routing_cost_constrained_cds_goc_mcds_c(input: i64&, length: usize,
                 if ((independent >> target) & 1) != 0:
                     parent: mutable i64[MAX_N] = zeroed
                     v <- 0
-                    while v < n: parent[v] <- -2; v <- v + 1
+                    while v < n:
+                        parent[v] <- -2
+                        v <- v + 1
                     queue: mutable usize[MAX_N] = zeroed
                     head: mutable usize = 0
-                    tail: mutable usize = 1
+                    tail_value: mutable usize = 1
                     parent[source] <- -1
                     queue[0] <- source
-                    while head < tail and parent[target] == -2:
+                    while head < tail_value and parent[target] == -2:
                         current: usize = queue[head]
                         head <- head + 1
                         j <- 0
@@ -106,8 +110,8 @@ def routing_cost_constrained_cds_goc_mcds_c(input: i64&, length: usize,
                             next: usize = order[j]
                             if ((adjacency[current] >> next) & 1) != 0 and parent[next] == -2:
                                 parent[next] <- current.i64()
-                                queue[tail] <- next
-                                tail <- tail + 1
+                                queue[tail_value] <- next
+                                tail_value <- tail_value + 1
                             j <- j + 1
                     if parent[target] == -2: return -1
                     path: mutable usize[MAX_N] = zeroed
@@ -126,8 +130,10 @@ def routing_cost_constrained_cds_goc_mcds_c(input: i64&, length: usize,
                             j <- j + 1
                 b <- b + 1
         a <- a + 1
-    if output.is_null() or capacity < 16: return -2
-    output_view: mutable view[u8] = output[0:16]
+    if output == null or capacity < 16: return -2
+    output_view: mutable u8& = output
     put64(independent.i64(), output_view, 0)
     put64((independent | connectors).i64(), output_view, 8)
     16
+
+export fn routing_cost_constrained_cds_goc_mcds_c(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = routing_cost_constrained_cds_goc_mcds_c_impl

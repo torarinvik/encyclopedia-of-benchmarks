@@ -1,21 +1,21 @@
 const MAX_INPUT_LENGTH = 195
 
-def online_bipartiteness_dsu_impl(input: view[i64]) -> i64:
-    if input.len() < 2 or input.len() > MAX_INPUT_LENGTH: return -1
-    let n_value: i64 = input[0]
-    let q_value: i64 = input[1]
+def online_bipartiteness_dsu_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
+    n_value:  i64 = input[0]
+    q_value:  i64 = input[1]
     if n_value < 1 or n_value > 32 or q_value < 0 or q_value > 64: return -1
-    let n: usize = n_value.usize()
-    let q: usize = q_value.usize()
-    if input.len() != 2 + 3 * q: return -1
+    n:  usize = n_value.usize()
+    q:  usize = q_value.usize()
+    if input_length != 2 + 3 * q: return -1
     operation: mutable usize = 0
     while operation < q:
-        let opcode: i64 = input[2 + 3 * operation]
-        let a: i64 = input[3 + 3 * operation]
-        let b: i64 = input[4 + 3 * operation]
+        opcode:  i64 = input[2 + 3 * operation]
+        a:  i64 = input[3 + 3 * operation]
+        b:  i64 = input[4 + 3 * operation]
         if opcode == 0:
             if a < 0 or a >= n_value or b < 0 or b >= n_value: return -1
-        else if opcode == 1:
+        elif opcode == 1:
             if a < 0 or a >= n_value or b != 0: return -1
         else:
             return -1
@@ -33,8 +33,8 @@ def online_bipartiteness_dsu_impl(input: view[i64]) -> i64:
     query_ordinal: mutable i64 = 0
     operation <- 0
     while operation < q:
-        let opcode: i64 = input[2 + 3 * operation]
-        let a: usize = input[3 + 3 * operation].usize()
+        opcode:  i64 = input[2 + 3 * operation]
+        a:  usize = input[3 + 3 * operation].usize()
         if opcode == 1:
             root: mutable usize = a
             total: mutable i64 = 0
@@ -44,18 +44,18 @@ def online_bipartiteness_dsu_impl(input: view[i64]) -> i64:
             current: mutable usize = a
             accumulated: mutable i64 = 0
             while parent[current].usize() != current:
-                let next: usize = parent[current].usize()
-                let edge: i64 = parity[current]
+                next:  usize = parent[current].usize()
+                edge:  i64 = parity[current]
                 parent[current] <- root.i64()
                 parity[current] <- total ^ accumulated
                 accumulated <- accumulated ^ edge
                 current <- next
-            let answer: i64 = if bad[root] then 0 else 1
+            answer:  i64 = 0 if (bad[root]) else 1
             checksum <- checksum + (query_ordinal + 1) * (answer + 1)
             query_ordinal <- query_ordinal + 1
             operation <- operation + 1
             continue
-        let b: usize = input[4 + 3 * operation].usize()
+        b:  usize = input[4 + 3 * operation].usize()
         root_a: mutable usize = a
         total_a: mutable i64 = 0
         while parent[root_a].usize() != root_a:
@@ -64,8 +64,8 @@ def online_bipartiteness_dsu_impl(input: view[i64]) -> i64:
         current_a: mutable usize = a
         accumulated_a: mutable i64 = 0
         while parent[current_a].usize() != current_a:
-            let next_a: usize = parent[current_a].usize()
-            let edge_a: i64 = parity[current_a]
+            next_a:  usize = parent[current_a].usize()
+            edge_a:  i64 = parity[current_a]
             parent[current_a] <- root_a.i64()
             parity[current_a] <- total_a ^ accumulated_a
             accumulated_a <- accumulated_a ^ edge_a
@@ -78,8 +78,8 @@ def online_bipartiteness_dsu_impl(input: view[i64]) -> i64:
         current_b: mutable usize = b
         accumulated_b: mutable i64 = 0
         while parent[current_b].usize() != current_b:
-            let next_b: usize = parent[current_b].usize()
-            let edge_b: i64 = parity[current_b]
+            next_b:  usize = parent[current_b].usize()
+            edge_b:  i64 = parity[current_b]
             parent[current_b] <- root_b.i64()
             parity[current_b] <- total_b ^ accumulated_b
             accumulated_b <- accumulated_b ^ edge_b
@@ -88,10 +88,10 @@ def online_bipartiteness_dsu_impl(input: view[i64]) -> i64:
             if total_a == total_b: bad[root_a] <- true
         else:
             if size[root_a] < size[root_b]:
-                let old_root: usize = root_a
+                old_root:  usize = root_a
                 root_a <- root_b
                 root_b <- old_root
-                let old_parity: i64 = total_a
+                old_parity:  i64 = total_a
                 total_a <- total_b
                 total_b <- old_parity
             parent[root_b] <- root_a.i64()
@@ -101,7 +101,10 @@ def online_bipartiteness_dsu_impl(input: view[i64]) -> i64:
         operation <- operation + 1
     checksum
 
-export fn online_bipartiteness_dsu(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
-    let input_view: view[i64] = input[0:length]
-    online_bipartiteness_dsu_impl(input_view)
+def online_bipartiteness_dsu_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    online_bipartiteness_dsu_impl(input_view, input_view_length)
+
+export fn online_bipartiteness_dsu(input: i64&, length: usize) -> i64 = online_bipartiteness_dsu_entry

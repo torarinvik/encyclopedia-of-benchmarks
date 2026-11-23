@@ -5,15 +5,15 @@ const GAPBS_DELTA_STEP_BUCKETS: usize = 481
 const GAPBS_DELTA_STEP_EVENTS: usize = 8192
 const GAPBS_DELTA_STEP_INF: i64 = 1073741823
 
-def gapbs_delta_step_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def gapbs_delta_step_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def gapbs_delta_step_sssp(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("gapbs_delta_step_sssp"):
-    if input.is_null() or length < 4 or length > 196: return -1
+def gapbs_delta_step_sssp_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > 196: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     source64: i64 = input[2]
@@ -30,15 +30,15 @@ def gapbs_delta_step_sssp(input: i64&, length: usize, output: mutable u8&, capac
     edge: mutable usize = 0
     while edge < m:
         from: i64 = input[4 + 3 * edge]
-        to: i64 = input[5 + 3 * edge]
+        to_value: i64 = input[5 + 3 * edge]
         weight: i64 = input[6 + 3 * edge]
-        if from < 0 or from >= n64 or to < 0 or to >= n64 or weight < 0 or weight > 32: return -1
+        if from < 0 or from >= n64 or to_value < 0 or to_value >= n64 or weight < 0 or weight > 32: return -1
         edge_from[edge] <- from.usize()
-        edge_to[edge] <- to.usize()
+        edge_to[edge] <- to_value.usize()
         edge_weight[edge] <- weight
         edge <- edge + 1
     output_bytes: usize = 8 * n
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
 
     distance: mutable i64[16] = zeroed
     vertex: mutable usize = 0
@@ -91,6 +91,8 @@ def gapbs_delta_step_sssp(input: i64&, length: usize, output: mutable u8&, capac
         bucket <- bucket + 1
     vertex <- 0
     while vertex < n:
-        gapbs_delta_step_store_i64_le(distance[vertex], output[0:output_bytes], 8 * vertex)
+        gapbs_delta_step_store_i64_le(distance[vertex], output, 8 * vertex)
         vertex <- vertex + 1
     output_bytes.i64()
+
+export fn gapbs_delta_step_sssp(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = gapbs_delta_step_sssp_impl

@@ -1,4 +1,4 @@
-// Clean-room bounded Irving rank-phase reduction; the FFI boundary is followed by bounded views.
+# Clean-room bounded Irving rank-phase reduction; the FFI boundary is followed by bounded views.
 const MAX_A: usize = 4
 const MAX_P: usize = 4
 const MAX_V: usize = 8
@@ -25,7 +25,9 @@ def rmi_maximum_matching(applicants: usize, posts: usize, phase: usize,
                          mate_a: mutable view[i64], mate_p: mutable view[i64]) -> void:
     limit: mutable usize = 1
     a: mutable usize = 0
-    while a < applicants: limit <- limit*(posts+1); a <- a+1
+    while a < applicants:
+        limit <- limit*(posts+1)
+        a <- a+1
     best: mutable usize[MAX_A] = zeroed
     best_size: mutable i64 = -1
     code: mutable usize = 0
@@ -54,31 +56,47 @@ def rmi_maximum_matching(applicants: usize, posts: usize, phase: usize,
             best <- candidate
         code <- code+1
     a <- 0
-    while a < MAX_A: mate_a[a] <- -1; a <- a+1
+    while a < MAX_A:
+        mate_a[a] <- -1
+        a <- a+1
     p: mutable usize = 0
-    while p < MAX_P: mate_p[p] <- -1; p <- p+1
+    while p < MAX_P:
+        mate_p[p] <- -1
+        p <- p+1
     a <- 0
     while a < applicants:
-        if best[a] < posts: mate_a[a] <- best[a].i64(); mate_p[best[a]] <- a.i64()
+        if best[a] < posts:
+            mate_a[a] <- best[a].i64()
+            mate_p[best[a]] <- a.i64()
         a <- a+1
 
 def rmi_classify(applicants: usize, posts: usize, phase: usize,
                  rank: view[i64], blocked: view[bool],
                  mate_a: view[i64], mate_p: view[i64], classes: mutable view[i64]) -> void:
+    w: mutable usize = zeroed
     queue: mutable usize[MAX_V] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     v: mutable usize = 0
-    while v < applicants+posts: classes[v] <- 2; v <- v+1
+    while v < applicants+posts:
+        classes[v] <- 2
+        v <- v+1
     a: mutable usize = 0
     while a < applicants:
-        if mate_a[a] < 0: classes[a] <- 0; queue[tail] <- a; tail <- tail+1
+        if mate_a[a] < 0:
+            classes[a] <- 0
+            queue[tail_value] <- a
+            tail_value <- tail_value+1
         a <- a+1
     p: mutable usize = 0
     while p < posts:
-        if mate_p[p] < 0: v <- applicants+p; classes[v] <- 0; queue[tail] <- v; tail <- tail+1
+        if mate_p[p] < 0:
+            v <- applicants+p
+            classes[v] <- 0
+            queue[tail_value] <- v
+            tail_value <- tail_value+1
         p <- p+1
-    while head < tail:
+    while head < tail_value:
         v <- queue[head]
         head <- head+1
         if v < applicants:
@@ -87,13 +105,18 @@ def rmi_classify(applicants: usize, posts: usize, phase: usize,
                 p <- 0
                 while p < posts:
                     index: usize = a*MAX_P+p
-                    w: usize = applicants+p
+                    w <- applicants+p
                     if rank[index] > 0 and rank[index] <= phase.i64() and not blocked[index] and mate_a[a] != p.i64() and classes[w] == 2:
-                        classes[w] <- 1; queue[tail] <- w; tail <- tail+1
+                        classes[w] <- 1
+                        queue[tail_value] <- w
+                        tail_value <- tail_value+1
                     p <- p+1
-            else if mate_a[a] >= 0:
+            elif mate_a[a] >= 0:
                 w <- applicants+mate_a[a].usize()
-                if classes[w] == 2: classes[w] <- 0; queue[tail] <- w; tail <- tail+1
+                if classes[w] == 2:
+                    classes[w] <- 0
+                    queue[tail_value] <- w
+                    tail_value <- tail_value+1
         else:
             p <- v-applicants
             if classes[v] == 0:
@@ -101,15 +124,20 @@ def rmi_classify(applicants: usize, posts: usize, phase: usize,
                 while a < applicants:
                     index: usize = a*MAX_P+p
                     if rank[index] > 0 and rank[index] <= phase.i64() and not blocked[index] and mate_a[a] != p.i64() and classes[a] == 2:
-                        classes[a] <- 1; queue[tail] <- a; tail <- tail+1
+                        classes[a] <- 1
+                        queue[tail_value] <- a
+                        tail_value <- tail_value+1
                     a <- a+1
-            else if mate_p[p] >= 0:
+            elif mate_p[p] >= 0:
                 a <- mate_p[p].usize()
-                if classes[a] == 2: classes[a] <- 0; queue[tail] <- a; tail <- tail+1
+                if classes[a] == 2:
+                    classes[a] <- 0
+                    queue[tail_value] <- a
+                    tail_value <- tail_value+1
 
-def rank_maximal_matching_irving(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("rank_maximal_matching_irving"):
-    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
+def rank_maximal_matching_irving_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT: return -1
+    input_view: i64& = input
     a64: i64 = input_view[0]
     p64: i64 = input_view[1]
     e64: i64 = input_view[2]
@@ -145,9 +173,13 @@ def rank_maximal_matching_irving(input: i64&, length: usize, output: mutable u8&
     mate_a: mutable i64[MAX_A] = zeroed
     mate_p: mutable i64[MAX_P] = zeroed
     a <- 0
-    while a < MAX_A: mate_a[a] <- -1; a <- a+1
+    while a < MAX_A:
+        mate_a[a] <- -1
+        a <- a+1
     p: mutable usize = 0
-    while p < MAX_P: mate_p[p] <- -1; p <- p+1
+    while p < MAX_P:
+        mate_p[p] <- -1
+        p <- p+1
     phase: mutable usize = 1
     while phase <= max_rank:
         rmi_maximum_matching(applicants,posts,phase,rank[0:MAX_A*MAX_P],blocked[0:MAX_A*MAX_P],mate_a[0:MAX_A],mate_p[0:MAX_P])
@@ -163,7 +195,7 @@ def rank_maximal_matching_irving(input: i64&, length: usize, output: mutable u8&
                     cp: i64 = classes[applicants+p]
                     if rank[index] <= phase.i64():
                         if (ca == 1 and cp != 0) or (cp == 1 and ca != 0): blocked[index] <- true
-                    else if ca != 0 or cp != 0: blocked[index] <- true
+                    elif ca != 0 or cp != 0: blocked[index] <- true
                 p <- p+1
             a <- a+1
         phase <- phase+1
@@ -175,13 +207,19 @@ def rank_maximal_matching_irving(input: i64&, length: usize, output: mutable u8&
             signature[rank_value-1] <- signature[rank_value-1]+1
         a <- a+1
     output_bytes: usize = 8*(max_rank+1)
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
     staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
     rmi_put(max_rank.i64(),staged_view,0)
     r: mutable usize = 0
-    while r < max_rank: rmi_put(signature[r],staged_view,8*(r+1)); r <- r+1
-    output_view: mutable view[u8] = output[0:output_bytes]
+    while r < max_rank:
+        rmi_put(signature[r],staged_view,8*(r+1))
+        r <- r+1
+    output_view: mutable u8& = output
     i: mutable usize = 0
-    while i < output_bytes: output_view[i] <- staged[i]; i <- i+1
+    while i < output_bytes:
+        output_view[i] <- staged[i]
+        i <- i+1
     output_bytes.i64()
+
+export fn rank_maximal_matching_irving(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = rank_maximal_matching_irving_impl

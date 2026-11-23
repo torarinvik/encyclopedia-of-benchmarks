@@ -21,19 +21,19 @@ def max_product_of_three_impl(input: i64&, length: usize) -> i64:
             max3 <- max2
             max2 <- max1
             max1 <- value
-        else if value > max2:
+        elif value > max2:
             max3 <- max2
             max2 <- value
-        else if value > max3:
+        elif value > max3:
             max3 <- value
         if value < min1:
             min2 <- min1
             min1 <- value
-        else if value < min2:
+        elif value < min2:
             min2 <- value
         i <- i + 1
     product1: i64 = max1 * max2 * max3
     product2: i64 = max1 * min1 * min2
-    if product1 > product2 then product1 else product2
+    product1 if product1 > product2 else product2
 
 export fn max_product_of_three(input: i64&, length: usize) -> i64 = max_product_of_three_impl

@@ -48,7 +48,7 @@ def ptrdist_anagram_search(candidate_masks: mutable view[u64], candidate_lengths
     solutions
 
 def ptrdist_anagram_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > 222:
+    if input == null or length < 3 or length > 222:
         return -1
     phrase_length_value: i64 = input[0]
     if phrase_length_value < 1 or phrase_length_value > 16:
@@ -64,7 +64,7 @@ def ptrdist_anagram_impl(input: i64&, length: usize) -> i64:
         letter: mutable usize = 0
         if value >= 97 and value <= 122:
             letter <- (value - 97).usize()
-        else if value >= 65 and value <= 90:
+        elif value >= 65 and value <= 90:
             letter <- (value - 65).usize()
         else:
             return -1
@@ -113,7 +113,7 @@ def ptrdist_anagram_impl(input: i64&, length: usize) -> i64:
             letter_index: mutable usize = 0
             if value >= 97 and value <= 122:
                 letter_index <- (value - 97).usize()
-            else if value >= 65 and value <= 90:
+            elif value >= 65 and value <= 90:
                 letter_index <- (value - 65).usize()
             else:
                 return -1
@@ -151,8 +151,8 @@ def ptrdist_anagram_impl(input: i64&, length: usize) -> i64:
         j: mutable usize = index
         while j > 0:
             previous: usize = order[j - 1].usize()
-            previous_frequency: u32 = if global_frequency[previous] == 0 { 0xffffffff.u32() } else { global_frequency[previous] }
-            key_frequency: u32 = if global_frequency[key.usize()] == 0 { 0xffffffff.u32() } else { global_frequency[key.usize()] }
+            previous_frequency: u32 = 0xffffffff.u32() if global_frequency[previous] == 0 else global_frequency[previous]
+            key_frequency: u32 = 0xffffffff.u32() if global_frequency[key.usize()] == 0 else global_frequency[key.usize()]
             if previous_frequency < key_frequency or (previous_frequency == key_frequency and previous < key.usize()):
                 break
             order[j] <- order[j - 1]

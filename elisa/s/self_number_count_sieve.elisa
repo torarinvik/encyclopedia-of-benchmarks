@@ -1,10 +1,10 @@
 const MAX_LIMIT: i64 = 100000
 const MAX_PARSEABLE_LENGTH: usize = 2
 
-def self_number_count_sieve_impl(input: view[i64]) -> i64:
-    if input.length < 1 or input.length > MAX_PARSEABLE_LENGTH: return -1
-    let limit: i64 = input[0]
-    if input.length != 1 or limit < 1 or limit > MAX_LIMIT: return -1
+def self_number_count_sieve_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 1 or input_length > MAX_PARSEABLE_LENGTH: return -1
+    limit:  i64 = input[0]
+    if input_length != 1 or limit < 1 or limit > MAX_LIMIT: return -1
 
     generated: mutable u64[1563] = zeroed
     generated_view: mutable view[u64] = generated[0:1563]
@@ -32,7 +32,10 @@ def self_number_count_sieve_impl(input: view[i64]) -> i64:
         value <- value + 1
     count
 
-export fn self_number_count_sieve(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
-    self_number_count_sieve_impl(input_view)
+def self_number_count_sieve_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_PARSEABLE_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    self_number_count_sieve_impl(input_view, input_view_length)
+
+export fn self_number_count_sieve(input: i64&, length: usize) -> i64 = self_number_count_sieve_entry

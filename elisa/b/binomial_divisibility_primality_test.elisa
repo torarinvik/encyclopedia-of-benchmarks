@@ -1,5 +1,6 @@
 def binomial_divisibility_primality_test_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 1: return -1
+    index: mutable usize = zeroed
+    if input == null or length != 1: return -1
     n_value: i64 = input[0]
     if n_value < 2 or n_value > 1000: return -1
     n: usize = n_value.usize()
@@ -9,7 +10,7 @@ def binomial_divisibility_primality_test_impl(input: i64&, length: usize) -> i64
     degree: mutable usize = 1
     while degree <= n:
         row[degree] <- 1
-        index: mutable usize = degree - 1
+        index <- degree - 1
         while index > 0:
             row[index] <- (row[index] + row[index - 1]) % n_value
             index <- index - 1

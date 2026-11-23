@@ -37,7 +37,7 @@ def longest_common_prefix_impl(input: i64&, length: usize, output: mutable u8&, 
         j: mutable usize = i
         while j > 0:
             left: usize = order[j - 1]
-            limit: usize = if sizes[left] < sizes[value] then sizes[left] else sizes[value]
+            limit: usize = sizes[left] if (sizes[left] < sizes[value]) else sizes[value]
             k: mutable usize = 0
             while k < limit and input[starts[left] + k] == input[starts[value] + k]:
                 k <- k + 1
@@ -51,7 +51,7 @@ def longest_common_prefix_impl(input: i64&, length: usize, output: mutable u8&, 
         i <- i + 1
     first: usize = order[0]
     last: usize = order[count - 1]
-    limit: usize = if sizes[first] < sizes[last] then sizes[first] else sizes[last]
+    limit: usize = sizes[first] if (sizes[first] < sizes[last]) else sizes[last]
     prefix: mutable usize = 0
     while prefix < limit and input[starts[first] + prefix] == input[starts[last] + prefix]:
         prefix <- prefix + 1

@@ -12,7 +12,8 @@ def store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
 
 def rate_monotonic_scheduling_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+    higher: mutable usize = zeroed
+    if input == null or length < 3 or length > MAX_INPUT: return -1
     count_value: i64 = input[0]
     if count_value < 1 or count_value > 8 or length != 1 + 2 * count_value.usize(): return -1
     count: usize = count_value.usize()
@@ -32,8 +33,7 @@ def rate_monotonic_scheduling_impl(input: i64&, length: usize,
     while index < count:
         key: usize = order[index]
         position: mutable usize = index
-        while position > 0 and (period[order[position - 1]] > period[key] or
-                (period[order[position - 1]] == period[key] and order[position - 1] > key)):
+        while position > 0 and (period[order[position - 1]] > period[key] or (period[order[position - 1]] == period[key] and order[position - 1] > key)):
             order[position] <- order[position - 1]
             position <- position - 1
         order[position] <- key
@@ -50,7 +50,7 @@ def rate_monotonic_scheduling_impl(input: i64&, length: usize,
         while remaining_target > 0 and elapsed < period[target]:
             higher_rank: mutable usize = 0
             while higher_rank < rank:
-                higher: usize = order[higher_rank]
+                higher <- order[higher_rank]
                 if elapsed % period[higher] == 0:
                     active[higher] <- active[higher] + execution[higher]
                 higher_rank <- higher_rank + 1
@@ -75,7 +75,7 @@ def rate_monotonic_scheduling_impl(input: i64&, length: usize,
         rank <- rank + 1
 
     output_bytes: usize = 8 * (count + 2)
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     staged_view: mutable view[u8] = staged[0:output_bytes]
     store_i64_le(schedulable, staged_view, 0)

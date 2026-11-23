@@ -52,9 +52,9 @@ def pp_mark(keys: view[i64], heads: view[i64], next_word: view[i64], key: i64,
         id <- next_word[word_id]
 
 def palindrome_pairs_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > PP_MAX_INPUT:
+    if input == null or length < 1 or length > PP_MAX_INPUT:
         return -1
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     if input_view[0] < 0 or input_view[0] > PP_WORDS.i64():
         return -1
     count: usize = input_view[0].usize()
@@ -84,8 +84,10 @@ def palindrome_pairs_impl(input: i64&, length: usize, output: mutable u8&, capac
     keys: mutable i64[PP_HASH] = zeroed
     heads: mutable i64[PP_HASH] = zeroed
     next_word: mutable i64[PP_WORDS] = zeroed
-    for i in 0..<PP_HASH: heads[i] <- -1
-    for i in 0..<PP_WORDS: next_word[i] <- -1
+    for i in 0..<PP_HASH:
+        heads[i] <- -1
+    for i in 0..<PP_WORDS:
+        next_word[i] <- -1
     id <- 0
     while id < count:
         words_view: view[i64] = words[0:PP_WORDS * PP_LENGTH]
@@ -134,10 +136,11 @@ def palindrome_pairs_impl(input: i64&, length: usize, output: mutable u8&, capac
                 bytes <- bytes + 1
             right <- right + 1
         left <- left + 1
-    if output.is_null() or capacity < bytes:
+    if output == null or capacity < bytes:
         return -2
-    output_view: mutable view[u8] = output[0:capacity]
-    for i in 0..<bytes: output_view[i] <- staged[i]
+    output_view: mutable u8& = output
+    for i in 0..<bytes:
+        output_view[i] <- staged[i]
     bytes.i64()
 
 export fn palindrome_pairs(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = palindrome_pairs_impl

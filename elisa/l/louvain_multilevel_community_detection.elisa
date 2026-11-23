@@ -5,12 +5,13 @@ const MAX_PARSEABLE_LENGTH: usize = 87
 const ADJACENCY_CELLS: usize = 64
 
 def louvain_partition_score(adjacency: view[i64], community: view[i64], n: usize) -> i64:
+    j: mutable usize = 0
     degree: mutable i64[8] = zeroed
     total_degree: mutable i64 = 0
     internal_directed: mutable i64 = 0
     i: mutable usize = 0
     while i < n:
-        j: mutable usize = 0
+        j <- 0
         while j < n:
             weight: i64 = adjacency[i * MAX_VERTICES + j]
             degree[i] <- degree[i] + weight
@@ -41,7 +42,8 @@ def louvain_partition_score(adjacency: view[i64], community: view[i64], n: usize
         i <- i + 1
     total_degree * internal_directed - degree_squares
 
-def louvain_multilevel_community_detection_impl(values: view[i64], length: usize) -> i64:
+def louvain_multilevel_community_detection_impl(values: i64&, length: usize) -> i64:
+    original: mutable usize = 0
     if length < 5 or length > MAX_PARSEABLE_LENGTH:
         return -1
     n_value: i64 = values[0]
@@ -179,20 +181,22 @@ def louvain_multilevel_community_detection_impl(values: view[i64], length: usize
     labels: mutable i64[MAX_VERTICES] = zeroed
     vertex <- 0
     while vertex < n:
-        original: mutable usize = 0
+        original <- 0
         while original < MAX_VERTICES:
             if (vertex_masks[vertex] & (1.u64() << original)) != 0:
                 labels[original] <- canonical_keys[vertex].i64()
             original <- original + 1
         vertex <- vertex + 1
-    packed: mutable u64 = n.u64() << 24
+    packed_value: mutable u64 = n.u64() << 24
     original <- 0
     while original < MAX_VERTICES:
-        packed <- packed | (labels[original].u64() << (3 * original))
+        packed_value <- packed_value | (labels[original].u64() << (3 * original))
         original <- original + 1
-    packed.i64()
+    packed_value.i64()
 
-export fn louvain_multilevel_community_detection(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 5 or length > MAX_PARSEABLE_LENGTH:
+def louvain_multilevel_community_detection_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 5 or length > MAX_PARSEABLE_LENGTH:
         return -1
-    louvain_multilevel_community_detection_impl(input[0:length], length)
+    louvain_multilevel_community_detection_impl(input, length)
+
+export fn louvain_multilevel_community_detection(input: i64&, length: usize) -> i64 = louvain_multilevel_community_detection_entry

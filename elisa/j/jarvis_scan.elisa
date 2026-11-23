@@ -6,7 +6,7 @@ const MAX_COORDINATE: i64 = 10000
 def jarvis_scan_orientation(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
     (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
 
-def jarvis_scan_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def jarvis_scan_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -15,7 +15,8 @@ def jarvis_scan_put_i64(output: mutable view[u8], offset: usize, value: i64) -> 
         byte <- byte + 1
 
 def jarvis_scan_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or input[0] < 0 or input[0] > MAX_POINTS.i64():
+    second: mutable usize = zeroed
+    if input == null or length < 1 or input[0] < 0 or input[0] > MAX_POINTS.i64():
         return -1
     count: usize = input[0].usize()
     if length != 1 + 2 * count:
@@ -27,8 +28,7 @@ def jarvis_scan_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
     while point < count:
         x[point] <- input[1 + 2 * point]
         y[point] <- input[2 + 2 * point]
-        if x[point] < MIN_COORDINATE or x[point] > MAX_COORDINATE or
-                y[point] < MIN_COORDINATE or y[point] > MAX_COORDINATE:
+        if x[point] < MIN_COORDINATE or x[point] > MAX_COORDINATE or y[point] < MIN_COORDINATE or y[point] > MAX_COORDINATE:
             return -1
         point <- point + 1
     if count <= 2:
@@ -36,7 +36,7 @@ def jarvis_scan_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
 
     first: mutable usize = 0
     while first < count:
-        second: mutable usize = first + 1
+        second <- first + 1
         while second < count:
             if x[first] == x[second] and y[first] == y[second]:
                 return -1
@@ -79,12 +79,12 @@ def jarvis_scan_impl(input: i64&, length: usize, output: mutable u8&, capacity: 
             break
         current <- candidate
     bytes: usize = hull_count * 16
-    if output.is_null() or capacity < bytes:
+    if output == null or capacity < bytes:
         return -2
     point <- 0
     while point < hull_count:
-        jarvis_scan_put_i64(output[0:bytes], point * 16, x[hull[point]])
-        jarvis_scan_put_i64(output[0:bytes], point * 16 + 8, y[hull[point]])
+        jarvis_scan_put_i64(output, point * 16, x[hull[point]])
+        jarvis_scan_put_i64(output, point * 16 + 8, y[hull[point]])
         point <- point + 1
     bytes.i64()
 

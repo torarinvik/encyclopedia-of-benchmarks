@@ -9,9 +9,9 @@ def technology_mapping_minimum_area_tree_cover_put(value: i64, output: mutable v
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def technology_mapping_minimum_area_tree_cover(input: i64&, length: usize,
-    output: mutable u8&, capacity: usize) -> i64 @export("technology_mapping_minimum_area_tree_cover"):
-    if input.is_null() or length < 9 or length > 99: return -1
+def technology_mapping_minimum_area_tree_cover_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 9 or length > 99: return -1
     n64: i64 = input[0]
     if n64 < 1 or n64 > 31: return -1
     n: usize = n64.usize()
@@ -71,20 +71,30 @@ def technology_mapping_minimum_area_tree_cover(input: i64&, length: usize,
         if kind[i] == 1:
             if costs[0] >= 0:
                 candidate <- costs[0] + best[l]
-                if candidate < INF and candidate < best[i]: best[i] <- candidate; choice[i] <- 0
+                if candidate < INF and candidate < best[i]:
+                    best[i] <- candidate
+                    choice[i] <- 0
         else:
             if costs[1] >= 0:
                 candidate <- costs[1] + best[l] + best[r]
-                if candidate < INF and candidate < best[i]: best[i] <- candidate; choice[i] <- 1
+                if candidate < INF and candidate < best[i]:
+                    best[i] <- candidate
+                    choice[i] <- 1
             if costs[2] >= 0 and kind[l] == 1:
                 candidate <- costs[2] + best[left[l]] + best[r]
-                if candidate < INF and candidate < best[i]: best[i] <- candidate; choice[i] <- 2
+                if candidate < INF and candidate < best[i]:
+                    best[i] <- candidate
+                    choice[i] <- 2
             if costs[3] >= 0 and kind[r] == 1:
                 candidate <- costs[3] + best[l] + best[left[r]]
-                if candidate < INF and candidate < best[i]: best[i] <- candidate; choice[i] <- 3
+                if candidate < INF and candidate < best[i]:
+                    best[i] <- candidate
+                    choice[i] <- 3
             if costs[4] >= 0 and kind[l] == 1 and kind[r] == 1:
                 candidate <- costs[4] + best[left[l]] + best[left[r]]
-                if candidate < INF and candidate < best[i]: best[i] <- candidate; choice[i] <- 4
+                if candidate < INF and candidate < best[i]:
+                    best[i] <- candidate
+                    choice[i] <- 4
     if best[0] == INF: return -1
     mapping: mutable i64[MAX_N] = zeroed
     i <- 0
@@ -92,29 +102,48 @@ def technology_mapping_minimum_area_tree_cover(input: i64&, length: usize,
         mapping[i] <- -3
         if kind[i] == 0: mapping[i] <- -1
         i <- i + 1
-    stack: mutable usize[2 * MAX_N] = zeroed
+    stack_value: mutable usize[2 * MAX_N] = zeroed
     top: mutable usize = 0
-    if kind[0] != 0: stack[0] <- 0; top <- 1
+    if kind[0] != 0:
+        stack_value[0] <- 0
+        top <- 1
     while top > 0:
         top <- top - 1
-        node: usize = stack[top]
+        node: usize = stack_value[top]
         if kind[node] == 0: continue
         pat: usize = choice[node].usize()
         l: usize = left[node]
         r: usize = right[node]
         mapping[node] <- choice[node]
         if pat == 0:
-            stack[top] <- l; top <- top + 1
+            stack_value[top] <- l
+            top <- top + 1
         elif pat == 1:
-            stack[top] <- l; top <- top + 1; stack[top] <- r; top <- top + 1
+            stack_value[top] <- l
+            top <- top + 1
+            stack_value[top] <- r
+            top <- top + 1
         elif pat == 2:
-            mapping[l] <- -2; stack[top] <- left[l]; top <- top + 1; stack[top] <- r; top <- top + 1
+            mapping[l] <- -2
+            stack_value[top] <- left[l]
+            top <- top + 1
+            stack_value[top] <- r
+            top <- top + 1
         elif pat == 3:
-            mapping[r] <- -2; stack[top] <- l; top <- top + 1; stack[top] <- left[r]; top <- top + 1
+            mapping[r] <- -2
+            stack_value[top] <- l
+            top <- top + 1
+            stack_value[top] <- left[r]
+            top <- top + 1
         else:
-            mapping[l] <- -2; mapping[r] <- -2; stack[top] <- left[l]; top <- top + 1; stack[top] <- left[r]; top <- top + 1
+            mapping[l] <- -2
+            mapping[r] <- -2
+            stack_value[top] <- left[l]
+            top <- top + 1
+            stack_value[top] <- left[r]
+            top <- top + 1
     bytes: usize = 8 * (n + 1)
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
     technology_mapping_minimum_area_tree_cover_put(best[0], staged[0:MAX_OUTPUT], 0)
     i <- 0
@@ -126,3 +155,5 @@ def technology_mapping_minimum_area_tree_cover(input: i64&, length: usize,
         output[i] <- staged[i]
         i <- i + 1
     return bytes.i64()
+
+export fn technology_mapping_minimum_area_tree_cover(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = technology_mapping_minimum_area_tree_cover_impl

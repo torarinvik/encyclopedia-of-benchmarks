@@ -7,7 +7,7 @@ def long_division_impl(v: i64&, length: usize) -> i64:
     neg: bool = (a < 0) != (b < 0)
     if a < 0: a <- -a
     if b < 0: b <- -b
-    digits: mutable [i64; 16] = [0;16]
+    digits: mutable i64[16] = zeroed
     n: mutable usize = 0
     if a == 0: n <- 1
     while a > 0:
@@ -20,7 +20,9 @@ def long_division_impl(v: i64&, length: usize) -> i64:
         n <- n - 1
         rem <- rem * 10 + digits[n]
         d: mutable i64 = 0
-        while rem >= b: rem <- rem - b; d <- d + 1
+        while rem >= b:
+            rem <- rem - b
+            d <- d + 1
         q <- q * 10 + d
     if neg: return -q
     q

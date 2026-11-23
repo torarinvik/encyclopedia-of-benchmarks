@@ -1,8 +1,8 @@
 extern floor(value: f64) -> f64
 
-def assign_ranks(values: view[i64], offset: usize, n: usize, ranks: mutable view[f64]) -> void:
+def assign_ranks(values: i64&, offset: usize, n: usize, ranks: mutable view[f64]) -> void:
     order: mutable usize[3] = zeroed
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < n:
         order[i] <- i
         i <- i + 1
@@ -21,7 +21,7 @@ def assign_ranks(values: view[i64], offset: usize, n: usize, ranks: mutable view
         while j < n - 1 and values[offset + order[j + 1]] == values[offset + order[i]]:
             j <- j + 1
         rank: f64 = (i.f64() + j.f64()) / 2.0 + 1.0
-        k: usize = i
+        k: mutable usize = i
         while k <= j:
             ranks[order[k]] <- rank
             k <- k + 1
@@ -45,13 +45,13 @@ def spearman_rank_correlation_coefficient_impl(values: i64&, length: usize) -> f
     n: usize = n_value.usize()
     rank_x: mutable f64[3] = zeroed
     rank_y: mutable f64[3] = zeroed
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < n:
         if values[1 + i] < -1000 or values[1 + i] > 1000 or values[1 + n + i] < -1000 or values[1 + n + i] > 1000:
             return -1.0e300
         i <- i + 1
-    assign_ranks(values[0:length], 1, n, rank_x[0:n])
-    assign_ranks(values[0:length], 1 + n, n, rank_y[0:n])
+    assign_ranks(values, 1, n, rank_x[0:n])
+    assign_ranks(values, 1 + n, n, rank_y[0:n])
     d_squared: mutable f64 = 0.0
     i <- 0
     while i < n:
@@ -61,4 +61,4 @@ def spearman_rank_correlation_coefficient_impl(values: i64&, length: usize) -> f
     rho: f64 = 1.0 - (6.0 * d_squared) / (n.f64() * (n.f64() * n.f64() - 1.0))
     round_tenth_ties_even(rho)
 
-export fn spearman_rank_correlation_coefficient(values: i64&, length: usize) f64 = spearman_rank_correlation_coefficient_impl
+export fn spearman_rank_correlation_coefficient(values: i64&, length: usize) -> f64 = spearman_rank_correlation_coefficient_impl

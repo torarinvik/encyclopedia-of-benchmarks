@@ -2,7 +2,7 @@ const MAX_N: usize = 16
 const MAX_M: usize = 120
 const MAX_PARSEABLE_INPUT: usize = 243
 
-def kt_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def kt_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -11,11 +11,11 @@ def kt_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void
 
 def k_truss_edge_peeling_decomposition_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT:
+    v: mutable usize = zeroed
+    if input == null or length < 2 or length > MAX_PARSEABLE_INPUT:
         return -1
-    input_view: view[i64] = input[0:length]
-    if input_view[0] < 1 or input_view[0] > MAX_N.i64() or
-        input_view[1] < 0 or input_view[1] > MAX_M.i64():
+    input_view: i64& = input
+    if input_view[0] < 1 or input_view[0] > MAX_N.i64() or input_view[1] < 0 or input_view[1] > MAX_M.i64():
         return -1
     vertex_count: usize = input_view[0].usize()
     edge_count: usize = input_view[1].usize()
@@ -40,7 +40,7 @@ def k_truss_edge_peeling_decomposition_impl(input: i64&, length: usize,
         if u_value < 0 or v_value <= u_value or v_value >= vertex_count.i64():
             return -1
         u: usize = u_value.usize()
-        v: usize = v_value.usize()
+        v <- v_value.usize()
         if adjacent[u * MAX_N + v]:
             return -1
         adjacent[u * MAX_N + v] <- true
@@ -53,7 +53,7 @@ def k_truss_edge_peeling_decomposition_impl(input: i64&, length: usize,
         edge <- edge + 1
     u: mutable usize = 0
     while u < vertex_count:
-        v: mutable usize = u + 1
+        v <- u + 1
         while v < vertex_count:
             w: mutable usize = v + 1
             while w < vertex_count:
@@ -65,7 +65,7 @@ def k_truss_edge_peeling_decomposition_impl(input: i64&, length: usize,
             v <- v + 1
         u <- u + 1
     output_bytes: usize = 8 * edge_count
-    if output.is_null() or capacity < output_bytes:
+    if output == null or capacity < output_bytes:
         return -2
     remaining: mutable usize = edge_count
     level: mutable usize = 0
@@ -94,7 +94,7 @@ def k_truss_edge_peeling_decomposition_impl(input: i64&, length: usize,
                     if support[second] > level:
                         support[second] <- support[second] - 1
             w <- w + 1
-    output_view: mutable view[u8] = output[0:output_bytes]
+    output_view: mutable u8& = output
     edge <- 0
     while edge < edge_count:
         kt_store_i64_le(trussness[edge], output_view, 8 * edge)

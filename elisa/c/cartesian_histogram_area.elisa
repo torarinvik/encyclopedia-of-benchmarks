@@ -1,13 +1,13 @@
 # Uncompiled and unexecuted Cartesian-tree histogram draft.
-export fn cartesian_histogram_area(heights: i64&, length: usize) -> i64:
+def cartesian_histogram_area_impl(heights: i64&, length: usize) -> i64:
     if length == 0: return 0
     if heights == null or length > 64: return -9223372036854775807 - 1
-    values: view[i64] = heights[0:length]
+    values: i64& = heights
     for i in 0..<length:
         if values[i] < 0 or values[i] > 1000000: return -9223372036854775807 - 1
     left: mutable usize[64] = zeroed
     right: mutable usize[64] = zeroed
-    stack: mutable usize[64] = zeroed
+    stack_value: mutable usize[64] = zeroed
     order: mutable usize[64] = zeroed
     sizes: mutable usize[64] = zeroed
     for i in 0..<length:
@@ -16,27 +16,27 @@ export fn cartesian_histogram_area(heights: i64&, length: usize) -> i64:
     top: mutable usize = 0
     for i in 0..<length:
         last: mutable usize = length
-        while top > 0 and values[stack[top-1]] > values[i]:
+        while top > 0 and values[stack_value[top-1]] > values[i]:
             top <- top-1
-            last <- stack[top]
-        if top > 0: right[stack[top-1]] <- i
+            last <- stack_value[top]
+        if top > 0: right[stack_value[top-1]] <- i
         left[i] <- last
-        stack[top] <- i
+        stack_value[top] <- i
         top <- top+1
-    root: usize = stack[0]
+    root: usize = stack_value[0]
     top <- 1
-    stack[0] <- root
+    stack_value[0] <- root
     used: mutable usize = 0
     while top > 0:
         top <- top-1
-        node: usize = stack[top]
+        node: usize = stack_value[top]
         order[used] <- node
         used <- used+1
         if left[node] < length:
-            stack[top] <- left[node]
+            stack_value[top] <- left[node]
             top <- top+1
         if right[node] < length:
-            stack[top] <- right[node]
+            stack_value[top] <- right[node]
             top <- top+1
     best: mutable i64 = 0
     while used > 0:
@@ -49,3 +49,5 @@ export fn cartesian_histogram_area(heights: i64&, length: usize) -> i64:
         area: i64 = values[node]*size.i64()
         if area > best: best <- area
     best
+
+export fn cartesian_histogram_area(heights: i64&, length: usize) -> i64 = cartesian_histogram_area_impl

@@ -19,7 +19,8 @@ def simultaneous_equation_write_i64(output: mutable view[u8], offset: usize, val
         byte <- byte + 1
 
 def simultaneous_equation_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    col: mutable usize = 0
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
     n_value: i64 = input[0]
     if n_value < 1 or n_value > 5: return -1
     n: usize = n_value.usize()
@@ -29,7 +30,7 @@ def simultaneous_equation_impl(input: i64&, length: usize, output: mutable u8&, 
     has_zero: mutable bool = false
     row: mutable usize = 0
     while row < n:
-        col: mutable usize = 0
+        col <- 0
         while col <= n:
             raw: i64 = input[1 + row * (n + 1) + col]
             if raw < -100000 or raw > 100000: return -1
@@ -140,7 +141,7 @@ def simultaneous_equation_impl(input: i64&, length: usize, output: mutable u8&, 
         row <- row + 1
 
     needed: usize = 8 + 8 * n
-    if output.is_null() or capacity < needed: return -2
+    if output == null or capacity < needed: return -2
     row <- 0
     while row < needed:
         output[row] <- buffer[row]

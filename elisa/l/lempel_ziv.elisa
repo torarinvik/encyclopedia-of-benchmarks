@@ -7,7 +7,8 @@ const MAX_CODE_WIDTH: usize = 8
 
 def lempel_ziv_impl(input: i64&, input_length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
+    component: mutable usize = 0
+    if input == null or input_length < 1 or input_length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
     bit_count_value: i64 = input[0]
     if bit_count_value < 0 or bit_count_value > 128:
@@ -21,10 +22,10 @@ def lempel_ziv_impl(input: i64&, input_length: usize,
             return -1
         index <- index + 1
 
-    keys: mutable [16770]u8 = [0; 16770]
-    key_lengths: mutable [130]usize = [0; 130]
-    codes: mutable [1040]u8 = [0; 1040]
-    code_lengths: mutable [130]usize = [0; 130]
+    keys: mutable u8[16770] = zeroed
+    key_lengths: mutable usize[130] = zeroed
+    codes: mutable u8[1040] = zeroed
+    code_lengths: mutable usize[130] = zeroed
     keys[0] <- 48
     keys[MAX_KEY_LENGTH] <- 49
     key_lengths[0] <- 1
@@ -35,9 +36,9 @@ def lempel_ziv_impl(input: i64&, input_length: usize,
     code_lengths[1] <- 1
     entry_count: mutable usize = 2
     next_index: mutable usize = 2
-    current: mutable [129]u8 = [0; 129]
+    current: mutable u8[129] = zeroed
     current_length: mutable usize = 0
-    result: mutable [1032]u8 = [0; 1032]
+    result: mutable u8[1032] = zeroed
     result_length: mutable usize = 0
 
     index <- 0
@@ -48,7 +49,7 @@ def lempel_ziv_impl(input: i64&, input_length: usize,
         entry: mutable usize = 0
         while entry < entry_count:
             if key_lengths[entry] == current_length:
-                component: mutable usize = 0
+                component <- 0
                 matched: mutable bool = true
                 while component < current_length:
                     if keys[entry * MAX_KEY_LENGTH + component] != current[component]:
@@ -64,8 +65,8 @@ def lempel_ziv_impl(input: i64&, input_length: usize,
             continue
 
         last_code_length: usize = code_lengths[found]
-        last_code: mutable [8]u8 = [0; 8]
-        component: mutable usize = 0
+        last_code: mutable u8[8] = zeroed
+        component <- 0
         while component < last_code_length:
             last_code[component] <- codes[found * MAX_CODE_WIDTH + component]
             result[result_length] <- last_code[component]
@@ -147,7 +148,7 @@ def lempel_ziv_impl(input: i64&, input_length: usize,
             entry <- 0
             while entry < entry_count:
                 if key_lengths[entry] == current_length:
-                    component: mutable usize = 0
+                    component <- 0
                     matched: mutable bool = true
                     while component < current_length:
                         if keys[entry * MAX_KEY_LENGTH + component] != current[component]:
@@ -171,7 +172,7 @@ def lempel_ziv_impl(input: i64&, input_length: usize,
             result_length <- result_length + 1
             component <- component + 1
 
-    if output.is_null() or output_capacity < result_length:
+    if output == null or output_capacity < result_length:
         return -2
     index <- 0
     while index < result_length:

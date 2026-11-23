@@ -37,7 +37,7 @@ def permute_string_next(values: mutable view[u8], character_count: usize) -> voi
     successor: mutable usize = character_count - 1
     while values[successor] <= values[pivot - 1]:
         successor <- successor - 1
-    temporary: u8 = values[pivot - 1]
+    temporary: mutable u8 = values[pivot - 1]
     values[pivot - 1] <- values[successor]
     values[successor] <- temporary
     left: mutable usize = pivot
@@ -50,7 +50,7 @@ def permute_string_next(values: mutable view[u8], character_count: usize) -> voi
         right <- right - 1
 
 def permute_string_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH:
+    if input == null or input_length < 1 or input_length > MAX_INPUT_LENGTH:
         return -1
     character_count_arg: i64 = input[0]
     if character_count_arg < 0 or character_count_arg > MAX_N.i64():
@@ -79,7 +79,7 @@ def permute_string_impl(input: i64&, input_length: usize, output: mutable u8&, o
 
     permutation_count: usize = permute_string_unique_count(values[0:character_count], character_count)
     output_bytes: usize = permutation_count * character_count
-    if output.is_null() or output_capacity < output_bytes:
+    if output == null or output_capacity < output_bytes:
         return -2
     row: mutable usize = 0
     while row < permutation_count:
@@ -92,5 +92,4 @@ def permute_string_impl(input: i64&, input_length: usize, output: mutable u8&, o
         row <- row + 1
     output_bytes.i64()
 
-export fn permute_string(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 =
-    permute_string_impl(input, input_length, output, output_capacity)
+export fn permute_string(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = permute_string_impl

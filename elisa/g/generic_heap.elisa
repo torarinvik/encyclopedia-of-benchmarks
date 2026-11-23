@@ -102,4 +102,4 @@ def generic_heap_impl(a: i64&, length: usize) -> i64:
         else: return -1
         k <- k + 1
     h.i64()
-export generic_heap(a: i64&, length: usize) -> i64 = generic_heap_impl
+export fn generic_heap(a: i64&, length: usize) -> i64 = generic_heap_impl

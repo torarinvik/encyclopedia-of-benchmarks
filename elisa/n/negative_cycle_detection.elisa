@@ -3,16 +3,17 @@ const NEG_CYCLE_MAX_N: usize = 20
 const NEG_CYCLE_MAX_M: usize = 64
 const NEG_CYCLE_MAX_INPUT: usize = 194
 
-def negative_cycle_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def negative_cycle_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def negative_cycle_detection(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("negative_cycle_detection"):
-    if input.is_null() or length < 2 or length > NEG_CYCLE_MAX_INPUT: return -1
-    values: view[i64] = input[0:length]
+def negative_cycle_detection_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    index: mutable usize = 1
+    if input == null or length < 2 or length > NEG_CYCLE_MAX_INPUT: return -1
+    values: i64& = input
     n64: i64 = values[0]
     m64: i64 = values[1]
     if n64 < 0 or n64 > 20 or m64 < 0 or m64 > 64 or length != 2 + 3 * m64.usize(): return -1
@@ -36,10 +37,12 @@ def negative_cycle_detection(input: i64&, length: usize, output: mutable u8&, ca
     distance: mutable i64[20] = zeroed
     predecessor: mutable i64[20] = zeroed
     vertex: mutable usize = 0
-    while vertex < n: predecessor[vertex] <- -1; vertex <- vertex + 1
+    while vertex < n:
+        predecessor[vertex] <- -1
+        vertex <- vertex + 1
     changed_vertex: mutable i64 = -1
-    pass: mutable usize = 0
-    while pass < n:
+    pass_value: mutable usize = 0
+    while pass_value < n:
         changed_vertex <- -1
         edge <- 0
         while edge < m:
@@ -52,17 +55,17 @@ def negative_cycle_detection(input: i64&, length: usize, output: mutable u8&, ca
                 changed_vertex <- v.i64()
             edge <- edge + 1
         if changed_vertex < 0: break
-        pass <- pass + 1
+        pass_value <- pass_value + 1
 
     record: mutable i64[22] = zeroed
     record_length: mutable usize = 1
     if changed_vertex >= 0:
         vertex <- changed_vertex.usize()
-        pass <- 0
-        while pass < n:
+        pass_value <- 0
+        while pass_value < n:
             if predecessor[vertex] < 0: return -1
             vertex <- predecessor[vertex].usize()
-            pass <- pass + 1
+            pass_value <- pass_value + 1
         start: usize = vertex
         cycle: mutable usize[20] = zeroed
         cycle_length: mutable usize = 0
@@ -82,7 +85,7 @@ def negative_cycle_detection(input: i64&, length: usize, output: mutable u8&, ca
             left <- left + 1
             right <- right - 1
         minimum: mutable usize = 0
-        index: mutable usize = 1
+        index <- 1
         while index < cycle_length:
             if cycle[index] < cycle[minimum]: minimum <- index
             index <- index + 1
@@ -95,10 +98,12 @@ def negative_cycle_detection(input: i64&, length: usize, output: mutable u8&, ca
         record_length <- cycle_length + 2
 
     output_bytes: usize = record_length * 8
-    if output.is_null() or capacity < output_bytes: return -2
-    target: mutable view[u8] = output[0:output_bytes]
+    if output == null or capacity < output_bytes: return -2
+    target: mutable u8& = output
     index <- 0
     while index < record_length:
         negative_cycle_store_i64_le(record[index], target, 8 * index)
         index <- index + 1
     output_bytes.i64()
+
+export fn negative_cycle_detection(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = negative_cycle_detection_impl

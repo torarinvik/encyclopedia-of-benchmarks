@@ -8,29 +8,29 @@ const MODULUS: i64 = 998244353
 const MAX_COORD: i64 = 1000000000
 
 struct DpasOp:
-    kind: i64
-    a: i64
-    b: i64
-    c: i64
-    d: i64
-    e: i64
-    f: i64
+    kind: mutable i64
+    a: mutable i64
+    b: mutable i64
+    c: mutable i64
+    d: mutable i64
+    e: mutable i64
+    f: mutable i64
 
 struct DpasNode:
-    min_x: i64
-    max_x: i64
-    min_y: i64
-    max_y: i64
-    sum: i64
-    lazy_a: i64
-    lazy_b: i64
-    active: usize
+    min_x: mutable i64
+    max_x: mutable i64
+    min_y: mutable i64
+    max_y: mutable i64
+    sum: mutable i64
+    lazy_a: mutable i64
+    lazy_b: mutable i64
+    active: mutable usize
 
 def dpas_less(a: usize, b: usize, axis: usize, xs: view[i64], ys: view[i64]) -> bool:
-    first: i64 = xs[a]
-    second: i64 = xs[b]
-    first_other: i64 = ys[a]
-    second_other: i64 = ys[b]
+    first: mutable i64 = xs[a]
+    second: mutable i64 = xs[b]
+    first_other: mutable i64 = ys[a]
+    second_other: mutable i64 = ys[b]
     if axis != 0:
         first <- ys[a]
         second <- ys[b]
@@ -125,8 +125,7 @@ def dpas_sum(tree: mutable view[DpasNode], index: usize, low: usize, high: usize
     if dpas_covered(node, left, down, right, up): return node.sum
     dpas_push(tree, index, low, high)
     middle: usize = low + (high - low) / 2
-    (dpas_sum(tree, index * 2, low, middle, left, down, right, up) +
-     dpas_sum(tree, index * 2 + 1, middle, high, left, down, right, up)) % MODULUS
+    (dpas_sum(tree, index * 2, low, middle, left, down, right, up) + dpas_sum(tree, index * 2 + 1, middle, high, left, down, right, up)) % MODULUS
 
 def dpas_affine(tree: mutable view[DpasNode], index: usize, low: usize, high: usize,
                 left: i64, down: i64, right: i64, up: i64, a: i64, b: i64) -> void:
@@ -155,15 +154,15 @@ def dpas_set(tree: mutable view[DpasNode], index: usize, low: usize, high: usize
     else: dpas_set(tree, index * 2 + 1, middle, high, target, weight)
     dpas_pull(tree, index)
 
-def dpas_put64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def dpas_put64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
 
 def dynamic_point_set_rectangle_affine_rectangle_sum_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
-    frame: view[i64] = input[0:length]
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    frame: i64& = input
     n_value: i64 = frame[0]
     q_value: i64 = frame[1]
     if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
@@ -214,7 +213,7 @@ def dynamic_point_set_rectangle_affine_rectangle_sum_impl(input: i64&, length: u
             operations[oi].a <- point
             operations[oi].b <- weight
         elif kind == 2 or kind == 3:
-            fields: usize = 4
+            fields: mutable usize = 4
             if kind == 3: fields <- 6
             if cursor + fields > length: return -1
             left: i64 = frame[cursor]
@@ -242,7 +241,7 @@ def dynamic_point_set_rectangle_affine_rectangle_sum_impl(input: i64&, length: u
         oi <- oi + 1
     if cursor != length: return -1
     output_bytes: usize = 8 * query_count
-    if output_bytes > 0 and (output.is_null() or capacity < output_bytes): return -2
+    if output_bytes > 0 and (output == null or capacity < output_bytes): return -2
     tree: mutable DpasNode[MAX_TREE] = zeroed
     order: mutable usize[MAX_POINTS] = zeroed
     rank: mutable usize[MAX_POINTS] = zeroed
@@ -265,7 +264,7 @@ def dynamic_point_set_rectangle_affine_rectangle_sum_impl(input: i64&, length: u
             dpas_affine(tree[0:MAX_TREE], 1, 0, point_count, op.a, op.b, op.c, op.d, op.e, op.f)
         oi <- oi + 1
     if answer_count > 0:
-        output_view: mutable view[u8] = output[0:output_bytes]
+        output_view: mutable u8& = output
         for i in 0..<answer_count:
             dpas_put64(output_view, 8 * i, answers[i])
     output_bytes.i64()

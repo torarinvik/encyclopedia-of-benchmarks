@@ -1,5 +1,5 @@
-def cocomparability_ldfs_minimum_path_cover_impl(values: view[i64]) -> i64:
-    length: usize = values.length
+def cocomparability_ldfs_minimum_path_cover_impl(values: i64&, values_length: usize) -> i64:
+    length: usize = values_length
     if length < 1 or length > 18: return -1
     n_value: i64 = values[0]
     if n_value < 1 or n_value > 8: return -1
@@ -52,18 +52,18 @@ def cocomparability_ldfs_minimum_path_cover_impl(values: view[i64]) -> i64:
     reached: mutable bool[8] = zeroed
     queue: mutable usize[8] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 1
+    tail_value: mutable usize = 1
     queue[0] <- 0
     reached[0] <- true
-    while head < tail:
+    while head < tail_value:
         u: usize = queue[head]
         head <- head + 1
         v: mutable usize = 0
         while v < n:
             if ((adjacency[u] >> v) & 1) != 0 and not reached[v]:
                 reached[v] <- true
-                queue[tail] <- v
-                tail <- tail + 1
+                queue[tail_value] <- v
+                tail_value <- tail_value + 1
             v <- v + 1
     v: mutable usize = 0
     while v < n:
@@ -83,16 +83,16 @@ def cocomparability_ldfs_minimum_path_cover_impl(values: view[i64]) -> i64:
                 if chosen == 8:
                     chosen <- v
                 else:
-                    common: usize = if label_len[v] < label_len[chosen]: label_len[v] else: label_len[chosen]
+                    common: usize = label_len[v] if (label_len[v] < label_len[chosen]) else label_len[chosen]
                     cmp: mutable i64 = 0
                     q: mutable usize = 0
                     while q < common:
                         if labels[v][q] != labels[chosen][q]:
-                            cmp <- if labels[v][q] > labels[chosen][q]: 1 else: -1
+                            cmp <- 1 if (labels[v][q] > labels[chosen][q]) else -1
                             break
                         q <- q + 1
                     if cmp == 0 and label_len[v] != label_len[chosen]:
-                        cmp <- if label_len[v] > label_len[chosen]: 1 else: -1
+                        cmp <- 1 if (label_len[v] > label_len[chosen]) else -1
                     if cmp > 0 or (cmp == 0 and rank[v] > rank[chosen]): chosen <- v
             v <- v + 1
         ldfs[step - 1] <- chosen
@@ -139,6 +139,8 @@ def cocomparability_ldfs_minimum_path_cover_impl(values: view[i64]) -> i64:
             current <- next
     paths
 
-export fn cocomparability_ldfs_minimum_path_cover(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > 18: return -1
-    cocomparability_ldfs_minimum_path_cover_impl(input[0:length])
+def cocomparability_ldfs_minimum_path_cover_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > 18: return -1
+    cocomparability_ldfs_minimum_path_cover_impl(input, length)
+
+export fn cocomparability_ldfs_minimum_path_cover(input: i64&, length: usize) -> i64 = cocomparability_ldfs_minimum_path_cover_entry

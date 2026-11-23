@@ -4,7 +4,8 @@ def pf_build_state(k: usize, root_edge: view[i64], tree_edges: view[i64], tree_c
                    parent_edge: mutable view[i64], branch_root: mutable view[i64]) -> bool:
     root: usize = k
     adjacency: mutable i64[81] = zeroed
-    for i in 0..<81: adjacency[i] <- -2
+    for i in 0..<81:
+        adjacency[i] <- -2
     for v in 0..<k:
         if root_edge[v] != 0:
             adjacency[root * 9 + v] <- -1
@@ -18,13 +19,14 @@ def pf_build_state(k: usize, root_edge: view[i64], tree_edges: view[i64], tree_c
     for i in 0..<9:
         parent[i] <- -2
         parent_edge[i] <- -2
-    for i in 0..<k: branch_root[i] <- -1
+    for i in 0..<k:
+        branch_root[i] <- -1
     queue: mutable i64[9] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 1
+    tail_value: mutable usize = 1
     parent[root] <- -1
     queue[0] <- root.i64()
-    while head < tail:
+    while head < tail_value:
         u: usize = queue[head].usize()
         head <- head + 1
         for v in 0..<(k + 1):
@@ -33,13 +35,14 @@ def pf_build_state(k: usize, root_edge: view[i64], tree_edges: view[i64], tree_c
                 parent_edge[v] <- adjacency[u * 9 + v]
                 if u == root: branch_root[v] <- v.i64()
                 else: branch_root[v] <- branch_root[u]
-                queue[tail] <- v.i64()
-                tail <- tail + 1
-    tail == k + 1
+                queue[tail_value] <- v.i64()
+                tail_value <- tail_value + 1
+    tail_value == k + 1
 
 def pf_balance(k: usize, edge_count: usize, weight: view[i64], edge_u: view[i64], edge_v: view[i64],
                flow: view[i64], balance: mutable view[i64]) -> void:
-    for v in 0..<k: balance[v] <- weight[v]
+    for v in 0..<k:
+        balance[v] <- weight[v]
     for e in 0..<edge_count:
         u: usize = edge_u[e].usize()
         v: usize = edge_v[e].usize()
@@ -51,8 +54,8 @@ def pf_in_tree(tree_edges: view[i64], tree_count: usize, edge: usize) -> bool:
         if tree_edges[i] == edge.i64(): return true
     false
 
-def pf_solve(values: view[i64]) -> i64:
-    if values.len() < 4 or values.len() > 77: return -1
+def pf_solve(values: i64&, values_length: usize) -> i64:
+    if values_length < 4 or values_length > 77: return -1
     nv: i64 = values[0]
     mv: i64 = values[1]
     sr: i64 = values[2]
@@ -62,9 +65,10 @@ def pf_solve(values: view[i64]) -> i64:
     m: usize = mv.usize()
     source: usize = (sr - 1).usize()
     sink: usize = (tr - 1).usize()
-    if values.len() != 4 + 3 * m: return -1
+    if values_length != 4 + 3 * m: return -1
     local: mutable i64[8] = zeroed
-    for v in 0..<n: local[v] <- -1
+    for v in 0..<n:
+        local[v] <- -1
     k: mutable usize = 0
     for v in 0..<n:
         if v != source and v != sink:
@@ -125,7 +129,8 @@ def pf_solve(values: view[i64]) -> i64:
         for r in 0..<k:
             old_label[r] <- label[r]
             if root_edge[r] != 0 and balance[r] > 0: active[r] <- 1
-        for v in 0..<k: strong[v] <- if balance[branch_root[v].usize()] > 0 then 1 else 0
+        for v in 0..<k:
+            strong[v] <- 1 if balance[branch_root[v].usize()] > 0 else 0
         crossing: mutable bool = false
         for e in 0..<edge_count:
             u: usize = edge_u[e].usize()
@@ -145,8 +150,7 @@ def pf_solve(values: view[i64]) -> i64:
             return -1
         strong_root: mutable i64 = -1
         for r in 0..<k:
-            if active[r] != 0 and (strong_root < 0 or label[r] > label[strong_root.usize()] or
-                                  (label[r] == label[strong_root.usize()] and ticket[r] < ticket[strong_root.usize()])):
+            if active[r] != 0 and (strong_root < 0 or label[r] > label[strong_root.usize()] or (label[r] == label[strong_root.usize()] and ticket[r] < ticket[strong_root.usize()])):
                 strong_root <- r.i64()
         if strong_root < 0: return -1
         sr_root: usize = strong_root.usize()
@@ -163,9 +167,13 @@ def pf_solve(values: view[i64]) -> i64:
                         u: usize = edge_u[e].usize()
                         w: usize = edge_v[e].usize()
                         if u == v and capacity[e] - flow[e] > 0 and branch_root[w] != strong_root and label[w] == low - 1:
-                            tail_node <- v.i64(); head_node <- w.i64(); entering <- e.i64()
+                            tail_node <- v.i64()
+                            head_node <- w.i64()
+                            entering <- e.i64()
                         elif w == v and flow[e] > 0 and branch_root[u] != strong_root and label[u] == low - 1:
-                            tail_node <- v.i64(); head_node <- u.i64(); entering <- e.i64()
+                            tail_node <- v.i64()
+                            head_node <- u.i64()
+                            entering <- e.i64()
         if entering < 0:
             relabel: mutable i64 = -1
             for v in 0..<k:
@@ -180,14 +188,14 @@ def pf_solve(values: view[i64]) -> i64:
                 ticket[sr_root] <- next_ticket
                 next_ticket <- next_ticket + 1
             continue
-        tail: usize = tail_node.usize()
+        tail_value: usize = tail_node.usize()
         head: usize = head_node.usize()
         entry: usize = entering.usize()
         target_root: usize = branch_root[head].usize()
         root: usize = k
         chain: mutable i64[9] = zeroed
         chain_len: mutable usize = 0
-        cursor: mutable usize = tail
+        cursor: mutable usize = tail_value
         while cursor != root:
             chain[chain_len] <- cursor.i64()
             chain_len <- chain_len + 1
@@ -205,7 +213,7 @@ def pf_solve(values: view[i64]) -> i64:
                 step_to[steps] <- child.i64()
                 step_edge[steps] <- parent_edge[child]
                 steps <- steps + 1
-        step_from[steps] <- tail.i64()
+        step_from[steps] <- tail_value.i64()
         step_to[steps] <- head.i64()
         step_edge[steps] <- entry.i64()
         steps <- steps + 1
@@ -219,13 +227,14 @@ def pf_solve(values: view[i64]) -> i64:
         root_edge[sr_root] <- 0
         tree_edges[tree_count] <- entry.i64()
         tree_count <- tree_count + 1
-        for j in 0..<chain_len: label[chain[j].usize()] <- label[head] + 1
+        for j in 0..<chain_len:
+            label[chain[j].usize()] <- label[head] + 1
         carry: mutable i64 = balance[sr_root]
         for j in 0..<steps:
             e: usize = step_edge[j].usize()
             u: usize = edge_u[e].usize()
             v: usize = edge_v[e].usize()
-            residual: i64 = if step_from[j].usize() == u and step_to[j].usize() == v then capacity[e] - flow[e] else flow[e]
+            residual: i64 = capacity[e] - flow[e] if step_from[j].usize() == u and step_to[j].usize() == v else flow[e]
             pushed: mutable i64 = carry
             if residual < pushed: pushed <- residual
             if step_from[j].usize() == u and step_to[j].usize() == v: flow[e] <- flow[e] + pushed
@@ -235,7 +244,8 @@ def pf_solve(values: view[i64]) -> i64:
                 for i in 0..<tree_count:
                     if tree_edges[i] == e.i64(): remove_at <- i
                 if remove_at == tree_count: return -1
-                for i in remove_at..<(tree_count - 1): tree_edges[i] <- tree_edges[i + 1]
+                for i in remove_at..<(tree_count - 1):
+                    tree_edges[i] <- tree_edges[i + 1]
                 tree_count <- tree_count - 1
                 root_edge[step_from[j].usize()] <- 1
             carry <- pushed
@@ -250,6 +260,8 @@ def pf_solve(values: view[i64]) -> i64:
                 next_ticket <- next_ticket + 1
     -1
 
-export fn hochbaum_pseudoflow_maxflow(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > 77: return -1
-    pf_solve(input[0:length])
+def hochbaum_pseudoflow_maxflow_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > 77: return -1
+    pf_solve(input, length)
+
+export fn hochbaum_pseudoflow_maxflow(input: i64&, length: usize) -> i64 = hochbaum_pseudoflow_maxflow_impl

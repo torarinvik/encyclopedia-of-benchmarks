@@ -3,42 +3,42 @@ const BARY_MAX_NODES: usize = 8
 const BARY_MAX_LENGTH: usize = 19
 
 def bary_mod_pow(base_value: i64, exponent_value: i64) -> i64:
-    let base: mutable i64 = base_value
-    let exponent: mutable i64 = exponent_value
-    let result: mutable i64 = 1
+    base:  mutable i64 = base_value
+    exponent:  mutable i64 = exponent_value
+    result:  mutable i64 = 1
     while exponent > 0:
         if (exponent & 1) == 1: result <- result * base % BARY_MODULUS
         base <- base * base % BARY_MODULUS
         exponent <- exponent / 2
     result
 
-def barycentric_impl(input: view[i64]) -> i64:
-    let length: usize = input.len()
+def barycentric_impl(input: i64&, input_length: usize) -> i64:
+    length:  usize = input_length
     if length < 4 or length > BARY_MAX_LENGTH: return -1
     if input[0] < 1 or input[0] > BARY_MAX_NODES.i64(): return -1
-    let count: usize = input[0].usize()
+    count:  usize = input[0].usize()
     if length != 2 * count + 2: return -1
 
-    let weights: mutable [BARY_MAX_NODES]i64 = [0; BARY_MAX_NODES]
-    let index: mutable usize = 0
+    weights: mutable i64[BARY_MAX_NODES] = zeroed
+    index:  mutable usize = 0
     while index < count:
         if input[1 + index] < 0 or input[1 + index] >= BARY_MODULUS: return -1
         if input[1 + count + index] < 0 or input[1 + count + index] >= BARY_MODULUS: return -1
-        let other: mutable usize = 0
+        other:  mutable usize = 0
         while other < index:
             if input[1 + index] == input[1 + other]: return -1
             other <- other + 1
         index <- index + 1
-    let query: i64 = input[2 * count + 1]
+    query:  i64 = input[2 * count + 1]
     if query < 0 or query >= BARY_MODULUS: return -1
 
     index <- 0
     while index < count:
-        let product: mutable i64 = 1
-        let other: mutable usize = 0
+        product:  mutable i64 = 1
+        other:  mutable usize = 0
         while other < count:
             if other != index:
-                let difference: i64 = (input[1 + index] - input[1 + other] + BARY_MODULUS) % BARY_MODULUS
+                difference:  i64 = (input[1 + index] - input[1 + other] + BARY_MODULUS) % BARY_MODULUS
                 product <- product * difference % BARY_MODULUS
             other <- other + 1
         weights[index] <- bary_mod_pow(product, BARY_MODULUS - 2)
@@ -49,19 +49,22 @@ def barycentric_impl(input: view[i64]) -> i64:
         if query == input[1 + index]: return input[1 + count + index]
         index <- index + 1
 
-    let numerator: mutable i64 = 0
-    let denominator: mutable i64 = 0
+    numerator:  mutable i64 = 0
+    denominator:  mutable i64 = 0
     index <- 0
     while index < count:
-        let difference: i64 = (query - input[1 + index] + BARY_MODULUS) % BARY_MODULUS
-        let term: i64 = weights[index] * bary_mod_pow(difference, BARY_MODULUS - 2) % BARY_MODULUS
+        difference:  i64 = (query - input[1 + index] + BARY_MODULUS) % BARY_MODULUS
+        term:  i64 = weights[index] * bary_mod_pow(difference, BARY_MODULUS - 2) % BARY_MODULUS
         numerator <- (numerator + term * input[1 + count + index]) % BARY_MODULUS
         denominator <- (denominator + term) % BARY_MODULUS
         index <- index + 1
     if denominator == 0: return -1
     numerator * bary_mod_pow(denominator, BARY_MODULUS - 2) % BARY_MODULUS
 
-export fn barycentric_lagrange_evaluation(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > BARY_MAX_LENGTH: return -1
-    let input_view: view[i64] = input[0:length]
-    barycentric_impl(input_view)
+def barycentric_lagrange_evaluation_impl(input: i64&, length: usize) -> i64:
+    if input == null or length > BARY_MAX_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    barycentric_impl(input_view, input_view_length)
+
+export fn barycentric_lagrange_evaluation(input: i64&, length: usize) -> i64 = barycentric_lagrange_evaluation_impl

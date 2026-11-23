@@ -1,21 +1,21 @@
 const MAX_N: usize = 64
 const MAX_INPUT: usize = 66
 
-fn asteroid_collision_stack_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT: return -1
-    values: view[i64] = input[0:length]
+def asteroid_collision_stack_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT: return -1
+    values: i64& = input
     n_word: i64 = values[0]
     if n_word < 0 or n_word > MAX_N.i64() or length != n_word.usize() + 1: return -1
 
-    stack: mutable i64[64] = zeroed
+    stack_value: mutable i64[64] = zeroed
     top: mutable usize = 0
     i: mutable usize = 0
-    while i < n_word.usize() |i, values, stack, top|:
+    while i < n_word.usize() |i, values, stack_value, top|:
         word: i64 = values[i + 1]
         if word == 0 or word < -127 or word > 127: return -1
         alive: mutable bool = true
-        while alive and top > 0 and stack[top - 1] > 0 and word < 0 |alive, stack, top|:
-            left_size: i64 = stack[top - 1]
+        while alive and top > 0 and stack_value[top - 1] > 0 and word < 0 |alive, stack_value, top|:
+            left_size: i64 = stack_value[top - 1]
             right_size: i64 = -word
             if left_size < right_size:
                 top <- top - 1
@@ -25,17 +25,17 @@ fn asteroid_collision_stack_impl(input: i64&, length: usize, output: mutable u8&
             else:
                 alive <- false
         if alive:
-            stack[top] <- word
+            stack_value[top] <- word
             top <- top + 1
         i <- i + 1
 
     required: usize = top + 1
-    if output.is_null() or capacity < required: return -2
-    result: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    result: mutable u8& = output
     result[0] <- top.u8()
     i <- 0
-    while i < top |i, stack, result|:
-        result[i + 1] <- (stack[i].u64() & 255).u8()
+    while i < top |i, stack_value, result|:
+        result[i + 1] <- (stack_value[i].u64() & 255).u8()
         i <- i + 1
     return required.i64()
 

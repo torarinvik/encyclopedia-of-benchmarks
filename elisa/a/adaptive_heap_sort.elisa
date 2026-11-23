@@ -1,37 +1,37 @@
 # Min Cartesian tree with a binary heap containing only its current frontier.
 const MAX_VALUES: usize = 1024
 
-def adaptive_heap_sort_node_less(values: view[i64], left: usize, right: usize) -> bool:
+def adaptive_heap_sort_node_less(values: i64&, left: usize, right: usize) -> bool:
     return values[left] < values[right] or (values[left] == values[right] and left < right)
 
-def adaptive_heap_sort_push(values: view[i64], heap: mutable view[usize],
+def adaptive_heap_sort_push(values: i64&, heap_value: mutable view[usize],
                             heap_length: mutable usize&, node: usize) -> void:
     position: mutable usize = heap_length
     heap_length <- heap_length + 1
-    heap[position] <- node
+    heap_value[position] <- node
     while position > 0:
         parent: usize = (position - 1) / 2
-        if not adaptive_heap_sort_node_less(values, heap[position], heap[parent]): break
-        temporary: usize = heap[position]
-        heap[position] <- heap[parent]
-        heap[parent] <- temporary
+        if not adaptive_heap_sort_node_less(values, heap_value[position], heap_value[parent]): break
+        temporary: usize = heap_value[position]
+        heap_value[position] <- heap_value[parent]
+        heap_value[parent] <- temporary
         position <- parent
 
-def adaptive_heap_sort_pop(values: view[i64], heap: mutable view[usize],
+def adaptive_heap_sort_pop(values: i64&, heap_value: mutable view[usize],
                            heap_length: mutable usize&) -> usize:
-    minimum: usize = heap[0]
+    minimum: usize = heap_value[0]
     heap_length <- heap_length - 1
     if heap_length == 0: return minimum
-    heap[0] <- heap[heap_length]
+    heap_value[0] <- heap_value[heap_length]
     position: mutable usize = 0
     while position < heap_length / 2:
         child: mutable usize = position * 2 + 1
-        if child + 1 < heap_length and adaptive_heap_sort_node_less(values, heap[child + 1], heap[child]):
+        if child + 1 < heap_length and adaptive_heap_sort_node_less(values, heap_value[child + 1], heap_value[child]):
             child <- child + 1
-        if not adaptive_heap_sort_node_less(values, heap[child], heap[position]): break
-        temporary: usize = heap[position]
-        heap[position] <- heap[child]
-        heap[child] <- temporary
+        if not adaptive_heap_sort_node_less(values, heap_value[child], heap_value[position]): break
+        temporary: usize = heap_value[position]
+        heap_value[position] <- heap_value[child]
+        heap_value[child] <- temporary
         position <- child
     return minimum
 
@@ -42,7 +42,7 @@ def adaptive_heap_sort_impl(values: mutable i64&, length: usize) -> void:
     construction_stack_storage: mutable usize[MAX_VALUES] = zeroed
     candidate_heap_storage: mutable usize[MAX_VALUES] = zeroed
     output_storage: mutable i64[MAX_VALUES] = zeroed
-    keys: view[i64] = values[0:length]
+    keys: i64& = values
     left: mutable view[usize] = left_storage[0:length]
     right: mutable view[usize] = right_storage[0:length]
     construction_stack: mutable view[usize] = construction_stack_storage[0:length]

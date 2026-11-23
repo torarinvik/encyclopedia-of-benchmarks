@@ -10,9 +10,8 @@ def brent_method_function_value(function_id: i64, x: f64) -> f64:
     x * x - 4.0 * x + 3.0
 
 def brent_method_impl(function_id_value: f64, input_left: f64, input_right: f64) -> f64:
-    if function_id_value != 0.0 and function_id_value != 1.0 and function_id_value != 2.0 or
-        input_left != input_left or input_right != input_right or
-        input_left < -4.0 or input_left > 4.0 or input_right < -4.0 or input_right > 4.0 or input_left >= input_right:
+    temporary: mutable f64 = zeroed
+    if function_id_value != 0.0 and function_id_value != 1.0 and function_id_value != 2.0 or input_left != input_left or input_right != input_right or input_left < -4.0 or input_left > 4.0 or input_right < -4.0 or input_right > 4.0 or input_left >= input_right:
         return -1.0e300
     function_id: i64 = function_id_value.i64()
     left: mutable f64 = input_left
@@ -22,7 +21,7 @@ def brent_method_impl(function_id_value: f64, input_left: f64, input_right: f64)
     if f_left * f_right >= 0.0:
         return -1.0e300
     if fabs(f_left) < fabs(f_right):
-        temporary: f64 = left
+        temporary <- left
         left <- right
         right <- temporary
         temporary <- f_left
@@ -38,9 +37,7 @@ def brent_method_impl(function_id_value: f64, input_left: f64, input_right: f64)
             return right
         candidate: mutable f64 = 0.0
         if f_c != f_left and f_c != f_right:
-            candidate <- left * f_right * f_c / ((f_left - f_right) * (f_left - f_c)) +
-                right * f_left * f_c / ((f_right - f_left) * (f_right - f_c)) +
-                c * f_left * f_right / ((f_c - f_left) * (f_c - f_right))
+            candidate <- left * f_right * f_c / ((f_left - f_right) * (f_left - f_c)) + right * f_left * f_c / ((f_right - f_left) * (f_right - f_c)) + c * f_left * f_right / ((f_c - f_left) * (f_c - f_right))
         else:
             candidate <- right - f_right * (right - left) / (f_right - f_left)
 
@@ -50,11 +47,7 @@ def brent_method_impl(function_id_value: f64, input_left: f64, input_right: f64)
             outside <- not (quarter < candidate and candidate < right)
         else:
             outside <- not (right < candidate and candidate < quarter)
-        use_bisection: bool = outside or
-            (iteration > 1 and fabs(candidate - right) >= fabs(right - c) / 2.0) or
-            (iteration <= 1 and fabs(candidate - right) >= fabs(c - d) / 2.0) or
-            (iteration > 1 and fabs(right - c) < TOLERANCE) or
-            (iteration <= 1 and fabs(c - d) < TOLERANCE)
+        use_bisection: bool = outside or (iteration > 1 and fabs(candidate - right) >= fabs(right - c) / 2.0) or (iteration <= 1 and fabs(candidate - right) >= fabs(c - d) / 2.0) or (iteration > 1 and fabs(right - c) < TOLERANCE) or (iteration <= 1 and fabs(c - d) < TOLERANCE)
         if use_bisection:
             candidate <- (left + right) / 2.0
             d <- right - left

@@ -4,10 +4,10 @@ const AUGMENTED_VERTICES: usize = 16
 const MAX_INPUT_LENGTH: usize = 227
 const MAX_CAPACITY: i64 = 1000000
 
-export def push_relabel(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+def push_relabel_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
         return -1
-    values: view[i64] = input[0:length]
+    values: i64& = input
     n64: i64 = values[0]
     source_count64: i64 = values[1]
     if n64 < 2 or n64 > MAX_VERTICES.i64() or source_count64 < 1 or source_count64 >= n64:
@@ -102,7 +102,7 @@ export def push_relabel(input: i64&, length: usize) -> i64:
             while neighbor < n + 2 and excess[node] > 0:
                 edge: usize = node * AUGMENTED_VERTICES + neighbor
                 if residual[edge] > 0 and height[node] == height[neighbor] + 1:
-                    amount: i64 = if excess[node] < residual[edge]: excess[node] else residual[edge]
+                    amount: i64 = excess[node] if (excess[node] < residual[edge]) else residual[edge]
                     residual[edge] <- residual[edge] - amount
                     reverse_edge: usize = neighbor * AUGMENTED_VERTICES + node
                     residual[reverse_edge] <- residual[reverse_edge] + amount
@@ -124,3 +124,5 @@ export def push_relabel(input: i64&, length: usize) -> i64:
                     return -1
                 height[node] <- minimum_height + 1
     return excess[super_sink]
+
+export fn push_relabel(input: i64&, length: usize) -> i64 = push_relabel_impl

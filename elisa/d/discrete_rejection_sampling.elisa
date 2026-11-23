@@ -12,10 +12,10 @@ def drs_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> voi
         bits <- bits >> 8
         byte <- byte + 1
 
-export fn discrete_rejection_sampling(input: i64&, length: usize,
+def discrete_rejection_sampling_impl(input: i64&, length: usize,
                                       output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > DRS_MAX_INPUT_VALUES: return -1
-    values: view[i64] = input[0:length]
+    if input == null or length < 3 or length > DRS_MAX_INPUT_VALUES: return -1
+    values: i64& = input
     n_value: i64 = values[0]
     samples_value: i64 = values[1]
     attempts_value: i64 = values[2]
@@ -59,13 +59,14 @@ export fn discrete_rejection_sampling(input: i64&, length: usize,
         acceptance_draw: i64 = values[tape_offset + 2 * attempt + 1]
         if proposal_draw < 0 or proposal_draw.u64() >= proposal_total or acceptance_draw < 0: return -1
         category: mutable usize = 0
-        while cumulative[category].u64() <= proposal_draw.u64(): category <- category + 1
+        while cumulative[category].u64() <= proposal_draw.u64():
+            category <- category + 1
         acceptance_range: u64 = target_total * proposal[category].u64() * envelope
         if acceptance_draw.u64() >= acceptance_range: return -1
         attempt <- attempt + 1
 
     output_bytes: usize = 16 * wanted
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     staged: mutable u8[2 * DRS_MAX_SAMPLES * 8] = zeroed
     staged_view: mutable view[u8] = staged[0:2 * DRS_MAX_SAMPLES * 8]
     produced: mutable usize = 0
@@ -86,9 +87,11 @@ export fn discrete_rejection_sampling(input: i64&, length: usize,
             if produced == 2 * wanted: break
         attempt <- attempt + 1
     if produced != 2 * wanted: return -3
-    output_view: mutable view[u8] = output[0:output_bytes]
+    output_view: mutable u8& = output
     i <- 0
     while i < output_bytes:
         output_view[i] <- staged_view[i]
         i <- i + 1
     output_bytes.i64()
+
+export fn discrete_rejection_sampling(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = discrete_rejection_sampling_impl

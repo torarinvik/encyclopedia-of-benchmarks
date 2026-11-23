@@ -22,17 +22,18 @@ def pfaffian_of_matrix_power(base_value: i64, exponent_value: i64) -> i64:
         exponent <- exponent >> 1
     result
 
-def pfaffian_of_matrix_impl(input: view[i64]) -> i64:
-    if input.len() < 5 or input.len() > PFM_MAX_PARSEABLE: return -1
+def pfaffian_of_matrix_impl(input: i64&, input_length: usize) -> i64:
+    column: mutable usize = 0
+    if input_length < 5 or input_length > PFM_MAX_PARSEABLE: return -1
     half: i64 = input[0]
     if half < 1 or half > PFM_MAX_N.i64(): return -1
     dimension: usize = (2 * half).usize()
-    if input.len() != 1 + dimension * dimension: return -1
+    if input_length != 1 + dimension * dimension: return -1
 
     matrix: mutable i64[PFM_MAX_DIMENSION * PFM_MAX_DIMENSION] = zeroed
     row: mutable usize = 0
     while row < dimension:
-        column: mutable usize = 0
+        column <- 0
         while column < dimension:
             value: i64 = input[1 + row * dimension + column]
             if value < 0 or value >= PFM_MODULUS.i64(): return -1
@@ -98,7 +99,10 @@ def pfaffian_of_matrix_impl(input: view[i64]) -> i64:
         pivot_index <- pivot_index + 2
     result
 
-export fn pfaffian_of_matrix(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > PFM_MAX_PARSEABLE: return -1
-    input_view: view[i64] = input[0:length]
-    pfaffian_of_matrix_impl(input_view)
+def pfaffian_of_matrix_entry(input: i64&, length: usize) -> i64:
+    if input == null or length > PFM_MAX_PARSEABLE: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    pfaffian_of_matrix_impl(input_view, input_view_length)
+
+export fn pfaffian_of_matrix(input: i64&, length: usize) -> i64 = pfaffian_of_matrix_entry

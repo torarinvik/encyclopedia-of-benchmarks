@@ -1,4 +1,5 @@
 def common_characters_frequency_quotient_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    letter: mutable usize = 0
     if length == 0 or length > 1041 or input == null:
         return -1
     string_count: i64 = input[0]
@@ -31,7 +32,7 @@ def common_characters_frequency_quotient_impl(input: i64&, length: usize, output
         return -1
     used: mutable usize = 0
     if string_count > 0:
-        letter: mutable usize = 0
+        letter <- 0
         while letter < 26:
             used <- used + (counts[letter] / string_count).usize()
             letter <- letter + 1

@@ -3,7 +3,7 @@ const MAX_PAT_DIM: usize = 4
 const MAX_INPUT: usize = 196
 const MAX_MATCHES: usize = 125
 
-def b3_put(value: i64, output: mutable view[u8], offset: usize) -> void:
+def b3_put(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -17,8 +17,12 @@ def b3_same_rows(plane: view[i64], left: usize, right: usize, width: usize) -> b
         column <- column + 1
     true
 
-def three_dimensional_bird_baker_matching_impl(input: view[i64], output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+def three_dimensional_bird_baker_matching_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
+    i: mutable usize = 1
+    matched: mutable usize = zeroed
+    column: mutable usize = 0
+    cell: mutable usize = 0
+    length: usize = input_length
     if length < 7 or length > MAX_INPUT: return -1
     rows64: i64 = input[0]
     columns64: i64 = input[1]
@@ -61,7 +65,7 @@ def three_dimensional_bird_baker_matching_impl(input: view[i64], output: mutable
         candidate: mutable usize = 0
         while candidate < unique_count:
             equal: mutable bool = true
-            cell: mutable usize = 0
+            cell <- 0
             while cell < plane_area:
                 if unique_planes[candidate * 16 + cell] != pattern[pz * plane_area + cell]: equal <- false
                 cell <- cell + 1
@@ -92,16 +96,17 @@ def three_dimensional_bird_baker_matching_impl(input: view[i64], output: mutable
             marks: mutable bool[100] = zeroed
             prefix: mutable usize[MAX_PAT_DIM] = zeroed
             plane: view[i64] = unique_planes[unique * 16:unique * 16 + 16]
-            i: mutable usize = 1
+            i <- 1
             while i < pattern_rows:
-                matched: mutable usize = prefix[i - 1]
-                while matched > 0 and not b3_same_rows(plane, i, matched, pattern_columns): matched <- prefix[matched - 1]
+                matched <- prefix[i - 1]
+                while matched > 0 and not b3_same_rows(plane, i, matched, pattern_columns):
+                    matched <- prefix[matched - 1]
                 if b3_same_rows(plane, i, matched, pattern_columns): matched <- matched + 1
                 prefix[i] <- matched
                 i <- i + 1
             row: mutable usize = 0
             while row < rows:
-                column: mutable usize = 0
+                column <- 0
                 while column < column_starts:
                     p_row: mutable usize = 0
                     while p_row < pattern_rows:
@@ -120,7 +125,8 @@ def three_dimensional_bird_baker_matching_impl(input: view[i64], output: mutable
                 matched <- 0
                 row <- 0
                 while row < rows:
-                    while matched > 0 and not marks[(row * MAX_DIM + column) * MAX_PAT_DIM + matched]: matched <- prefix[matched - 1]
+                    while matched > 0 and not marks[(row * MAX_DIM + column) * MAX_PAT_DIM + matched]:
+                        matched <- prefix[matched - 1]
                     if marks[(row * MAX_DIM + column) * MAX_PAT_DIM + matched]: matched <- matched + 1
                     if matched == pattern_rows:
                         label_index: usize = (z * MAX_DIM + row + 1 - pattern_rows) * MAX_DIM + column
@@ -134,8 +140,9 @@ def three_dimensional_bird_baker_matching_impl(input: view[i64], output: mutable
     depth_prefix: mutable usize[MAX_PAT_DIM] = zeroed
     i <- 1
     while i < pattern_depths:
-        matched: mutable usize = depth_prefix[i - 1]
-        while matched > 0 and plane_ids[i] != plane_ids[matched]: matched <- depth_prefix[matched - 1]
+        matched <- depth_prefix[i - 1]
+        while matched > 0 and plane_ids[i] != plane_ids[matched]:
+            matched <- depth_prefix[matched - 1]
         if plane_ids[i] == plane_ids[matched]: matched <- matched + 1
         depth_prefix[i] <- matched
         i <- i + 1
@@ -143,13 +150,14 @@ def three_dimensional_bird_baker_matching_impl(input: view[i64], output: mutable
     count: mutable usize = 0
     row: mutable usize = 0
     while row < row_starts:
-        column: mutable usize = 0
+        column <- 0
         while column < column_starts:
             matched <- 0
             z <- 0
             while z < depths:
                 token: i64 = labels[(z * MAX_DIM + row) * MAX_DIM + column]
-                while matched > 0 and token != plane_ids[matched].i64(): matched <- depth_prefix[matched - 1]
+                while matched > 0 and token != plane_ids[matched].i64():
+                    matched <- depth_prefix[matched - 1]
                 if token == plane_ids[matched].i64(): matched <- matched + 1
                 if matched == pattern_depths:
                     matches[count * 3] <- row.i64()
@@ -162,8 +170,8 @@ def three_dimensional_bird_baker_matching_impl(input: view[i64], output: mutable
         row <- row + 1
 
     output_bytes: usize = 8 * (1 + 3 * count)
-    if output.is_null() or capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
+    if output == null or capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     b3_put(count.i64(), output_view, 0)
     index <- 0
     while index < 3 * count:
@@ -171,7 +179,9 @@ def three_dimensional_bird_baker_matching_impl(input: view[i64], output: mutable
         index <- index + 1
     output_bytes.i64()
 
-export fn three_dimensional_bird_baker_matching(input: i64&, length: usize,
+def three_dimensional_bird_baker_matching_entry(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 7 or length > MAX_INPUT: return -1
-    three_dimensional_bird_baker_matching_impl(input[0:length], output, capacity)
+    if input == null or length < 7 or length > MAX_INPUT: return -1
+    three_dimensional_bird_baker_matching_impl(input, length, output, capacity)
+
+export fn three_dimensional_bird_baker_matching(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = three_dimensional_bird_baker_matching_entry

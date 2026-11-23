@@ -7,7 +7,7 @@ const MP_INPUT: usize = 52
 def mp_augment(a: usize, right_count: usize, edges: view[bool],
                left: mutable view[i64], right: mutable view[i64],
                seen: mutable view[bool]) -> bool:
-    p: usize = 0
+    p: mutable usize = 0
     while p < right_count:
         if edges[a * MP_R + p] and not seen[p]:
             seen[p] <- true
@@ -22,11 +22,11 @@ def mp_augment(a: usize, right_count: usize, edges: view[bool],
 def mp_maximum(applicants: usize, right_count: usize, edges: view[bool],
                initial: view[i64], left: mutable view[i64],
                right: mutable view[i64]) -> bool:
-    a: usize = 0
+    a:mutable  mutable usize = 0
     while a < MP_A:
         left[a] <- initial[a]
         a <- a + 1
-    p: usize = 0
+    p: mutable usize = 0
     while p < MP_R:
         right[p] <- -1
         p <- p + 1
@@ -50,12 +50,14 @@ def mp_maximum(applicants: usize, right_count: usize, edges: view[bool],
 
 def mp_solve(applicants: usize, posts: usize, ranks: view[usize],
              max_rank: view[usize]) -> i64:
+    rank: mutable usize = zeroed
+    p: mutable usize = 0
     right_count: usize = posts + applicants
     first_edges_data: mutable bool[MP_A * MP_R] = zeroed
     first_edges: mutable view[bool] = first_edges_data[0:MP_A * MP_R]
-    a: usize = 0
+    a:mutable  mutable usize = 0
     while a < applicants:
-        p: usize = 0
+        p <- 0
         while p < posts:
             first_edges[a * MP_R + p] <- ranks[a * MP_P + p] == 1
             p <- p + 1
@@ -81,35 +83,35 @@ def mp_solve(applicants: usize, posts: usize, ranks: view[usize],
     queue_data: mutable usize[MP_NODES] = zeroed
     state: mutable view[i64] = state_data[0:MP_NODES]
     queue: mutable view[usize] = queue_data[0:MP_NODES]
-    i: usize = 0
+    i:mutable  mutable usize = 0
     while i < applicants + right_count:
         state[i] <- -1
         i <- i + 1
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     a <- 0
     while a < applicants:
         if first_left[a] < 0:
             state[a] <- 0
-            queue[tail] <- a
-            tail <- tail + 1
+            queue[tail_value] <- a
+            tail_value <- tail_value + 1
         a <- a + 1
     p <- 0
     while p < posts:
         if first_right[p] < 0:
             node: usize = applicants + p
             state[node] <- 0
-            queue[tail] <- node
-            tail <- tail + 1
+            queue[tail_value] <- node
+            tail_value <- tail_value + 1
         p <- p + 1
     a <- 0
     while a < applicants:
         node: usize = applicants + posts + a
         state[node] <- 0
-        queue[tail] <- node
-        tail <- tail + 1
+        queue[tail_value] <- node
+        tail_value <- tail_value + 1
         a <- a + 1
-    head: usize = 0
-    while head < tail:
+    head: mutable usize = 0
+    while head < tail_value:
         node: usize = queue[head]
         head <- head + 1
         if node < applicants:
@@ -121,15 +123,15 @@ def mp_solve(applicants: usize, posts: usize, ranks: view[usize],
                         target: usize = applicants + p
                         if state[target] < 0:
                             state[target] <- 1
-                            queue[tail] <- target
-                            tail <- tail + 1
+                            queue[tail_value] <- target
+                            tail_value <- tail_value + 1
                     p <- p + 1
-            else if first_left[a] >= 0:
+            elif first_left[a] >= 0:
                 target: usize = applicants + first_left[a].usize()
                 if state[target] < 0:
                     state[target] <- 0
-                    queue[tail] <- target
-                    tail <- tail + 1
+                    queue[tail_value] <- target
+                    tail_value <- tail_value + 1
         else:
             p <- node - applicants
             if p < posts:
@@ -138,21 +140,21 @@ def mp_solve(applicants: usize, posts: usize, ranks: view[usize],
                     while a < applicants:
                         if ranks[a * MP_P + p] == 1 and first_left[a] != p.i64() and state[a] < 0:
                             state[a] <- 1
-                            queue[tail] <- a
-                            tail <- tail + 1
+                            queue[tail_value] <- a
+                            tail_value <- tail_value + 1
                         a <- a + 1
-                else if first_right[p] >= 0:
+                elif first_right[p] >= 0:
                     target: usize = first_right[p].usize()
                     if state[target] < 0:
                         state[target] <- 0
-                        queue[tail] <- target
-                        tail <- tail + 1
+                        queue[tail_value] <- target
+                        tail_value <- tail_value + 1
 
     classes_data: mutable i64[MP_NODES] = zeroed
     classes: mutable view[i64] = classes_data[0:MP_NODES]
     i <- 0
     while i < applicants + right_count:
-        classes[i] <- if state[i] < 0: 2 else: state[i]
+        classes[i] <- 2 if state[i] < 0 else state[i]
         i <- i + 1
     allowed_data: mutable bool[MP_A * MP_R] = zeroed
     allowed: mutable view[bool] = allowed_data[0:MP_A * MP_R]
@@ -161,7 +163,7 @@ def mp_solve(applicants: usize, posts: usize, ranks: view[usize],
         best_even: mutable usize = posts + 1
         p <- 0
         while p < posts:
-            rank: usize = ranks[a * MP_P + p]
+            rank <- ranks[a * MP_P + p]
             if rank > 0 and classes[applicants + p] == 0 and rank < best_even: best_even <- rank
             p <- p + 1
         last_rank: usize = max_rank[a] + 1
@@ -245,9 +247,12 @@ def mp_solve(applicants: usize, posts: usize, ranks: view[usize],
     if rank_one != first_size: return 0
     result
 
-export fn ties_maximum_cardinality_popular_matching(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > MP_INPUT: return -1
-    values: view[i64] = input[0:length]
+def ties_maximum_cardinality_popular_matching_impl(input: i64&, length: usize) -> i64:
+    rank: mutable usize = zeroed
+    p: mutable usize = zeroed
+    a: mutable usize = zeroed
+    if input == null or length < 3 or length > MP_INPUT: return -1
+    values: i64& = input
     a64: i64 = values[0]
     p64: i64 = values[1]
     e64: i64 = values[2]
@@ -261,16 +266,16 @@ export fn ties_maximum_cardinality_popular_matching(input: i64&, length: usize) 
     ranks: mutable view[usize] = ranks_data[0:MP_A * MP_P]
     max_rank: mutable view[usize] = max_rank_data[0:MP_A]
     cursor: mutable usize = 3
-    i: usize = 0
+    i: mutable usize = 0
     while i < edge_count:
         av: i64 = values[cursor]
         pv: i64 = values[cursor + 1]
         rv: i64 = values[cursor + 2]
         cursor <- cursor + 3
         if av < 0 or av >= a64 or pv < 0 or pv >= p64 or rv < 1 or rv > p64: return -1
-        a: usize = av.usize()
-        p: usize = pv.usize()
-        rank: usize = rv.usize()
+        a <- av.usize()
+        p <- pv.usize()
+        rank <- rv.usize()
         if ranks[a * MP_P + p] != 0: return -1
         ranks[a * MP_P + p] <- rank
         if rank > max_rank[a]: max_rank[a] <- rank
@@ -283,7 +288,7 @@ export fn ties_maximum_cardinality_popular_matching(input: i64&, length: usize) 
         counts: mutable view[usize] = counts_data[0:MP_P + 1]
         p <- 0
         while p < posts:
-            rank: usize = ranks[a * MP_P + p]
+            rank <- ranks[a * MP_P + p]
             if rank > 0: counts[rank] <- counts[rank] + 1
             p <- p + 1
         rank <- 1
@@ -294,3 +299,5 @@ export fn ties_maximum_cardinality_popular_matching(input: i64&, length: usize) 
         a <- a + 1
     if not has_tie: return -1
     mp_solve(applicants, posts, ranks, max_rank)
+
+export fn ties_maximum_cardinality_popular_matching(input: i64&, length: usize) -> i64 = ties_maximum_cardinality_popular_matching_impl

@@ -140,14 +140,14 @@ def skew_binomial_minimum_root(keys: view[i64], serials: view[i64], item_ids: vi
         node <- node + 1
     best
 
-def skew_binomial_queue_impl(values: view[i64]) -> i64:
-    if values.len() < 1 or values.len() > MAX_INPUT_LENGTH:
+def skew_binomial_queue_impl(values: i64&, values_length: usize) -> i64:
+    if values_length < 1 or values_length > MAX_INPUT_LENGTH:
         return -1
     operation_value: i64 = values[0]
     if operation_value < 0 or operation_value > MAX_OPERATIONS.i64():
         return -1
     operation_count: usize = operation_value.usize()
-    if values.len() != 1 + 3 * operation_count or values.len() > 193:
+    if values_length != 1 + 3 * operation_count or values_length > 193:
         return -1
 
     keys: mutable i64[MAX_NODES] = zeroed
@@ -281,7 +281,9 @@ def skew_binomial_queue_impl(values: view[i64]) -> i64:
         operation_index <- operation_index + 1
     result
 
-export fn skew_binomial_queue(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+def skew_binomial_queue_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
         return -1
-    skew_binomial_queue_impl(input[0:length])
+    skew_binomial_queue_impl(input, length)
+
+export fn skew_binomial_queue(input: i64&, length: usize) -> i64 = skew_binomial_queue_entry

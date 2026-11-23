@@ -5,13 +5,13 @@ const BODYTRACK_MAX_INPUT: usize = 318
 const BODYTRACK_Q24: i64 = 16777216
 
 def bodytrack_round_away(numerator: i64, denominator: i64) -> i64:
-    magnitude: i64 = if numerator < 0: -numerator else: numerator
+    magnitude: i64 = -numerator if numerator < 0 else numerator
     quotient: mutable i64 = magnitude / denominator
     remainder: i64 = magnitude % denominator
     if 2 * remainder >= denominator: quotient <- quotient + 1
-    if numerator < 0: -quotient else: quotient
+    -quotient if numerator < 0 else quotient
 
-def bodytrack_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def bodytrack_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -19,12 +19,11 @@ def bodytrack_put_i64(output: mutable view[u8], offset: usize, value: i64) -> vo
 
 def bodytrack_annealed_particle_filter_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > BODYTRACK_MAX_INPUT: return -1
+    if input == null or length < 3 or length > BODYTRACK_MAX_INPUT: return -1
     d_value: i64 = input[0]
     n_value: i64 = input[1]
     layers_value: i64 = input[2]
-    if d_value < 1 or d_value > 4 or n_value < 2 or n_value > 16 or
-            layers_value < 1 or layers_value > 4: return -1
+    if d_value < 1 or d_value > 4 or n_value < 2 or n_value > 16 or layers_value < 1 or layers_value > 4: return -1
     d: usize = d_value.usize()
     n: usize = n_value.usize()
     layers: usize = layers_value.usize()
@@ -45,12 +44,10 @@ def bodytrack_annealed_particle_filter_impl(input: i64&, length: usize,
         if target[axis] < -10000 or target[axis] > 10000: return -1
     for layer in 0..<layers:
         beta[layer] <- input[beta_at + layer]
-        if beta[layer] < 1 or beta[layer] > 8 or
-                (layer > 0 and beta[layer] <= beta[layer - 1]): return -1
+        if beta[layer] < 1 or beta[layer] > 8 or (layer > 0 and beta[layer] <= beta[layer - 1]): return -1
     for layer in 0..<(layers - 1):
         sigma[layer] <- input[sigma_at + layer]
-        if sigma[layer] < 0 or sigma[layer] > 2000 or
-                (layer > 0 and sigma[layer] > sigma[layer - 1]): return -1
+        if sigma[layer] < 0 or sigma[layer] > 2000 or (layer > 0 and sigma[layer] > sigma[layer - 1]): return -1
     for item in 0..<(n * d):
         value: i64 = input[pose_at + item]
         if value < -10000 or value > 10000: return -1
@@ -62,7 +59,7 @@ def bodytrack_annealed_particle_filter_impl(input: i64&, length: usize,
         if value < -3000 or value > 3000: return -1
 
     required: usize = 8 * d
-    if output.is_null() or capacity < required: return -2
+    if output == null or capacity < required: return -2
     population: mutable i64[2][BODYTRACK_MAX_N][BODYTRACK_MAX_D] = zeroed
     weights: mutable i64[BODYTRACK_MAX_N] = zeroed
     estimate: mutable i64[BODYTRACK_MAX_D] = zeroed
@@ -110,7 +107,7 @@ def bodytrack_annealed_particle_filter_impl(input: i64&, length: usize,
                     population[destination][child][axis] <- coordinate
             active <- destination
     for axis in 0..<d:
-        bodytrack_put_i64(output[0:capacity], 8 * axis, estimate[axis])
+        bodytrack_put_i64(output, 8 * axis, estimate[axis])
     required.i64()
 
 export fn bodytrack_annealed_particle_filter(input: i64&, length: usize,

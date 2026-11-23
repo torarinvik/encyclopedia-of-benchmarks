@@ -13,8 +13,9 @@ def misra_gries_edge_coloring_free(vertex: usize, color: i64, vertices: usize,
         other <- other + 1
     true
 
-def misra_gries_edge_coloring_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def misra_gries_edge_coloring_impl(input: i64&, input_length: usize) -> i64:
+    neighbor: mutable usize = 0
+    length: usize = input_length
     if length < 2 or length > MAX_LENGTH:
         return -1
     vertices_value: i64 = input[0]
@@ -40,8 +41,8 @@ def misra_gries_edge_coloring_impl(input: view[i64]) -> i64:
         b: i64 = input[3 + 2 * edge]
         if a < 0 or b < 0 or a >= vertices_value or b >= vertices_value or a == b:
             return -1
-        u_value: i64 = if a < b: a else: b
-        v_value: i64 = if a < b: b else: a
+        u_value: i64 = a if a < b else b
+        v_value: i64 = b if a < b else a
         u: usize = u_value.usize()
         v: usize = v_value.usize()
         if edge_at[u * MAX_VERTICES + v] >= 0:
@@ -59,7 +60,7 @@ def misra_gries_edge_coloring_impl(input: view[i64]) -> i64:
         if degree[index] > delta:
             delta <- degree[index]
         index <- index + 1
-    palette: usize = if edge_count == 0: 0 else: delta + 1
+    palette: usize = 0 if edge_count == 0 else delta + 1
     colors: mutable i64[MAX_EDGES] = zeroed
     edge <- 0
     while edge < MAX_EDGES:
@@ -73,9 +74,9 @@ def misra_gries_edge_coloring_impl(input: view[i64]) -> i64:
         fan_count: mutable usize = 1
         fan[0] <- right[edge]
         while true:
-            tail: usize = fan[fan_count - 1]
+            tail_value: usize = fan[fan_count - 1]
             extended: mutable bool = false
-            neighbor: mutable usize = 0
+            neighbor <- 0
             while neighbor < vertices:
                 candidate_value: i64 = edge_at[center * MAX_VERTICES + neighbor]
                 if candidate_value >= 0:
@@ -88,7 +89,7 @@ def misra_gries_edge_coloring_impl(input: view[i64]) -> i64:
                                 present <- true
                             scan <- scan + 1
                         if not present and misra_gries_edge_coloring_free(
-                                tail, colors[candidate], vertices,
+                                tail_value, colors[candidate], vertices,
                                 edge_at[0:MAX_VERTICES * MAX_VERTICES],
                                 colors[0:MAX_EDGES]):
                             fan[fan_count] <- neighbor
@@ -136,12 +137,12 @@ def misra_gries_edge_coloring_impl(input: view[i64]) -> i64:
             path_count <- path_count + 1
             visited[next_vertex] <- true
             current <- next_vertex
-            wanted <- if wanted == color_d: color_c else: color_d
+            wanted <- color_c if wanted == color_d else color_d
             step <- step + 1
         index <- 0
         while index < path_count:
             edge_index: usize = path[index]
-            colors[edge_index] <- if colors[edge_index] == color_d: color_c else: color_d
+            colors[edge_index] <- color_c if colors[edge_index] == color_d else color_d
             index <- index + 1
 
         prefix_end: mutable usize = fan_count
@@ -179,7 +180,9 @@ def misra_gries_edge_coloring_impl(input: view[i64]) -> i64:
         edge <- edge + 1
     palette.i64() * 262144 + signature
 
-export fn misra_gries_edge_coloring(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_LENGTH:
+def misra_gries_edge_coloring_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_LENGTH:
         return -1
-    misra_gries_edge_coloring_impl(input[0:length])
+    misra_gries_edge_coloring_impl(input, length)
+
+export fn misra_gries_edge_coloring(input: i64&, length: usize) -> i64 = misra_gries_edge_coloring_entry

@@ -12,8 +12,10 @@ def pgp_pow_mod(base_value: i64, exponent_value: i64) -> i64:
         exponent <- exponent >> 1
     result
 
-export fn penney_game_pattern_probability(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 3: return -1
+def penney_game_pattern_probability_impl(input: i64&, length: usize) -> i64:
+    index: mutable usize = 0
+    state_index: mutable usize = 0
+    if input == null or length != 3: return -1
     word_length: i64 = input[0]
     if word_length < 1 or word_length > 4: return -1
     limit: i64 = i64(1) << word_length
@@ -29,12 +31,12 @@ export fn penney_game_pattern_probability(input: i64&, length: usize) -> i64:
     while prefix_length < word_length.usize():
         which: mutable usize = 0
         while which < 2:
-            pattern: i64 = first
+            pattern: mutable i64 = first
             if which == 1: pattern <- second
             shift: usize = (word_length.usize() - prefix_length)
             code: i64 = pattern >> shift
             found: mutable bool = false
-            state_index: mutable usize = 0
+            state_index <- 0
             while state_index < state_count:
                 if codes[state_index] == code and state_lengths[state_index] == prefix_length:
                     found <- true
@@ -98,7 +100,7 @@ export fn penney_game_pattern_probability(input: i64&, length: usize) -> i64:
             pivot <- pivot + 1
         if pivot == state_count: return -1
         if pivot != column:
-            index: mutable usize = 0
+            index <- 0
             while index <= state_count:
                 left: usize = column * PGP_MATRIX_WIDTH + index
                 right: usize = pivot * PGP_MATRIX_WIDTH + index
@@ -126,3 +128,5 @@ export fn penney_game_pattern_probability(input: i64&, length: usize) -> i64:
             row <- row + 1
         column <- column + 1
     matrix[state_count]
+
+export fn penney_game_pattern_probability(input: i64&, length: usize) -> i64 = penney_game_pattern_probability_impl

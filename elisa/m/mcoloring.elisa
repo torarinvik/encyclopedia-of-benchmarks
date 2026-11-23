@@ -9,7 +9,8 @@ def mcoloring_find_root(parent: mutable view[usize], vertex_input: usize) -> usi
     vertex
 
 def mcoloring_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH:
+    neighbor: mutable usize = zeroed
+    if input == null or length < 2 or length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
     n_value: i64 = input[0]
     colors_value: i64 = input[1]
@@ -20,23 +21,23 @@ def mcoloring_impl(input: i64&, length: usize) -> i64:
 
     masks: mutable u32[MAX_VERTICES] = zeroed
     parent: mutable usize[MAX_VERTICES] = zeroed
-    valid_mask: u32 = 0
-    if n > 0: valid_mask <- (1u32 << n) - 1
+    valid_mask: mutable u32 = 0
+    if n > 0: valid_mask <- (1 << n) - 1
     vertex: mutable usize = 0
     while vertex < n:
         raw: i64 = input[vertex + 2]
         if raw < 0 or raw.u64() > valid_mask.u64(): return -1
         masks[vertex] <- raw.u32()
-        if masks[vertex] & (1u32 << vertex) != 0: return -1
+        if masks[vertex] & (1 << vertex) != 0: return -1
         parent[vertex] <- vertex
         vertex <- vertex + 1
 
     vertex <- 0
     while vertex < n:
-        neighbor: mutable usize = vertex + 1
+        neighbor <- vertex + 1
         while neighbor < n:
-            edge: bool = masks[vertex] & (1u32 << neighbor) != 0
-            reverse_edge: bool = masks[neighbor] & (1u32 << vertex) != 0
+            edge: bool = masks[vertex] & (1 << neighbor) != 0
+            reverse_edge: bool = masks[neighbor] & (1 << vertex) != 0
             if edge != reverse_edge: return -1
             if edge:
                 root_a: usize = mcoloring_find_root(parent[0:n], vertex)
@@ -58,16 +59,16 @@ def mcoloring_impl(input: i64&, length: usize) -> i64:
     while start < n:
         if not visited[start]:
             head: mutable usize = 0
-            tail: mutable usize = 0
+            tail_value: mutable usize = 0
             visited[start] <- true
-            queue[tail] <- start
-            tail <- tail + 1
-            while head < tail:
+            queue[tail_value] <- start
+            tail_value <- tail_value + 1
+            while head < tail_value:
                 current: usize = queue[head]
                 head <- head + 1
                 neighbor <- 0
                 while neighbor < n:
-                    if masks[current] & (1u32 << neighbor) != 0:
+                    if masks[current] & (1 << neighbor) != 0:
                         if colors[current] == colors[neighbor]:
                             colors[neighbor] <- colors[neighbor] + 1
                         if colors[current] > maximum_color: maximum_color <- colors[current]
@@ -75,8 +76,8 @@ def mcoloring_impl(input: i64&, length: usize) -> i64:
                         if maximum_color > colors_value: return 0
                         if not visited[neighbor]:
                             visited[neighbor] <- true
-                            queue[tail] <- neighbor
-                            tail <- tail + 1
+                            queue[tail_value] <- neighbor
+                            tail_value <- tail_value + 1
                     neighbor <- neighbor + 1
         start <- start + 1
     1

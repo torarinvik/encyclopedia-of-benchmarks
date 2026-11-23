@@ -3,7 +3,7 @@ const MAX_N: i64 = 46340
 const MAX_STEPS: i64 = 4096
 
 def java_remainder(value: i64, modulus: i64) -> i64:
-    if value < 0: -((-value) % modulus) else: value % modulus
+    -((-value) % modulus) if value < 0 else value % modulus
 
 def next_value(value: i64, modulus: i64) -> i64:
     java_remainder(value * value - 1, modulus)
@@ -18,7 +18,7 @@ def gcd_nonnegative(left_value: i64, right_value: i64) -> i64:
     left
 
 def pollard_rho_java_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length != 2: return -1
+    if input == null or length != 2: return -1
     n: i64 = input[0]
     step_limit: i64 = input[1]
     if n < MIN_N or n > MAX_N or step_limit < 1 or step_limit > MAX_STEPS: return -1

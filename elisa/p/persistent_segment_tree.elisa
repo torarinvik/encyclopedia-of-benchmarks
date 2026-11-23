@@ -6,9 +6,9 @@ const FNV_OFFSET: u64 = 14695981039346656037
 const FNV_PRIME: u64 = 1099511628211
 
 struct PersistentNode:
-    sum: i64
-    left: i64
-    right: i64
+    sum: mutable i64
+    left: mutable i64
+    right: mutable i64
 
 def persistent_make_node(nodes: mutable view[PersistentNode], used: mutable usize&, sum: i64, left: i64, right: i64) -> i64:
     if used >= NODE_CAP: return -1
@@ -19,7 +19,7 @@ def persistent_make_node(nodes: mutable view[PersistentNode], used: mutable usiz
     used <- used + 1
     index
 
-def persistent_build(nodes: mutable view[PersistentNode], used: mutable usize&, values: view[i64], left: usize, right: usize) -> i64:
+def persistent_build(nodes: mutable view[PersistentNode], used: mutable usize&, values: i64&, left: usize, right: usize) -> i64:
     if left == right: return persistent_make_node(nodes, used, values[left], -1, -1)
     mid: usize = left + (right - left) / 2
     a: i64 = persistent_build(nodes, used, values, left, mid)
@@ -70,7 +70,7 @@ def persistent_segment_tree_impl(input: i64&, length: usize) -> i64:
 
     nodes: mutable PersistentNode[NODE_CAP] = zeroed
     nodes_view: mutable view[PersistentNode] = nodes[0:NODE_CAP]
-    values_view: view[i64] = input[2:2 + n]
+    values_view: i64& = &input[2]
     used: mutable usize = 0
     roots: mutable i64[MAX_Q + 1] = zeroed
     roots[0] <- persistent_build(nodes_view, used, values_view, 0, n - 1)
@@ -101,7 +101,8 @@ def persistent_segment_tree_impl(input: i64&, length: usize) -> i64:
     hash: mutable u64 = FNV_OFFSET
     hash <- persistent_hash_word(hash, versions.i64())
     hash <- persistent_hash_word(hash, query_count.i64())
-    for i in 0..<query_count: hash <- persistent_hash_word(hash, query_sums[i])
+    for i in 0..<query_count:
+        hash <- persistent_hash_word(hash, query_sums[i])
     (hash & 0x7fffffffffffffff).i64()
 
 export fn persistent_segment_tree(input: i64&, length: usize) -> i64 = persistent_segment_tree_impl

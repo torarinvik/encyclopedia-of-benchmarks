@@ -52,7 +52,7 @@ def pts_chain_value(h: usize, pos: view[usize], ends: view[usize],
     pts_compose(lm, la, rm, ra, scratch[0:2])
     scratch[1]
 
-def pts_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+def pts_store(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -62,13 +62,15 @@ def pts_store(value: i64, output: mutable view[u8], offset: usize) -> void:
 
 def point_set_tree_path_composite_sum_fixed_root_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > PTS_MAX_INPUT: return -1
+    u: mutable usize = zeroed
+    v: mutable usize = zeroed
+    if input == null or length < 2 or length > PTS_MAX_INPUT: return -1
     n_value: i64 = input[0]
     q_value: i64 = input[1]
     if n_value < 1 or n_value > PTS_MAX_N.i64() or q_value < 1 or q_value > PTS_MAX_Q.i64(): return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     cursor: mutable usize = 2
     vertex_value: mutable i64[PTS_MAX_N] = zeroed
     vertex: mutable usize = 0
@@ -103,10 +105,10 @@ def point_set_tree_path_composite_sum_fixed_root_impl(input: i64&, length: usize
         c: i64 = input_view[cursor + 3]
         cursor <- cursor + 4
         if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value or b < 1 or b >= PTS_MOD or c < 0 or c >= PTS_MOD: return -1
-        u: usize = u_value.usize()
-        v: usize = v_value.usize()
-        ru: usize = pts_find(dsu_parent[0:PTS_MAX_N], u)
-        rv: usize = pts_find(dsu_parent[0:PTS_MAX_N], v)
+        u <- u_value.usize()
+        v <- v_value.usize()
+        ru: mutable usize = pts_find(dsu_parent[0:PTS_MAX_N], u)
+        rv: mutable usize = pts_find(dsu_parent[0:PTS_MAX_N], v)
         if ru == rv: return -1
         if dsu_size[ru] < dsu_size[rv]:
             temporary: usize = ru
@@ -147,14 +149,14 @@ def point_set_tree_path_composite_sum_fixed_root_impl(input: i64&, length: usize
         query <- query + 1
     if cursor != length: return -1
     required: usize = 8 * q
-    if output.is_null() or capacity < required: return -2
+    if output == null or capacity < required: return -2
 
     path_parent: mutable i64[PTS_MAX_N] = zeroed
     parent_edge: mutable i64[PTS_MAX_N] = zeroed
     subtree: mutable usize[PTS_MAX_N] = zeroed
     heavy: mutable i64[PTS_MAX_N] = zeroed
     order: mutable usize[PTS_MAX_N] = zeroed
-    stack: mutable usize[PTS_MAX_N] = zeroed
+    stack_value: mutable usize[PTS_MAX_N] = zeroed
     vertex <- 0
     while vertex < n:
         path_parent[vertex] <- -2
@@ -165,25 +167,25 @@ def point_set_tree_path_composite_sum_fixed_root_impl(input: i64&, length: usize
     path_parent[0] <- -1
     top: mutable usize = 1
     count: mutable usize = 0
-    stack[0] <- 0
+    stack_value[0] <- 0
     while top > 0:
         top <- top - 1
-        u: usize = stack[top]
+        u <- stack_value[top]
         order[count] <- u
         count <- count + 1
-        v: mutable usize = 0
+        v <- 0
         while v < n:
             eid: i64 = edge_at[u * PTS_MAX_N + v]
             if eid >= 0 and v.i64() != path_parent[u]:
                 path_parent[v] <- u.i64()
                 parent_edge[v] <- eid
-                stack[top] <- v
+                stack_value[top] <- v
                 top <- top + 1
             v <- v + 1
     scan: mutable usize = count
     while scan > 0:
         scan <- scan - 1
-        u: usize = order[scan]
+        u <- order[scan]
         best: mutable usize = 0
         v <- 0
         while v < n:
@@ -311,7 +313,7 @@ def point_set_tree_path_composite_sum_fixed_root_impl(input: i64&, length: usize
             if local_add[p] < 0: local_add[p] <- local_add[p] + PTS_MOD
             pts_set_leaf(p, position[0:PTS_MAX_N], local_mul[0:PTS_MAX_N], local_add[0:PTS_MAX_N], seg_mul[0:2*PTS_BASE], seg_add[0:2*PTS_BASE])
             u <- p
-        pts_store(current[0], output[0:required], 8 * query)
+        pts_store(current[0], output, 8 * query)
         query <- query + 1
     required.i64()
 

@@ -1,5 +1,5 @@
-const ROOT_MODULUS: i64 = 998_244_353
-const ROOT_PRNG_MODULUS: i64 = 2_147_483_647
+const ROOT_MODULUS: i64 = 998244353
+const ROOT_PRNG_MODULUS: i64 = 2147483647
 const ROOT_MAX_N: usize = 8
 const ROOT_MAX_INPUT: usize = 10
 const ROOT_MAX_PRODUCT: usize = 17
@@ -23,15 +23,18 @@ def root_power_mod(base_value: i64, exponent_value: i64) -> i64:
     result
 
 def root_zero_poly(output: mutable view[i64]) -> void:
-    for i in 0..<ROOT_POLY_WORDS: output[i] <- 0
+    for i in 0..<ROOT_POLY_WORDS:
+        output[i] <- 0
     output[ROOT_DEGREE_SLOT] <- -1
 
 def root_copy_poly(source: view[i64], destination: mutable view[i64]) -> void:
-    for i in 0..<ROOT_POLY_WORDS: destination[i] <- source[i]
+    for i in 0..<ROOT_POLY_WORDS:
+        destination[i] <- source[i]
 
 def root_trim(poly: mutable view[i64]) -> void:
     degree: mutable i64 = poly[ROOT_DEGREE_SLOT]
-    while degree >= 0 and poly[degree.usize()] == 0: degree <- degree - 1
+    while degree >= 0 and poly[degree.usize()] == 0:
+        degree <- degree - 1
     poly[ROOT_DEGREE_SLOT] <- degree
 
 def root_poly_mod(value: view[i64], divisor: view[i64], output: mutable view[i64]) -> void:
@@ -39,7 +42,8 @@ def root_poly_mod(value: view[i64], divisor: view[i64], output: mutable view[i64
     value_degree: i64 = value[ROOT_DEGREE_SLOT]
     divisor_degree: i64 = divisor[ROOT_DEGREE_SLOT]
     if divisor_degree <= 0 or value_degree < 0: return
-    for i in 0..=value_degree.usize(): output[i] <- value[i]
+    for i in 0..=value_degree.usize():
+        output[i] <- value[i]
     output[ROOT_DEGREE_SLOT] <- value_degree
     inverse: i64 = root_power_mod(divisor[divisor_degree.usize()], ROOT_MODULUS - 2)
     while output[ROOT_DEGREE_SLOT] >= divisor_degree:
@@ -62,7 +66,8 @@ def root_multiply_mod(left: view[i64], right: view[i64], modulus_poly: view[i64]
             product[i + j] <- (product[i + j] + left[i] * right[j]) % ROOT_MODULUS
     expanded: mutable i64[ROOT_POLY_WORDS] = zeroed
     expanded_degree: usize = (left_degree + right_degree).usize()
-    for i in 0..=expanded_degree: expanded[i] <- product[i]
+    for i in 0..=expanded_degree:
+        expanded[i] <- product[i]
     expanded[ROOT_DEGREE_SLOT] <- expanded_degree.i64()
     root_poly_mod(expanded[0:ROOT_POLY_WORDS], modulus_poly, output)
 
@@ -158,10 +163,10 @@ def root_collect_roots(poly: view[i64], roots: mutable view[i64],
     first: mutable i64[ROOT_POLY_WORDS] = zeroed
     second: mutable i64[ROOT_POLY_WORDS] = zeroed
     for _ in 0..<32:
-        state <- state * 48_271 % ROOT_PRNG_MODULUS
+        state <- state * 48271 % ROOT_PRNG_MODULUS
         slope: mutable i64 = state % ROOT_MODULUS
         if slope == 0: slope <- 1
-        state <- state * 48_271 % ROOT_PRNG_MODULUS
+        state <- state * 48271 % ROOT_PRNG_MODULUS
         offset: i64 = state % ROOT_MODULUS
         if root_split_with_affine(poly, slope, offset,
             first[0:ROOT_POLY_WORDS], second[0:ROOT_POLY_WORDS]):
@@ -191,8 +196,8 @@ def root_find_roots(poly: view[i64], roots: mutable view[i64]) -> usize:
     if x_mod[ROOT_DEGREE_SLOT] > largest: largest <- x_mod[ROOT_DEGREE_SLOT]
     if largest >= 0:
         for i in 0..=largest.usize():
-            left: i64 = 0
-            right: i64 = 0
+            left: mutable i64 = 0
+            right: mutable i64 = 0
             if i.i64() <= x_to_p[ROOT_DEGREE_SLOT]: left <- x_to_p[i]
             if i.i64() <= x_mod[ROOT_DEGREE_SLOT]: right <- x_mod[i]
             x_to_p[i] <- root_normalize(left - right)
@@ -213,14 +218,14 @@ def root_find_roots(poly: view[i64], roots: mutable view[i64]) -> usize:
                 roots[j] <- saved
     count
 
-def root_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def root_store_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def polynomial_root_finding_impl(input: view[i64], length: usize,
-    output: mutable view[u8], capacity: usize, output_is_null: bool) -> i64:
+def polynomial_root_finding_impl(input: i64&, length: usize,
+    output: mutable u8&, capacity: usize, output_is_null: bool) -> i64:
     if length < 2 or length > ROOT_MAX_INPUT: return -1
     degree_value: i64 = input[0]
     if degree_value < 0 or degree_value > ROOT_MAX_N.i64() or length != degree_value.usize() + 2: return -1
@@ -236,17 +241,20 @@ def polynomial_root_finding_impl(input: view[i64], length: usize,
     bytes: usize = 8 * (root_count + 1)
     if output_is_null or capacity < bytes: return -2
     root_store_le(root_count.i64(), output, 0)
-    for i in 0..<root_count: root_store_le(roots[i], output, 8 * (i + 1))
+    for i in 0..<root_count:
+        root_store_le(roots[i], output, 8 * (i + 1))
     bytes.i64()
 
-export fn polynomial_root_finding(input: i64&, length: usize,
+def polynomial_root_finding_entry(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > ROOT_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+    if input == null or length < 2 or length > ROOT_MAX_INPUT: return -1
+    input_view: i64& = input
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return polynomial_root_finding_impl(input_view, length, scratch[0:1], 0, true)
+        return polynomial_root_finding_impl(input_view, length, &scratch[0], 0, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > ROOT_MAX_OUTPUT_BYTES: safe_capacity <- ROOT_MAX_OUTPUT_BYTES
-    output_view: mutable view[u8] = output[0:safe_capacity]
+    output_view: mutable u8& = output
     polynomial_root_finding_impl(input_view, length, output_view, capacity, false)
+
+export fn polynomial_root_finding(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = polynomial_root_finding_entry

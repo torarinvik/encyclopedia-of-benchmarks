@@ -2,8 +2,7 @@ const MAX_JOBS: usize = 12
 
 def max_jobs_heap_before(left_duration: i64, left_id: i64,
                          right_duration: i64, right_id: i64) -> bool:
-    left_duration < right_duration or
-        (left_duration == right_duration and left_id < right_id)
+    left_duration < right_duration or (left_duration == right_duration and left_id < right_id)
 
 def max_jobs_heap_push(durations: mutable view[i64], ids: mutable view[i64],
                        size: mutable view[usize], duration: i64, id: i64) -> void:
@@ -43,14 +42,14 @@ def max_jobs_heap_pop(durations: mutable view[i64], ids: mutable view[i64],
     durations[index] <- last_duration
     ids[index] <- last_id
 
-def max_jobs_before_deadlines_impl(input: view[i64]) -> i64:
-    if input.length < 1 or input.length > 1 + 2 * MAX_JOBS:
+def max_jobs_before_deadlines_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 1 or input_length > 1 + 2 * MAX_JOBS:
         return -1
     count_value: i64 = input[0]
     if count_value < 0 or count_value > MAX_JOBS.i64():
         return -1
     count: usize = count_value.usize()
-    if input.length != 1 + 2 * count:
+    if input_length != 1 + 2 * count:
         return -1
 
     deadlines: mutable i64[MAX_JOBS] = zeroed
@@ -96,7 +95,7 @@ def max_jobs_before_deadlines_impl(input: view[i64]) -> i64:
     while end > 0:
         end <- end - 1
         max_jobs_heap_push(duration_view, id_view, size_view, durations[end], ids[end])
-        lower: i64 = if end == 0: 0 else: deadlines[end - 1]
+        lower: i64 = 0 if end == 0 else deadlines[end - 1]
         interval: mutable i64 = deadlines[end] - lower
         while interval > 0 and heap_size[0] > 0:
             max_jobs_heap_pop(duration_view, id_view, size_view,
@@ -110,8 +109,11 @@ def max_jobs_before_deadlines_impl(input: view[i64]) -> i64:
                 interval <- 0
     completed
 
-export fn max_jobs_before_deadlines(input: i64&, length: usize) -> i64:
+def max_jobs_before_deadlines_entry(input: i64&, length: usize) -> i64:
     if input == null or length < 1 or length > 1 + 2 * MAX_JOBS:
         return -1
-    input_view: view[i64] = input[0:length]
-    max_jobs_before_deadlines_impl(input_view)
+    input_view: i64& = input
+    input_view_length: usize = length
+    max_jobs_before_deadlines_impl(input_view, input_view_length)
+
+export fn max_jobs_before_deadlines(input: i64&, length: usize) -> i64 = max_jobs_before_deadlines_entry

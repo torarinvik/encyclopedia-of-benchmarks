@@ -54,12 +54,11 @@ def range_affine_query(sum: mutable view[i64], lazy_mul: mutable view[i64],
     if qr <= left or right <= ql: return 0
     range_affine_push(sum, lazy_mul, lazy_add, node, left, right)
     middle: usize = left + (right - left) / 2
-    range_affine_reduce(range_affine_query(sum, lazy_mul, lazy_add, ql, qr, node * 2, left, middle) +
-                        range_affine_query(sum, lazy_mul, lazy_add, ql, qr, node * 2 + 1, middle, right))
+    range_affine_reduce(range_affine_query(sum, lazy_mul, lazy_add, ql, qr, node * 2, left, middle) + range_affine_query(sum, lazy_mul, lazy_add, ql, qr, node * 2 + 1, middle, right))
 
 def range_affine_range_sum_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > RANGE_AFFINE_MAX_PARSEABLE_INPUT: return -1
-    frame: view[i64] = input[0:length]
+    if input == null or length < 2 or length > RANGE_AFFINE_MAX_PARSEABLE_INPUT: return -1
+    frame: i64& = input
     if frame[0] < 1 or frame[0] > RANGE_AFFINE_MAX_LENGTH.i64(): return -1
     n: usize = frame[0].usize()
     if length < n + 2: return -1
@@ -72,7 +71,8 @@ def range_affine_range_sum_impl(input: i64&, length: usize) -> i64:
     sum: mutable i64[RANGE_AFFINE_TREE_NODES] = zeroed
     lazy_mul: mutable i64[RANGE_AFFINE_TREE_NODES]
     lazy_add: mutable i64[RANGE_AFFINE_TREE_NODES] = zeroed
-    for i in 0..<RANGE_AFFINE_TREE_NODES: lazy_mul[i] <- 1
+    for i in 0..<RANGE_AFFINE_TREE_NODES:
+        lazy_mul[i] <- 1
     range_affine_build(sum[0:RANGE_AFFINE_TREE_NODES], initial[0:n], 1, 0, n)
 
     cursor: mutable usize = n + 2
@@ -90,7 +90,7 @@ def range_affine_range_sum_impl(input: i64&, length: usize) -> i64:
             cursor <- cursor + 4
             if left < 0 or left >= right or right > n.i64() or a < 1 or a >= RANGE_AFFINE_MODULUS or b < 0 or b >= RANGE_AFFINE_MODULUS: return -1
             range_affine_update(sum[0:RANGE_AFFINE_TREE_NODES], lazy_mul[0:RANGE_AFFINE_TREE_NODES], lazy_add[0:RANGE_AFFINE_TREE_NODES], left.usize(), right.usize(), 1, 0, n, a, b)
-        else if opcode == 1:
+        elif opcode == 1:
             if cursor + 2 > length: return -1
             left: i64 = frame[cursor]
             right: i64 = frame[cursor + 1]
@@ -100,6 +100,6 @@ def range_affine_range_sum_impl(input: i64&, length: usize) -> i64:
             checksum <- checksum + (operation.i64() + 1) * (result + RANGE_AFFINE_MODULUS)
         else:
             return -1
-    if cursor == length: checksum else: -1
+    checksum if cursor == length else -1
 
 export fn range_affine_range_sum_benchmark(input: i64&, length: usize) -> i64 = range_affine_range_sum_impl

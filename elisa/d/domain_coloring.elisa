@@ -2,10 +2,10 @@ const DC_MAX_OUTPUT_BYTES: usize = 768
 
 def dc_phase_hue(real_part: i64, imaginary_part: i64) -> i64:
     if real_part == 0 and imaginary_part == 0: return 0
-    abs_real: i64 = if real_part < 0: -real_part else: real_part
-    abs_imaginary: i64 = if imaginary_part < 0: -imaginary_part else: imaginary_part
-    high: i64 = if abs_real > abs_imaginary: abs_real else: abs_imaginary
-    low: i64 = if abs_real < abs_imaginary: abs_real else: abs_imaginary
+    abs_real: i64 = -real_part if real_part < 0 else real_part
+    abs_imaginary: i64 = -imaginary_part if imaginary_part < 0 else imaginary_part
+    high: i64 = abs_real if abs_real > abs_imaginary else abs_imaginary
+    low: i64 = abs_real if abs_real < abs_imaginary else abs_imaginary
     step: i64 = 192 * low / high
     hue: mutable i64 = 0
     if imaginary_part >= 0:
@@ -59,7 +59,7 @@ def dc_store_pixel(pixels: mutable view[u8], offset: usize,
 
 def domain_coloring_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length != 6: return -1
+    if input == null or length != 6: return -1
     width_value: i64 = input[0]
     height_value: i64 = input[1]
     x_start: i64 = input[2]
@@ -94,8 +94,9 @@ def domain_coloring_impl(input: i64&, length: usize,
             column <- column + 1
         row <- row + 1
 
-    if output.is_null() or capacity < byte_count: return -2
-    for byte in 0..<byte_count: output[byte] <- rendered[byte]
+    if output == null or capacity < byte_count: return -2
+    for byte in 0..<byte_count:
+        output[byte] <- rendered[byte]
     byte_count.i64()
 
 export fn domain_coloring(input: i64&, length: usize,

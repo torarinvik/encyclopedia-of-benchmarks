@@ -11,8 +11,8 @@ def ring_exact_covering_protocol_put(value: i64, output: mutable view[u8], offse
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def ring_exact_covering_protocol(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("ring_exact_covering_protocol"):
-    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+def ring_exact_covering_protocol_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT: return -1
     if input[0] < 2 or input[0] > 12 or input[2] < 0 or input[2] > 64: return -1
     n: usize = input[0].usize()
     steps: usize = input[2].usize()
@@ -37,7 +37,7 @@ def ring_exact_covering_protocol(input: i64&, length: usize, output: mutable u8&
         sensor: usize = input[3 + n + i].usize()
         successor: usize = (sensor + 1) % n
         gap: i64 = (position[successor] - position[sensor] + circumference) % circumference
-        distance: i64 = 0
+        distance:mutable  mutable i64 = 0
         if gap > visibility: distance <- SCALE
         elif gap > SCALE: distance <- gap - SCALE
         if distance != 0:
@@ -45,7 +45,7 @@ def ring_exact_covering_protocol(input: i64&, length: usize, output: mutable u8&
             moved <- moved + 1
         i <- i + 1
     bytes: usize = 8 * (2 + 2 * n)
-    if output.is_null() or capacity < bytes: return -2
+    if output == null or capacity < bytes: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
     staged_view: mutable view[u8] = staged[0:bytes]
     ring_exact_covering_protocol_put(n.i64(), staged_view, 0)
@@ -65,3 +65,5 @@ def ring_exact_covering_protocol(input: i64&, length: usize, output: mutable u8&
         output[i] <- staged[i]
         i <- i + 1
     return bytes.i64()
+
+export fn ring_exact_covering_protocol(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = ring_exact_covering_protocol_impl

@@ -10,10 +10,11 @@ def tree_decomposition_width_2_put(value: i64, output: mutable view[u8], offset:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def tree_decomposition_width_2(
+def tree_decomposition_width_2_impl(
     input: i64&, length: usize, output: mutable u8&, capacity: usize
-) -> i64 @export("tree_decomposition_width_2"):
-    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+) -> i64:
+    index: mutable usize = 0
+    if input == null or length < 2 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     if n64 < 1 or n64 > MAX_N.i64() or m64 < 0 or m64 > MAX_M.i64(): return -1
@@ -76,7 +77,7 @@ def tree_decomposition_width_2(
         later_counts[step] <- count
         bag_sizes[step] <- count + 1
         bag_values[step * 3] <- chosen.i64()
-        index: mutable usize = 0
+        index <- 0
         while index < count:
             later[step * 2 + index] <- neighbors[index]
             bag_values[step * 3 + index + 1] <- neighbors[index].i64()
@@ -115,7 +116,7 @@ def tree_decomposition_width_2(
         step <- step + 1
 
     bytes: usize = 8 * (6 * n + 7)
-    if output.is_null() or capacity < bytes or bytes > MAX_OUTPUT: return -2
+    if output == null or capacity < bytes or bytes > MAX_OUTPUT: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
     staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
     tree_decomposition_width_2_put((n + 1).i64(), staged_view, 0)
@@ -124,12 +125,12 @@ def tree_decomposition_width_2(
     cursor: mutable usize = 24
     bag: mutable usize = 0
     while bag <= n:
-        size: usize = if bag == n { 0 } else { bag_sizes[bag] }
+        size: usize = 0 if bag == n else bag_sizes[bag]
         tree_decomposition_width_2_put(size.i64(), staged_view, cursor)
         cursor <- cursor + 8
         slot: mutable usize = 0
         while slot < 3:
-            value: i64 = if slot < size { bag_values[bag * 3 + slot] } else { -1 }
+            value: i64 = bag_values[bag * 3 + slot] if slot < size else -1
             tree_decomposition_width_2_put(value, staged_view, cursor)
             cursor <- cursor + 8
             slot <- slot + 1
@@ -145,3 +146,5 @@ def tree_decomposition_width_2(
         output[index] <- staged[index]
         index <- index + 1
     bytes.i64()
+
+export fn tree_decomposition_width_2( input: i64&, length: usize, output: mutable u8&, capacity: usize ) -> i64 = tree_decomposition_width_2_impl

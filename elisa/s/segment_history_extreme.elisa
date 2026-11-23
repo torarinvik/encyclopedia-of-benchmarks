@@ -5,16 +5,16 @@ const SH_TREE_SIZE: usize = 4 * SH_MAX_N
 const SH_VALUE_LIMIT: i64 = 1000
 
 struct ShNode:
-    maximum: i64
-    history_maximum: i64
-    add: i64
-    add_peak: i64
-    set_value: i64
-    set_peak: i64
-    has_set: bool
+    maximum: mutable i64
+    history_maximum: mutable i64
+    add: mutable i64
+    add_peak: mutable i64
+    set_value: mutable i64
+    set_peak: mutable i64
+    has_set: mutable bool
 
 def sh_max(a: i64, b: i64) -> i64:
-    if a > b: a else: b
+    a if a > b else b
 
 def sh_apply_add_summary(node: mutable view[ShNode], index: usize, net: i64, peak: i64) -> void:
     node[index].history_maximum <- sh_max(node[index].history_maximum, node[index].maximum + peak)
@@ -78,7 +78,7 @@ def sh_pull(tree: mutable view[ShNode], node: usize) -> void:
     tree[node].maximum <- sh_max(tree[2 * node].maximum, tree[2 * node + 1].maximum)
     tree[node].history_maximum <- sh_max(tree[2 * node].history_maximum, tree[2 * node + 1].history_maximum)
 
-def sh_build(tree: mutable view[ShNode], values: view[i64], node: usize, left: usize, right: usize) -> void:
+def sh_build(tree: mutable view[ShNode], values: i64&, node: usize, left: usize, right: usize) -> void:
     if right - left == 1:
         tree[node].maximum <- values[left]
         tree[node].history_maximum <- values[left]
@@ -112,17 +112,17 @@ def sh_query(tree: mutable view[ShNode], node: usize, left: usize, right: usize,
     if middle < qr: answer <- sh_max(answer, sh_query(tree, 2 * node + 1, middle, right, ql, qr, historical))
     return answer
 
-def sh_write_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def sh_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def segment_history_extreme(input: i64&, input_length: usize, output: mutable u8&,
-    output_capacity: usize) -> i64 @export("segment_history_extreme"):
-    if input.is_null() or input_length < 2 or input_length > 2 + SH_MAX_N + 4 * SH_MAX_Q: return -1
-    values: view[i64] = input[0:input_length]
+def segment_history_extreme_impl(input: i64&, input_length: usize, output: mutable u8&,
+    output_capacity: usize) -> i64:
+    if input == null or input_length < 2 or input_length > 2 + SH_MAX_N + 4 * SH_MAX_Q: return -1
+    values: i64& = input
     n_value: i64 = values[0]
     q_value: i64 = values[1]
     if n_value < 1 or n_value > SH_MAX_N.i64() or q_value < 0 or q_value > SH_MAX_Q.i64(): return -1
@@ -152,7 +152,7 @@ def segment_history_extreme(input: i64&, input_length: usize, output: mutable u8
     staged: mutable i64[SH_MAX_Q] = zeroed
     tree_view: mutable view[ShNode] = tree[0:SH_TREE_SIZE]
     staged_view: mutable view[i64] = staged[0:SH_MAX_Q]
-    initial: view[i64] = values[2:2 + n]
+    initial: i64& = &values[2]
     sh_build(tree_view, initial, 1, 0, n)
     answer_count: mutable usize = 0
     i <- 0
@@ -169,10 +169,12 @@ def segment_history_extreme(input: i64&, input_length: usize, output: mutable u8
             answer_count <- answer_count + 1
         i <- i + 1
     output_bytes: usize = 8 * answer_count
-    if output.is_null() or output_capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
+    if output == null or output_capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     i <- 0
     while i < answer_count:
         sh_write_i64(output_view, 8 * i, staged_view[i])
         i <- i + 1
     output_bytes.i64()
+
+export fn segment_history_extreme(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = segment_history_extreme_impl

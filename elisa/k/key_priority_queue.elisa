@@ -1,5 +1,5 @@
 def find_key(keys: view[i64], count: usize, key: i64) -> usize:
-    index: usize = 0
+    index: mutable usize = 0
     while index < count:
         if keys[index] == key: return index
         index <- index + 1
@@ -37,7 +37,7 @@ def shift_down(keys: mutable view[i64], priorities: mutable view[i64], count: us
         index <- child
 
 def key_priority_queue_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > 98: return -1
+    if input == null or length < 1 or length > 98: return -1
     if input[0] < 0 or input[0] > 32: return -1
     keys: mutable i64[32] = zeroed
     priorities: mutable i64[32] = zeroed
@@ -89,26 +89,26 @@ def key_priority_queue_impl(input: i64&, length: usize, output: mutable u8&, cap
             key: i64 = input[position + 1]
             if key < -1000000000 or key > 1000000000: return -1
             position <- position + 2
-            answers[answer_count] <- if find_key(keys[0:32], heap_size, key) < heap_size then 1 else 0
+            answers[answer_count] <- 1 if find_key(keys[0:32], heap_size, key) < heap_size else 0
             answer_count <- answer_count + 1
         elif operation == 4:
             position <- position + 1
-            answers[answer_count] <- if heap_size == 0 then 1 else 0
+            answers[answer_count] <- 1 if heap_size == 0 else 0
             answer_count <- answer_count + 1
         else:
             return -1
         operation_index <- operation_index + 1
     if position != length: return -1
     output_length: usize = answer_count * 8
-    if output.is_null() or capacity < output_length: return -2
-    index: usize = 0
+    if output == null or capacity < output_length: return -2
+    index: mutable usize = 0
     while index < answer_count:
         bits: u64 = answers[index].u64()
-        byte: usize = 0
+        byte: mutable usize = 0
         while byte < 8:
             output[index * 8 + byte] <- ((bits >> (byte * 8)) & 255).u8()
             byte <- byte + 1
         index <- index + 1
     output_length.i64()
 
-export fn key_priority_queue(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = key_priority_queue_impl(input, length, output, capacity)
+export fn key_priority_queue(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = key_priority_queue_impl

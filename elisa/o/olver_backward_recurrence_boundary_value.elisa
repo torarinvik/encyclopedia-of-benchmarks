@@ -8,7 +8,7 @@ def olver_exact_integer(value: f64, low: i64, high: i64) -> bool:
     if not olver_finite(value) or value < low.f64() or value > high.f64(): return false
     value.i64().f64() == value
 
-def olver_valid_input(input: view[f64], input_length: usize) -> bool:
+def olver_valid_input(input: f64&, input_length: usize) -> bool:
     if input_length < 8 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return false
     for i in 0..<input_length:
         if not olver_finite(input[i]): return false
@@ -25,12 +25,12 @@ def olver_valid_input(input: view[f64], input_length: usize) -> bool:
         if input[4 + 3 * nmax.usize() + i] < -16.0 or input[4 + 3 * nmax.usize() + i] > 16.0: return false
     true
 
-def olver_compute(input: view[f64], output: mutable view[f64]) -> i64:
+def olver_compute(input: f64&, output: mutable f64&) -> i64:
     m: i64 = input[0].i64()
     nmax: i64 = input[1].i64()
-    mut p: f64[14] = zeroed
-    mut e: f64[13] = zeroed
-    mut w: f64[13] = zeroed
+    p: mutable f64[14] = zeroed
+    e: mutable f64[13] = zeroed
+    w: mutable f64[13] = zeroed
     p[1] <- 1.0
     e[0] <- input[3]
     for n in 1..<(m + 1):
@@ -44,12 +44,12 @@ def olver_compute(input: view[f64], output: mutable view[f64]) -> i64:
     for n in 1..<(m + 1):
         product: f64 = p[n.usize()] * p[n.usize() + 1]
         if product == 0.0 or not olver_finite(product) or not olver_finite(e[n.usize()] / product): return -3
-    mut minimum: f64 = olver_abs(e[1] / (p[1] * p[2]))
+    minimum: mutable f64 = olver_abs(e[1] / (p[1] * p[2]))
     for n in 2..<(m + 1):
         ratio: f64 = olver_abs(e[n.usize()] / (p[n.usize()] * p[n.usize() + 1]))
         if ratio < minimum: minimum <- ratio
     threshold: f64 = input[2] * minimum
-    mut endpoint: i64 = 0
+    endpoint: mutable i64 = 0
     for n in m..<(nmax + 1):
         if n > m:
             a: f64 = input[4 + (n - 1).usize()]
@@ -67,25 +67,28 @@ def olver_compute(input: view[f64], output: mutable view[f64]) -> i64:
             endpoint <- n
             break
     if endpoint == 0: return -3
-    mut n: i64 = endpoint - 1
+    n: mutable i64 = endpoint - 1
     while n >= 0:
         w[n.usize()] <- (p[n.usize()] * w[n.usize() + 1] + e[n.usize()]) / p[n.usize() + 1]
         if not olver_finite(w[n.usize()]): return -3
         n <- n - 1
     output[0] <- endpoint.f64()
-    for i in 0..<(m + 1): output[i.usize() + 1] <- w[i.usize()]
+    for i in 0..<(m + 1):
+        output[i.usize() + 1] <- w[i.usize()]
     (m + 2).i64()
 
 def olver_abs(value: f64) -> f64:
-    if value < 0.0: -value else: value
+    -value if value < 0.0 else value
 
-export fn olver_backward_recurrence_boundary_value(input: f64&, input_length: usize,
+def olver_backward_recurrence_boundary_value_impl(input: f64&, input_length: usize,
         output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 8 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
-    input_view: view[f64] = input[0:input_length]
+    if input == null or input_length < 8 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    input_view: f64& = input
     if not olver_valid_input(input_view, input_length): return -1
     m: i64 = input_view[0].i64()
     required: usize = (m + 2).usize()
-    if output.is_null() or output_capacity < required: return -2
-    output_view: mutable view[f64] = output[0:required]
+    if output == null or output_capacity < required: return -2
+    output_view: mutable f64& = output
     olver_compute(input_view, output_view)
+
+export fn olver_backward_recurrence_boundary_value(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = olver_backward_recurrence_boundary_value_impl

@@ -57,4 +57,4 @@ def abbreviation_impl(values: i64&, length: usize) -> i64:
         return 1
     0
 
-export fn abbreviation(values: i64&, length: usize) -> i64 = abbreviation_impl(values, length)
+export fn abbreviation(values: i64&, length: usize) -> i64 = abbreviation_impl

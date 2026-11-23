@@ -43,7 +43,7 @@ def cmse_cmp(a: CmseSlope, b: CmseSlope) -> i64:
 def cmse_max(points: view[CmsePoint], a: CmseTriangle, b: CmseTriangle) -> CmseSlope:
     left: CmseSlope = cmse_slope(points, a)
     right: CmseSlope = cmse_slope(points, b)
-    if cmse_cmp(left, right) >= 0: left else: right
+    left if cmse_cmp(left, right) >= 0 else right
 
 def cmse_anchor(points: view[CmsePoint], triangle: CmseTriangle, q: usize) -> bool:
     a: CmsePoint = points[triangle.a]
@@ -65,7 +65,7 @@ def cmse_anchor(points: view[CmsePoint], triangle: CmseTriangle, q: usize) -> bo
         if vertex != q:
             other[used] <- vertex
             used <- used + 1
-    sign: i64 = if det > 0: 1 else: -1
+    sign: i64 = 1 if det > 0 else -1
     dx: i64 = -gx*sign
     dy: i64 = -gy*sign
     ux: i64 = points[other[0]].x-points[q].x
@@ -73,7 +73,7 @@ def cmse_anchor(points: view[CmsePoint], triangle: CmseTriangle, q: usize) -> bo
     vx: i64 = points[other[1]].x-points[q].x
     vy: i64 = points[other[1]].y-points[q].y
     turn: i64 = ux*vy-uy*vx
-    side: i64 = if turn > 0: 1 else: -1
+    side: i64 = 1 if turn > 0 else -1
     side*(ux*dy-uy*dx) >= 0 and side*(dx*vy-dy*vx) >= 0
 
 def cmse_crosses(points: view[CmsePoint], a: usize, b: usize, c: usize, d: usize) -> bool:
@@ -118,8 +118,8 @@ def cmse_rank(points: view[CmsePoint], n: usize, target: CmseSlope) -> i64:
         i <- i+1
     distinct+1
 
-def cmse_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def cmse_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 1 or length > CMSE_MAX_LENGTH: return -1
     if input[0] < 3 or input[0] > 4: return -1
     n: usize = input[0].usize()
@@ -137,7 +137,7 @@ def cmse_impl(input: view[i64]) -> i64:
         area <- area+points[i].x*points[j].y-points[i].y*points[j].x
         i <- i+1
     if area == 0: return -1
-    sign: i64 = if area > 0: 1 else: -1
+    sign: i64 = 1 if area > 0 else -1
     a: mutable usize = 0
     while a < n:
         b: mutable usize = a+1
@@ -158,7 +158,7 @@ def cmse_impl(input: view[i64]) -> i64:
         e <- e+1
     if n == 4 and cmse_volume(points[0:n]) == 0: return -1
     fan: CmseTriangle[2] = [CmseTriangle{a:0,b:1,c:2},CmseTriangle{a:0,b:2,c:3}]
-    worst: CmseSlope = if n == 3: cmse_slope(points[0:n],fan[0]) else: cmse_max(points[0:n],fan[0],fan[1])
+    worst: mutable CmseSlope = cmse_slope(points[0:n],fan[0]) if n == 3 else cmse_max(points[0:n],fan[0],fan[1])
     if n == 4:
         done: mutable bool = false
         ti: mutable usize = 0
@@ -192,6 +192,8 @@ def cmse_impl(input: view[i64]) -> i64:
             ti <- ti+1
     cmse_rank(points[0:n],n,worst)
 
-export fn convex_polygon_minimax_slope_edge_insertion(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > CMSE_MAX_LENGTH: return -1
-    cmse_impl(input[0:length])
+def convex_polygon_minimax_slope_edge_insertion_impl(input: i64&, length: usize) -> i64:
+    if input == null or length > CMSE_MAX_LENGTH: return -1
+    cmse_impl(input, length)
+
+export fn convex_polygon_minimax_slope_edge_insertion(input: i64&, length: usize) -> i64 = convex_polygon_minimax_slope_edge_insertion_impl

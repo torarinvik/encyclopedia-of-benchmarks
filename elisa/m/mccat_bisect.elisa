@@ -57,7 +57,7 @@ def mccat_bisect_solve(n: usize, output: mutable view[u8]) -> usize:
         if diagonal[index] + h > xmax: xmax <- diagonal[index] + h
         if diagonal[index] - h < xmin: xmin <- diagonal[index] - h
 
-    eps2: mutable f64 = MCCAT_BISECT_EPSILON * (if xmin + xmax > 0.0: xmax else: -xmin)
+    eps2: mutable f64 = MCCAT_BISECT_EPSILON * ((xmax if xmin + xmax > 0.0 else -xmin))
     eps1: mutable f64 = MCCAT_BISECT_EPSILON
     if eps1 <= 0.0: eps1 <- eps2
     eps2 <- 0.5 * eps1 + 7.0 * eps2
@@ -110,15 +110,16 @@ def mccat_bisect_solve(n: usize, output: mutable view[u8]) -> usize:
 
 def mccat_bisect_impl(values: i64&, length: usize, output: mutable u8&,
         output_capacity: usize) -> i64:
-    if values.is_null() or length != 1 or values[0] < 2 or values[0] > MCCAT_BISECT_MAX_N.i64():
+    if values == null or length != 1 or values[0] < 2 or values[0] > MCCAT_BISECT_MAX_N.i64():
         return -1
     n: usize = values[0].usize()
     required: usize = (n + 1) * 8
-    if output.is_null() or output_capacity < required: return -2
+    if output == null or output_capacity < required: return -2
     staged: mutable u8[MCCAT_BISECT_MAX_OUTPUT_BYTES] = zeroed
     staged_view: mutable view[u8] = staged[0:required]
     used: usize = mccat_bisect_solve(n, staged_view)
-    for index in 0..<used: output[index] <- staged[index]
+    for index in 0..<used:
+        output[index] <- staged[index]
     used.i64()
 
 export fn mccat_bisect(values: i64&, length: usize, output: mutable u8&,

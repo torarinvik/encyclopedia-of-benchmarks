@@ -16,15 +16,15 @@ def sat_set(clauses: view[i64], m: usize, n: usize, code: usize) -> u64:
         satisfied: mutable bool = false
         for offset in 0..<3:
             literal: i64 = clauses[3 * clause + offset]
-            variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+            variable: usize = (literal - 1).usize() if literal > 0 else (-literal - 1).usize()
             truth: bool = ((code >> (n - 1 - variable)) & 1) != 0
             if truth == (literal > 0): satisfied <- true
         if satisfied: result <- result | (1.u64() << clause)
         clause <- clause + 1
     result
 
-def random_planted_3sat_k_opt(input: i64&, length: usize,
-                              output: mutable u8&, capacity: usize) -> i64 @export("random_planted_3sat_k_opt"):
+def random_planted_3sat_k_opt_impl(input: i64&, length: usize,
+                              output: mutable u8&, capacity: usize) -> i64:
     if input == null or length < 2 or length > MAX_INPUT: return -1
     if input[0] < 3 or input[0] > MAX_VARS.i64() or input[1] < 0 or input[1] > MAX_CLAUSES.i64(): return -1
     n: usize = input[0].usize()
@@ -39,7 +39,7 @@ def random_planted_3sat_k_opt(input: i64&, length: usize,
         for offset in 0..<3:
             literal: i64 = input[2 + 3 * clause + offset]
             if literal == 0 or literal < -n.i64() or literal > n.i64(): return -1
-            variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+            variable: usize = (literal - 1).usize() if literal > 0 else (-literal - 1).usize()
             if seen[variable]: return -1
             seen[variable] <- true
             clauses[3 * clause + offset] <- literal
@@ -50,12 +50,14 @@ def random_planted_3sat_k_opt(input: i64&, length: usize,
     current: mutable usize = 0
     for variable in 0..<n:
         if positive[variable] > negative[variable]: current <- current | (1 << (n - 1 - variable))
-    full: u64 = if m == 0: 0 else: (1.u64() << m) - 1
+    full: u64 = 0 if m == 0 else (1.u64() << m) - 1
     k: mutable usize = 1
     status: mutable i64 = 0
     while true:
         before: u64 = sat_set(clause_view, m, n, current)
-        if before == full: status <- 1; break
+        if before == full:
+            status <- 1
+            break
         found: mutable bool = false
         candidate: mutable usize = 0
         limit: usize = 1 << n
@@ -73,7 +75,9 @@ def random_planted_3sat_k_opt(input: i64&, length: usize,
                     break
             candidate <- candidate + 1
         if found: continue
-        if k == n: status <- 0; break
+        if k == n:
+            status <- 0
+            break
         k <- k + 1
     byte_count: usize = 8 * (n + 1)
     if output == null or capacity < byte_count: return -2
@@ -82,6 +86,9 @@ def random_planted_3sat_k_opt(input: i64&, length: usize,
     put_i64(staged_view, 0, status)
     for variable in 0..<n:
         truth: bool = ((current >> (n - 1 - variable)) & 1) != 0
-        put_i64(staged_view, 8 * (variable + 1), if truth: 1 else: -1)
-    for i in 0..<byte_count: output[i] <- staged[i]
+        put_i64(staged_view, 8 * (variable + 1), (1 if truth else -1))
+    for i in 0..<byte_count:
+        output[i] <- staged[i]
     byte_count.i64()
+
+export fn random_planted_3sat_k_opt(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = random_planted_3sat_k_opt_impl

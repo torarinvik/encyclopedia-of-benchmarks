@@ -2,7 +2,7 @@ const KM_MAX_SIDE: usize = 12
 const KM_MAX_CELLS: usize = KM_MAX_SIDE * KM_MAX_SIDE
 const KM_MAX_PARSEABLE_INPUT_LENGTH: usize = 2 + 2 * KM_MAX_CELLS + 1
 
-def km_sample_code(input: view[i64], base: usize, side: usize, row: usize,
+def km_sample_code(input: i64&, base: usize, side: usize, row: usize,
         column: usize, q: usize, stride: usize) -> usize:
     code: mutable usize = 0
     step: mutable usize = 0
@@ -12,16 +12,17 @@ def km_sample_code(input: view[i64], base: usize, side: usize, row: usize,
         step <- step + 1
     code
 
-def km_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def km_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def two_dimensional_k_mismatch_linear_templates_impl(input: view[i64],
+def two_dimensional_k_mismatch_linear_templates_impl(input: i64&, input_length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    length: usize = input.len()
+    column: mutable usize = 0
+    length: usize = input_length
     if length < 3 or length > KM_MAX_PARSEABLE_INPUT_LENGTH: return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]
@@ -79,8 +80,7 @@ def two_dimensional_k_mismatch_linear_templates_impl(input: view[i64],
                     slot: usize = address.usize()
                     candidate_row: i64 = text_row.i64() - sample_row[slot]
                     candidate_column: i64 = text_column.i64() - sample_column[slot]
-                    if candidate_row >= 0 and candidate_column >= 0 and
-                            candidate_row.usize() < starts and candidate_column.usize() < starts:
+                    if candidate_row >= 0 and candidate_column >= 0 and candidate_row.usize() < starts and candidate_column.usize() < starts:
                         candidate: usize = candidate_row.usize() * n + candidate_column.usize()
                         if not considered[candidate]:
                             considered[candidate] <- true
@@ -104,14 +104,14 @@ def two_dimensional_k_mismatch_linear_templates_impl(input: view[i64],
     match_count: mutable usize = 0
     row <- 0
     while row < starts:
-        column: mutable usize = 0
+        column <- 0
         while column < starts:
             if matched[row * n + column]: match_count <- match_count + 1
             column <- column + 1
         row <- row + 1
     output_bytes: usize = 8 * (1 + 2 * match_count)
-    if output.is_null() or capacity < output_bytes: return -2
-    output_view: mutable view[u8] = output[0:output_bytes]
+    if output == null or capacity < output_bytes: return -2
+    output_view: mutable u8& = output
     km_put_i64(match_count.i64(), output_view, 0)
     word: mutable usize = 1
     row <- 0
@@ -127,7 +127,9 @@ def two_dimensional_k_mismatch_linear_templates_impl(input: view[i64],
         row <- row + 1
     output_bytes.i64()
 
-export fn two_dimensional_k_mismatch_linear_templates(input: i64&, length: usize,
+def two_dimensional_k_mismatch_linear_templates_entry(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > KM_MAX_PARSEABLE_INPUT_LENGTH: return -1
-    two_dimensional_k_mismatch_linear_templates_impl(input[0:length], output, capacity)
+    if input == null or length < 3 or length > KM_MAX_PARSEABLE_INPUT_LENGTH: return -1
+    two_dimensional_k_mismatch_linear_templates_impl(input, length, output, capacity)
+
+export fn two_dimensional_k_mismatch_linear_templates(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = two_dimensional_k_mismatch_linear_templates_entry

@@ -32,11 +32,11 @@ def min_palindromic_insert_impl(input: i64&, length: usize,
         for left in 0..<(n - span + 1):
             right: usize = left + span - 1
             if chars[left] == chars[right]:
-                dp[left][right] <- if span > 2: dp[left + 1][right - 1] else: 0
+                dp[left][right] <- dp[left + 1][right - 1] if span > 2 else 0
             else:
                 left_cost: u16 = dp[left + 1][right]
                 right_cost: u16 = dp[left][right - 1]
-                dp[left][right] <- (if left_cost < right_cost: left_cost else: right_cost) + 1
+                dp[left][right] <- ((left_cost if left_cost < right_cost else right_cost)) + 1
 
     insertions: usize = dp[0][n - 1].usize()
     palindrome_length: usize = n + insertions
@@ -53,7 +53,7 @@ def min_palindromic_insert_impl(input: i64&, length: usize,
             if right == 0:
                 break
             right <- right - 1
-        else if dp[left + 1][right] < dp[left][right - 1]:
+        elif dp[left + 1][right] < dp[left][right - 1]:
             palindrome[out_left] <- chars[left]
             palindrome[out_right] <- chars[left]
             left <- left + 1

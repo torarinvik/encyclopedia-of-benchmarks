@@ -9,7 +9,9 @@ def lu_elimination_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool
 
 def lu_elimination_impl(input: f64&, input_length: usize,
                         output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    column: mutable usize = zeroed
+    sum: mutable f64 = 0.0
+    if input == null or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
     if not lu_elimination_exact_integer(input[0], 0, MAX_DIMENSION.i64()): return -1
     dimension: usize = input[0].usize()
     matrix_elements: usize = dimension * dimension
@@ -34,9 +36,9 @@ def lu_elimination_impl(input: f64&, input_length: usize,
     upper: mutable f64[16] = zeroed
     row: mutable usize = 0
     while row < dimension:
-        column: mutable usize = row
+        column <- row
         while column < dimension:
-            sum: mutable f64 = 0.0
+            sum <- 0.0
             index <- 0
             while index < row:
                 sum <- sum + lower[row * dimension + index] * upper[index * dimension + column]
@@ -66,7 +68,7 @@ def lu_elimination_impl(input: f64&, input_length: usize,
     transformed: mutable f64[4] = zeroed
     row <- 0
     while row < dimension:
-        sum: mutable f64 = 0.0
+        sum <- 0.0
         column <- 0
         while column < row:
             sum <- sum + transformed[column] * lower[row * dimension + column]
@@ -81,7 +83,7 @@ def lu_elimination_impl(input: f64&, input_length: usize,
     row <- dimension
     while row > 0:
         row <- row - 1
-        sum: mutable f64 = 0.0
+        sum <- 0.0
         column <- row
         while column < dimension:
             sum <- sum + solution[column] * upper[row * dimension + column]
@@ -94,7 +96,7 @@ def lu_elimination_impl(input: f64&, input_length: usize,
         if solution_value != solution_value or solution_value >= 1.7976931348623157e308 or solution_value <= -1.7976931348623157e308:
             return -1
 
-    if output.is_null() or capacity < dimension: return -2
+    if output == null or capacity < dimension: return -2
     index <- 0
     while index < dimension:
         output[index] <- solution[index]

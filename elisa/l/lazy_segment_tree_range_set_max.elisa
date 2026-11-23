@@ -11,7 +11,7 @@ def build(values: view[i64], tree: mutable view[i64], node: usize, left: usize, 
     mid: usize = left + (right - left) / 2
     build(values, tree, node * 2, left, mid)
     build(values, tree, node * 2 + 1, mid + 1, right)
-    tree[node] <- if tree[node * 2] > tree[node * 2 + 1] then tree[node * 2] else tree[node * 2 + 1]
+    tree[node] <- tree[node * 2] if (tree[node * 2] > tree[node * 2 + 1]) else tree[node * 2 + 1]
 
 def push(tree: mutable view[i64], lazy: mutable view[i64], pending: mutable view[u8], node: usize, left: usize, right: usize) -> void:
     if pending[node] == 0: return
@@ -39,7 +39,7 @@ def assign_range(tree: mutable view[i64], lazy: mutable view[i64], pending: muta
     mid: usize = left + (right - left) / 2
     assign_range(tree, lazy, pending, node * 2, left, mid, ql, qr, value)
     assign_range(tree, lazy, pending, node * 2 + 1, mid + 1, right, ql, qr, value)
-    tree[node] <- if tree[node * 2] > tree[node * 2 + 1] then tree[node * 2] else tree[node * 2 + 1]
+    tree[node] <- tree[node * 2] if (tree[node * 2] > tree[node * 2 + 1]) else tree[node * 2 + 1]
 
 def range_max(tree: mutable view[i64], lazy: mutable view[i64], pending: mutable view[u8], node: usize, left: usize, right: usize, ql: usize, qr: usize) -> i64:
     push(tree, lazy, pending, node, left, right)
@@ -48,7 +48,7 @@ def range_max(tree: mutable view[i64], lazy: mutable view[i64], pending: mutable
     mid: usize = left + (right - left) / 2
     a: i64 = range_max(tree, lazy, pending, node * 2, left, mid, ql, qr)
     b: i64 = range_max(tree, lazy, pending, node * 2 + 1, mid + 1, right, ql, qr)
-    if a > b: a else: b
+    a if a > b else b
 
 def lazy_segment_tree_range_set_max_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 2 or length > MAX_INPUT: return -1
@@ -70,7 +70,7 @@ def lazy_segment_tree_range_set_max_impl(input: i64&, length: usize) -> i64:
     for i in 0..<q:
         if offset >= length: return -1
         op: i64 = input[offset]
-        width: usize = if op == 0 then 3 else if op == 1 then 4 else 0
+        width: usize = 3 if op == 0 else (4 if op == 1 else 0)
         if width == 0 or offset + width > length: return -1
         l: i64 = input[offset + 1]
         r: i64 = input[offset + 2]

@@ -5,10 +5,10 @@ const MCCAT_TRIE_MAX_NODES: usize = MCCAT_TRIE_MAX_WORDS * MCCAT_TRIE_MAX_WORD_L
 const MCCAT_TRIE_MAX_OUTPUT_BYTES: usize = MCCAT_TRIE_MAX_WORDS * (MCCAT_TRIE_MAX_WORD_LENGTH + 1)
 
 struct McCatTrieNode:
-    value: u8
-    terminal: bool
-    postfix: usize
-    other_char: usize
+    value: mutable u8
+    terminal: mutable bool
+    postfix: mutable usize
+    other_char: mutable usize
 
 def mccat_trie_new_node(nodes: mutable view[McCatTrieNode], used: mutable usize&, value: u8) -> usize:
     used <- used + 1
@@ -16,7 +16,7 @@ def mccat_trie_new_node(nodes: mutable view[McCatTrieNode], used: mutable usize&
     used
 
 def mccat_trie_new_suffix(nodes: mutable view[McCatTrieNode], used: mutable usize&,
-                          input: view[i64], start: usize, word_length: usize) -> usize:
+                          input: i64&, start: usize, word_length: usize) -> usize:
     root: usize = mccat_trie_new_node(nodes, used, input[start].u8())
     current: mutable usize = root
     offset: mutable usize = 1
@@ -29,7 +29,7 @@ def mccat_trie_new_suffix(nodes: mutable view[McCatTrieNode], used: mutable usiz
     root
 
 def mccat_trie_insert_word(nodes: mutable view[McCatTrieNode], used: mutable usize&, current: usize,
-                           input: view[i64], start: usize, word_length: usize, offset: usize) -> void:
+                           input: i64&, start: usize, word_length: usize, offset: usize) -> void:
     if nodes[current].value == input[start + offset].u8():
         if offset + 1 == word_length:
             nodes[current].terminal <- true
@@ -50,7 +50,7 @@ def mccat_trie_measure(nodes: view[McCatTrieNode], current: usize, depth: usize,
     mccat_trie_measure(nodes, nodes[current].other_char, depth, output_length)
 
 def mccat_trie_emit(nodes: view[McCatTrieNode], current: usize, depth: usize,
-                    prefix: mutable view[u8], output: mutable view[u8], position: mutable usize&) -> void:
+                    prefix: mutable view[u8], output: mutable u8&, position: mutable usize&) -> void:
     if current == 0: return
     prefix[depth] <- nodes[current].value
     if nodes[current].terminal:
@@ -59,7 +59,7 @@ def mccat_trie_emit(nodes: view[McCatTrieNode], current: usize, depth: usize,
             output[position] <- prefix[index]
             position <- position + 1
             index <- index + 1
-        output[position] <- 10u8
+        output[position] <- 10
         position <- position + 1
     mccat_trie_emit(nodes, nodes[current].postfix, depth + 1, prefix, output, position)
     mccat_trie_emit(nodes, nodes[current].other_char, depth, prefix, output, position)
@@ -91,7 +91,7 @@ def mccat_trie_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
 
     nodes: mutable McCatTrieNode[MCCAT_TRIE_MAX_NODES + 1] = zeroed
     nodes_view: mutable view[McCatTrieNode] = nodes[0:MCCAT_TRIE_MAX_NODES + 1]
-    input_view: view[i64] = input[0:length]
+    input_view: i64& = input
     used: mutable usize = 0
     root: mutable usize = 0
     index <- 0
@@ -108,7 +108,7 @@ def mccat_trie_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
     if output_length == 0: return 0
     prefix: mutable u8[MCCAT_TRIE_MAX_WORD_LENGTH] = zeroed
     prefix_view: mutable view[u8] = prefix[0:MCCAT_TRIE_MAX_WORD_LENGTH]
-    output_view: mutable view[u8] = output[0:output_length]
+    output_view: mutable u8& = output
     position <- 0
     mccat_trie_emit(nodes_view, root, 0, prefix_view, output_view, position)
     position.i64()

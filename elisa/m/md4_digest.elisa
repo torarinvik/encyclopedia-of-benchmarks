@@ -37,13 +37,13 @@ def md4_shift(round: usize, index: usize) -> usize:
 def md4_round3_word(index: usize) -> usize:
     group: usize = index / 4
     phase: usize = index % 4
-    base: usize = 3
+    base:mutable  mutable usize = 3
     if group == 0: base <- 0
     elif group == 1: base <- 2
     elif group == 2: base <- 1
     base + (phase % 2) * 8 + (phase / 2) * 4
 
-def md4_word(input: view[i64], message_length: usize, padded_length: usize,
+def md4_word(input: i64&, message_length: usize, padded_length: usize,
              bit_length: u64, offset: usize, index: usize) -> u32:
     word: mutable u32 = 0
     first: usize = offset + 4 * index
@@ -59,18 +59,18 @@ def md4_word(input: view[i64], message_length: usize, padded_length: usize,
         word <- word | (value << (8 * byte_index))
     word
 
-def md4_valid(input: view[i64]) -> bool:
-    if input.len() < 1 or input.len() > MAX_INPUT_WORDS:
-        return False
+def md4_valid(input: i64&, input_length: usize) -> bool:
+    if input_length < 1 or input_length > MAX_INPUT_WORDS:
+        return false
     count: i64 = input[0]
-    if count < 0 or count > MAX_MESSAGE_BYTES.i64() or input.len() != count.usize() + 1:
-        return False
+    if count < 0 or count > MAX_MESSAGE_BYTES.i64() or input_length != count.usize() + 1:
+        return false
     for index in 0..<count.usize():
         if input[index + 1] < 0 or input[index + 1] > 255:
-            return False
-    True
+            return false
+    true
 
-def md4_compute(input: view[i64], output: mutable view[u8]) -> i64:
+def md4_compute(input: i64&, output: mutable u8&) -> i64:
     message_length: usize = input[0].usize()
     padded_length: usize = ((message_length + 8) / 64 + 1) * 64
     bit_length: u64 = message_length.u64() * 8
@@ -125,14 +125,17 @@ def md4_compute(input: view[i64], output: mutable view[u8]) -> i64:
             output[word * 4 + byte_index] <- ((state[word] >> (8 * byte_index)) & 255.u32()).u8()
     16
 
-export fn md4_digest(input: i64&, input_length: usize,
+def md4_digest_impl(input: i64&, input_length: usize,
                      output: mutable u8&, output_capacity: usize) -> i64:
     if input == null or input_length < 1 or input_length > MAX_INPUT_WORDS:
         return -1
-    input_view: mutable view[i64] = input[0:input_length]
-    if not md4_valid(input_view):
+    input_view: mutable i64& = input
+    input_view_length: usize = input_length
+    if not md4_valid(input_view, input_view_length):
         return -1
     if output == null or output_capacity < 16:
         return -2
-    output_view: mutable view[u8] = output[0:16]
+    output_view: mutable u8& = output
     md4_compute(input_view, output_view)
+
+export fn md4_digest(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = md4_digest_impl

@@ -2,13 +2,13 @@ const MAX_TREE_NODES: usize = 15
 const MAX_TOTAL_NODES: usize = 30
 const MAX_PARSEABLE_LENGTH: usize = 93
 
-def valid_tree(input: view[i64], offset: usize, node_count: usize) -> bool:
+def valid_tree(input: i64&, offset: usize, node_count: usize) -> bool:
     visited: mutable i64[15] = zeroed
     parents: mutable i64[15] = zeroed
-    stack: mutable usize[15] = zeroed
+    stack_value: mutable usize[15] = zeroed
     visited_view: mutable view[i64] = visited[0:15]
     parents_view: mutable view[i64] = parents[0:15]
-    stack_view: mutable view[usize] = stack[0:15]
+    stack_view: mutable view[usize] = stack_value[0:15]
     top: mutable usize = 1
     reached: mutable usize = 0
 
@@ -22,8 +22,7 @@ def valid_tree(input: view[i64], offset: usize, node_count: usize) -> bool:
         left: i64 = input[base + 1]
         right: i64 = input[base + 2]
         if left == -1 and right == -1: continue
-        if left < 0 or right < 0 or left >= node_count.i64() or right >= node_count.i64() or
-            left == right or left == 0 or right == 0: return false
+        if left < 0 or right < 0 or left >= node_count.i64() or right >= node_count.i64() or left == right or left == 0 or right == 0: return false
         left_index: usize = left.usize()
         right_index: usize = right.usize()
         parents_view[left_index] <- parents_view[left_index] + 1
@@ -41,15 +40,14 @@ def valid_tree(input: view[i64], offset: usize, node_count: usize) -> bool:
         node <- node + 1
     true
 
-def same_fringe_leaf_iterator_impl(input: view[i64]) -> i64:
-    if input.length < 2 or input.length > MAX_PARSEABLE_LENGTH: return -1
+def same_fringe_leaf_iterator_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 2 or input_length > MAX_PARSEABLE_LENGTH: return -1
     n_a_word: i64 = input[0]
     n_b_word: i64 = input[1]
-    if n_a_word < 1 or n_a_word > MAX_TREE_NODES.i64() or
-        n_b_word < 1 or n_b_word > MAX_TREE_NODES.i64(): return -1
+    if n_a_word < 1 or n_a_word > MAX_TREE_NODES.i64() or n_b_word < 1 or n_b_word > MAX_TREE_NODES.i64(): return -1
     n_a: usize = n_a_word.usize()
     n_b: usize = n_b_word.usize()
-    if n_a + n_b > MAX_TOTAL_NODES or input.length != 2 + 3 * (n_a + n_b): return -1
+    if n_a + n_b > MAX_TOTAL_NODES or input_length != 2 + 3 * (n_a + n_b): return -1
     offset_a: usize = 2
     offset_b: usize = 2 + 3 * n_a
     if not valid_tree(input, offset_a, n_a) or not valid_tree(input, offset_b, n_b): return -1
@@ -99,7 +97,10 @@ def same_fringe_leaf_iterator_impl(input: view[i64]) -> i64:
         if leaf_a != leaf_b: return 0
     -1
 
-export fn same_fringe_leaf_iterator(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_PARSEABLE_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
-    same_fringe_leaf_iterator_impl(input_view)
+def same_fringe_leaf_iterator_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_PARSEABLE_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
+    same_fringe_leaf_iterator_impl(input_view, input_view_length)
+
+export fn same_fringe_leaf_iterator(input: i64&, length: usize) -> i64 = same_fringe_leaf_iterator_entry

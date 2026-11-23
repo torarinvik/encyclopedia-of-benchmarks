@@ -14,9 +14,7 @@ def miller_rabin_mul64(left: u64, right: u64) -> u64:
     right_low: u64 = right & MILLER_RABIN_MASK32
     right_high: u64 = right >> 32
     low_product: u64 = left_low * right_low
-    high_product: u64 = (low_product >> 32) +
-        ((left_low * right_high) & MILLER_RABIN_MASK32) +
-        ((left_high * right_low) & MILLER_RABIN_MASK32)
+    high_product: u64 = (low_product >> 32) + ((left_low * right_high) & MILLER_RABIN_MASK32) + ((left_high * right_low) & MILLER_RABIN_MASK32)
     ((high_product & MILLER_RABIN_MASK32) << 32) | (low_product & MILLER_RABIN_MASK32)
 
 def miller_rabin_next_word(state: mutable u64&) -> u64:
@@ -54,8 +52,7 @@ def miller_rabin_primality_checker_impl(values: i64&, length: usize) -> i64:
     n: i64 = values[0]
     rounds: i64 = values[1]
     seed: i64 = values[2]
-    if length != 3 or n < 5 or n > 2_147_483_647 or (n & 1) == 0 or
-        rounds < 1 or rounds > 64 or seed < 0 or seed > 2_147_483_647:
+    if length != 3 or n < 5 or n > 2147483647 or (n & 1) == 0 or rounds < 1 or rounds > 64 or seed < 0 or seed > 2147483647:
         return -1
 
     state: mutable u64 = seed.u64()
@@ -80,5 +77,4 @@ def miller_rabin_primality_checker_impl(values: i64&, length: usize) -> i64:
         round <- round + 1
     1
 
-export fn miller_rabin_primality_checker(values: i64&, length: usize) -> i64 =
-    miller_rabin_primality_checker_impl
+export fn miller_rabin_primality_checker(values: i64&, length: usize) -> i64 = miller_rabin_primality_checker_impl

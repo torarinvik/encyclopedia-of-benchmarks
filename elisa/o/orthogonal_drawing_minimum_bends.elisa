@@ -7,29 +7,29 @@ const BEND_MAX_EDGES: usize = 200
 const BEND_INF: i64 = 1152921504606846976
 
 struct BendFlowEdge:
-    from_node: usize
-    to_node: usize
-    reverse_index: usize
-    capacity: i64
-    cost: i64
+    from_node: mutable usize
+    to_node: mutable usize
+    reverse_index: mutable usize
+    capacity: mutable i64
+    cost: mutable i64
 
 def bend_connected(adjacency: view[bool], n: usize, removed: i64) -> bool:
     start: usize = 1 if removed == 0 else 0
     seen: mutable bool[8] = zeroed
-    stack: mutable usize[8] = zeroed
+    stack_value: mutable usize[8] = zeroed
     top: mutable usize = 0
     count: mutable usize = 0
     seen[start] <- true
-    stack[top] <- start
+    stack_value[top] <- start
     top <- top + 1
     while top > 0:
         top <- top - 1
-        u: usize = stack[top]
+        u: usize = stack_value[top]
         count <- count + 1
         for v in 0..<n:
-            if v.i64() != removed && adjacency[u * 8 + v] && not seen[v]:
+            if v.i64() != removed and adjacency[u * 8 + v] and not seen[v]:
                 seen[v] <- true
-                stack[top] <- v
+                stack_value[top] <- v
                 top <- top + 1
     expected: usize = n - (1 if removed >= 0 else 0)
     count == expected
@@ -51,16 +51,14 @@ def bend_add_arc(edges: mutable view[BendFlowEdge], edge_count: mutable usize&,
     edge_count <- edge_count + 2
     true
 
-def bend_compute(values: view[i64]) -> i64:
-    length: usize = values.len()
-    if length < 4 || length > BEND_MAX_INPUT: return -1
+def bend_compute(values: i64&, values_length: usize) -> i64:
+    length: usize = values_length
+    if length < 4 or length > BEND_MAX_INPUT: return -1
     n_raw: i64 = values[0]
     m_raw: i64 = values[1]
     f_raw: i64 = values[2]
     outer_raw: i64 = values[3]
-    if n_raw < 3 || n_raw > 8 || m_raw < n_raw || m_raw > 16 ||
-            f_raw < 2 || f_raw > 10 || f_raw != m_raw - n_raw + 2 ||
-            outer_raw < 0 || outer_raw >= f_raw: return -1
+    if n_raw < 3 or n_raw > 8 or m_raw < n_raw or m_raw > 16 or f_raw < 2 or f_raw > 10 or f_raw != m_raw - n_raw + 2 or outer_raw < 0 or outer_raw >= f_raw: return -1
     n: usize = n_raw.usize()
     m: usize = m_raw.usize()
     f: usize = f_raw.usize()
@@ -77,11 +75,10 @@ def bend_compute(values: view[i64]) -> i64:
         u_raw: i64 = values[cursor]
         v_raw: i64 = values[cursor + 1]
         cursor <- cursor + 2
-        if u_raw < 0 || u_raw >= v_raw || v_raw >= n_raw: return -1
+        if u_raw < 0 or u_raw >= v_raw or v_raw >= n_raw: return -1
         u: usize = u_raw.usize()
         v: usize = v_raw.usize()
-        if adjacency[u * 8 + v] || (e > 0 && (u < edge_u[e - 1] ||
-                (u == edge_u[e - 1] && v <= edge_v[e - 1]))): return -1
+        if adjacency[u * 8 + v] or (e > 0 and (u < edge_u[e - 1] or (u == edge_u[e - 1] and v <= edge_v[e - 1]))): return -1
         adjacency[u * 8 + v] <- true
         adjacency[v * 8 + u] <- true
         degree[u] <- degree[u] + 1
@@ -89,7 +86,7 @@ def bend_compute(values: view[i64]) -> i64:
         edge_u[e] <- u
         edge_v[e] <- v
     for v in 0..<n:
-        if degree[v] < 2 || degree[v] > 4: return -1
+        if degree[v] < 2 or degree[v] > 4: return -1
 
     faces_storage: mutable usize[80] = zeroed
     faces: mutable view[usize] = faces_storage[0:80]
@@ -98,14 +95,14 @@ def bend_compute(values: view[i64]) -> i64:
         if cursor >= length: return -1
         width_raw: i64 = values[cursor]
         cursor <- cursor + 1
-        if width_raw < 3 || width_raw > n_raw || cursor + width_raw.usize() > length: return -1
+        if width_raw < 3 or width_raw > n_raw or cursor + width_raw.usize() > length: return -1
         width: usize = width_raw.usize()
         widths[face] <- width
         row_seen: mutable bool[8] = zeroed
         for i in 0..<width:
             vertex_raw: i64 = values[cursor]
             cursor <- cursor + 1
-            if vertex_raw < 0 || vertex_raw >= n_raw: return -1
+            if vertex_raw < 0 or vertex_raw >= n_raw: return -1
             vertex: usize = vertex_raw.usize()
             if row_seen[vertex]: return -1
             row_seen[vertex] <- true
@@ -129,13 +126,13 @@ def bend_compute(values: view[i64]) -> i64:
             link_adj[(center * 8 + after) * 8 + before] <- true
             link_degree[center * 8 + before] <- link_degree[center * 8 + before] + 1
             link_degree[center * 8 + after] <- link_degree[center * 8 + after] + 1
-    if cursor != length || n.i64() - m_raw + f_raw != 2 || not bend_connected(adjacency, n, -1): return -1
+    if cursor != length or n.i64() - m_raw + f_raw != 2 or not bend_connected(adjacency, n, -1): return -1
     for v in 0..<n:
         if not bend_connected(adjacency, n, v.i64()): return -1
     for e in 0..<m:
         u: usize = edge_u[e]
         v: usize = edge_v[e]
-        if uses[u * 8 + v] != 1 || uses[v * 8 + u] != 1: return -1
+        if uses[u * 8 + v] != 1 or uses[v * 8 + u] != 1: return -1
     for center in 0..<n:
         start: mutable i64 = -1
         incident_count: mutable usize = 0
@@ -146,19 +143,19 @@ def bend_compute(values: view[i64]) -> i64:
                 incident_count <- incident_count + 1
             elif link_degree[center * 8 + neighbor] != 0: return -1
         seen: mutable bool[8] = zeroed
-        stack: mutable usize[8] = zeroed
+        stack_value: mutable usize[8] = zeroed
         top: mutable usize = 1
         reached: mutable usize = 0
         seen[start.usize()] <- true
-        stack[0] <- start.usize()
+        stack_value[0] <- start.usize()
         while top > 0:
             top <- top - 1
-            neighbor: usize = stack[top]
+            neighbor: usize = stack_value[top]
             reached <- reached + 1
             for other in 0..<n:
-                if link_adj[(center * 8 + neighbor) * 8 + other] && not seen[other]:
+                if link_adj[(center * 8 + neighbor) * 8 + other] and not seen[other]:
                     seen[other] <- true
-                    stack[top] <- other
+                    stack_value[top] <- other
                     top <- top + 1
         if reached != incident_count: return -1
 
@@ -171,15 +168,17 @@ def bend_compute(values: view[i64]) -> i64:
             v: usize = faces[face * 8 + ((i + 1) % widths[face])]
             lo: usize = u if u < v else v
             hi: usize = v if u < v else u
-            found: i64 = -1
+            found: mutable i64 = -1
             for e in 0..<m:
-                if edge_u[e] == lo && edge_v[e] == hi: found <- e.i64(); break
-            if found < 0 || face_use[found.usize()] >= 2: return -1
+                if edge_u[e] == lo and edge_v[e] == hi:
+                    found <- e.i64()
+                    break
+            if found < 0 or face_use[found.usize()] >= 2: return -1
             if face_use[found.usize()] == 0: face_a[found.usize()] <- face
             else: face_b[found.usize()] <- face
             face_use[found.usize()] <- face_use[found.usize()] + 1
     for e in 0..<m:
-        if face_use[e] != 2 || face_a[e] == face_b[e]: return -1
+        if face_use[e] != 2 or face_a[e] == face_b[e]: return -1
 
     base: usize = n + f
     source: usize = base
@@ -189,7 +188,8 @@ def bend_compute(values: view[i64]) -> i64:
     edges: mutable view[BendFlowEdge] = edge_storage[0:BEND_MAX_EDGES]
     edge_count: mutable usize = 0
     balance: mutable i64[18] = zeroed
-    for v in 0..<n: balance[v] <- 4
+    for v in 0..<n:
+        balance[v] <- 4
     for face in 0..<f:
         d: i64 = widths[face].i64()
         balance[n + face] <- balance[n + face] - 2 * d - (4 if face == outer else -4)
@@ -223,16 +223,15 @@ def bend_compute(values: view[i64]) -> i64:
         for _ in 0..<node_count:
             chosen: mutable i64 = -1
             for v in 0..<node_count:
-                if not used[v] && dist[v] != BEND_INF &&
-                        (chosen < 0 || dist[v] < dist[chosen.usize()]): chosen <- v.i64()
+                if not used[v] and dist[v] != BEND_INF and (chosen < 0 or dist[v] < dist[chosen.usize()]): chosen <- v.i64()
             if chosen < 0: break
             u: usize = chosen.usize()
             used[u] <- true
             for e in 0..<edge_count:
-                if edges[e].from_node == u && edges[e].capacity > 0:
+                if edges[e].from_node == u and edges[e].capacity > 0:
                     v: usize = edges[e].to_node
                     candidate: i64 = dist[u] + edges[e].cost + potential[u] - potential[v]
-                    if not used[v] && candidate < dist[v]:
+                    if not used[v] and candidate < dist[v]:
                         dist[v] <- candidate
                         parent[v] <- e.i64()
         if dist[sink] == BEND_INF: return -1
@@ -261,14 +260,16 @@ def bend_compute(values: view[i64]) -> i64:
 
 def orthogonal_drawing_minimum_bends_impl(input: i64&, length: usize, output: mutable u8&,
                                           output_capacity: usize) -> i64:
-    if input.is_null() || length < 4 || length > BEND_MAX_INPUT: return -1
-    values: view[i64] = input[0:length]
-    result: i64 = bend_compute(values)
+    if input == null or length < 4 or length > BEND_MAX_INPUT: return -1
+    values: i64& = input
+    values_length: usize = length
+    result: i64 = bend_compute(values, values_length)
     if result < 0: return -1
-    if output.is_null() || output_capacity < 8: return -2
-    target: mutable view[u8] = output[0:8]
+    if output == null or output_capacity < 8: return -2
+    target: mutable u8& = output
     bits: u64 = result.u64()
-    for byte in 0..<8: target[byte] <- (bits >> (8 * byte)).u8()
+    for byte in 0..<8:
+        target[byte] <- (bits >> (8 * byte)).u8()
     8
 
 export fn orthogonal_drawing_minimum_bends(input: i64&, input_length: usize,

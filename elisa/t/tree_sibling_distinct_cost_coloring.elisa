@@ -1,13 +1,13 @@
 const TSD_INF: i64 = 1000000000000
 
-def tree_sibling_distinct_cost_coloring_impl(values: view[i64]) -> i64:
-    if values.len() < 3 or values.len() > 354: return -1
+def tree_sibling_distinct_cost_coloring_impl(values: i64&, values_length: usize) -> i64:
+    if values_length < 3 or values_length > 354: return -1
     n0: i64 = values[0]
     k0: i64 = values[1]
     if n0 < 1 or n0 > 32 or k0 < 1 or k0 > 10: return -1
     n: usize = n0.usize()
     k: usize = k0.usize()
-    if values.len() != n+1+n*k: return -1
+    if values_length != n+1+n*k: return -1
     for vertex in 1..<n:
         if values[1+vertex] < 0 or values[1+vertex] >= vertex.i64(): return -1
     for i in 0..<n*k:
@@ -21,11 +21,13 @@ def tree_sibling_distinct_cost_coloring_impl(values: view[i64]) -> i64:
     while v > 0:
         v <- v-1
         for color in 0..<k:
-            for mask in 0..<states: current[mask] <- TSD_INF
+            for mask in 0..<states:
+                current[mask] <- TSD_INF
             current[1 << color] <- 0
             for child in v+1..<n:
                 if values[1+child] != v.i64(): continue
-                for mask in 0..<states: next[mask] <- TSD_INF
+                for mask in 0..<states:
+                    next[mask] <- TSD_INF
                 for mask in 0..<states:
                     if current[mask] == TSD_INF: continue
                     for c in 0..<k:
@@ -34,7 +36,8 @@ def tree_sibling_distinct_cost_coloring_impl(values: view[i64]) -> i64:
                         index: usize = mask | bit
                         candidate: i64 = current[mask]+dp[child*10+c]
                         if candidate < next[index]: next[index] <- candidate
-                for mask in 0..<states: current[mask] <- next[mask]
+                for mask in 0..<states:
+                    current[mask] <- next[mask]
             best: mutable i64 = TSD_INF
             for mask in 0..<states:
                 if current[mask] < best: best <- current[mask]
@@ -43,8 +46,10 @@ def tree_sibling_distinct_cost_coloring_impl(values: view[i64]) -> i64:
     best: mutable i64 = TSD_INF
     for color in 0..<k:
         if dp[color] < best: best <- dp[color]
-    if best == TSD_INF: -2 else: best
+    -2 if best == TSD_INF else best
 
-export fn tree_sibling_distinct_cost_coloring(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 3 or length > 354: return -1
-    tree_sibling_distinct_cost_coloring_impl(input[0:length])
+def tree_sibling_distinct_cost_coloring_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 3 or length > 354: return -1
+    tree_sibling_distinct_cost_coloring_impl(input, length)
+
+export fn tree_sibling_distinct_cost_coloring(input: i64&, length: usize) -> i64 = tree_sibling_distinct_cost_coloring_entry

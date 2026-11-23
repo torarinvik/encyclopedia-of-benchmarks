@@ -1,6 +1,6 @@
 # Deterministic bounded Vogel approximation for balanced transportation tables.
-def vogel_approximation_transportation_impl(input: view[i64]) -> i64:
-    length: usize = input.len()
+def vogel_approximation_transportation_impl(input: i64&, input_length: usize) -> i64:
+    length: usize = input_length
     if length < 5 or length > 18:
         return -1
     rows_value: i64 = input[0]
@@ -64,31 +64,31 @@ def vogel_approximation_transportation_impl(input: view[i64]) -> i64:
         best_penalty: mutable i64 = -1
         kind: mutable usize = 0
         while kind < 2:
-            line_count: usize = if kind == 0: rows else: cols
-            partner_count: usize = if kind == 0: cols else: rows
+            line_count: usize = rows if kind == 0 else cols
+            partner_count: usize = cols if kind == 0 else rows
             line: mutable usize = 0
             while line < line_count:
-                line_active: bool = if kind == 0: active_rows[line] else: active_cols[line]
+                line_active: bool = active_rows[line] if kind == 0 else active_cols[line]
                 if line_active:
                     first: mutable i64 = 10
                     second: mutable i64 = 10
                     found: mutable usize = 0
                     partner: mutable usize = 0
                     while partner < partner_count:
-                        partner_active: bool = if kind == 0: active_cols[partner] else: active_rows[partner]
+                        partner_active: bool = active_cols[partner] if kind == 0 else active_rows[partner]
                         if partner_active:
-                            cell_row: usize = if kind == 0: line else: partner
-                            cell_col: usize = if kind == 0: partner else: line
+                            cell_row: usize = line if kind == 0 else partner
+                            cell_col: usize = partner if kind == 0 else line
                             value: i64 = costs[cell_row * cols + cell_col]
                             if value < first:
                                 second <- first
                                 first <- value
-                            else if value < second:
+                            elif value < second:
                                 second <- value
                             found <- found + 1
                         partner <- partner + 1
                     if found > 0:
-                        penalty: i64 = if found == 1: 10 else: second - first
+                        penalty: i64 = 10 if found == 1 else second - first
                         if penalty > best_penalty:
                             best_penalty <- penalty
                             best_kind <- kind.i64()
@@ -98,15 +98,15 @@ def vogel_approximation_transportation_impl(input: view[i64]) -> i64:
         if best_kind < 0:
             return -1
 
-        partner_count: usize = if best_kind == 0: cols else: rows
+        partner_count: usize = cols if best_kind == 0 else rows
         best_partner: mutable usize = partner_count
         cheapest: mutable i64 = 10
         partner: mutable usize = 0
         while partner < partner_count:
-            partner_active: bool = if best_kind == 0: active_cols[partner] else: active_rows[partner]
+            partner_active: bool = active_cols[partner] if best_kind == 0 else active_rows[partner]
             if partner_active:
-                cell_row: usize = if best_kind == 0: best_line else: partner
-                cell_col: usize = if best_kind == 0: partner else: best_line
+                cell_row: usize = best_line if best_kind == 0 else partner
+                cell_col: usize = partner if best_kind == 0 else best_line
                 value: i64 = costs[cell_row * cols + cell_col]
                 if value < cheapest:
                     cheapest <- value
@@ -114,9 +114,9 @@ def vogel_approximation_transportation_impl(input: view[i64]) -> i64:
             partner <- partner + 1
         if best_partner == partner_count:
             return -1
-        row <- if best_kind == 0: best_line else: best_partner
-        col <- if best_kind == 0: best_partner else: best_line
-        quantity: i64 = if supply[row] < demand[col]: supply[row] else: demand[col]
+        row <- best_line if best_kind == 0 else best_partner
+        col <- best_partner if best_kind == 0 else best_line
+        quantity: i64 = supply[row] if (supply[row] < demand[col]) else demand[col]
         allocation[row * 3 + col] <- quantity
         total_cost <- total_cost + quantity * costs[row * cols + col]
         supply[row] <- supply[row] - quantity
@@ -136,7 +136,9 @@ def vogel_approximation_transportation_impl(input: view[i64]) -> i64:
         cell <- cell + 1
     total_cost * place + signature
 
-export fn vogel_approximation_transportation(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 5 or length > 18:
+def vogel_approximation_transportation_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 5 or length > 18:
         return -1
-    vogel_approximation_transportation_impl(input[0:length])
+    vogel_approximation_transportation_impl(input, length)
+
+export fn vogel_approximation_transportation(input: i64&, length: usize) -> i64 = vogel_approximation_transportation_entry

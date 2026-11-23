@@ -1,12 +1,11 @@
 const S7_MAX_DRAWS: usize = 256
 const S7_MAX_INPUT_LENGTH: usize = S7_MAX_DRAWS + 2
 
-def s7_generate(input: view[i64], staged: mutable view[u8]) -> i64:
-    length: usize = input.len()
+def s7_generate(input: i64&, input_length: usize, staged: mutable view[u8]) -> i64:
+    length: usize = input_length
     if length < 1 or length > S7_MAX_INPUT_LENGTH: return -1
     draw_count_value: i64 = input[0]
-    if draw_count_value < 0 or draw_count_value > S7_MAX_DRAWS.i64() or
-        length != draw_count_value.usize() + 1: return -1
+    if draw_count_value < 0 or draw_count_value > S7_MAX_DRAWS.i64() or length != draw_count_value.usize() + 1: return -1
     draw_count: usize = draw_count_value.usize()
     index: mutable usize = 0
     while index < draw_count:
@@ -33,19 +32,22 @@ def s7_generate(input: view[i64], staged: mutable view[u8]) -> i64:
         index <- index + 1
     written.i64()
 
-export fn seven_sided_dice_from_five_sided_dice(
+def seven_sided_dice_from_five_sided_dice_impl(
     input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > S7_MAX_INPUT_LENGTH: return -1
-    input_view: view[i64] = input[0:length]
+    if input == null or length < 1 or length > S7_MAX_INPUT_LENGTH: return -1
+    input_view: i64& = input
+    input_view_length: usize = length
     staged_data: mutable u8[S7_MAX_DRAWS] = zeroed
     staged: mutable view[u8] = staged_data[0:S7_MAX_DRAWS]
-    written: i64 = s7_generate(input_view, staged)
+    written: i64 = s7_generate(input_view, input_view_length, staged)
     if written < 0: return -1
     required: usize = written.usize()
-    if output.is_null() or capacity < required: return -2
-    output_view: mutable view[u8] = output[0:required]
+    if output == null or capacity < required: return -2
+    output_view: mutable u8& = output
     index: mutable usize = 0
     while index < required:
         output_view[index] <- staged[index]
         index <- index + 1
     written
+
+export fn seven_sided_dice_from_five_sided_dice( input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = seven_sided_dice_from_five_sided_dice_impl

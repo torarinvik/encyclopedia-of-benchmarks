@@ -56,7 +56,7 @@ def unit_disk_wspd_cross(n: usize, factor: i64, distance: view[i64],
                          pair_count: mutable usize&, left: u64, right: u64) -> void:
     left_diameter: i64 = unit_disk_wspd_diameter(n, distance, left)
     right_diameter: i64 = unit_disk_wspd_diameter(n, distance, right)
-    threshold: i64 = left_diameter
+    threshold: mutable i64 = left_diameter
     if right_diameter > threshold: threshold <- right_diameter
     if unit_disk_wspd_set_distance(n, distance, left, right) >= factor * threshold:
         if pair_count < MAX_PAIRS:
@@ -95,8 +95,9 @@ def unit_disk_wspd_put(value: i64, output: mutable view[u8], offset: usize) -> v
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def unit_disk_graph_wspd(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("unit_disk_graph_wspd"):
-    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+def unit_disk_graph_wspd_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    j: mutable usize = 0
+    if input == null or length < 4 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     factor: i64 = input[1]
     if n64 < 1 or n64 > MAX_N.i64() or factor < 1 or factor > 8 or length != 2 + 2 * n64.usize(): return -1
@@ -108,7 +109,7 @@ def unit_disk_graph_wspd(input: i64&, length: usize, output: mutable u8&, capaci
         px[i] <- input[2 + 2 * i]
         py[i] <- input[3 + 2 * i]
         if px[i] < -8 or px[i] > 8 or py[i] < -8 or py[i] > 8: return -1
-        j: mutable usize = 0
+        j <- 0
         while j < i:
             if px[i] == px[j] and py[i] == py[j]: return -1
             j <- j + 1
@@ -116,14 +117,14 @@ def unit_disk_graph_wspd(input: i64&, length: usize, output: mutable u8&, capaci
     distance: mutable i64[MAX_N * MAX_N] = zeroed
     i <- 0
     while i < n:
-        j: mutable usize = 0
+        j <- 0
         while j < n:
-            distance[i * MAX_N + j] <- if i == j: 0 else: INF
+            distance[i * MAX_N + j] <- 0 if i == j else INF
             j <- j + 1
         i <- i + 1
     i <- 0
     while i < n:
-        j: mutable usize = i + 1
+        j <- i + 1
         while j < n:
             dx: i64 = px[i] - px[j]
             dy: i64 = py[i] - py[j]
@@ -155,7 +156,7 @@ def unit_disk_graph_wspd(input: i64&, length: usize, output: mutable u8&, capaci
     pair_count: mutable usize = 0
     unit_disk_wspd_visit(n, factor, distance[0:MAX_N * MAX_N], pair_left[0:MAX_PAIRS], pair_right[0:MAX_PAIRS], pair_count, (1.u64() << n) - 1)
     required: usize = 8 + 16 * pair_count
-    if output.is_null() or capacity < required: return -2
+    if output == null or capacity < required: return -2
     staged: mutable u8[456] = zeroed
     unit_disk_wspd_put(pair_count.i64(), staged[0:456], 0)
     i <- 0
@@ -168,3 +169,5 @@ def unit_disk_graph_wspd(input: i64&, length: usize, output: mutable u8&, capaci
         output[i] <- staged[i]
         i <- i + 1
     required.i64()
+
+export fn unit_disk_graph_wspd(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = unit_disk_graph_wspd_impl

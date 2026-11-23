@@ -17,15 +17,14 @@ def sw_put_i32le(output: mutable view[u8], position: mutable usize&, value: i64)
 
 def smith_waterman_python_impl(input: i64&, input_length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
+    column: mutable usize = 1
     if input == null or input_length < 5 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
     query_length_value: i64 = input[0]
     subject_length_value: i64 = input[1]
     match_score: i64 = input[2]
     mismatch_score: i64 = input[3]
     gap_score: i64 = input[4]
-    if query_length_value < 0 or query_length_value > 16 or subject_length_value < 0 or subject_length_value > 16 or
-            match_score < 1 or match_score > 5 or mismatch_score < -5 or mismatch_score > -1 or
-            gap_score < -5 or gap_score > -1: return -1
+    if query_length_value < 0 or query_length_value > 16 or subject_length_value < 0 or subject_length_value > 16 or match_score < 1 or match_score > 5 or mismatch_score < -5 or mismatch_score > -1 or gap_score < -5 or gap_score > -1: return -1
     query_length: usize = query_length_value.usize()
     subject_length: usize = subject_length_value.usize()
     if input_length != 5 + query_length + subject_length: return -1
@@ -45,11 +44,11 @@ def smith_waterman_python_impl(input: i64&, input_length: usize,
     scores: mutable i64[SCORE_STRIDE * SCORE_STRIDE] = zeroed
     row: mutable usize = 1
     while row <= query_length:
-        column: mutable usize = 1
+        column <- 1
         while column <= subject_length:
             query_char: u8 = query[row - 1]
             subject_char: u8 = subject[column - 1]
-            pair_score: i64 = mismatch_score
+            pair_score:mutable  mutable i64 = mismatch_score
             if query_char == 45 or subject_char == 45: pair_score <- gap_score
             elif query_char == subject_char: pair_score <- match_score
             diagonal: i64 = scores[(row - 1) * SCORE_STRIDE + column - 1] + pair_score
@@ -84,8 +83,8 @@ def smith_waterman_python_impl(input: i64&, input_length: usize,
     row <- maximum_row
     column <- maximum_column
     while row > 0 and column > 0:
-        diagonal_score: i64 = scores[(row - 1) * SCORE_STRIDE + column - 1]
-        pair_score: i64 = -1
+        diagonal_score: mutable i64 = scores[(row - 1) * SCORE_STRIDE + column - 1]
+        pair_score:mutable  mutable i64 = -1
         if query[row - 1] == 45 or subject[column - 1] == 45: pair_score <- -2
         elif query[row - 1] == subject[column - 1]: pair_score <- 1
         diagonal_score <- diagonal_score + pair_score
@@ -105,7 +104,7 @@ def smith_waterman_python_impl(input: i64&, input_length: usize,
             column <- column - 1
         trace_length <- trace_length + 1
 
-    alignment_length: usize = 0
+    alignment_length: mutable usize = 0
     if trace_length > 0: alignment_length <- trace_length * 2 + 1
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
     position: mutable usize = 0

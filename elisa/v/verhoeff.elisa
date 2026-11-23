@@ -24,6 +24,6 @@ def verhoeff_impl(digits: i64&, length: usize) -> i64:
         permutation: usize = p[(index % 8) * 10 + digit].usize()
         checksum <- d[checksum * 10 + permutation].usize()
         index <- index + 1
-    if checksum == 0: 1 else: 0
+    1 if checksum == 0 else 0
 
 export fn verhoeff(digits: i64&, length: usize) -> i64 = verhoeff_impl

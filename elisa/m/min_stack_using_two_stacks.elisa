@@ -10,9 +10,9 @@ def min_stack_using_two_stacks_write_i64(output: mutable view[u8], offset: usize
         bits <- bits >> 8
         byte <- byte + 1
 
-export fn min_stack_using_two_stacks(input: i64&, length: usize,
+def min_stack_using_two_stacks_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 1 or length > MAX_INPUT_VALUES: return -1
     count_value: i64 = input[0]
     if count_value < 0 or count_value > 256: return -1
     count: usize = count_value.usize()
@@ -42,12 +42,12 @@ export fn min_stack_using_two_stacks(input: i64&, length: usize,
     if position != length: return -1
 
     needed: usize = (1 + 3 * event_count) * 8
-    if output.is_null() or capacity < needed: return -2
+    if output == null or capacity < needed: return -2
 
     buffer: mutable u8[6152] = zeroed
     buffer_view: mutable view[u8] = buffer[0:needed]
     min_stack_using_two_stacks_write_i64(buffer_view, 0, event_count.i64())
-    stack: mutable i64[256] = zeroed
+    stack_value: mutable i64[256] = zeroed
     minima: mutable i64[256] = zeroed
     depth: mutable usize = 0
     minimum_depth: mutable usize = 0
@@ -57,7 +57,7 @@ export fn min_stack_using_two_stacks(input: i64&, length: usize,
         opcode: i64 = opcodes[index]
         if opcode == 0:
             value: i64 = operands[index]
-            stack[depth] <- value
+            stack_value[depth] <- value
             depth <- depth + 1
             if minimum_depth == 0 or value <= minima[minimum_depth - 1]:
                 minima[minimum_depth] <- value
@@ -68,7 +68,7 @@ export fn min_stack_using_two_stacks(input: i64&, length: usize,
                 exception_flag <- 1
             else:
                 depth <- depth - 1
-                if stack[depth] == minima[minimum_depth - 1]:
+                if stack_value[depth] == minima[minimum_depth - 1]:
                     minimum_depth <- minimum_depth - 1
             min_stack_using_two_stacks_write_i64(buffer_view, record * 8, 1)
             min_stack_using_two_stacks_write_i64(buffer_view, (record + 1) * 8, exception_flag)
@@ -80,7 +80,7 @@ export fn min_stack_using_two_stacks(input: i64&, length: usize,
             if depth == 0:
                 exception_flag <- 1
             elif opcode == 2:
-                value <- stack[depth - 1]
+                value <- stack_value[depth - 1]
             else:
                 value <- minima[minimum_depth - 1]
             min_stack_using_two_stacks_write_i64(buffer_view, record * 8, opcode)
@@ -93,3 +93,5 @@ export fn min_stack_using_two_stacks(input: i64&, length: usize,
         output[index] <- buffer[index]
         index <- index + 1
     needed.i64()
+
+export fn min_stack_using_two_stacks(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = min_stack_using_two_stacks_impl

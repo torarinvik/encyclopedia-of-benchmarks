@@ -3,16 +3,17 @@ const PANNOTIA_MIS_MAX_M: usize = 64
 const PANNOTIA_MIS_MAX_INPUT: usize = 146
 const PANNOTIA_MIS_MAX_PRIORITY: i64 = 99999998
 
-def pannotia_mis_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def pannotia_mis_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def pannotia_local_minimum_mis(input: i64&, length: usize,
-                               output: mutable u8&, capacity: usize) -> i64 @export("pannotia_local_minimum_mis"):
-    if input.is_null() or length < 2 or length > PANNOTIA_MIS_MAX_INPUT: return -1
+def pannotia_local_minimum_mis_impl(input: i64&, length: usize,
+                               output: mutable u8&, capacity: usize) -> i64:
+    u: mutable usize = zeroed
+    if input == null or length < 2 or length > PANNOTIA_MIS_MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     if n64 < 1 or n64 > 16 or m64 < 0 or m64 > 64 or length != 2 + n64.usize() + 2 * m64.usize(): return -1
@@ -34,7 +35,7 @@ def pannotia_local_minimum_mis(input: i64&, length: usize,
         u64: i64 = input[2 + n + 2 * edge]
         v64: i64 = input[3 + n + 2 * edge]
         if u64 < 0 or v64 <= u64 or v64 >= n64: return -1
-        u: usize = u64.usize()
+        u <- u64.usize()
         w: usize = v64.usize()
         bit: u64 = 1 << w
         if (adjacency[u] & bit) != 0: return -1
@@ -42,7 +43,7 @@ def pannotia_local_minimum_mis(input: i64&, length: usize,
         adjacency[w] <- adjacency[w] | (1 << u)
         edge <- edge + 1
     output_bytes: usize = 8 * n
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     active: mutable bool[16] = zeroed
     selected: mutable bool[16] = zeroed
     v <- 0
@@ -56,7 +57,7 @@ def pannotia_local_minimum_mis(input: i64&, length: usize,
         while v < n:
             if active[v]:
                 local_minimum: mutable bool = true
-                u: mutable usize = 0
+                u <- 0
                 while u < n:
                     if active[u] and (adjacency[v] & (1 << u)) != 0 and priority[u] < priority[v]:
                         local_minimum <- false
@@ -88,6 +89,8 @@ def pannotia_local_minimum_mis(input: i64&, length: usize,
         if not remaining: break
     v <- 0
     while v < n:
-        pannotia_mis_store_i64_le(if selected[v] then 2 else 0, output[0:capacity], 8 * v)
+        pannotia_mis_store_i64_le((2 if (selected[v]) else 0), output, 8 * v)
         v <- v + 1
     output_bytes.i64()
+
+export fn pannotia_local_minimum_mis(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = pannotia_local_minimum_mis_impl

@@ -8,11 +8,11 @@ def tfk_store_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
 
-export fn tetrahedral_element_force_kernel(input: i64&, input_length: usize,
+def tetrahedral_element_force_kernel_impl(input: i64&, input_length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > TFK_MAX_PARSEABLE_INPUT:
+    if input == null or input_length < 3 or input_length > TFK_MAX_PARSEABLE_INPUT:
         return -1
-    values: view[i64] = input[0:input_length]
+    values: i64& = input
     element_count_value: i64 = values[0]
     lame_lambda: i64 = values[1]
     lame_mu: i64 = values[2]
@@ -28,7 +28,7 @@ export fn tetrahedral_element_force_kernel(input: i64&, input_length: usize,
 
     element_count: usize = element_count_value.usize()
     required: usize = 96 * element_count
-    if output.is_null() or output_capacity < required:
+    if output == null or output_capacity < required:
         return -2
 
     staged: mutable u8[TFK_MAX_OUTPUT_BYTES] = zeroed
@@ -62,7 +62,9 @@ export fn tetrahedral_element_force_kernel(input: i64&, input_length: usize,
                 tfk_store_i64(staged_view, 8 * (output_base + 3 * (vertex + 1) + row),
                               -stress[3 * row + vertex])
 
-    output_view: mutable view[u8] = output[0:required]
+    output_view: mutable u8& = output
     for index in 0..<required:
         output_view[index] <- staged_view[index]
     required.i64()
+
+export fn tetrahedral_element_force_kernel(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = tetrahedral_element_force_kernel_impl

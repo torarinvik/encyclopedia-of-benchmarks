@@ -10,17 +10,20 @@ def tree_random_walk_edge_hitting_cost_find(sets: mutable view[i64], vertex_valu
         vertex <- sets[vertex].usize()
     vertex
 
-def tree_random_walk_edge_hitting_cost_store(output: mutable view[u8], offset: usize, value: i64) -> void:
+def tree_random_walk_edge_hitting_cost_store(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-export fn tree_random_walk_edge_hitting_cost(
+def tree_random_walk_edge_hitting_cost_impl(
     input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize
 ) -> i64:
-    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
+    child: mutable usize = zeroed
+    index: mutable usize = zeroed
+    arc: mutable i64 = zeroed
+    if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
     n_value: i64 = input[0]
     root_value: i64 = input[1]
     if n_value < 1 or n_value > MAX_N.i64() or root_value < 0 or root_value >= n_value:
@@ -31,7 +34,7 @@ export fn tree_random_walk_edge_hitting_cost(
     if input_length != 2 + 3 * edge_count: return -1
 
     head: mutable i64[MAX_N] = zeroed
-    to: mutable i64[MAX_ARCS] = zeroed
+    to_value: mutable i64[MAX_ARCS] = zeroed
     next_arc: mutable i64[MAX_ARCS] = zeroed
     sets: mutable i64[MAX_N] = zeroed
     input_u: mutable i64[MAX_EDGES] = zeroed
@@ -62,11 +65,11 @@ export fn tree_random_walk_edge_hitting_cost(
         sets[set_v] <- set_u.i64()
         input_u[edge] <- u.i64()
         input_v[edge] <- v.i64()
-        to[arc_count] <- v.i64()
+        to_value[arc_count] <- v.i64()
         next_arc[arc_count] <- head[u]
         head[u] <- arc_count.i64()
         arc_count <- arc_count + 1
-        to[arc_count] <- u.i64()
+        to_value[arc_count] <- u.i64()
         next_arc[arc_count] <- head[v]
         head[v] <- arc_count.i64()
         arc_count <- arc_count + 1
@@ -75,7 +78,7 @@ export fn tree_random_walk_edge_hitting_cost(
         edge <- edge + 1
 
     output_bytes: usize = 16 * edge_count
-    if output.is_null() or output_capacity < output_bytes: return -2
+    if output == null or output_capacity < output_bytes: return -2
 
     parent: mutable i64[MAX_N] = zeroed
     order: mutable i64[MAX_N] = zeroed
@@ -89,10 +92,10 @@ export fn tree_random_walk_edge_hitting_cost(
     cursor: mutable usize = 0
     while cursor < order_size:
         vertex <- order[cursor].usize()
-        arc: mutable i64 = head[vertex]
+        arc <- head[vertex]
         while arc >= 0:
-            index: usize = arc.usize()
-            neighbor: usize = to[index].usize()
+            index <- arc.usize()
+            neighbor: usize = to_value[index].usize()
             if parent[neighbor] == -1:
                 parent[neighbor] <- vertex.i64()
                 order[order_size] <- neighbor.i64()
@@ -108,7 +111,7 @@ export fn tree_random_walk_edge_hitting_cost(
         arc <- head[vertex]
         while arc >= 0:
             index <- arc.usize()
-            child: usize = to[index].usize()
+            child <- to_value[index].usize()
             if parent[child] == vertex.i64():
                 down[vertex] <- down[vertex] + down[child]
             arc <- next_arc[index]
@@ -118,13 +121,13 @@ export fn tree_random_walk_edge_hitting_cost(
         arc <- head[vertex]
         while arc >= 0:
             index <- arc.usize()
-            child <- to[index].usize()
+            child <- to_value[index].usize()
             if parent[child] == vertex.i64():
                 up[child] <- up[vertex] + down[vertex] - down[child]
             arc <- next_arc[index]
         position <- position + 1
 
-    result: mutable view[u8] = output[0:output_bytes]
+    result: mutable u8& = output
     edge <- 0
     while edge < edge_count:
         u: usize = input_u[edge].usize()
@@ -141,3 +144,5 @@ export fn tree_random_walk_edge_hitting_cost(
         tree_random_walk_edge_hitting_cost_store(result, 16 * edge + 8, toward_u)
         edge <- edge + 1
     output_bytes.i64()
+
+export fn tree_random_walk_edge_hitting_cost( input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize ) -> i64 = tree_random_walk_edge_hitting_cost_impl

@@ -4,13 +4,15 @@ const MYERS_MAX_OUTPUT: usize = 48
 const MYERS_OFFSET: i64 = 33
 const MYERS_DIAGONALS: usize = 67
 
-def myers_script(input: view[i64], output: mutable view[u8]) -> usize:
+def myers_script(input: i64&, output: mutable view[u8]) -> usize:
     n: usize = input[0].usize()
     m: usize = input[1].usize()
     frontier: mutable i64[MYERS_DIAGONALS] = zeroed
     trace: mutable i64[MYERS_DIAGONALS * (MYERS_MAX_DISTANCE + 1)] = zeroed
-    for i in 0..<MYERS_DIAGONALS: frontier[i] <- -1
-    for i in 0..<(MYERS_DIAGONALS * (MYERS_MAX_DISTANCE + 1)): trace[i] <- -1
+    for i in 0..<MYERS_DIAGONALS:
+        frontier[i] <- -1
+    for i in 0..<(MYERS_DIAGONALS * (MYERS_MAX_DISTANCE + 1)):
+        trace[i] <- -1
     frontier[(MYERS_OFFSET + 1).usize()] <- 0
 
     found_d: mutable usize = 0
@@ -107,10 +109,10 @@ def myers_script(input: view[i64], output: mutable view[u8]) -> usize:
             written <- written + 1
     written
 
-export fn myers_ond_shortest_edit_script(input: i64&, length: usize,
+def myers_ond_shortest_edit_script_impl(input: i64&, length: usize,
         output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 2 + 2 * MYERS_MAX_SEQUENCE: return -1
-    input_view: view[i64] = input[0:length]
+    if input == null or length < 2 or length > 2 + 2 * MYERS_MAX_SEQUENCE: return -1
+    input_view: i64& = input
     n: i64 = input_view[0]
     m: i64 = input_view[1]
     if n < 0 or n > MYERS_MAX_SEQUENCE.i64() or m < 0 or m > MYERS_MAX_SEQUENCE.i64(): return -1
@@ -121,7 +123,10 @@ export fn myers_ond_shortest_edit_script(input: i64&, length: usize,
     staged: mutable u8[MYERS_MAX_OUTPUT] = zeroed
     staged_view: mutable view[u8] = staged[0:MYERS_MAX_OUTPUT]
     needed: usize = myers_script(input_view, staged_view)
-    if output.is_null() or output_capacity < needed: return -2
-    output_view: mutable view[u8] = output[0:needed]
-    for i in 0..<needed: output_view[i] <- staged_view[i]
+    if output == null or output_capacity < needed: return -2
+    output_view: mutable u8& = output
+    for i in 0..<needed:
+        output_view[i] <- staged_view[i]
     needed.i64()
+
+export fn myers_ond_shortest_edit_script(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = myers_ond_shortest_edit_script_impl

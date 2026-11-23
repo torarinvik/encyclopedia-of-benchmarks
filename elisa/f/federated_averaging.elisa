@@ -22,4 +22,4 @@ def federated_averaging_impl(input: i64&, length: usize) -> f64:
         normalized: f64 = input[1 + i].f64() / total
         result <- result + normalized * value.f64()
     result
-export federated_averaging(input: i64&, length: usize) -> f64 = federated_averaging_impl
+export fn federated_averaging(input: i64&, length: usize) -> f64 = federated_averaging_impl

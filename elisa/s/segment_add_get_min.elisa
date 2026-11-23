@@ -11,9 +11,9 @@ const TREE_CAPACITY: usize = 264
 const MAX_INPUT_LENGTH: usize = 226
 
 struct LineNode:
-    slope: i64
-    intercept: i64
-    occupied: bool
+    slope: mutable i64
+    intercept: mutable i64
+    occupied: mutable bool
 
 def evaluate(slope: i64, intercept: i64, x: i64) -> i64:
     slope * x + intercept
@@ -38,7 +38,7 @@ def add_line(tree: mutable view[LineNode], node: usize,
     if low == high: return
     if evaluate(slope, intercept, low) < evaluate(tree[node].slope, tree[node].intercept, low):
         add_line(tree, 2 * node, low, middle, slope, intercept)
-    else if evaluate(slope, intercept, high) < evaluate(tree[node].slope, tree[node].intercept, high):
+    elif evaluate(slope, intercept, high) < evaluate(tree[node].slope, tree[node].intercept, high):
         add_line(tree, 2 * node + 1, middle + 1, high, slope, intercept)
 
 def add_segment(tree: mutable view[LineNode], node: usize,
@@ -60,20 +60,18 @@ def minimum_at(tree: view[LineNode], node: usize,
     if low == high: return best
     middle: i64 = low + (high - low) / 2
     go_left: bool = x <= middle
-    nested: i64 = minimum_at(tree, if go_left: 2 * node else: 2 * node + 1,
-                             if go_left: low else: middle + 1,
-                             if go_left: middle else: high, x)
+    nested: i64 = minimum_at(tree, (2 * node if go_left else 2 * node + 1),
+                             low if go_left else middle + 1,
+                             middle if go_left else high, x)
     if nested < best: best <- nested
     best
 
 def valid_segment(left: i64, right: i64, slope: i64, intercept: i64) -> bool:
-    left >= DOMAIN_LOW and left < right and right <= DOMAIN_RIGHT and
-        slope >= -COEFFICIENT_LIMIT and slope <= COEFFICIENT_LIMIT and
-        intercept >= -COEFFICIENT_LIMIT and intercept <= COEFFICIENT_LIMIT
+    left >= DOMAIN_LOW and left < right and right <= DOMAIN_RIGHT and slope >= -COEFFICIENT_LIMIT and slope <= COEFFICIENT_LIMIT and intercept >= -COEFFICIENT_LIMIT and intercept <= COEFFICIENT_LIMIT
 
 def segment_add_get_min_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH: return -1
-    frame: view[i64] = input[0:length]
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
+    frame: i64& = input
     initial_value: i64 = frame[0]
     operation_value: i64 = frame[1]
     if initial_value < 0 or initial_value > 16 or operation_value < 0 or operation_value > 32:
@@ -108,7 +106,7 @@ def segment_add_get_min_impl(input: i64&, length: usize) -> i64:
             if not valid_segment(left, right, slope, intercept): return -1
             add_segment(tree[0:TREE_CAPACITY], 1, DOMAIN_LOW, DOMAIN_HIGH, left, right, slope, intercept)
             position <- position + 4
-        else if opcode == 1:
+        elif opcode == 1:
             if position >= length: return -1
             x: i64 = frame[position]
             position <- position + 1

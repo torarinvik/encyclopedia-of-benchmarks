@@ -3,31 +3,28 @@ const SRPR_MAX_ARCS: i64 = 24
 const SRPR_MAX_INPUT_LENGTH: usize = 77
 const SRPR_MAX_CAPACITY: i64 = 15
 
-def synchronous_round_push_relabel_impl(input: view[i64]) -> i64:
-    let length: usize = input.len()
+def synchronous_round_push_relabel_impl(input: i64&, input_length: usize) -> i64:
+    neighbor: mutable usize = 0
+    length:  usize = input_length
     if length < 4 or length > SRPR_MAX_INPUT_LENGTH: return -1
-    let raw_n: i64 = input[0]
-    let raw_m: i64 = input[1]
-    let raw_source: i64 = input[2]
-    let raw_sink: i64 = input[3]
-    if raw_n < 2 or raw_n > SRPR_MAX_VERTICES.i64() or raw_m < 0 or
-       raw_m > SRPR_MAX_ARCS or raw_source < 0 or raw_source >= raw_n or
-       raw_sink < 0 or raw_sink >= raw_n or raw_source == raw_sink or
-       length != 4 + 3 * raw_m.usize(): return -1
-    let n: usize = raw_n.usize()
-    let m: usize = raw_m.usize()
-    let source: usize = raw_source.usize()
-    let sink: usize = raw_sink.usize()
-    let stride: usize = SRPR_MAX_VERTICES
+    raw_n:  i64 = input[0]
+    raw_m:  i64 = input[1]
+    raw_source:  i64 = input[2]
+    raw_sink:  i64 = input[3]
+    if raw_n < 2 or raw_n > SRPR_MAX_VERTICES.i64() or raw_m < 0 or raw_m > SRPR_MAX_ARCS or raw_source < 0 or raw_source >= raw_n or raw_sink < 0 or raw_sink >= raw_n or raw_source == raw_sink or length != 4 + 3 * raw_m.usize(): return -1
+    n:  usize = raw_n.usize()
+    m:  usize = raw_m.usize()
+    source:  usize = raw_source.usize()
+    sink:  usize = raw_sink.usize()
+    stride:  usize = SRPR_MAX_VERTICES
     capacity: mutable i64[SRPR_MAX_VERTICES * SRPR_MAX_VERTICES] = zeroed
     operation: mutable usize = 0
     while operation < m:
-        let offset: usize = 4 + 3 * operation
-        let u: i64 = input[offset]
-        let v: i64 = input[offset + 1]
-        let amount: i64 = input[offset + 2]
-        if u < 0 or u >= raw_n or v < 0 or v >= raw_n or u == v or
-           amount < 0 or amount > SRPR_MAX_CAPACITY: return -1
+        offset:  usize = 4 + 3 * operation
+        u:  i64 = input[offset]
+        v:  i64 = input[offset + 1]
+        amount:  i64 = input[offset + 2]
+        if u < 0 or u >= raw_n or v < 0 or v >= raw_n or u == v or amount < 0 or amount > SRPR_MAX_CAPACITY: return -1
         capacity[u.usize() * stride + v.usize()] <-
             capacity[u.usize() * stride + v.usize()] + amount
         operation <- operation + 1
@@ -41,12 +38,12 @@ def synchronous_round_push_relabel_impl(input: view[i64]) -> i64:
         index <- index + 1
     height[source] <- n.i64()
 
-    let mut_vertex: mutable usize = 0
+    mut_vertex:  mutable usize = 0
     while mut_vertex < n:
         if mut_vertex != source:
-            let forward: usize = source * stride + mut_vertex
-            let reverse: usize = mut_vertex * stride + source
-            let amount: i64 = residual[forward]
+            forward:  usize = source * stride + mut_vertex
+            reverse:  usize = mut_vertex * stride + source
+            amount:  i64 = residual[forward]
             if amount != 0:
                 residual[forward] <- 0
                 residual[reverse] <- residual[reverse] + amount
@@ -68,14 +65,14 @@ def synchronous_round_push_relabel_impl(input: view[i64]) -> i64:
         change: mutable i64[SRPR_MAX_VERTICES] = zeroed
         active_index: mutable usize = 0
         while active_index < active_count:
-            let u: usize = active[active_index].usize()
+            u:  usize = active[active_index].usize()
             remaining: mutable i64 = excess[u]
-            neighbor: mutable usize = 0
+            neighbor <- 0
             while neighbor < n and remaining > 0:
-                let forward: usize = u * stride + neighbor
-                let reverse: usize = neighbor * stride + u
+                forward:  usize = u * stride + neighbor
+                reverse:  usize = neighbor * stride + u
                 if residual[forward] > 0 and height[u] == height[neighbor] + 1:
-                    let amount: i64 = if remaining < residual[forward]: remaining else residual[forward]
+                    amount:  i64 = remaining if (remaining < residual[forward]) else residual[forward]
                     residual[forward] <- residual[forward] - amount
                     residual[reverse] <- residual[reverse] + amount
                     change[u] <- change[u] - amount
@@ -93,7 +90,7 @@ def synchronous_round_push_relabel_impl(input: view[i64]) -> i64:
             vertex <- vertex + 1
         active_index <- 0
         while active_index < active_count:
-            let u: usize = active[active_index].usize()
+            u:  usize = active[active_index].usize()
             if next_excess[u] > 0:
                 minimum: mutable i64 = (2 * SRPR_MAX_VERTICES + 1).i64()
                 neighbor <- 0
@@ -101,7 +98,7 @@ def synchronous_round_push_relabel_impl(input: view[i64]) -> i64:
                     if residual[u * stride + neighbor] > 0 and height[neighbor] < minimum:
                         minimum <- height[neighbor]
                     neighbor <- neighbor + 1
-                next_height[u] <- if minimum == (2 * SRPR_MAX_VERTICES + 1).i64(): n.i64() + 1 else minimum + 1
+                next_height[u] <- n.i64() + 1 if minimum == (2 * SRPR_MAX_VERTICES + 1).i64() else minimum + 1
             active_index <- active_index + 1
         vertex <- 0
         while vertex < n:
@@ -110,6 +107,8 @@ def synchronous_round_push_relabel_impl(input: view[i64]) -> i64:
             vertex <- vertex + 1
     -1
 
-export fn synchronous_round_push_relabel(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 4 or length > SRPR_MAX_INPUT_LENGTH: return -1
-    synchronous_round_push_relabel_impl(input[0:length])
+def synchronous_round_push_relabel_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 4 or length > SRPR_MAX_INPUT_LENGTH: return -1
+    synchronous_round_push_relabel_impl(input, length)
+
+export fn synchronous_round_push_relabel(input: i64&, length: usize) -> i64 = synchronous_round_push_relabel_entry

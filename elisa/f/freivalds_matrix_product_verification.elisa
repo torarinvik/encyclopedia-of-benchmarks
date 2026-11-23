@@ -2,10 +2,10 @@ const FREIVALDS_MAX_N: usize = 8
 const FREIVALDS_MAX_ROUNDS: usize = 8
 const FREIVALDS_MAX_INPUT: usize = 259
 
-@export("freivalds_matrix_product_verification")
-def freivalds_matrix_product_verification(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > FREIVALDS_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
+def freivalds_matrix_product_verification_impl(input: i64&, length: usize) -> i64:
+    col: mutable usize = 0
+    if input == null or length < 2 or length > FREIVALDS_MAX_INPUT: return -1
+    input_view: i64& = input
     n64: i64 = input_view[0]
     rounds64: i64 = input_view[1]
     if n64 < 1 or n64 > 8 or rounds64 < 1 or rounds64 > 8: return -1
@@ -31,7 +31,7 @@ def freivalds_matrix_product_verification(input: i64&, length: usize) -> i64:
         row: mutable usize = 0
         while row < n:
             sum: mutable i64 = 0
-            col: mutable usize = 0
+            col <- 0
             while col < n:
                 term: i64 = input_view[2 + matrix_words + row * n + col] * input_view[signs_offset + round * n + col]
                 sum <- sum + term
@@ -57,3 +57,5 @@ def freivalds_matrix_product_verification(input: i64&, length: usize) -> i64:
             row <- row + 1
         round <- round + 1
     return 1
+
+export fn freivalds_matrix_product_verification(input: i64&, length: usize) -> i64 = freivalds_matrix_product_verification_impl

@@ -2,26 +2,26 @@ const MAX_N: usize = 8
 const MAX_M: usize = 20
 const MAX_INPUT: usize = 63
 
-fn rd_connected(n: usize, m: usize, left: view[i64], right: view[i64], active: u64) -> bool:
+def rd_connected(n: usize, m: usize, left: view[i64], right: view[i64], active: u64) -> bool:
     seen: mutable bool[8] = zeroed
     queue: mutable usize[8] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 1
+    tail_value: mutable usize = 1
     seen[0] <- true
     queue[0] <- 0
-    while head < tail |head, tail, queue, seen, left, right|:
+    while head < tail_value |head, tail_value, queue, seen, left, right|:
         vertex: usize = queue[head]
         head <- head + 1
         edge: mutable usize = 0
-        while edge < m |edge, tail, queue, seen, left, right|:
+        while edge < m |edge, tail_value, queue, seen, left, right|:
             if ((active >> edge) & 1) != 0:
                 neighbor: mutable i64 = -1
                 if left[edge] == vertex.i64(): neighbor <- right[edge]
                 elif right[edge] == vertex.i64(): neighbor <- left[edge]
                 if neighbor >= 0 and not seen[neighbor.usize()]:
                     seen[neighbor.usize()] <- true
-                    queue[tail] <- neighbor.usize()
-                    tail <- tail + 1
+                    queue[tail_value] <- neighbor.usize()
+                    tail_value <- tail_value + 1
             edge <- edge + 1
     vertex: mutable usize = 0
     while vertex < n |vertex, seen|:
@@ -29,16 +29,16 @@ fn rd_connected(n: usize, m: usize, left: view[i64], right: view[i64], active: u
         vertex <- vertex + 1
     return true
 
-fn rd_store_i64_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def rd_store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8 |byte, output, bits|:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-fn reverse_delete_mst_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
-    values: view[i64] = input[0:length]
+def reverse_delete_mst_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    values: i64& = input
     if values[0] < 2 or values[0] > MAX_N.i64() or values[1] < values[0] - 1 or values[1] > MAX_M.i64(): return -1
     n: usize = values[0].usize()
     m: usize = values[1].usize()
@@ -70,8 +70,7 @@ fn reverse_delete_mst_impl(input: i64&, length: usize, output: mutable u8&, capa
     while i < m |i, order, weights|:
         item: usize = order[i]
         j: mutable usize = i
-        while j > 0 and (weights[order[j - 1]] < weights[item] or
-                (weights[order[j - 1]] == weights[item] and order[j - 1] < item)) |j, order, weights|:
+        while j > 0 and (weights[order[j - 1]] < weights[item] or (weights[order[j - 1]] == weights[item] and order[j - 1] < item)) |j, order, weights|:
             order[j] <- order[j - 1]
             j <- j - 1
         order[j] <- item
@@ -89,8 +88,8 @@ fn reverse_delete_mst_impl(input: i64&, length: usize, output: mutable u8&, capa
     while id < m |id, active, weights, total_weight|:
         if ((active >> id) & 1) != 0: total_weight <- total_weight + weights[id]
         id <- id + 1
-    if output.is_null() or capacity < 16: return -2
-    output_view: mutable view[u8] = output[0:16]
+    if output == null or capacity < 16: return -2
+    output_view: mutable u8& = output
     rd_store_i64_le(output_view, 0, active.i64())
     rd_store_i64_le(output_view, 8, total_weight)
     return 16

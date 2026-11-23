@@ -1,12 +1,12 @@
 def gcd_pos(a0: i64, b0: i64) -> i64:
-    a: mutable i64 = if a0 < 0: -a0 else: a0
-    b: mutable i64 = if b0 < 0: -b0 else: b0
+    a: mutable i64 = -a0 if a0 < 0 else a0
+    b: mutable i64 = -b0 if b0 < 0 else b0
     while b != 0:
         r: i64 = a % b
         a <- b
         b <- r
     a
-def put64(output: mutable view[u8], offset: usize, value: i64):
+def put64(output: mutable u8&, offset: usize, value: i64):
     bits: mutable u64 = value.u64()
     i: mutable usize = 0
     while i < 8:
@@ -15,7 +15,10 @@ def put64(output: mutable view[u8], offset: usize, value: i64):
         i <- i+1
 def fraction_impl(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if length != 4: return -1
-    n1: i64 = v[0]; d1: i64 = v[1]; n2: i64 = v[2]; d2: i64 = v[3]
+    n1: i64 = v[0]
+    d1: i64 = v[1]
+    n2: i64 = v[2]
+    d2: i64 = v[3]
     if n1 < -10000 or n1 > 10000 or n2 < -10000 or n2 > 10000 or d1 < -1000 or d1 > 1000 or d2 < -1000 or d2 > 1000 or d1 == 0 or d2 == 0: return -1
     if capacity < 16: return -2
     g: i64 = gcd_pos(d1,d2)
@@ -27,7 +30,7 @@ def fraction_impl(v: i64&, length: usize, output: mutable u8&, capacity: usize) 
     if denominator < 0:
         numerator <- -numerator
         denominator <- -denominator
-    put64(output[0:16],0,numerator)
-    put64(output[0:16],8,denominator)
+    put64(output,0,numerator)
+    put64(output,8,denominator)
     16
-export fraction(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fraction_impl
+export fn fraction(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = fraction_impl

@@ -9,8 +9,8 @@ def put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
-def random_planted_3sat_majority_vote(input: i64&, length: usize,
-                                      output: mutable u8&, capacity: usize) -> i64 @export("random_planted_3sat_majority_vote"):
+def random_planted_3sat_majority_vote_impl(input: i64&, length: usize,
+                                      output: mutable u8&, capacity: usize) -> i64:
     if input == null or length < 2 or length > MAX_INPUT: return -1
     if input[0] < 3 or input[0] > MAX_VARS.i64() or input[1] < 0 or input[1] > MAX_CLAUSES.i64(): return -1
     n: usize = input[0].usize()
@@ -25,7 +25,7 @@ def random_planted_3sat_majority_vote(input: i64&, length: usize,
         while offset < 3:
             literal: i64 = input[2 + 3 * clause + offset]
             if literal == 0 or literal < -n.i64() or literal > n.i64(): return -1
-            variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+            variable: usize = (literal - 1).usize() if literal > 0 else (-literal - 1).usize()
             if seen[variable]: return -1
             seen[variable] <- true
             if literal > 0: positive[variable] <- positive[variable] + 1
@@ -38,8 +38,11 @@ def random_planted_3sat_majority_vote(input: i64&, length: usize,
     staged_view: mutable view[u8] = staged[0:MAX_OUTPUT]
     variable: mutable usize = 0
     while variable < n:
-        value: i64 = if positive[variable] > negative[variable]: 1 else: -1
+        value: i64 = 1 if (positive[variable] > negative[variable]) else -1
         put_i64(staged_view, 8 * variable, value)
         variable <- variable + 1
-    for i in 0..<byte_count: output[i] <- staged[i]
+    for i in 0..<byte_count:
+        output[i] <- staged[i]
     byte_count.i64()
+
+export fn random_planted_3sat_majority_vote(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = random_planted_3sat_majority_vote_impl

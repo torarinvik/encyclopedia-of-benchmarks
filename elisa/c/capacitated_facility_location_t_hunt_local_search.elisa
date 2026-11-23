@@ -8,7 +8,7 @@ const CFL_MAX_PARSEABLE: usize = 63
 const CFL_MAX_OUTPUT: usize = 5208
 const CFL_NEG: i64 = -2305843009213693952
 
-def cfl_store(value: i64, output: mutable view[u8], offset: usize) -> void:
+def cfl_store(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -21,7 +21,8 @@ def cfl_assign(n: usize, f: usize, d: view[i64], fee: view[i64], caps: view[i64]
     for i in 0..<copies:
         multiplicity[types[i].usize()] <- multiplicity[types[i].usize()] + 1
     combinations: mutable usize = 1
-    for _ in 0..<n: combinations <- combinations * f
+    for _ in 0..<n:
+        combinations <- combinations * f
     best: mutable i64 = 9223372036854775807
     best_types: mutable i64[CFL_MAX_N] = zeroed
     for code in 0..<combinations:
@@ -41,7 +42,8 @@ def cfl_assign(n: usize, f: usize, d: view[i64], fee: view[i64], caps: view[i64]
             if loads[kind] > multiplicity[kind].usize() * caps[kind].usize(): feasible <- false
         if feasible and service < best:
             best <- service
-            for j in 0..<n: best_types[j] <- candidate[j]
+            for j in 0..<n:
+                best_types[j] <- candidate[j]
     copy_load: mutable usize[CFL_MAX_CANDIDATES] = zeroed
     for j in 0..<n:
         assignment[j] <- -1
@@ -52,7 +54,8 @@ def cfl_assign(n: usize, f: usize, d: view[i64], fee: view[i64], caps: view[i64]
                 copy_load[copy] <- copy_load[copy] + 1
                 break
     total: mutable i64 = best
-    for copy in 0..<copies: total <- total + fee[types[copy].usize()]
+    for copy in 0..<copies:
+        total <- total + fee[types[copy].usize()]
     total
 
 def cfl_insert_type(types: mutable view[i64], count: usize, kind: i64) -> usize:
@@ -76,11 +79,12 @@ def cfl_hunt(n: usize, f: usize, d: view[i64], fee: view[i64], caps: view[i64],
         loads[copy] <- loads[copy] + 1
         old: usize = types[copy].usize()
         profits[copy] <- profits[copy] + d[j*p+n+old] - d[j*p+n+target]
-    limit: usize = l * caps[target].usize()
+    limit: mutable usize = l * caps[target].usize()
     if limit > n: limit <- n
     dp: mutable i64[CFL_MAX_N+1] = zeroed
     next: mutable i64[CFL_MAX_N+1] = zeroed
-    for w in 0..<CFL_MAX_N+1: dp[w] <- CFL_NEG
+    for w in 0..<CFL_MAX_N+1:
+        dp[w] <- CFL_NEG
     dp[0] <- 0
     for copy in 0..<copies:
         for w in 0..<CFL_MAX_N+1:
@@ -93,14 +97,16 @@ def cfl_hunt(n: usize, f: usize, d: view[i64], fee: view[i64], caps: view[i64],
                 if value > next[nw]:
                     next[nw] <- value
                     take[copy*(CFL_MAX_N+1)+nw] <- true
-        for w in 0..<CFL_MAX_N+1: dp[w] <- next[w]
+        for w in 0..<CFL_MAX_N+1:
+            dp[w] <- next[w]
     best: mutable i64 = CFL_NEG
     best_weight: mutable usize = 0
     for w in 0..<limit+1:
         if dp[w] > best:
             best <- dp[w]
             best_weight <- w
-    for copy in 0..<copies: selected[copy] <- false
+    for copy in 0..<copies:
+        selected[copy] <- false
     reverse_copies: mutable usize = copies
     while reverse_copies > 0:
         reverse_copies <- reverse_copies - 1
@@ -109,7 +115,7 @@ def cfl_hunt(n: usize, f: usize, d: view[i64], fee: view[i64], caps: view[i64],
             best_weight <- best_weight - loads[reverse_copies]
     best
 
-def cfl_impl(input: view[i64], length: usize, output: mutable view[u8],
+def cfl_impl(input: i64&, length: usize, output: mutable u8&,
              capacity: usize, output_is_null: bool) -> i64:
     if length < 10 or length > CFL_MAX_PARSEABLE: return -1
     nr: i64 = input[0]
@@ -169,14 +175,17 @@ def cfl_impl(input: view[i64], length: usize, output: mutable view[u8],
         moved: mutable bool = false
         for target in 0..<f:
             candidate_types: mutable i64[CFL_MAX_CANDIDATES] = zeroed
-            for i in 0..<copies: candidate_types[i] <- types[i]
+            for i in 0..<copies:
+                candidate_types[i] <- types[i]
             candidate_count: mutable usize = cfl_insert_type(candidate_types[0:CFL_MAX_CANDIDATES],copies,target.i64())
             candidate_assignment: mutable i64[CFL_MAX_N] = zeroed
             candidate_cost: mutable i64 = cfl_assign(n,f,d_values[0:p*p],fee_values[0:f],cap_values[0:f],candidate_types[0:candidate_count],candidate_count,candidate_assignment[0:n])
             if candidate_cost < current:
-                for i in 0..<candidate_count: types[i] <- candidate_types[i]
+                for i in 0..<candidate_count:
+                    types[i] <- candidate_types[i]
                 copies <- candidate_count
-                for j in 0..<n: assignment[j] <- candidate_assignment[j]
+                for j in 0..<n:
+                    assignment[j] <- candidate_assignment[j]
                 current <- candidate_cost
                 steps <- steps + 1
                 moved <- true
@@ -197,9 +206,11 @@ def cfl_impl(input: view[i64], length: usize, output: mutable view[u8],
                     candidate_count <- cfl_insert_type(candidate_types[0:CFL_MAX_CANDIDATES],candidate_count,target.i64())
                 candidate_cost <- cfl_assign(n,f,d_values[0:p*p],fee_values[0:f],cap_values[0:f],candidate_types[0:candidate_count],candidate_count,candidate_assignment[0:n])
                 if candidate_cost < current:
-                    for i in 0..<candidate_count: types[i] <- candidate_types[i]
+                    for i in 0..<candidate_count:
+                        types[i] <- candidate_types[i]
                     copies <- candidate_count
-                    for j in 0..<n: assignment[j] <- candidate_assignment[j]
+                    for j in 0..<n:
+                        assignment[j] <- candidate_assignment[j]
                     current <- candidate_cost
                     steps <- steps + 1
                     moved <- true
@@ -209,21 +220,30 @@ def cfl_impl(input: view[i64], length: usize, output: mutable view[u8],
     output_bytes: usize = 8*(3+copies+n)
     if output_is_null or capacity < output_bytes: return -2
     pos <- 0
-    cfl_store(current,output,pos);pos<-pos+8
-    cfl_store(steps.i64(),output,pos);pos<-pos+8
-    cfl_store(copies.i64(),output,pos);pos<-pos+8
-    for i in 0..<copies: cfl_store(types[i],output,pos);pos<-pos+8
-    for j in 0..<n: cfl_store(assignment[j],output,pos);pos<-pos+8
+    cfl_store(current,output,pos)
+    pos<-pos+8
+    cfl_store(steps.i64(),output,pos)
+    pos<-pos+8
+    cfl_store(copies.i64(),output,pos)
+    pos<-pos+8
+    for i in 0..<copies:
+        cfl_store(types[i],output,pos)
+        pos<-pos+8
+    for j in 0..<n:
+        cfl_store(assignment[j],output,pos)
+        pos<-pos+8
     pos.i64()
 
-export def capacitated_facility_location_t_hunt_local_search(input: i64&, length: usize,
+def capacitated_facility_location_t_hunt_local_search_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 10 or length > CFL_MAX_PARSEABLE: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+    if input == null or length < 10 or length > CFL_MAX_PARSEABLE: return -1
+    input_view: i64& = input
+    if output == null:
         scratch: mutable u8[CFL_MAX_OUTPUT] = zeroed
-        return cfl_impl(input_view,length,scratch[0:CFL_MAX_OUTPUT],0,true)
+        return cfl_impl(input_view,length,&scratch[0],0,true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > CFL_MAX_OUTPUT: safe_capacity <- CFL_MAX_OUTPUT
-    output_view: mutable view[u8] = output[0:safe_capacity]
+    output_view: mutable u8& = output
     cfl_impl(input_view,length,output_view,capacity,false)
+
+export fn capacitated_facility_location_t_hunt_local_search(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = capacitated_facility_location_t_hunt_local_search_impl

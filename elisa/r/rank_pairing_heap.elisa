@@ -27,12 +27,13 @@ def rank_pairing_minimum_root(keys: view[i64], items: view[i64],
 def rank_pairing_consolidate(keys: mutable view[i64], items: mutable view[i64],
         ranks: mutable view[i64], left: mutable view[i64], right: mutable view[i64],
         parents: mutable view[i64], alive: mutable view[bool], node_count: usize) -> void:
+    node: mutable usize = 0
     while true:
         duplicate_rank: mutable i64 = -1
         rank_value: mutable i64 = 0
         while rank_value < node_count.i64():
             roots_at_rank: mutable usize = 0
-            node: mutable usize = 0
+            node <- 0
             while node < node_count:
                 if alive[node] and parents[node] == -1 and ranks[node] == rank_value:
                     roots_at_rank <- roots_at_rank + 1
@@ -69,14 +70,14 @@ def rank_pairing_consolidate(keys: mutable view[i64], items: mutable view[i64],
             parents[old_left.usize()] <- loser.i64()
         ranks[winner] <- ranks[winner] + 1
 
-def rank_pairing_heap_impl(values: view[i64]) -> i64:
-    if values.len() < 1 or values.len() > MAX_INPUT_LENGTH:
+def rank_pairing_heap_impl(values: i64&, values_length: usize) -> i64:
+    if values_length < 1 or values_length > MAX_INPUT_LENGTH:
         return -1
     operation_value: i64 = values[0]
     if operation_value < 0 or operation_value > MAX_OPERATIONS.i64():
         return -1
     operation_count: usize = operation_value.usize()
-    if values.len() != 1 + 3 * operation_count or values.len() > 193:
+    if values_length != 1 + 3 * operation_count or values_length > 193:
         return -1
 
     keys: mutable i64[MAX_NODES] = zeroed
@@ -153,9 +154,9 @@ def rank_pairing_heap_impl(values: view[i64]) -> i64:
                         break
                     left_rank: i64 = rank_pairing_node_rank(ranks[0:MAX_NODES], left[ancestor_index])
                     right_rank: i64 = rank_pairing_node_rank(ranks[0:MAX_NODES], right[ancestor_index])
-                    new_rank: i64 = 0
+                    new_rank:mutable  mutable i64 = 0
                     if left_rank != right_rank:
-                        new_rank <- if left_rank > right_rank: left_rank else: right_rank
+                        new_rank <- left_rank if left_rank > right_rank else right_rank
                     else:
                         new_rank <- left_rank + 1
                     if new_rank >= ranks[ancestor_index]:
@@ -201,7 +202,9 @@ def rank_pairing_heap_impl(values: view[i64]) -> i64:
         operation_index <- operation_index + 1
     result
 
-export fn rank_pairing_heap(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+def rank_pairing_heap_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
         return -1
-    rank_pairing_heap_impl(input[0:length])
+    rank_pairing_heap_impl(input, length)
+
+export fn rank_pairing_heap(input: i64&, length: usize) -> i64 = rank_pairing_heap_entry

@@ -17,4 +17,4 @@ def gaussian_impl(values: i64&, length: usize) -> f64:
     exponent: f64 = -(difference * difference).f64() / (2 * sigma_squared).f64()
     normalization * exp(exponent)
 
-export fn gaussian(values: i64&, length: usize) f64 = gaussian_impl
+export fn gaussian(values: i64&, length: usize) -> f64 = gaussian_impl

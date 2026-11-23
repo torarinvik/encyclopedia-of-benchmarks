@@ -36,8 +36,8 @@ def dmpc_maximum(adjacency: view[usize], n: usize, first: usize, used: usize) ->
         left <- left + 1
     size
 
-def dag_minimum_path_cover_impl(values: view[i64]) -> i64:
-    length: usize = values.length
+def dag_minimum_path_cover_impl(values: i64&, values_length: usize) -> i64:
+    length: usize = values_length
     if length < 2 or length > MAX_PARSEABLE_LENGTH: return -1
     n_value: i64 = values[0]
     m_value: i64 = values[1]
@@ -64,15 +64,15 @@ def dag_minimum_path_cover_impl(values: view[i64]) -> i64:
     adjacency: view[usize] = adjacency_data[0:MAX_VERTICES]
     queue: mutable usize[MAX_VERTICES] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     removed: mutable usize = 0
     vertex: mutable usize = 0
     while vertex < n:
         if indegree[vertex] == 0:
-            queue[tail] <- vertex
-            tail <- tail + 1
+            queue[tail_value] <- vertex
+            tail_value <- tail_value + 1
         vertex <- vertex + 1
-    while head < tail:
+    while head < tail_value:
         u: usize = queue[head]
         head <- head + 1
         removed <- removed + 1
@@ -81,8 +81,8 @@ def dag_minimum_path_cover_impl(values: view[i64]) -> i64:
             if (adjacency[u] & (1 << vertex)) != 0:
                 indegree[vertex] <- indegree[vertex] - 1
                 if indegree[vertex] == 0:
-                    queue[tail] <- vertex
-                    tail <- tail + 1
+                    queue[tail_value] <- vertex
+                    tail_value <- tail_value + 1
             vertex <- vertex + 1
     if removed != n: return -1
 
@@ -101,8 +101,8 @@ def dag_minimum_path_cover_impl(values: view[i64]) -> i64:
                 if (adjacency[left] & bit) == 0 or (used & bit) != 0:
                     right <- right + 1
                     continue
-            next_used: usize = if matched: used | (1 << right) else: used
-            attainable: usize = fixed + (if matched: 1 else: 0) + dmpc_maximum(adjacency, n, left + 1, next_used)
+            next_used: usize = used | (1 << right) if matched else used
+            attainable: usize = fixed + ((1 if matched else 0)) + dmpc_maximum(adjacency, n, left + 1, next_used)
             if attainable == maximum:
                 successor[left] <- right
                 used <- next_used
@@ -113,13 +113,15 @@ def dag_minimum_path_cover_impl(values: view[i64]) -> i64:
         if not chosen: return -1
         left <- left + 1
 
-    packed: mutable u64 = (n - maximum).u64() << 40
+    packed_value: mutable u64 = (n - maximum).u64() << 40
     vertex <- 0
     while vertex < n:
-        packed <- packed | (successor[vertex].u64() << (4 * vertex))
+        packed_value <- packed_value | (successor[vertex].u64() << (4 * vertex))
         vertex <- vertex + 1
-    packed.i64()
+    packed_value.i64()
 
-export fn dag_minimum_path_cover(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_PARSEABLE_LENGTH: return -1
-    dag_minimum_path_cover_impl(input[0:length])
+def dag_minimum_path_cover_entry(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MAX_PARSEABLE_LENGTH: return -1
+    dag_minimum_path_cover_impl(input, length)
+
+export fn dag_minimum_path_cover(input: i64&, length: usize) -> i64 = dag_minimum_path_cover_entry

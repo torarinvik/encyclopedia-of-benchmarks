@@ -22,6 +22,6 @@ def lipogram_impl(input: i64&, length: usize) -> i64:
         if not seen[i]: missing <- missing + bit
         bit <- bit * 2
         i <- i + 1
-    if missing == expected: 1 else: 0
+    1 if missing == expected else 0
 
 export fn lipogram(input: i64&, length: usize) -> i64 = lipogram_impl

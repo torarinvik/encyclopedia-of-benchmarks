@@ -1,4 +1,5 @@
 def crossword_solver_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    prior: mutable usize = 0
     if length < 3:
         return -1
     rows_value: i64 = values[0]
@@ -40,7 +41,7 @@ def crossword_solver_impl(values: i64&, length: usize, output: mutable u8&, outp
             words[word * 8 + idx] <- letter
             pos <- pos + 1
             idx <- idx + 1
-        prior: mutable usize = 0
+        prior <- 0
         while prior < word:
             if word_lengths[prior] == word_len.i64():
                 same: mutable bool = true

@@ -6,7 +6,7 @@ const MODULUS: i64 = 998244353
 
 def rpu_normalize(value: i64) -> i64:
     reduced: i64 = value % MODULUS
-    if reduced < 0: reduced + MODULUS else: reduced
+    reduced + MODULUS if reduced < 0 else reduced
 
 def rpu_find_root(parent: mutable view[usize], level: usize, item: usize) -> usize:
     index: usize = level * MAX_N + item
@@ -56,7 +56,7 @@ def rpu_merge_ranges(length: usize, left: usize, right: usize,
     rpu_merge_inner(level, left + length - block, right + length - block,
                     parent, set_size, weight, pair_sum)
 
-def rpu_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def rpu_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -65,8 +65,8 @@ def rpu_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> voi
 
 def range_parallel_unionfind_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 6 or length > MAX_INPUT_VALUES: return -1
-    frame: view[i64] = input[0:length]
+    if input == null or length < 6 or length > MAX_INPUT_VALUES: return -1
+    frame: i64& = input
     n_value: i64 = frame[0]
     q_value: i64 = frame[1]
     if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64(): return -1
@@ -84,11 +84,10 @@ def range_parallel_unionfind_impl(input: i64&, length: usize,
         span: i64 = frame[position]
         left: i64 = frame[position + 1]
         right: i64 = frame[position + 2]
-        if span < 0 or span > n_value or left < 0 or right < 0 or
-            left > n_value - span or right > n_value - span: return -1
+        if span < 0 or span > n_value or left < 0 or right < 0 or left > n_value - span or right > n_value - span: return -1
         operation <- operation + 1
     required: usize = 8 * q
-    if output.is_null() or capacity < required: return -2
+    if output == null or capacity < required: return -2
 
     parent: mutable usize[MAX_LEVELS * MAX_N] = zeroed
     set_size: mutable usize[MAX_LEVELS * MAX_N] = zeroed
@@ -109,7 +108,7 @@ def range_parallel_unionfind_impl(input: i64&, length: usize,
         item <- item + 1
     pair_sum: mutable i64 = 0
     operation <- 0
-    output_view: mutable view[u8] = output[0:required]
+    output_view: mutable u8& = output
     while operation < q:
         position: usize = operations_at + 3 * operation
         rpu_merge_ranges(frame[position].usize(), frame[position + 1].usize(), frame[position + 2].usize(),

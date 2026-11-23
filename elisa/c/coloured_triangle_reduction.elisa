@@ -13,21 +13,23 @@ def triangle_binomial_mod_three(n: i64, k: i64) -> i64:
         remaining_k <- remaining_k / 3
     coefficient
 
-def coloured_triangle_reduction_impl(input: view[i64]) -> i64:
-    if input.length < 2 or input.length > 258: return -1
+def coloured_triangle_reduction_impl(input: i64&, input_length: usize) -> i64:
+    if input_length < 2 or input_length > 258: return -1
     n: i64 = input[0]
-    if n < 1 or n > 256 or input.length != (n + 1).usize(): return -1
-    for index in 0..n:
+    if n < 1 or n > 256 or input_length != (n + 1).usize(): return -1
+    for index in 0..<n:
         color: i64 = input[1 + index.usize()]
         if color < 0 or color > 2: return -1
 
     rounds: i64 = n - 1
     total: mutable i64 = 0
-    for index in 0..n:
+    for index in 0..<n:
         color: i64 = input[1 + index.usize()]
         total <- (total + triangle_binomial_mod_three(rounds, index) * color) % 3
-    if rounds % 2 == 0 then total else (3 - total) % 3
+    total if rounds % 2 == 0 else (3 - total) % 3
 
-export fn coloured_triangle_reduction(input: i64&, length: usize) -> i64:
-    if input.is_null() or length > 258: return -1
-    coloured_triangle_reduction_impl(input[0:length])
+def coloured_triangle_reduction_entry(input: i64&, length: usize) -> i64:
+    if input == null or length > 258: return -1
+    coloured_triangle_reduction_impl(input, length)
+
+export fn coloured_triangle_reduction(input: i64&, length: usize) -> i64 = coloured_triangle_reduction_entry

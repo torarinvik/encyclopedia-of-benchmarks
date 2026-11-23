@@ -1,16 +1,16 @@
 const MAX_N: usize = 32
 const MAX_INPUT: usize = 35
 
-def max_sum_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def max_sum_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def max_sum_length_bounded_segment(input: i64&, length: usize,
-                                   output: mutable u8&, capacity: usize) -> i64 @export("max_sum_length_bounded_segment"):
-    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+def max_sum_length_bounded_segment_impl(input: i64&, length: usize,
+                                   output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     lower64: i64 = input[1]
     upper64: i64 = input[2]
@@ -25,11 +25,11 @@ def max_sum_length_bounded_segment(input: i64&, length: usize,
         if value < -10000 or value > 10000: return -1
         prefix[i + 1] <- prefix[i] + value
         i <- i + 1
-    if output.is_null() or capacity < 24: return -2
-    output_view: mutable view[u8] = output[0:24]
+    if output == null or capacity < 24: return -2
+    output_view: mutable u8& = output
     deque: mutable usize[33] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     best_sum: mutable i64 = 0
     best_start: mutable usize = 0
     best_end: mutable usize = 0
@@ -37,11 +37,13 @@ def max_sum_length_bounded_segment(input: i64&, length: usize,
     end: mutable usize = lower
     while end <= n:
         added: usize = end - lower
-        while tail > head and prefix[deque[tail - 1]] > prefix[added]: tail <- tail - 1
-        deque[tail] <- added
-        tail <- tail + 1
-        earliest: usize = if end > upper: end - upper else: 0
-        while head < tail and deque[head] < earliest: head <- head + 1
+        while tail_value > head and prefix[deque[tail_value - 1]] > prefix[added]:
+            tail_value <- tail_value - 1
+        deque[tail_value] <- added
+        tail_value <- tail_value + 1
+        earliest: usize = end - upper if end > upper else 0
+        while head < tail_value and deque[head] < earliest:
+            head <- head + 1
         start: usize = deque[head]
         sum: i64 = prefix[end] - prefix[start]
         if not have_best or sum > best_sum or (sum == best_sum and (start < best_start or (start == best_start and end < best_end))):
@@ -54,3 +56,5 @@ def max_sum_length_bounded_segment(input: i64&, length: usize,
     max_sum_store_i64_le(best_start.i64(), output_view, 8)
     max_sum_store_i64_le(best_end.i64(), output_view, 16)
     24.i64()
+
+export fn max_sum_length_bounded_segment(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = max_sum_length_bounded_segment_impl

@@ -38,18 +38,18 @@ def mccat_bintr_member_dfs(values: view[i32], left: view[i32], right: view[i32],
         return true
     mccat_bintr_member_dfs(values, left, right, right[index], sought)
 
-def mccat_bintr_put_u32(output: mutable view[u8], offset: usize, value: u32) -> void:
+def mccat_bintr_put_u32(output: mutable u8&, offset: usize, value: u32) -> void:
     for byte in 0..<4:
         output[offset + byte] <- ((value >> (8 * byte)) & 255).u8()
 
-def mccat_bintr_put_f64(output: mutable view[u8], offset: usize, value: f64) -> void:
+def mccat_bintr_put_f64(output: mutable u8&, offset: usize, value: f64) -> void:
     bits: mutable u64 = 0
     memcpy(&bits, &value, 8)
     for byte in 0..<8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
 
 def mccat_bintr_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 103 or input_length > MCCAT_BINTR_MAX_NODES + 102:
+    if input == null or input_length < 103 or input_length > MCCAT_BINTR_MAX_NODES + 102:
         return -1
     node_count_value: i64 = input[0]
     if node_count_value < 1 or node_count_value > 64:
@@ -65,7 +65,7 @@ def mccat_bintr_impl(input: i64&, input_length: usize, output: mutable u8&, outp
         value: i64 = input[node_count + 2 + index]
         if value == 0 or value < -32768 or value > 32767:
             return -1
-    if output.is_null() or output_capacity < MCCAT_BINTR_OUTPUT_BYTES:
+    if output == null or output_capacity < MCCAT_BINTR_OUTPUT_BYTES:
         return -2
 
     values: mutable i32[64] = zeroed
@@ -114,7 +114,7 @@ def mccat_bintr_impl(input: i64&, input_length: usize, output: mutable u8&, outp
     size: i32 = mccat_bintr_tree_size(left_view, right_view, root)
     sum: f64 = mccat_bintr_tree_sum(values_view, left_view, right_view, root)
     mean: f64 = sum / size.f64()
-    output_view: mutable view[u8] = output[0:MCCAT_BINTR_OUTPUT_BYTES]
+    output_view: mutable u8& = output
     mccat_bintr_put_u32(output_view, 0, size.u32())
     mccat_bintr_put_f64(output_view, 4, sum)
     mccat_bintr_put_f64(output_view, 12, mean)
