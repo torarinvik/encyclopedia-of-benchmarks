@@ -2,23 +2,23 @@
 def sum_of_divisors_impl(n: i64) -> i64:
     if n < 1 or n > 1000000:
         return -1
-    # Every partial divisor sum is at most n times the nth harmonic number, below 15 million.
-    number: u32 = n.u32()
-    # The lowest set bit is the largest power of two dividing n.
-    power_of_two: u32 = number & (0.u32() - number)
-    if power_of_two == number:
-        return 2 * n - 1
-    remaining: mutable u32 = number / power_of_two
-    sigma: mutable u32 = 2 * power_of_two - 1
-    factor: mutable u32 = 3
-    while factor * factor <= remaining:
-        geometric_sum: mutable u32 = 1
-        while remaining % factor == 0:
-            remaining <- remaining / factor
-            geometric_sum <- geometric_sum * factor + 1
-        sigma <- sigma * geometric_sum
-        return sigma.i64() if remaining == 1
-        factor <- factor + 2
-    (sigma * remaining + sigma).i64()
+    remaining: mutable i64 = n
+    sigma: mutable i64 = 1
+    factor: mutable i64 = 2
+    while factor <= remaining / factor:
+        if remaining % factor == 0:
+            power: mutable i64 = 1
+            geometric_sum: mutable i64 = 1
+            while true:
+                remaining <- remaining / factor
+                power <- power * factor
+                geometric_sum <- geometric_sum + power
+                if remaining % factor != 0:
+                    break
+            sigma <- sigma * geometric_sum
+        factor <- factor + 1
+    if remaining > 1:
+        sigma <- sigma * (remaining + 1)
+    sigma
 
 export fn sum_of_divisors(n: i64) -> i64 = sum_of_divisors_impl
