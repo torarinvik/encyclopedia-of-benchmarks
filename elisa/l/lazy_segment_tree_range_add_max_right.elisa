@@ -1,10 +1,10 @@
 # Lazy range addition and sum-monoid max_right boundary searches.
-def lazy_max_right_apply(tree: mutable i64[64], pending: mutable i64[64],
+def lazy_max_right_apply(tree: mutable i64[64]&, pending: mutable i64[64]&,
                          node: usize, segment_length: usize, delta: i64) -> void:
     tree[node] <- tree[node] + delta * segment_length.i64()
     pending[node] <- pending[node] + delta
 
-def lazy_max_right_push(tree: mutable i64[64], pending: mutable i64[64],
+def lazy_max_right_push(tree: mutable i64[64]&, pending: mutable i64[64]&,
                          node: usize, segment_length: usize) -> void:
     if segment_length > 1 and pending[node] != 0:
         half: usize = segment_length / 2
@@ -12,7 +12,7 @@ def lazy_max_right_push(tree: mutable i64[64], pending: mutable i64[64],
         lazy_max_right_apply(tree, pending, 2 * node + 1, half, pending[node])
         pending[node] <- 0
 
-def lazy_max_right_add(tree: mutable i64[64], pending: mutable i64[64],
+def lazy_max_right_add(tree: mutable i64[64]&, pending: mutable i64[64]&,
                        node: usize, low: usize, high: usize,
                        query_low: usize, query_high: usize, delta: i64) -> void:
     if query_low >= query_high: return
@@ -28,9 +28,9 @@ def lazy_max_right_add(tree: mutable i64[64], pending: mutable i64[64],
         lazy_max_right_add(tree, pending, 2 * node + 1, middle, high, query_low, query_high, delta)
     tree[node] <- tree[2 * node] + tree[2 * node + 1]
 
-def lazy_max_right_search(tree: mutable i64[64], pending: mutable i64[64],
+def lazy_max_right_search(tree: mutable i64[64]&, pending: mutable i64[64]&,
                           node: usize, low: usize, high: usize, n: usize,
-                          left: usize, limit: i64, accumulated: mutable i64) -> usize:
+                          left: usize, limit: i64, accumulated: mutable i64&) -> usize:
     if high <= left: return high
     if low >= n: return n
     if left <= low and high <= n and accumulated + tree[node] <= limit:
@@ -64,10 +64,12 @@ def lazy_segment_tree_range_add_max_right_impl(input: i64&, length: usize) -> i6
         else: return -1
 
     base: mutable usize = 1
-    while base < n: base <- base * 2
+    while base < n:
+        base <- base * 2
     tree: mutable i64[64] = zeroed
     pending: mutable i64[64] = zeroed
-    for i in 0..<n: tree[base + i] <- input[2 + i]
+    for i in 0..<n:
+        tree[base + i] <- input[2 + i]
     node: mutable usize = base
     while node > 1:
         node <- node - 1

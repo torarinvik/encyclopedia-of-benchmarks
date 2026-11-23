@@ -4,15 +4,15 @@ const MAX_TRIPS: usize = 4
 const MAX_OUTPUT_BYTES: usize = 88
 const INF: i64 = 1000000000
 
-def tead_store64(output: mutable view[u8], offset: usize, value: i64): void:
+def tead_store64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def timetable_earliest_arrival_dijkstra_impl(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize): i64:
-    if input.is_null() or length < 5 or length > 138: return -1
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 5 or length > 138: return -1
     n_raw: i64 = input[0]
     arc_count_raw: i64 = input[1]
     source_raw: i64 = input[2]
@@ -26,8 +26,8 @@ def timetable_earliest_arrival_dijkstra_impl(input: i64&, length: usize,
     arc_u: mutable usize[MAX_ARCS] = zeroed
     arc_v: mutable usize[MAX_ARCS] = zeroed
     trip_count: mutable usize[MAX_ARCS] = zeroed
-    departure: mutable i64[MAX_ARCS][MAX_TRIPS] = zeroed
-    arrival: mutable i64[MAX_ARCS][MAX_TRIPS] = zeroed
+    departure: mutable i64[MAX_TRIPS][MAX_ARCS] = zeroed
+    arrival: mutable i64[MAX_TRIPS][MAX_ARCS] = zeroed
     cursor: mutable usize = 5
     for edge in 0..<arc_count:
         if cursor + 3 > length: return -1
@@ -71,7 +71,8 @@ def timetable_earliest_arrival_dijkstra_impl(input: i64&, length: usize,
             v: usize = arc_v[edge]
             if arc_u[edge] != chosen or settled[v]: continue
             trip: mutable usize = 0
-            while trip < trip_count[edge] and departure[edge][trip] < distance[chosen]: trip <- trip + 1
+            while trip < trip_count[edge] and departure[edge][trip] < distance[chosen]:
+                trip <- trip + 1
             if trip == trip_count[edge]: continue
             candidate: i64 = arrival[edge][trip]
             if candidate < distance[v] or (candidate == distance[v] and (parent[v] < 0 or chosen.i64() < parent[v])):
@@ -93,16 +94,18 @@ def timetable_earliest_arrival_dijkstra_impl(input: i64&, length: usize,
             path_length <- path_length + 1
         if path_length == 0 or reverse_path[path_length - 1] != source: path_length <- 0
     reachable: bool = path_length > 0
-    output_bytes: usize = if reachable: 8 * (3 + path_length) else: 24
-    if output.is_null() or capacity < output_bytes: return -2
+    output_bytes: usize = 8 * (3 + path_length) if reachable else 24
+    if output == null or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    tead_store64(staged[0:output_bytes], 0, if reachable: 1 else: 0)
-    tead_store64(staged[0:output_bytes], 8, if reachable: distance[target] else: -1)
-    tead_store64(staged[0:output_bytes], 16, path_length.i64())
+    tead_store64(&staged[0], 0, 1 if reachable else 0)
+    tead_store64(&staged[0], 8, distance[target] if reachable else -1)
+    tead_store64(&staged[0], 16, path_length.i64())
     if reachable:
-        for i in 0..<path_length: tead_store64(staged[0:output_bytes], 24 + 8 * i, reverse_path[path_length - 1 - i].i64())
-    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+        for i in 0..<path_length:
+            tead_store64(&staged[0], 24 + 8 * i, reverse_path[path_length - 1 - i].i64())
+    for byte in 0..<output_bytes:
+        output[byte] <- staged[byte]
     output_bytes.i64()
 
 export fn timetable_earliest_arrival_dijkstra(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 @export("timetable_earliest_arrival_dijkstra") = timetable_earliest_arrival_dijkstra_impl
+        output: mutable u8&, capacity: usize) -> i64 = timetable_earliest_arrival_dijkstra_impl
