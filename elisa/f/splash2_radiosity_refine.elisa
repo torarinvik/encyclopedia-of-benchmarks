@@ -13,15 +13,15 @@ def splash2_radiosity_visit(tx: f64, ty: f64, target_side: f64,
                             deepest: mutable usize&) -> void:
     coarse: f64 = splash2_radiosity_factor(tx, ty, source_side * source_side, sx, sy, gap)
     split_source: bool = source_side >= target_side
-    parent_side: f64 = target_side
+    parent_side: mutable f64 = target_side
     if split_source: parent_side <- source_side
     child_side: f64 = parent_side * 0.5
     offset: f64 = parent_side * 0.25
     fine: mutable f64 = 0.0
     quadrant: mutable usize = 0
     while quadrant < 4:
-        dx: f64 = -offset
-        dy: f64 = -offset
+        dx: mutable f64 = -offset
+        dy: mutable f64 = -offset
         if (quadrant & 1) != 0: dx <- offset
         if (quadrant & 2) != 0: dy <- offset
         if split_source:
@@ -31,17 +31,18 @@ def splash2_radiosity_visit(tx: f64, ty: f64, target_side: f64,
             fine <- fine + 0.25 * splash2_radiosity_factor(tx + dx, ty + dy,
                 source_side * source_side, sx, sy, gap)
         quadrant <- quadrant + 1
-    error: f64 = fine - coarse
-    if error < 0.0: error <- -error
-    if depth >= allowed_depth or error <= bound:
-        transfer <- transfer + weight * coarse
+    error_value: mutable f64 = fine - coarse
+    if error_value < 0.0: error_value <- -error_value
+    if depth >= allowed_depth or error_value <= bound:
+        current_transfer: f64 = transfer
+        transfer <- current_transfer + weight * coarse
         leaves <- leaves + 1
         if depth > deepest: deepest <- depth
         return
     quadrant <- 0
     while quadrant < 4:
-        dx <- -offset
-        dy <- -offset
+        dx: mutable f64 = -offset
+        dy: mutable f64 = -offset
         if (quadrant & 1) != 0: dx <- offset
         if (quadrant & 2) != 0: dy <- offset
         if split_source:
@@ -56,7 +57,7 @@ def splash2_radiosity_visit(tx: f64, ty: f64, target_side: f64,
 
 def splash2_radiosity_refine_impl(input: f64&, input_length: usize,
                                  output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length != 11: return -1
+    if input == null or input_length != 11: return -1
     index: mutable usize = 0
     while index < input_length:
         value: f64 = input[index]
@@ -81,7 +82,7 @@ def splash2_radiosity_refine_impl(input: f64&, input_length: usize,
     if bound < 0.0 or bound > 1.0 or depth_value < 0.0 or depth_value > MAX_DEPTH: return -1
     allowed_depth: usize = depth_value.usize()
     if allowed_depth.f64() != depth_value: return -1
-    if output.is_null() or output_capacity < 3: return -2
+    if output == null or output_capacity < 3: return -2
     transfer: mutable f64 = 0.0
     leaves: mutable usize = 0
     deepest: mutable usize = 0

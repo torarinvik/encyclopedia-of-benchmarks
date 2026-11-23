@@ -19,8 +19,9 @@ def geofence_impl(a: i64&, length: usize) -> i64:
     s1: f64 = sin(dlat / 2.0)
     s2: f64 = sin(dlon / 2.0)
     hav: mutable f64 = s1 * s1 + cos(lat1) * cos(lat2) * s2 * s2
-    if hav < 0.0: hav = 0.0
-    if hav > 1.0: hav = 1.0
+    if hav < 0.0: hav <- 0.0
+    if hav > 1.0: hav <- 1.0
     distance: f64 = 6371010.0 * (2.0 * atan2(sqrt(hav), sqrt(1.0 - hav)))
-    if distance <= a[4].f64() / 1000.0: 1 else: 0
-export geofence(a: i64&, length: usize) -> i64 = geofence_impl
+    if distance <= a[4].f64() / 1000.0: 1
+    else: 0
+export fn geofence(a: i64&, length: usize) -> i64 = geofence_impl

@@ -4,10 +4,11 @@ const MCCS_MAX_ARCS: usize = 20
 const MCCS_MAX_INPUT: usize = 43
 const MCCS_COST_OFFSET: i64 = 81
 
-export fn minimum_cost_circulation_cost_scaling(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > MCCS_MAX_INPUT:
+def minimum_cost_circulation_cost_scaling_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 2 or length > MCCS_MAX_INPUT:
         return -1
-    input_view: view[i64] = input[0:length]
+    input_view_storage: darray[i64] = [input[index] for index in 0..<length]
+    input_view: view[i64] = input_view_storage[0:length]
     n_value: i64 = input_view[0]
     m_value: i64 = input_view[1]
     if n_value < 1 or n_value > MCCS_MAX_N.i64() or m_value < 0 or m_value > MCCS_MAX_M.i64():
@@ -29,25 +30,24 @@ export fn minimum_cost_circulation_cost_scaling(input: i64&, length: usize) -> i
         to_value: i64 = input_view[offset + 1]
         original_capacity: i64 = input_view[offset + 2]
         cost: i64 = input_view[offset + 3]
-        if from_value < 0 or from_value >= n_value or to_value < 0 or to_value >= n_value or
-                original_capacity < 0 or original_capacity > 2 or cost < -4 or cost > 4:
+        if from_value < 0 or from_value >= n_value or to_value < 0 or to_value >= n_value or original_capacity < 0 or original_capacity > 2 or cost < -4 or cost > 4:
             return -1
         from: usize = from_value.usize()
-        to: usize = to_value.usize()
+        to_vertex: usize = to_value.usize()
         scaled_cost: i64 = cost * (n + 1).i64()
         forward: usize = 2 * index
         backward: usize = forward + 1
         edge_from[forward] <- from
-        edge_to[forward] <- to
+        edge_to[forward] <- to_vertex
         reverse[forward] <- backward
         capacity[forward] <- original_capacity
         edge_cost[forward] <- scaled_cost
-        edge_from[backward] <- to
+        edge_from[backward] <- to_vertex
         edge_to[backward] <- from
         reverse[backward] <- forward
         capacity[backward] <- 0
         edge_cost[backward] <- -scaled_cost
-        magnitude: i64 = if scaled_cost < 0 then -scaled_cost else scaled_cost
+        magnitude: i64 = -scaled_cost if scaled_cost < 0 else scaled_cost
         if magnitude > max_scaled_cost:
             max_scaled_cost <- magnitude
 
@@ -63,24 +63,24 @@ export fn minimum_cost_circulation_cost_scaling(input: i64&, length: usize) -> i
             if capacity[edge_index] <= 0:
                 continue
             from: usize = edge_from[edge_index]
-            to: usize = edge_to[edge_index]
-            reduced_cost: i64 = edge_cost[edge_index] + price[from] - price[to]
+            to_vertex: usize = edge_to[edge_index]
+            reduced_cost: i64 = edge_cost[edge_index] + price[from] - price[to_vertex]
             if reduced_cost < 0:
                 amount: i64 = capacity[edge_index]
                 capacity[edge_index] <- 0
                 capacity[reverse[edge_index]] <- capacity[reverse[edge_index]] + amount
                 excess[from] <- excess[from] - amount
-                excess[to] <- excess[to] + amount
+                excess[to_vertex] <- excess[to_vertex] + amount
 
         queue: mutable usize[MCCS_MAX_N] = zeroed
         queued: mutable bool[MCCS_MAX_N] = zeroed
         head: mutable usize = 0
-        tail: mutable usize = 0
+        tail_value: mutable usize = 0
         queue_count: mutable usize = 0
         for vertex in 0..<n:
             if excess[vertex] > 0:
-                queue[tail] <- vertex
-                tail <- (tail + 1) % n
+                queue[tail_value] <- vertex
+                tail_value <- (tail_value + 1) % n
                 queue_count <- queue_count + 1
                 queued[vertex] <- true
 
@@ -94,33 +94,33 @@ export fn minimum_cost_circulation_cost_scaling(input: i64&, length: usize) -> i
                 for edge_index in 0..<arc_count:
                     if edge_from[edge_index] != vertex or edge_to[edge_index] == vertex or capacity[edge_index] <= 0:
                         continue
-                    to: usize = edge_to[edge_index]
-                    if edge_cost[edge_index] + price[vertex] - price[to] < 0:
+                    to_vertex: usize = edge_to[edge_index]
+                    if edge_cost[edge_index] + price[vertex] - price[to_vertex] < 0:
                         admissible <- edge_index
                         break
 
                 if admissible < MCCS_MAX_ARCS:
-                    to: usize = edge_to[admissible]
+                    to_vertex: usize = edge_to[admissible]
                     reverse_index: usize = reverse[admissible]
-                    amount: i64 = if excess[vertex] < capacity[admissible] then excess[vertex] else capacity[admissible]
+                    amount: i64 = excess[vertex] if (excess[vertex] < capacity[admissible]) else capacity[admissible]
                     capacity[admissible] <- capacity[admissible] - amount
                     capacity[reverse_index] <- capacity[reverse_index] + amount
-                    old_excess: i64 = excess[to]
+                    old_excess: i64 = excess[to_vertex]
                     excess[vertex] <- excess[vertex] - amount
-                    excess[to] <- excess[to] + amount
-                    if old_excess <= 0 and excess[to] > 0 and not queued[to]:
-                        queue[tail] <- to
-                        tail <- (tail + 1) % n
+                    excess[to_vertex] <- excess[to_vertex] + amount
+                    if old_excess <= 0 and excess[to_vertex] > 0 and not queued[to_vertex]:
+                        queue[tail_value] <- to_vertex
+                        tail_value <- (tail_value + 1) % n
                         queue_count <- queue_count + 1
-                        queued[to] <- true
+                        queued[to_vertex] <- true
                 else:
                     has_exit: mutable bool = false
                     best_price: mutable i64 = 0
                     for edge_index in 0..<arc_count:
                         if edge_from[edge_index] != vertex or capacity[edge_index] <= 0:
                             continue
-                        to: usize = edge_to[edge_index]
-                        candidate: i64 = price[to] - edge_cost[edge_index] - epsilon
+                        to_vertex: usize = edge_to[edge_index]
+                        candidate: i64 = price[to_vertex] - edge_cost[edge_index] - epsilon
                         if not has_exit or candidate > best_price:
                             has_exit <- true
                             best_price <- candidate
@@ -139,3 +139,5 @@ export fn minimum_cost_circulation_cost_scaling(input: i64&, length: usize) -> i
         flow: i64 = original_capacity - capacity[2 * index]
         total_cost <- total_cost + flow * original_cost
     total_cost + MCCS_COST_OFFSET
+
+export fn minimum_cost_circulation_cost_scaling(input: i64&, length: usize) -> i64 = minimum_cost_circulation_cost_scaling_impl
