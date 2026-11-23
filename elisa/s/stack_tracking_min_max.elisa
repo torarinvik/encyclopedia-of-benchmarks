@@ -1,123 +1,99 @@
-extern memcpy(destination: mutable u8&, source: i64&, length: usize) -> mutable u8&
+# A bounded stack that tracks its running minimum and maximum per level.
+def stack_tracking_put64(output: mutable u8&, position: usize, value: i64) -> usize:
+    bits: mutable u64 = value.u64()
+    at: mutable usize = position
+    j: mutable usize = 0
+    while j < 8:
+        output[at] <- (bits & 255).u8()
+        at <- at + 1
+        bits <- bits >> 8
+        j <- j + 1
+    at
 
-def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
+def stack_tracking_min_max_impl(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or length < 2 or length > 130:
         return -1
-    max_size: u64 = input[0].u64()
-    operation_count: u64 = input[1].u64()
-    # If neither field has a bit above bit 5, both are already below 64.
-    if (max_size | operation_count) > 63 and (max_size > 64 or operation_count > 64):
+    max_size: i64 = input[0]
+    op_count: i64 = input[1]
+    if max_size < 0 or max_size > 64 or op_count < 0 or op_count > 64:
+        return -1
+    p: mutable usize = 2
+    i: mutable i64 = 0
+    while i < op_count:
+        if p >= length:
+            return -1
+        op: i64 = input[p]
+        p <- p + 1
+        if op == 1:
+            if p >= length or input[p] < -2147483648 or input[p] > 2147483647:
+                return -1
+            p <- p + 1
+        elif op < 2 or op > 5:
+            return -1
+        i <- i + 1
+    if p != length:
         return -1
 
-    if operation_count == 0:
-        if length != 2:
-            return -1
-        return -2 if output == null else 0
-
-    position: mutable usize = 2
-    for operation in 0..<operation_count.usize():
-        if position >= length:
-            return -1
-        opcode: i64 = input[position]
-        position <- position + 1
-        if opcode == 1:
-            if position >= length:
-                return -1
-            value: i64 = input[position]
-            if value < -2147483648 or value > 2147483647:
-                return -1
-            position <- position + 1
-        elif opcode < 2 or opcode > 5:
-            return -1
-    if position != length:
-        return -1
-
-    # A nonempty valid trace always emits at least one 24-byte record.
-    if output == null or capacity < 24:
-        return -2
-
-    # Each operation pushes at most one value and emits at most one record.
-    if operation_count <= 8:
-        return minmax_small(input, output, capacity, max_size, operation_count)
-    minmax_large(input, output, capacity, max_size, operation_count)
-
-@inline(never)
-def minmax_small(input: i64&, output: mutable u8&, capacity: usize, max_size: u64, operation_count: u64) -> i64:
-    values: mutable i32[8] = zeroed
-    minima: mutable i32[8] = zeroed
-    maxima: mutable i32[8] = zeroed
-    records: mutable i64[24] = zeroed
-    minmax_execute(input, output, capacity, max_size, operation_count, &values[0], &minima[0], &maxima[0], &records[0])
-
-@inline(never)
-def minmax_large(input: i64&, output: mutable u8&, capacity: usize, max_size: u64, operation_count: u64) -> i64:
-    values: mutable i32[64] = zeroed
-    minima: mutable i32[64] = zeroed
-    maxima: mutable i32[64] = zeroed
+    values: mutable i64[64] = zeroed
+    mins: mutable i64[64] = zeroed
+    maxs: mutable i64[64] = zeroed
     records: mutable i64[192] = zeroed
-    minmax_execute(input, output, capacity, max_size, operation_count, &values[0], &minima[0], &maxima[0], &records[0])
-
-@inline(always)
-def minmax_execute(input: i64&, output: mutable u8&, capacity: usize, max_size: u64, operation_count: u64, values: mutable i32&, minima: mutable i32&, maxima: mutable i32&, records: mutable i64&) -> i64:
     top: mutable usize = 0
-    words: mutable usize = 0
-    position: mutable usize = 2
-    for operation in 0..<operation_count.usize():
-        opcode: i64 = input[position]
-        position <- position + 1
+    record_count: mutable usize = 0
+    p <- 2
+    i <- 0
+    while i < op_count:
+        op: i64 = input[p]
+        p <- p + 1
         tag: mutable i64 = 0
         result: mutable i64 = 0
-        if opcode == 1:
-            value: i64 = input[position]
-            position <- position + 1
-            if top >= max_size.usize():
-                records[words] <- 1
-                records[words + 1] <- 4
-                records[words + 2] <- 1
-                words <- words + 3
+        if op == 1:
+            x: i64 = input[p]
+            p <- p + 1
+            if top == max_size.usize():
+                records[record_count * 3] <- 1
+                records[record_count * 3 + 1] <- 4
+                records[record_count * 3 + 2] <- 1
+                record_count <- record_count + 1
                 break
-            values[top] <- value.i32()
-            minima[top] <- value.i32()
-            maxima[top] <- value.i32()
-            if top != 0:
-                previous_min: i64 = minima[top - 1].i64()
-                previous_max: i64 = maxima[top - 1].i64()
-                minima[top] <- (previous_min if previous_min < value else value).i32()
-                maxima[top] <- (previous_max if previous_max > value else value).i32()
+            values[top] <- x
+            mins[top] <- (mins[top - 1] if mins[top - 1] < x else x) if top != 0 else x
+            maxs[top] <- (maxs[top - 1] if maxs[top - 1] > x else x) if top != 0 else x
             top <- top + 1
             tag <- 1
             result <- 1
-        elif opcode == 5:
+        elif op == 2:
+            if top != 0:
+                top <- top - 1
+                result <- values[top]
+            else:
+                tag <- 3
+        elif op == 3:
+            if top != 0:
+                result <- mins[top - 1]
+            else:
+                tag <- 3
+        elif op == 4:
+            if top != 0:
+                result <- maxs[top - 1]
+            else:
+                tag <- 3
+        else:
             tag <- 1
             result <- 1 if top != 0 else 0
-        elif top == 0:
-            tag <- 3
-        elif opcode == 2:
-            top <- top - 1
-            result <- values[top].i64()
-        elif opcode == 3:
-            result <- minima[top - 1].i64()
-        else:
-            result <- maxima[top - 1].i64()
-        records[words] <- opcode
-        records[words + 1] <- tag
-        records[words + 2] <- result
-        words <- words + 3
-
-    output_bytes: usize = words * 8
-    if output == null or capacity < output_bytes:
+        records[record_count * 3] <- op
+        records[record_count * 3 + 1] <- tag
+        records[record_count * 3 + 2] <- result
+        record_count <- record_count + 1
+        i <- i + 1
+    need: usize = record_count * 24
+    if output == null or output_capacity < need:
         return -2
-    # Byte order is part of the benchmark ABI.
-    marker: i64 = 1
-    bytes: mutable u8[8] = zeroed
-    memcpy(&bytes[0], &marker, 8)
-    if bytes[0] == 1:
-        memcpy(output, records, output_bytes)
-        return output_bytes.i64()
-    for word in 0..<words:
-        bits: u64 = records[word].u64()
-        for byte in 0..<8:
-            output[word * 8 + byte] <- (bits >> (byte * 8)).u8()
-    output_bytes.i64()
+    position: mutable usize = 0
+    i <- 0
+    while i.usize() < record_count * 3:
+        position <- stack_tracking_put64(output, position, records[i.usize()])
+        i <- i + 1
+    position.i64()
 
 export fn stack_tracking_min_max(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = stack_tracking_min_max_impl
