@@ -1,3 +1,5 @@
+# Stern-Brocot tree queries over run-length paths: encode, decode, lowest
+# common ancestor, depth-limited ancestor and descendant bounds.
 const MAX_QUERIES: usize = 128
 const MAX_RUNS: usize = 64
 const MAX_INPUT_LENGTH: usize = 16384
@@ -16,9 +18,17 @@ struct SbtDecoded:
     upper_num: mutable i64
     upper_den: mutable i64
 
-def sbt_fraction_in_range(numerator: i64, denominator: i64) -> bool:
-    numerator >= 1 and numerator <= MAX_COMPONENT and denominator >= 1 and
-        denominator <= MAX_COMPONENT
+def sbt_gcd(left: i64, right: i64) -> i64:
+    a: mutable i64 = left
+    b: mutable i64 = right
+    while b != 0:
+        remainder: i64 = a % b
+        a <- b
+        b <- remainder
+    a
+
+def sbt_valid_fraction(numerator: i64, denominator: i64) -> bool:
+    numerator >= 1 and numerator <= MAX_COMPONENT and denominator >= 1 and denominator <= MAX_COMPONENT and sbt_gcd(numerator, denominator) == 1
 
 def sbt_encode_path(numerator_value: i64, denominator_value: i64,
     runs: mutable view[SbtRun]) -> i64:
@@ -36,30 +46,7 @@ def sbt_encode_path(numerator_value: i64, denominator_value: i64,
             runs[run_count] <- SbtRun{direction: 1, count: count}
             numerator <- numerator - count * denominator
         run_count <- run_count + 1
-    # The subtractive Euclidean steps preserve the gcd.
-    if numerator != 1: return -1
     run_count.i64()
-
-# Walk the quotient runs while accumulating their Farey bounds.
-def sbt_descendant_bounds(numerator_value: i64, denominator_value: i64, bounds: mutable SbtDecoded&) -> bool:
-    numerator: mutable i64 = numerator_value
-    denominator: mutable i64 = denominator_value
-    bounds.lower_num <- 0
-    bounds.lower_den <- 1
-    bounds.upper_num <- 1
-    bounds.upper_den <- 0
-    while numerator != denominator:
-        if numerator < denominator:
-            count: i64 = (denominator - 1) / numerator
-            denominator <- denominator - count * numerator
-            bounds.upper_num <- bounds.upper_num + count * bounds.lower_num
-            bounds.upper_den <- bounds.upper_den + count * bounds.lower_den
-        else:
-            count: i64 = (numerator - 1) / denominator
-            numerator <- numerator - count * denominator
-            bounds.lower_num <- bounds.lower_num + count * bounds.upper_num
-            bounds.lower_den <- bounds.lower_den + count * bounds.upper_den
-    numerator == 1
 
 def sbt_decode_path(runs: view[SbtRun], decoded: mutable SbtDecoded&) -> bool:
     lower_num: mutable i64 = 0
@@ -85,8 +72,7 @@ def sbt_decode_path(runs: view[SbtRun], decoded: mutable SbtDecoded&) -> bool:
         index <- index + 1
     numerator: i64 = lower_num + upper_num
     denominator: i64 = lower_den + upper_den
-    # The bounds remain determinant-one neighbors, so their mediant is reduced.
-    if not sbt_fraction_in_range(numerator, denominator): return false
+    if not sbt_valid_fraction(numerator, denominator): return false
     decoded.numerator <- numerator
     decoded.denominator <- denominator
     decoded.lower_num <- lower_num
@@ -124,204 +110,10 @@ def sbt_append(words: mutable view[i64], word_count: mutable usize&, value: i64)
     word_count <- word_count + 1
     true
 
-def sbt_store_word(output: mutable u8&, offset: usize, value: i64) -> void:
-    bits: u64 = value.u64()
-    for byte in 0..<8:
-        output[offset+byte] <- (bits >> (byte*8)).u8()
-
-def sbt_single_bounds(numerator: i64, denominator: i64, output: mutable u8&?, capacity: usize) -> i64:
-    if not sbt_fraction_in_range(numerator, denominator): return -1
-    bounds: mutable SbtDecoded = zeroed
-    if not sbt_descendant_bounds(numerator, denominator, bounds): return -1
-    if output == null or capacity < 40: return -2
-    sbt_store_word(output, 0, 4)
-    sbt_store_word(output, 8, bounds.lower_num)
-    sbt_store_word(output, 16, bounds.lower_den)
-    sbt_store_word(output, 24, bounds.upper_num)
-    sbt_store_word(output, 32, bounds.upper_den)
-    1
-
-def sbt_single_path(numerator: i64, denominator: i64, output: mutable u8&?, capacity: usize) -> i64:
-    if not sbt_fraction_in_range(numerator, denominator): return -1
-    a: mutable i64 = numerator
-    b: mutable i64 = denominator
-    run_count: mutable usize = 0
-    while a != b:
-        if a < b:
-            b <- (b-1)%a+1
-        else:
-            a <- (a-1)%b+1
-        run_count <- run_count+1
-    if a != 1 or run_count > MAX_RUNS: return -1
-    if output == null or capacity < 16+16*run_count: return -2
-    sbt_store_word(output, 0, 0)
-    sbt_store_word(output, 8, run_count.i64())
-    a <- numerator
-    b <- denominator
-    for index in 0..<run_count:
-        if a < b:
-            count: i64 = (b-1)/a
-            sbt_store_word(output, 16+16*index, 0)
-            sbt_store_word(output, 24+16*index, count)
-            b <- b-count*a
-        else:
-            count: i64 = (a-1)/b
-            sbt_store_word(output, 16+16*index, 1)
-            sbt_store_word(output, 24+16*index, count)
-            a <- a-count*b
-    1
-
-# Decode directly from the input words. Check the whole record before writing.
-def sbt_single_decode(input: i64&, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if length < 3: return -1
-    run_count: i64 = input[2]
-    if run_count < 0 or run_count > MAX_RUNS.i64() or length != 3+2*run_count.usize(): return -1
-    lower_num: mutable i64 = 0
-    lower_den: mutable i64 = 1
-    upper_num: mutable i64 = 1
-    upper_den: mutable i64 = 0
-    previous: mutable i64 = -1
-    for index in 0..<run_count.usize():
-        direction: i64 = input[3+2*index]
-        count: i64 = input[4+2*index]
-        if (direction != 0 and direction != 1) or direction == previous or count < 1 or count > MAX_COMPONENT:
-            return -1
-        if direction == 0:
-            upper_num <- upper_num + count * lower_num
-            upper_den <- upper_den + count * lower_den
-            if upper_num > MAX_COMPONENT or upper_den > MAX_COMPONENT: return -1
-        else:
-            lower_num <- lower_num + count * upper_num
-            lower_den <- lower_den + count * upper_den
-            if lower_num > MAX_COMPONENT or lower_den > MAX_COMPONENT: return -1
-        previous <- direction
-    numerator: i64 = lower_num + upper_num
-    denominator: i64 = lower_den + upper_den
-    if not sbt_fraction_in_range(numerator, denominator): return -1
-    if output == null or capacity < 24: return -2
-    sbt_store_word(output, 0, 1)
-    sbt_store_word(output, 8, numerator)
-    sbt_store_word(output, 16, denominator)
-    1
-
-def sbt_is_reduced(numerator: u64, denominator: u64) -> bool:
-    if numerator == 1 or denominator == 1: return true
-    a: mutable u64 = numerator
-    b: mutable u64 = denominator
-    while b != 0:
-        remainder: u64 = a % b
-        a <- b
-        b <- remainder
-    a == 1
-
-def sbt_single_lca(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
-    a_input: i64 = input[2]
-    b_input: i64 = input[3]
-    c_input: i64 = input[4]
-    d_input: i64 = input[5]
-    if not sbt_fraction_in_range(a_input, b_input) or not sbt_fraction_in_range(c_input, d_input): return -1
-
-    # Inputs are positive and at most MAX_COMPONENT. Reductions preserve positivity,
-    # and each common-prefix bound stays within the input fractions’ components.
-    a: mutable u64 = a_input.u64()
-    b: mutable u64 = b_input.u64()
-    c: mutable u64 = c_input.u64()
-    d: mutable u64 = d_input.u64()
-    lower_num: mutable u64 = 0
-    lower_den: mutable u64 = 1
-    upper_num: mutable u64 = 1
-    upper_den: mutable u64 = 0
-    while a != b and c != d:
-        if a < b:
-            if c >= d: break
-            left_count: u64 = (b-1)/a
-            right_count: u64 = (d-1)/c
-            shared: u64 = left_count if left_count < right_count else right_count
-            upper_num <- upper_num + shared*lower_num
-            upper_den <- upper_den + shared*lower_den
-            if left_count != right_count: break
-            b <- b-shared*a
-            d <- d-shared*c
-        else:
-            if c <= d: break
-            left_count: u64 = (a-1)/b
-            right_count: u64 = (c-1)/d
-            shared: u64 = left_count if left_count < right_count else right_count
-            lower_num <- lower_num + shared*upper_num
-            lower_den <- lower_den + shared*upper_den
-            if left_count != right_count: break
-            a <- a-shared*b
-            c <- c-shared*d
-    # Common quotient steps preserve both gcds. Check only the residual pairs.
-    if not sbt_is_reduced(a, b) or not sbt_is_reduced(c, d): return -1
-    if output == null or capacity < 24: return -2
-    sbt_store_word(output, 0, 2)
-    sbt_store_word(output, 8, (lower_num+upper_num).i64())
-    sbt_store_word(output, 16, (lower_den+upper_den).i64())
-    1
-
-def sbt_single_ancestor(input: i64&, output: mutable u8&?, capacity: usize) -> i64:
-    remaining: mutable i64 = input[2]
-    numerator: mutable i64 = input[3]
-    denominator: mutable i64 = input[4]
-    if remaining < 1 or remaining > MAX_COMPONENT or not sbt_fraction_in_range(numerator, denominator): return -1
-    lower_num: mutable i64 = 0
-    lower_den: mutable i64 = 1
-    upper_num: mutable i64 = 1
-    upper_den: mutable i64 = 0
-    while numerator != denominator:
-        if numerator < denominator:
-            count: i64 = (denominator-1)/numerator
-            take: i64 = remaining if remaining < count else count
-            denominator <- denominator-count*numerator
-            upper_num <- upper_num+take*lower_num
-            upper_den <- upper_den+take*lower_den
-            remaining <- remaining-take
-        else:
-            count: i64 = (numerator-1)/denominator
-            take: i64 = remaining if remaining < count else count
-            numerator <- numerator-count*denominator
-            lower_num <- lower_num+take*upper_num
-            lower_den <- lower_den+take*upper_den
-            remaining <- remaining-take
-    if numerator != 1: return -1
-    required: usize = 16 if remaining != 0 else 24
-    if output == null or capacity < required: return -2
-    sbt_store_word(output, 0, 3)
-    if remaining != 0:
-        sbt_store_word(output, 8, -1)
-    else:
-        sbt_store_word(output, 8, lower_num+upper_num)
-        sbt_store_word(output, 16, lower_den+upper_den)
-    1
-
 def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
     if input == null or length < 2 or length > MAX_INPUT_LENGTH: return -1
     query_count: i64 = input[0]
     if query_count < 1 or query_count > MAX_QUERIES.i64(): return -1
-    if query_count == 1:
-        if length == 4:
-            if input[1] == 4:
-                return sbt_single_bounds(input[2], input[3], output, output_capacity)
-            if input[1] == 0:
-                return sbt_single_path(input[2], input[3], output, output_capacity)
-        if length == 6 and input[1] == 2:
-            return sbt_single_lca(input, output, output_capacity)
-        if length == 5 and input[1] == 3:
-            return sbt_single_ancestor(input, output, output_capacity)
-        if input[1] == 1:
-            return sbt_single_decode(input, length, output, output_capacity)
-        return sbt_process_single(input, length, output, output_capacity)
-    sbt_process_batch(input, length, output, output_capacity, query_count)
-
-@inline(never)
-def sbt_process_single(input: i64&, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
-    # A path record uses two header words and at most two words per run.
-    words: mutable i64[2+2*MAX_RUNS] = zeroed
-    sbt_process(input, length, output, output_capacity, 1, words[0:2+2*MAX_RUNS])
-
-@inline(never)
-def sbt_process_batch(input: i64&, length: usize, output: mutable u8&?, output_capacity: usize, query_count: i64) -> i64:
     words: mutable i64[MAX_OUTPUT_WORDS] = zeroed
     sbt_process(input, length, output, output_capacity, query_count, words[0:MAX_OUTPUT_WORDS])
 
@@ -339,7 +131,7 @@ def sbt_process(input: i64&, length: usize, output: mutable u8&?, output_capacit
             numerator: i64 = input[position]
             denominator: i64 = input[position + 1]
             position <- position + 2
-            if not sbt_fraction_in_range(numerator, denominator): return -1
+            if not sbt_valid_fraction(numerator, denominator): return -1
             runs: mutable SbtRun[MAX_RUNS] = zeroed
             run_count: i64 = sbt_encode_path(numerator, denominator, runs[0:MAX_RUNS])
             if run_count < 0 or not sbt_append(words, word_count, operation) or
@@ -372,7 +164,7 @@ def sbt_process(input: i64&, length: usize, output: mutable u8&?, output_capacit
             c: i64 = input[position + 2]
             d: i64 = input[position + 3]
             position <- position + 4
-            if not sbt_fraction_in_range(a, b) or not sbt_fraction_in_range(c, d): return -1
+            if not sbt_valid_fraction(a, b) or not sbt_valid_fraction(c, d): return -1
             left: mutable SbtRun[MAX_RUNS] = zeroed
             right: mutable SbtRun[MAX_RUNS] = zeroed
             prefix: mutable SbtRun[MAX_RUNS] = zeroed
@@ -391,7 +183,7 @@ def sbt_process(input: i64&, length: usize, output: mutable u8&?, output_capacit
             numerator: i64 = input[position + 1]
             denominator: i64 = input[position + 2]
             position <- position + 3
-            if depth < 1 or depth > MAX_COMPONENT or not sbt_fraction_in_range(numerator, denominator): return -1
+            if depth < 1 or depth > MAX_COMPONENT or not sbt_valid_fraction(numerator, denominator): return -1
             path: mutable SbtRun[MAX_RUNS] = zeroed
             prefix: mutable SbtRun[MAX_RUNS] = zeroed
             path_count: i64 = sbt_encode_path(numerator, denominator, path[0:MAX_RUNS])
@@ -422,9 +214,12 @@ def sbt_process(input: i64&, length: usize, output: mutable u8&?, output_capacit
             numerator: i64 = input[position]
             denominator: i64 = input[position + 1]
             position <- position + 2
-            if not sbt_fraction_in_range(numerator, denominator): return -1
+            if not sbt_valid_fraction(numerator, denominator): return -1
+            path: mutable SbtRun[MAX_RUNS] = zeroed
+            path_count: i64 = sbt_encode_path(numerator, denominator, path[0:MAX_RUNS])
+            if path_count < 0: return -1
             decoded: mutable SbtDecoded = zeroed
-            if not sbt_descendant_bounds(numerator, denominator, decoded) or
+            if not sbt_decode_path(path[0:path_count.usize()], decoded) or
                 not sbt_append(words, word_count, operation) or
                 not sbt_append(words, word_count, decoded.lower_num) or
                 not sbt_append(words, word_count, decoded.lower_den) or

@@ -1,270 +1,401 @@
-const ST_N: usize = 4
-const ST_MAX_INPUT: usize = 37
+# Gain-greedy Steiner tree over candidate full components: repeatedly add the
+# component whose contraction saves the most against the terminal MST.
+const N: usize = 4
+const C: usize = 4
+const CE: usize = 3
+const ALL_E: usize = 6
 
-struct ST_Edge:
+struct GainEdge:
     u: usize
     v: usize
-    w: u32
+    w: i64
 
-def st_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
-    bits: mutable u64 = value.u64()
-    for b in 0..<8:
-        output[word * 8 + b] <- (bits & 255).u8()
-        bits <- bits >> 8
+struct GainForest:
+    cost: i64
+    count: usize
 
-# Component labels occupy four two-bit fields, initially 0, 1, 2 and 3.
-const SINGLETON_LABELS: u32 = 0xe4
+def gain_find(p: mutable view[usize], start: usize) -> usize:
+    x: mutable usize = start
+    while p[x] != x:
+        p[x] <- p[p[x]]
+        x <- p[x]
+    x
 
-def st_label(labels: u32, value: usize) -> usize:
-    ((labels >> (2*value)) & 3).usize()
-
-def st_join(labels: mutable u32&, a: usize, b: usize) -> bool:
-    ra: usize = st_label(labels, a)
-    rb: usize = st_label(labels, b)
-    if ra == rb:
+def gain_join(p: mutable view[usize], first: usize, second: usize) -> bool:
+    a: usize = gain_find(p, first)
+    b: usize = gain_find(p, second)
+    if a == b:
         return false
-    differing: u32 = labels ^ (rb.u32() * 0x55)
-    matching: u32 = ~(differing | (differing >> 1)) & 0x55
-    labels <- labels ^ (matching * (ra ^ rb).u32())
+    p[b] <- a
     true
 
-@intrinsic("llvm.cttz.i32")
-extern st_trailing_zeros(value: u32, zero_undefined: bool) -> u32
+def gain_put_i64(output: mutable u8&, word: usize, value: i64) -> void:
+    bits: u64 = value.u64()
+    b: mutable usize = 0
+    while b < 8:
+        output[word * 8 + b] <- ((bits >> (8 * b).u64()) & 255).u8()
+        b <- b + 1
 
-def st_count_vertices(bits: u32) -> usize:
-    pairs: u32 = bits - ((bits >> 1) & 5)
-    ((pairs & 3) + (pairs >> 2)).usize()
+def gain_singletons() -> usize[4]:
+    [0, 1, 2, 3]
 
-def st_group_count(mask: i64, h: u32) -> usize:
-    labels: mutable u32 = SINGLETON_LABELS
-    pending: mutable u32 = h
-    while pending != 0:
-        edge: usize = st_trailing_zeros(pending, true).usize()
-        st_join(&labels, edge >> 2, edge & 3)
-        pending <- pending & (pending - 1)
-    seen: mutable u32 = 0
-    vertices: mutable u32 = mask.u32()
-    while vertices != 0:
-        vertex: usize = st_trailing_zeros(vertices, true).usize()
-        bit: u32 = 1.u32() << st_label(labels, vertex)
-        seen <- seen | bit
-        vertices <- vertices & (vertices - 1)
-    st_count_vertices(seen)
+def gain_has(mask: i64, vertex: usize) -> bool:
+    (mask & (1.i64() << vertex.i64())) != 0
 
-def st_less(a: ST_Edge, b: ST_Edge) -> bool:
-    a.w < b.w or (a.w == b.w and (a.u < b.u or (a.u == b.u and a.v < b.v)))
+def gain_terminals_connected(h: view[i64], mask: i64) -> bool:
+    p: mutable usize[4] = gain_singletons()
+    i: mutable usize = 0
+    while i < N:
+        j: mutable usize = i + 1
+        while j < N:
+            if h[i * N + j] != 0:
+                gain_join(p[0:N], i, j)
+            j <- j + 1
+        i <- i + 1
+    root: mutable i64 = -1
+    i <- 0
+    while i < N:
+        if gain_has(mask, i):
+            if root < 0:
+                root <- gain_find(p[0:N], i).i64()
+            elif gain_find(p[0:N], i).i64() != root:
+                return false
+        i <- i + 1
+    true
 
-def st_mst_h(edges: ST_Edge[6]&, ec: usize, h: u32, tree: mutable ST_Edge[3]&, tree_n: mutable usize&) -> u32:
-    labels: mutable u32 = SINGLETON_LABELS
-    tree_n <- 0
-    cost: mutable u32 = 0
-    for i in 0..<ec:
-        e: ST_Edge = edges[i]
-        if (h & (1.u32() << (e.u * 4 + e.v))) != 0 and st_join(&labels, e.u, e.v):
-            tree[tree_n] <- e
-            tree_n <- tree_n + 1
-            cost <- cost + e.w
-    cost
+def gain_terminal_groups(h: view[i64], mask: i64) -> usize:
+    p: mutable usize[4] = gain_singletons()
+    i: mutable usize = 0
+    while i < N:
+        j: mutable usize = i + 1
+        while j < N:
+            if h[i * N + j] != 0:
+                gain_join(p[0:N], i, j)
+            j <- j + 1
+        i <- i + 1
+    groups: mutable usize[4] = zeroed
+    count: mutable usize = 0
+    i <- 0
+    while i < N:
+        if gain_has(mask, i):
+            r: usize = gain_find(p[0:N], i)
+            id: mutable usize = 0
+            while id < count and groups[id] != r:
+                id <- id + 1
+            if id == count:
+                groups[count] <- r
+                count <- count + 1
+        i <- i + 1
+    count
 
-def st_contracted_mst(n: usize, mask: i64, w: u32[16], h: u32) -> u32:
-    # An eligible trial merges terminals, so at most one nonterminal vertex
-    # remains outside their components. The input metric makes detours through
-    # that isolated vertex unnecessary. Metric closure preserves MST cost.
-    labels: mutable u32 = SINGLETON_LABELS
-    pending: mutable u32 = h
-    while pending != 0:
-        edge: usize = st_trailing_zeros(pending, true).usize()
-        st_join(&labels, edge >> 2, edge & 3)
-        pending <- pending & (pending - 1)
-    roots: mutable usize[4] = zeroed
+def gain_edge_after(x: GainEdge, y: GainEdge) -> bool:
+    x.w > y.w or (x.w == y.w and (x.u > y.u or (x.u == y.u and x.v > y.v)))
+
+def gain_sort(e: mutable view[GainEdge], n: usize) -> void:
+    i: mutable usize = 1
+    while i < n:
+        x: GainEdge = e[i]
+        j: mutable usize = i
+        while j > 0 and gain_edge_after(e[j - 1], x):
+            e[j] <- e[j - 1]
+            j <- j - 1
+        e[j] <- x
+        i <- i + 1
+
+def gain_mst_metric(w: view[i64], mask: i64) -> i64:
+    e: mutable GainEdge[6] = zeroed
+    n: mutable usize = 0
+    i: mutable usize = 0
+    while i < N:
+        if gain_has(mask, i):
+            j: mutable usize = i + 1
+            while j < N:
+                if gain_has(mask, j):
+                    e[n] <- GainEdge{u: i, v: j, w: w[i * N + j]}
+                    n <- n + 1
+                j <- j + 1
+        i <- i + 1
+    gain_sort(e[0:ALL_E], n)
+    p: mutable usize[4] = gain_singletons()
+    cost: mutable i64 = 0
+    used: mutable usize = 0
+    i <- 0
+    while i < n:
+        if gain_join(p[0:N], e[i].u, e[i].v):
+            cost <- cost + e[i].w
+            used <- used + 1
+        i <- i + 1
+    cost if used > 0 else 0
+
+def gain_mst_forest(w: view[i64], h: view[i64], chosen: mutable view[GainEdge]) -> GainForest:
+    e: mutable GainEdge[6] = zeroed
+    n: mutable usize = 0
+    i: mutable usize = 0
+    while i < N:
+        j: mutable usize = i + 1
+        while j < N:
+            if h[i * N + j] != 0:
+                e[n] <- GainEdge{u: i, v: j, w: w[i * N + j]}
+                n <- n + 1
+            j <- j + 1
+        i <- i + 1
+    gain_sort(e[0:ALL_E], n)
+    p: mutable usize[4] = gain_singletons()
+    cost: mutable i64 = 0
+    used: mutable usize = 0
+    i <- 0
+    while i < n:
+        if gain_join(p[0:N], e[i].u, e[i].v):
+            chosen[used] <- e[i]
+            used <- used + 1
+            cost <- cost + e[i].w
+        i <- i + 1
+    GainForest{cost: cost, count: used}
+
+def gain_mst_after_contract(w: view[i64], h: view[i64], mask: i64) -> i64:
+    d: mutable i64[16] = zeroed
+    parent: mutable usize[4] = gain_singletons()
+    group_roots: mutable usize[4] = zeroed
     g: mutable usize = 0
-    for v in 0..<n:
-        if (mask & (1.i64() << v)) != 0:
-            r: usize = st_label(labels, v)
-            found: mutable bool = false
-            for x in 0..<g:
-                if roots[x] == r:
-                    found <- true
-            if not found:
-                roots[g] <- r
+    i: mutable usize = 0
+    while i < N * N:
+        d[i] <- w[i]
+        i <- i + 1
+    i <- 0
+    while i < N:
+        j: mutable usize = i + 1
+        while j < N:
+            if h[i * N + j] != 0:
+                d[i * N + j] <- 0
+                d[j * N + i] <- 0
+                gain_join(parent[0:N], i, j)
+            j <- j + 1
+        i <- i + 1
+    k: mutable usize = 0
+    while k < N:
+        i <- 0
+        while i < N:
+            j: mutable usize = 0
+            while j < N:
+                if d[i * N + j] > d[i * N + k] + d[k * N + j]:
+                    d[i * N + j] <- d[i * N + k] + d[k * N + j]
+                j <- j + 1
+            i <- i + 1
+        k <- k + 1
+    i <- 0
+    while i < N:
+        if gain_has(mask, i):
+            r: usize = gain_find(parent[0:N], i)
+            x: mutable usize = 0
+            while x < g and group_roots[x] != r:
+                x <- x + 1
+            if x == g:
+                group_roots[g] <- r
                 g <- g + 1
+        i <- i + 1
     if g <= 1:
         return 0
-    total: mutable u32 = 0
-    largest: mutable u32 = 0
-    for a in 0..<g:
-        for b in (a + 1)..<g:
-            best: mutable u32 = 10000
-            for u in 0..<n:
-                if st_label(labels, u) == roots[a]:
-                    for v in 0..<n:
-                        if st_label(labels, v) == roots[b] and w[u * 4 + v] < best:
-                            best <- w[u * 4 + v]
-            total <- total + best
-            largest <- best if largest < best
-    # At most three groups remain, since the trial merged at least two.
-    if g == 2:
-        return total
-    total - largest
+    e: mutable GainEdge[6] = zeroed
+    ec: mutable usize = 0
+    a: mutable usize = 0
+    while a < g:
+        b: mutable usize = a + 1
+        while b < g:
+            best: mutable i64 = 1000000
+            i <- 0
+            while i < N:
+                if gain_find(parent[0:N], i) == group_roots[a]:
+                    j: mutable usize = 0
+                    while j < N:
+                        if gain_find(parent[0:N], j) == group_roots[b] and d[i * N + j] < best:
+                            best <- d[i * N + j]
+                        j <- j + 1
+                i <- i + 1
+            e[ec] <- GainEdge{u: a, v: b, w: best}
+            ec <- ec + 1
+            b <- b + 1
+        a <- a + 1
+    gain_sort(e[0:ALL_E], ec)
+    p: mutable usize[4] = gain_singletons()
+    cost: mutable i64 = 0
+    i <- 0
+    while i < ec:
+        if gain_join(p[0:N], e[i].u, e[i].v):
+            cost <- cost + e[i].w
+        i <- i + 1
+    cost
 
 def steiner_tree_gain_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if input == null or length < 4 or length > ST_MAX_INPUT:
+    if input == null or length < 4 or length > 37:
         return -1
     n0: i64 = input[0]
     mask: i64 = input[1]
     count0: i64 = input[2]
-    if n0 < 2 or n0 > 4 or mask <= 0 or (mask >> n0) != 0 or count0 < 1 or count0 > 4:
+    if n0 < 2 or n0 > N.i64() or mask <= 0 or (mask >> n0) != 0 or count0 < 1 or count0 > C.i64():
         return -1
     n: usize = n0.usize()
     count: usize = count0.usize()
-    terminals: usize = st_count_vertices(mask.u32())
-    if terminals < 2:
+    terminal_count: mutable usize = 0
+    i: mutable usize = 0
+    while i < n:
+        if gain_has(mask, i):
+            terminal_count <- terminal_count + 1
+        i <- i + 1
+    if terminal_count < 2:
         return -1
-    w: mutable u32[16] = zeroed
+    w: mutable i64[16] = zeroed
     at: mutable usize = 3
-    for i in 0..<n:
-        for j in (i + 1)..<n:
+    i <- 0
+    while i < n:
+        j: mutable usize = i + 1
+        while j < n:
             if at >= length or input[at] < 0 or input[at] > 1000:
                 return -1
-            w[i * 4 + j] <- input[at].u32()
-            w[j * 4 + i] <- input[at].u32()
+            w[i * N + j] <- input[at]
+            w[j * N + i] <- input[at]
             at <- at + 1
-    for i in 0..<n:
-        for j in (i + 1)..<n:
-            ij: u64 = w[i * 4 + j].u64()
-            for k in (j + 1)..<n:
-                ik: u64 = w[i * 4 + k].u64()
-                jk: u64 = w[j * 4 + k].u64()
-                if ij > ik + jk or ik > ij + jk or jk > ij + ik:
+            j <- j + 1
+        i <- i + 1
+    i <- 0
+    while i < n:
+        j: mutable usize = 0
+        while j < n:
+            k: mutable usize = 0
+            while k < n:
+                if w[i * N + j] > w[i * N + k] + w[k * N + j]:
                     return -1
-    family_u: mutable usize[12] = zeroed
-    family_v: mutable usize[12] = zeroed
-    sizes: mutable usize[4] = zeroed
-    family_h: mutable u32 = 0
-    component_edges: mutable u32[4] = zeroed
-    for c in 0..<count:
+                k <- k + 1
+            j <- j + 1
+        i <- i + 1
+    cu: mutable usize[12] = zeroed
+    cv: mutable usize[12] = zeroed
+    ce: mutable usize[4] = zeroed
+    family: mutable i64[16] = zeroed
+    c: mutable usize = 0
+    while c < count:
         if at >= length:
             return -1
         ec0: i64 = input[at]
         at <- at + 1
         if ec0 < 1 or ec0 > n0 - 1 or at + 2 * ec0.usize() > length:
             return -1
-        ec: usize = ec0.usize()
-        labels: mutable u32 = SINGLETON_LABELS
-        degree: mutable usize[4] = zeroed
-        for e in 0..<ec:
+        ce[c] <- ec0.usize()
+        p: mutable usize[4] = gain_singletons()
+        degree: mutable i64[4] = zeroed
+        e: mutable usize = 0
+        while e < ce[c]:
             u0: i64 = input[at]
             v0: i64 = input[at + 1]
             at <- at + 2
             if u0 < 0 or u0 >= n0 or v0 < 0 or v0 >= n0 or u0 == v0:
                 return -1
-            u: mutable usize = u0.usize()
-            v: mutable usize = v0.usize()
-            if not st_join(&labels, u, v):
+            u: usize = u0.usize()
+            v: usize = v0.usize()
+            if not gain_join(p[0:N], u, v):
                 return -1
-            if u > v:
-                tmp: usize = u
-                u <- v
-                v <- tmp
-            family_u[c * 3 + e] <- u
-            family_v[c * 3 + e] <- v
-            edge_bit: u32 = 1.u32() << (u * 4 + v)
-            family_h <- family_h | edge_bit
-            component_edges[c] <- component_edges[c] | edge_bit
+            x: mutable usize = 0
+            while x < e:
+                if (cu[c * CE + x] == u and cv[c * CE + x] == v) or (cu[c * CE + x] == v and cv[c * CE + x] == u):
+                    return -1
+                x <- x + 1
+            cu[c * CE + e] <- u
+            cv[c * CE + e] <- v
             degree[u] <- degree[u] + 1
             degree[v] <- degree[v] + 1
-        seen: mutable usize = 0
+            family[u * N + v] <- 1
+            family[v * N + u] <- 1
+            e <- e + 1
         leaves: mutable usize = 0
-        for v in 0..<n:
-            if degree[v] > 0:
+        root: mutable i64 = -1
+        seen: mutable usize = 0
+        i <- 0
+        while i < n:
+            if degree[i] != 0:
                 seen <- seen + 1
-                if degree[v] == 1:
-                    if (mask & (1.i64() << v)) == 0:
+                if root < 0:
+                    root <- gain_find(p[0:N], i).i64()
+                elif gain_find(p[0:N], i).i64() != root:
+                    return -1
+                if degree[i] == 1:
+                    if not gain_has(mask, i):
                         return -1
                     leaves <- leaves + 1
-                elif (mask & (1.i64() << v)) != 0:
+                elif gain_has(mask, i):
                     return -1
-        # Cycle-free edges span one component exactly when seen equals ec + 1.
-        if seen != ec + 1 or leaves < 2 or leaves > 3 or (count == 1 and leaves != terminals):
+            i <- i + 1
+        if seen != ce[c] + 1 or leaves < 2 or leaves > 3:
             return -1
-        sizes[c] <- ec
-    if at != length or (count > 1 and st_group_count(mask, family_h) != 1):
+        c <- c + 1
+    if at != length:
         return -1
-    h: mutable u32 = 0
+    family_p: mutable usize[4] = gain_singletons()
+    i <- 0
+    while i < n:
+        j: mutable usize = i + 1
+        while j < n:
+            if family[i * N + j] != 0:
+                gain_join(family_p[0:N], i, j)
+            j <- j + 1
+        i <- i + 1
+    first: mutable i64 = -1
+    i <- 0
+    while i < n:
+        if gain_has(mask, i):
+            if first < 0:
+                first <- gain_find(family_p[0:N], i).i64()
+            elif gain_find(family_p[0:N], i).i64() != first:
+                return -1
+        i <- i + 1
+
+    h: mutable i64[16] = zeroed
     selected: mutable bool[4] = zeroed
-    tree: mutable ST_Edge[3] = zeroed
-    tree_n: mutable usize = 0
-    cost: mutable u32 = 0
-    groups: mutable usize = terminals
-    if count == 1:
-        # The component is already a tree. Order its edges as Kruskal would.
-        tree_n <- sizes[0]
-        for edge in 0..<tree_n:
-            u: usize = family_u[edge]
-            v: usize = family_v[edge]
-            entry: ST_Edge = ST_Edge{u: u, v: v, w: w[u * 4 + v]}
-            cost <- cost + entry.w
-            position: mutable usize = edge
-            while position > 0 and st_less(entry, tree[position - 1]):
-                tree[position] <- tree[position - 1]
-                position <- position - 1
-            tree[position] <- entry
-        groups <- 1
-    edges: mutable ST_Edge[6] = zeroed
-    ec: mutable usize = 0
-    if groups > 1:
-        for i in 0..<n:
-            for j in (i + 1)..<n:
-                if (family_h & (1.u32() << (i * 4 + j))) != 0:
-                    edges[ec] <- ST_Edge{u: i, v: j, w: w[i * 4 + j]}
-                    ec <- ec + 1
-        for i in 1..<ec:
-            x: ST_Edge = edges[i]
-            j: mutable usize = i
-            while j > 0 and st_less(x, edges[j - 1]):
-                edges[j] <- edges[j - 1]
-                j <- j - 1
-            edges[j] <- x
-    while groups > 1:
-        best: mutable usize = 4
-        best_cost: mutable u32 = 0
-        best_groups: mutable usize = groups
-        for c in 0..<count:
-            if selected[c]:
-                continue
-            trial: u32 = h | component_edges[c]
-            trial_groups: usize = st_group_count(mask, trial)
-            if trial_groups >= groups:
-                continue
-            scratch: mutable ST_Edge[3] = zeroed
-            scratch_n: mutable usize = 0
-            contracted: mutable u32 = 0
-            if trial_groups > 1:
-                contracted <- st_contracted_mst(n, mask, w, trial)
-            forest_cost: u32 = st_mst_h(&edges, ec, trial, &scratch, &scratch_n)
-            trial_cost: u32 = contracted + forest_cost
-            if best == 4 or trial_cost < best_cost:
-                best <- c
-                best_cost <- trial_cost
-                best_groups <- trial_groups
-                if trial_groups == 1:
-                    tree <- scratch
-                    tree_n <- scratch_n
-                    cost <- forest_cost
-        if best == 4:
+    baseline: i64 = gain_mst_metric(w[0:16], mask)
+    iterations: mutable usize = 0
+    while not gain_terminals_connected(h[0:16], mask):
+        before: usize = gain_terminal_groups(h[0:16], mask)
+        best: mutable i64 = -1
+        best_gain: mutable i64 = -1000000000
+        c <- 0
+        while c < count:
+            if not selected[c]:
+                trial: mutable i64[16] = h
+                e: mutable usize = 0
+                while e < ce[c]:
+                    trial[cu[c * CE + e] * N + cv[c * CE + e]] <- 1
+                    trial[cv[c * CE + e] * N + cu[c * CE + e]] <- 1
+                    e <- e + 1
+                after: usize = gain_terminal_groups(trial[0:16], mask)
+                if after < before:
+                    unused: mutable GainEdge[3] = zeroed
+                    forest: GainForest = gain_mst_forest(w[0:16], trial[0:16], unused[0:3])
+                    gain: i64 = baseline - gain_mst_after_contract(w[0:16], trial[0:16], mask) - forest.cost
+                    if best < 0 or gain > best_gain:
+                        best <- c.i64()
+                        best_gain <- gain
+            c <- c + 1
+        iterations <- iterations + 1
+        if best < 0 or iterations > count:
             return -1
-        groups <- best_groups
-        selected[best] <- true
-        h <- h | component_edges[best]
-    bytes: usize = 8 * (3 + 2 * tree_n)
+        chosen: usize = best.usize()
+        selected[chosen] <- true
+        e: mutable usize = 0
+        while e < ce[chosen]:
+            h[cu[chosen * CE + e] * N + cv[chosen * CE + e]] <- 1
+            h[cv[chosen * CE + e] * N + cu[chosen * CE + e]] <- 1
+            e <- e + 1
+    tree: mutable GainEdge[3] = zeroed
+    forest: GainForest = gain_mst_forest(w[0:16], h[0:16], tree[0:3])
+    bytes: usize = 8 * (3 + 2 * forest.count)
     if output == null or capacity < bytes:
         return -2
-    st_put_i64(output,0,1)
-    st_put_i64(output,1,cost.i64())
-    st_put_i64(output,2,tree_n.i64())
-    for i in 0..<tree_n:
-        st_put_i64(output,3+2*i,tree[i].u.i64())
-        st_put_i64(output,4+2*i,tree[i].v.i64())
+    gain_put_i64(output, 0, 1)
+    gain_put_i64(output, 1, forest.cost)
+    gain_put_i64(output, 2, forest.count.i64())
+    i <- 0
+    while i < forest.count:
+        gain_put_i64(output, 3 + 2 * i, tree[i].u.i64())
+        gain_put_i64(output, 4 + 2 * i, tree[i].v.i64())
+        i <- i + 1
     bytes.i64()
 
 export fn steiner_tree_gain_greedy(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = steiner_tree_gain_impl
