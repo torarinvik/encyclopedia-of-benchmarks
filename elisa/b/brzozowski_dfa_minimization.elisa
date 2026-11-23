@@ -1,7 +1,8 @@
 # Bounded reverse/subset/reverse/subset DFA minimization.
-export fn brzozowski_dfa_minimization(input: i64&, length: usize) -> i64:
+def brzozowski_dfa_minimization_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 3 or length > 10: return -1
-    values: view[i64] = input[0:length]
+    values_storage: darray[i64] = [input[index] for index in 0..<length]
+    values: view[i64] = values_storage[0:length]
     n64: i64 = values[0]
     start64: i64 = values[1]
     accepting64: i64 = values[2]
@@ -11,7 +12,7 @@ export fn brzozowski_dfa_minimization(input: i64&, length: usize) -> i64:
     if length != 3 + 2 * n: return -1
     start: usize = start64.usize()
 
-    transition: mutable i64[3][2] = zeroed
+    transition: mutable i64[2][3] = zeroed
     # Keep the FFI pointer at this boundary; all data below uses bounded arrays.
     for state in 0..<n:
         for symbol in 0..<2:
@@ -20,10 +21,11 @@ export fn brzozowski_dfa_minimization(input: i64&, length: usize) -> i64:
             transition[state][symbol] <- target
 
     first_masks: mutable i64[8] = zeroed
-    first_delta: mutable usize[8][2] = zeroed
+    first_delta: mutable usize[2][8] = zeroed
     first_final: mutable bool[8] = zeroed
     first_id: mutable i64[8] = zeroed
-    for i in 0..<8: first_id[i] <- -1
+    for i in 0..<8:
+        first_id[i] <- -1
     first_count: mutable usize = 1
     first_masks[0] <- accepting64
     first_id[accepting64.usize()] <- 0
@@ -68,3 +70,5 @@ export fn brzozowski_dfa_minimization(input: i64&, length: usize) -> i64:
                 second_count <- second_count + 1
         cursor <- cursor + 1
     second_count.i64()
+
+export fn brzozowski_dfa_minimization(input: i64&, length: usize) -> i64 = brzozowski_dfa_minimization_impl

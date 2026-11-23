@@ -1,7 +1,7 @@
 const N: usize = 64
 const MAX_ARCS: usize = N * (N - 1)
 
-def bidirectional_search_put(output: mutable view[u8], slot: usize, value: i64) -> void:
+def bidirectional_search_put(output: mutable u8&, slot: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for i in 0..<8:
         output[slot * 8 + i] <- (bits & 255).u8()
@@ -47,15 +47,15 @@ def bidirectional_search_impl(input: i64&, length: usize, output: mutable u8&, c
                 parent[s * N + i] <- -2
         queue: mutable usize[2 * N] = zeroed
         head: mutable usize[2] = zeroed
-        tail: mutable usize[2] = zeroed
+        tail_value: mutable usize[2] = zeroed
         parent[start] <- -1
         parent[N + goal] <- -1
-        queue[start] <- start
-        queue[N + goal] <- goal
-        tail[0] <- 1
-        tail[1] <- 1
+        queue[0] <- start
+        queue[N] <- goal
+        tail_value[0] <- 1
+        tail_value[1] <- 1
         meet: mutable i64 = -1
-        while head[0] < tail[0] and head[1] < tail[1] and meet < 0:
+        while head[0] < tail_value[0] and head[1] < tail_value[1] and meet < 0:
             for side in 0..<2:
                 if meet >= 0:
                     break
@@ -67,8 +67,8 @@ def bidirectional_search_impl(input: i64&, length: usize, output: mutable u8&, c
                     if parent[slot + neighbor] != -2:
                         continue
                     parent[slot + neighbor] <- current.i64()
-                    queue[slot + tail[side]] <- neighbor
-                    tail[side] <- tail[side] + 1
+                    queue[slot + tail_value[side]] <- neighbor
+                    tail_value[side] <- tail_value[side] + 1
                     if parent[(1 - side) * N + neighbor] != -2:
                         meet <- neighbor.i64()
                         break
@@ -92,10 +92,12 @@ def bidirectional_search_impl(input: i64&, length: usize, output: mutable u8&, c
     bytes: usize = (1 + pc) * 8
     if output == null or capacity < bytes:
         return -2
-    bidirectional_search_put(output[0:bytes], 0, pc.i64())
+    bidirectional_search_put(output, 0, pc.i64())
     for i in 0..<pc:
-        bidirectional_search_put(output[0:bytes], 1 + i, path[i].i64())
+        bidirectional_search_put(output, 1 + i, path[i].i64())
     bytes.i64()
 
-export def bidirectional_search(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+def bidirectional_search_entry(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     bidirectional_search_impl(input, length, output, capacity)
+
+export fn bidirectional_search(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = bidirectional_search_entry
