@@ -44,11 +44,11 @@ def odc_unite(left: usize, right: usize, parent: mutable view[usize],
     parent[root_left] <- root_right
     set_size[root_right] <- set_size[root_right] + set_size[root_left]
 
-def odc_rollback(checkpoint: usize, parent: mutable view[usize],
+def odc_rollback(history_mark: usize, parent: mutable view[usize],
     set_size: mutable view[usize], history_child: view[usize],
     history_root: view[usize], history_size: view[usize],
     history_count: mutable usize&) -> void:
-    while history_count > checkpoint:
+    while history_count > history_mark:
         history_count <- history_count - 1
         child: usize = history_child[history_count]
         root: usize = history_root[history_count]
@@ -63,7 +63,7 @@ def odc_solve_time_tree(node: usize, left: usize, right: usize,
     history_child: mutable view[usize], history_root: mutable view[usize],
     history_size: mutable view[usize], history_count: mutable usize&,
     answer: mutable view[i64]) -> void:
-    checkpoint: usize = history_count
+    history_mark: usize = history_count
     entry: mutable usize = 0
     while entry < bucket_count[node]:
         edge_id: usize = buckets[node * MAX_EVENTS + entry]
@@ -84,10 +84,10 @@ def odc_solve_time_tree(node: usize, left: usize, right: usize,
         odc_solve_time_tree(2 * node + 1, middle, right, operation, first, second,
             edge_left, edge_right, bucket_count, buckets, parent, set_size,
             history_child, history_root, history_size, history_count, answer)
-    odc_rollback(checkpoint, parent, set_size, history_child, history_root,
+    odc_rollback(history_mark, parent, set_size, history_child, history_root,
         history_size, history_count)
 
-def odc_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def odc_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -96,10 +96,9 @@ def odc_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> voi
 
 def offline_dynamic_connectivity_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES:
+    if input == null or length < 2 or length > MAX_INPUT_VALUES:
         return -1
-    if input[0] < 1 or input[0] > MAX_VERTICES.i64() or
-        input[1] < 0 or input[1] > MAX_EVENTS.i64():
+    if input[0] < 1 or input[0] > MAX_VERTICES.i64() or input[1] < 0 or input[1] > MAX_EVENTS.i64():
         return -1
     vertex_count: usize = input[0].usize()
     event_count: usize = input[1].usize()
@@ -124,9 +123,7 @@ def offline_dynamic_connectivity_impl(input: i64&, length: usize,
         third: i64 = input[offset + 3]
         if operation[time] == 0:
             edge_id: i64 = first[time]
-            if edge_id < 0 or edge_id >= MAX_EVENTS.i64() or second[time] < 0 or
-                second[time] >= vertex_count.i64() or third < 0 or
-                third >= vertex_count.i64() or used_id[edge_id.usize()]:
+            if edge_id < 0 or edge_id >= MAX_EVENTS.i64() or second[time] < 0 or second[time] >= vertex_count.i64() or third < 0 or third >= vertex_count.i64() or used_id[edge_id.usize()]:
                 return -1
             used_id[edge_id.usize()] <- true
             active[edge_id.usize()] <- true
@@ -135,13 +132,11 @@ def offline_dynamic_connectivity_impl(input: i64&, length: usize,
             edge_right[edge_id.usize()] <- third
         elif operation[time] == 1:
             edge_id: i64 = first[time]
-            if edge_id < 0 or edge_id >= MAX_EVENTS.i64() or not active[edge_id.usize()] or
-                second[time] != 0 or third != 0:
+            if edge_id < 0 or edge_id >= MAX_EVENTS.i64() or not active[edge_id.usize()] or second[time] != 0 or third != 0:
                 return -1
             active[edge_id.usize()] <- false
         elif operation[time] == 2:
-            if first[time] < 0 or first[time] >= vertex_count.i64() or
-                second[time] < 0 or second[time] >= vertex_count.i64() or third != 0:
+            if first[time] < 0 or first[time] >= vertex_count.i64() or second[time] < 0 or second[time] >= vertex_count.i64() or third != 0:
                 return -1
             query_count <- query_count + 1
         else:
@@ -149,7 +144,7 @@ def offline_dynamic_connectivity_impl(input: i64&, length: usize,
         time <- time + 1
 
     required: usize = 8 * query_count
-    if output.is_null() or capacity < required:
+    if output == null or capacity < required:
         return -2
     bucket_count: mutable usize[TREE_NODES] = zeroed
     buckets: mutable usize[TREE_NODES * MAX_EVENTS] = zeroed
@@ -189,13 +184,11 @@ def offline_dynamic_connectivity_impl(input: i64&, length: usize,
             set_size[0:MAX_VERTICES], history_child[0:MAX_VERTICES],
             history_root[0:MAX_VERTICES], history_size[0:MAX_VERTICES],
             history_count, answer[0:MAX_EVENTS])
-
-    output_view: mutable view[u8] = output[0:required]
     written: mutable usize = 0
     time <- 0
     while time < event_count:
         if operation[time] == 2:
-            odc_store_i64_le(answer[time], output_view, written)
+            odc_store_i64_le(answer[time], output, written)
             written <- written + 8
         time <- time + 1
     written.i64()

@@ -55,13 +55,13 @@ def odb_constrain_opposite(left: usize, right: usize,
     xor_parent[root_left] <- parity_left ^ parity_right ^ 1
     set_size[root_right] <- set_size[root_right] + set_size[root_left]
 
-def odb_rollback(checkpoint: usize, parent: mutable view[usize],
+def odb_rollback(history_mark: usize, parent: mutable view[usize],
     set_size: mutable view[usize], xor_parent: mutable view[usize],
     history_kind: view[usize], history_child: view[usize],
     history_root: view[usize], history_size: view[usize],
     history_xor: view[usize], history_count: mutable usize&,
     contradictions: mutable usize&) -> void:
-    while history_count > checkpoint:
+    while history_count > history_mark:
         history_count <- history_count - 1
         entry: usize = history_count
         if history_kind[entry] == 1:
@@ -82,7 +82,7 @@ def odb_solve_time_tree(node: usize, left: usize, right: usize,
     history_size: mutable view[usize], history_xor: mutable view[usize],
     history_count: mutable usize&, contradictions: mutable usize&,
     answer: mutable view[i64]) -> void:
-    checkpoint: usize = history_count
+    history_mark: usize = history_count
     entry: mutable usize = 0
     while entry < bucket_count[node]:
         edge_id: usize = buckets[node * MAX_EVENTS + entry]
@@ -92,7 +92,7 @@ def odb_solve_time_tree(node: usize, left: usize, right: usize,
         entry <- entry + 1
     if right - left == 1:
         if operation[left] == 2:
-            answer[left] <- if contradictions == 0 then 1 else 0
+            answer[left] <- 1 if contradictions == 0 else 0
     else:
         middle: usize = left + (right - left) / 2
         odb_solve_time_tree(2 * node, left, middle, operation, edge_left,
@@ -103,11 +103,11 @@ def odb_solve_time_tree(node: usize, left: usize, right: usize,
             edge_right, bucket_count, buckets, parent, set_size, xor_parent,
             history_kind, history_child, history_root, history_size, history_xor,
             history_count, contradictions, answer)
-    odb_rollback(checkpoint, parent, set_size, xor_parent, history_kind,
+    odb_rollback(history_mark, parent, set_size, xor_parent, history_kind,
         history_child, history_root, history_size, history_xor,
         history_count, contradictions)
 
-def odb_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def odb_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -116,11 +116,11 @@ def odb_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> voi
 
 def offline_dynamic_bipartiteness_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_VALUES:
+    if input == null or length < 2 or length > MAX_INPUT_VALUES:
         return -1
-    input_view: view[i64] = input[0:length]
-    if input_view[0] < 1 or input_view[0] > MAX_VERTICES.i64() or
-        input_view[1] < 0 or input_view[1] > MAX_EVENTS.i64():
+    input_view_storage: darray[i64] = [input[index] for index in 0..<length]
+    input_view: view[i64] = input_view_storage[0:length]
+    if input_view[0] < 1 or input_view[0] > MAX_VERTICES.i64() or input_view[1] < 0 or input_view[1] > MAX_EVENTS.i64():
         return -1
     vertex_count: usize = input_view[0].usize()
     event_count: usize = input_view[1].usize()
@@ -145,14 +145,11 @@ def offline_dynamic_bipartiteness_impl(input: i64&, length: usize,
         third: i64 = input_view[offset + 3]
         if operation[time] == 0:
             edge_id: i64 = first[time]
-            if edge_id < 0 or edge_id >= MAX_EVENTS.i64() or second[time] < 0 or
-                second[time] > third or third >= vertex_count.i64() or
-                used_id[edge_id.usize()]:
+            if edge_id < 0 or edge_id >= MAX_EVENTS.i64() or second[time] < 0 or second[time] > third or third >= vertex_count.i64() or used_id[edge_id.usize()]:
                 return -1
             prior: mutable usize = 0
             while prior < MAX_EVENTS:
-                if active[prior] and edge_left[prior] == second[time] and
-                    edge_right[prior] == third:
+                if active[prior] and edge_left[prior] == second[time] and edge_right[prior] == third:
                     return -1
                 prior <- prior + 1
             used_id[edge_id.usize()] <- true
@@ -162,8 +159,7 @@ def offline_dynamic_bipartiteness_impl(input: i64&, length: usize,
             edge_right[edge_id.usize()] <- third
         elif operation[time] == 1:
             edge_id: i64 = first[time]
-            if edge_id < 0 or edge_id >= MAX_EVENTS.i64() or
-                not active[edge_id.usize()] or second[time] != 0 or third != 0:
+            if edge_id < 0 or edge_id >= MAX_EVENTS.i64() or not active[edge_id.usize()] or second[time] != 0 or third != 0:
                 return -1
             active[edge_id.usize()] <- false
         elif operation[time] == 2:
@@ -175,7 +171,7 @@ def offline_dynamic_bipartiteness_impl(input: i64&, length: usize,
         time <- time + 1
 
     required: usize = 8 * query_count
-    if output.is_null() or capacity < required:
+    if output == null or capacity < required:
         return -2
     bucket_count: mutable usize[TREE_NODES] = zeroed
     buckets: mutable usize[TREE_NODES * MAX_EVENTS] = zeroed
@@ -220,13 +216,11 @@ def offline_dynamic_bipartiteness_impl(input: i64&, length: usize,
             history_child[0:MAX_EVENTS], history_root[0:MAX_EVENTS],
             history_size[0:MAX_EVENTS], history_xor[0:MAX_EVENTS],
             history_count, contradictions, answer[0:MAX_EVENTS])
-
-    output_view: mutable view[u8] = output[0:required]
     written: mutable usize = 0
     time <- 0
     while time < event_count:
         if operation[time] == 2:
-            odb_store_i64_le(answer[time], output_view, written)
+            odb_store_i64_le(answer[time], output, written)
             written <- written + 8
         time <- time + 1
     written.i64()
