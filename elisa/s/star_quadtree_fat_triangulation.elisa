@@ -1,189 +1,244 @@
-const STAR_MAX_DEPTH: usize = 2
-const STAR_DIAGONAL_INPUT: usize = 16
-const STAR_FAN_INPUT: usize = 24
-const STAR_MAX_VERTICES: usize = 5
-const STAR_MAX_TRIANGLES: usize = 4
-const STAR_MAX_EDGES: usize = 8
-const STAR_MAX_PAIRS: usize = 64
-const STAR_MAX_OUTPUT_BYTES: usize = 1032
+# Quadtree over an 8x8 square split until each cell touches only edges that
+# share a vertex, then list which triangles each leaf cell overlaps.
+const MAX_VERTICES: usize = 5
+const MAX_TRIANGLES: usize = 4
+const MAX_EDGES: usize = 8
+const MAX_PAIRS: usize = 64
+const MAX_DEPTH: i64 = 2
+const MAX_INPUT: usize = 25
+const MAX_OUTPUT: usize = 1032
 
-def star_stops(edges: u64&, edge_count: usize, bounds: u64) -> bool:
-    guards: u64 = 0x8080808080808080
-    candidates: mutable u64 = 31
-    for edge in 0..<STAR_MAX_EDGES:
-        if edge < edge_count and ((edges[2*edge] - bounds) & guards) == guards:
-            candidates <- candidates & edges[2*edge+1]
-            if candidates == 0: return false
-    true
+struct StarMesh:
+    vertex_x: i64[5]
+    vertex_y: i64[5]
+    triangles: i64[12]
+    edge_a: i64[8]
+    edge_b: i64[8]
+    vertex_count: i64
+    triangle_count: i64
+    edge_count: i64
 
-# Every triangle edge in the validated mesh is horizontal, vertical, or diagonal.
-# Overlap on the four corresponding axes is sufficient for the closed box test.
-# Each signed projection lies between -16 and 16. Bias each byte to
-# keep its top bit free as a guard against borrow into the next lane.
-def star_pack_cell(x: i32, y: i32, size: i32) -> u64:
-    # Each lane is affine in the left edge, top edge and side length.
-    # A vertex uses the same formula with a zero side length.
-    (0x1010101010101010.u64() +
-        x.u64() * 0xfeff00ffffff01.u64() +
-        y.u64() * 0xff00ff00ff010000.u64() +
-        size.u64() * 0xfffdfefefffeff00.u64())
+struct StarBox:
+    xmin: i64
+    ymin: i64
+    xmax: i64
+    ymax: i64
 
-def star_append_leaf(triangles: u64&, triangle_count: usize, pairs: mutable i64&,
-                     start: i32, bounds: u64, key: usize) -> i32:
-    pair_count: mutable usize = start.usize()
-    guards: u64 = 0x8080808080808080
-    for tid in 0..<STAR_MAX_TRIANGLES:
-        if tid < triangle_count and ((triangles[tid] - bounds) & guards) == guards:
-            if pair_count >= STAR_MAX_PAIRS: return -1
-            pairs[2*pair_count] <- key.i64()
-            pairs[2*pair_count+1] <- tid.i64()
-            pair_count <- pair_count + 1
-    pair_count.i32()
+def star_orient(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64) -> i64:
+    (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
 
-def star_visit(triangles: u64&, edges: u64&, triangle_count: usize,
-               edge_count: usize, pairs: mutable i64&) -> i32:
-    pair_count: mutable i32 = 0
-    # The accepted mesh boundary forces the root to split.
-    # Packed bounds for the fixed 8-by-8 grid in Morton order.
-    # The sixteen finest cells are followed by their four parents.
-    cell_bounds: u64[20] = [
-        0x814061608160e10, 0xa12041808160c12, 0xa1208140a140e10, 0xc1006160a140c12,
-        0xc10021a08160a14, 0xe0e001c08160816, 0xe0e04180a140a14, 0x100c021a0a140816,
-        0xc100a120c120e10, 0xe0e08140c120c12, 0xe0e0c100e100e10, 0x100c0a120e100c12,
-        0x100c06160c120a14, 0x120a04180c120816, 0x120a08140e100a14, 0x140806160e100816,
-        0x810041408140c10, 0xc0c001808140814, 0xc0c08100c100c10, 0x100804140c100814
-    ]
-    for quadrant in 0..<4:
-        first: usize = 4 * quadrant
-        parent: u64 = cell_bounds[16+quadrant]
-        if star_stops(edges,edge_count,parent):
-            pair_count <- star_append_leaf(triangles,triangle_count,pairs,pair_count,parent,first)
-            if pair_count < 0: return -1
-        else:
-            for child in 0..<4:
-                key: usize = first + child
-                bounds: u64 = cell_bounds[key]
-                if not star_stops(edges,edge_count,bounds): return -1
-                pair_count <- star_append_leaf(triangles,triangle_count,pairs,pair_count,bounds,key)
-                if pair_count < 0: return -1
-    pair_count
+def star_between(a: i64, b: i64, p: i64) -> bool:
+    (a <= p and p <= b) or (b <= p and p <= a)
 
-def star_store_le(output: mutable u8&, offset: usize, value: i64) -> void:
-    bits: mutable u64 = value.u64()
-    byte: mutable usize = 0
-    while byte < 8:
-        output[offset+byte] <- (bits & 255).u8()
-        bits <- bits >> 8
-        byte <- byte + 1
+def star_on_segment(ax: i64, ay: i64, bx: i64, by: i64, px: i64, py: i64) -> bool:
+    star_between(ax, bx, px) and star_between(ay, by, py)
 
-@inline(never)
-def star_validate_mesh(input: i64&, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    vertex_count_raw: i64 = input[0]
-    triangle_count_raw: i64 = input[1]
-    if not ((vertex_count_raw == 4 and triangle_count_raw == 2) or
-            (vertex_count_raw == 5 and triangle_count_raw == 4)): return -1
-    vertex_count: usize = vertex_count_raw.usize()
-    triangle_count: usize = triangle_count_raw.usize()
-    if length != 2 + 2*vertex_count + 3*triangle_count: return -1
-    corners: i64[8] = [0,0,8,0,8,8,0,8]
-    vertices_data: mutable i32[10] = zeroed
-    vertices: mutable i32& = &vertices_data[0]
+def star_segments_intersect(ax: i64, ay: i64, bx: i64, by: i64, cx: i64, cy: i64, dx: i64, dy: i64) -> bool:
+    o1: i64 = star_orient(ax, ay, bx, by, cx, cy)
+    o2: i64 = star_orient(ax, ay, bx, by, dx, dy)
+    o3: i64 = star_orient(cx, cy, dx, dy, ax, ay)
+    o4: i64 = star_orient(cx, cy, dx, dy, bx, by)
+    if ((o1 < 0 and o2 > 0) or (o1 > 0 and o2 < 0)) and ((o3 < 0 and o4 > 0) or (o3 > 0 and o4 < 0)):
+        return true
+    (o1 == 0 and star_on_segment(ax, ay, bx, by, cx, cy)) or (o2 == 0 and star_on_segment(ax, ay, bx, by, dx, dy)) or (o3 == 0 and star_on_segment(cx, cy, dx, dy, ax, ay)) or (o4 == 0 and star_on_segment(cx, cy, dx, dy, bx, by))
+
+def star_segment_hits_box_sides(ax: i64, ay: i64, bx: i64, by: i64, cell: StarBox) -> bool:
+    star_segments_intersect(ax, ay, bx, by, cell.xmin, cell.ymin, cell.xmax, cell.ymin) or star_segments_intersect(ax, ay, bx, by, cell.xmax, cell.ymin, cell.xmax, cell.ymax) or star_segments_intersect(ax, ay, bx, by, cell.xmax, cell.ymax, cell.xmin, cell.ymax) or star_segments_intersect(ax, ay, bx, by, cell.xmin, cell.ymax, cell.xmin, cell.ymin)
+
+def star_inside(cell: StarBox, x: i64, y: i64) -> bool:
+    cell.xmin <= x and x <= cell.xmax and cell.ymin <= y and y <= cell.ymax
+
+def star_edge_hits_box(mesh: StarMesh&, edge_id: usize, cell: StarBox) -> bool:
+    a: usize = mesh.edge_a[edge_id].usize()
+    b: usize = mesh.edge_b[edge_id].usize()
+    ax: i64 = mesh.vertex_x[a]
+    ay: i64 = mesh.vertex_y[a]
+    bx: i64 = mesh.vertex_x[b]
+    by: i64 = mesh.vertex_y[b]
+    if star_inside(cell, ax, ay) or star_inside(cell, bx, by):
+        return true
+    star_segment_hits_box_sides(ax, ay, bx, by, cell)
+
+def star_stop_cell(mesh: StarMesh&, cell: StarBox) -> bool:
+    touched: mutable bool[8] = zeroed
+    touched_count: mutable i64 = 0
+    e: mutable usize = 0
+    while e.i64() < mesh.edge_count:
+        touched[e] <- star_edge_hits_box(mesh, e, cell)
+        if touched[e]:
+            touched_count <- touched_count + 1
+        e <- e + 1
+    if touched_count == 0:
+        return true
+    v: mutable i64 = 0
+    while v < mesh.vertex_count:
+        common: mutable bool = true
+        e <- 0
+        while e.i64() < mesh.edge_count:
+            if touched[e] and mesh.edge_a[e] != v and mesh.edge_b[e] != v:
+                common <- false
+                break
+            e <- e + 1
+        if common:
+            return true
+        v <- v + 1
+    false
+
+def star_point_in_triangle(mesh: StarMesh&, px: i64, py: i64, a: usize, b: usize, c: usize) -> bool:
+    o1: i64 = star_orient(mesh.vertex_x[a], mesh.vertex_y[a], mesh.vertex_x[b], mesh.vertex_y[b], px, py)
+    o2: i64 = star_orient(mesh.vertex_x[b], mesh.vertex_y[b], mesh.vertex_x[c], mesh.vertex_y[c], px, py)
+    o3: i64 = star_orient(mesh.vertex_x[c], mesh.vertex_y[c], mesh.vertex_x[a], mesh.vertex_y[a], px, py)
+    o1 >= 0 and o2 >= 0 and o3 >= 0
+
+def star_triangle_hits_box(mesh: StarMesh&, tid: usize, cell: StarBox) -> bool:
+    t0: usize = mesh.triangles[3 * tid].usize()
+    t1: usize = mesh.triangles[3 * tid + 1].usize()
+    t2: usize = mesh.triangles[3 * tid + 2].usize()
+    i: mutable usize = 0
+    while i < 3:
+        v: usize = mesh.triangles[3 * tid + i].usize()
+        if star_inside(cell, mesh.vertex_x[v], mesh.vertex_y[v]):
+            return true
+        i <- i + 1
+    if star_point_in_triangle(mesh, cell.xmin, cell.ymin, t0, t1, t2) or star_point_in_triangle(mesh, cell.xmax, cell.ymin, t0, t1, t2) or star_point_in_triangle(mesh, cell.xmax, cell.ymax, t0, t1, t2) or star_point_in_triangle(mesh, cell.xmin, cell.ymax, t0, t1, t2):
+        return true
+    i <- 0
+    while i < 3:
+        edge: usize = mesh.triangles[3 * tid + i].usize()
+        next: usize = mesh.triangles[3 * tid + (i + 1) % 3].usize()
+        if star_segment_hits_box_sides(mesh.vertex_x[edge], mesh.vertex_y[edge], mesh.vertex_x[next], mesh.vertex_y[next], cell):
+            return true
+        i <- i + 1
+    false
+
+# Visit one quadtree cell; returns the new pair count, or -1 once a cell
+# would split past the depth limit or the pair table overflows.
+def star_visit(mesh: StarMesh&, depth: i64, ix: i64, iy: i64, path_code: i64, pairs: mutable view[i64], pair_count: i64) -> i64:
+    size: i64 = 8 >> depth
+    xmin: i64 = ix * size
+    ymax: i64 = 8 - iy * size
+    cell: StarBox = StarBox{xmin: xmin, ymin: ymax - size, xmax: xmin + size, ymax: ymax}
+    if not star_stop_cell(mesh, cell):
+        if depth >= MAX_DEPTH:
+            return -1
+        count: mutable i64 = pair_count
+        q: mutable i64 = 0
+        while q < 4:
+            count <- star_visit(mesh, depth + 1, 2 * ix + (q & 1), 2 * iy + (q >> 1), 4 * path_code + q, pairs, count)
+            if count < 0:
+                return -1
+            q <- q + 1
+        return count
+    key: i64 = path_code << (2 * (MAX_DEPTH - depth))
+    count: mutable i64 = pair_count
+    t: mutable usize = 0
+    while t.i64() < mesh.triangle_count:
+        if star_triangle_hits_box(mesh, t, cell):
+            if count >= MAX_PAIRS.i64():
+                return -1
+            pairs[2 * count.usize()] <- key
+            pairs[2 * count.usize() + 1] <- t.i64()
+            count <- count + 1
+        t <- t + 1
+    count
+
+def star_store_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
+    bits: u64 = value.u64()
     i: mutable usize = 0
     while i < 8:
-        if input[2+i] != corners[i]: return -1
-        vertices[i] <- corners[i].i32()
+        output[offset + i] <- ((bits >> (8 * i).u64()) & 255).u8()
         i <- i + 1
-    if vertex_count == 5:
-        if input[10] != 4 or input[11] != 4: return -1
-        vertices[8] <- 4
-        vertices[9] <- 4
-    triangles_data: mutable i32[12] = zeroed
-    triangles: mutable i32& = &triangles_data[0]
-    start: usize = 2 + 2*vertex_count
-    i <- 0
-    while i < 3*triangle_count:
-        id: i64 = input[start+i]
-        if id < 0 or id >= vertex_count_raw: return -1
-        triangles[i] <- id.i32()
-        i <- i + 1
-    diag02: bool = vertex_count == 4 and triangles[0] == 0 and triangles[1] == 1 and triangles[2] == 2 and
-        triangles[3] == 0 and triangles[4] == 2 and triangles[5] == 3
-    diag13: bool = vertex_count == 4 and triangles[0] == 0 and triangles[1] == 1 and triangles[2] == 3 and
-        triangles[3] == 1 and triangles[4] == 2 and triangles[5] == 3
-    fan: i32[12] = [0,1,4,1,2,4,2,3,4,3,0,4]
-    fan_ok: mutable bool = vertex_count == 5
-    i <- 0
-    while i < 12:
-        if triangles[i] != fan[i]: fan_ok <- false
-        i <- i + 1
-    if not diag02 and not diag13 and not fan_ok: return -1
-    star_mesh_output(vertices,triangles,vertex_count,triangle_count,output,capacity)
 
-def star_bounds_union(left: u64, right: u64) -> u64:
-    # Each guard bit records whether the left lane is at least the right lane.
-    guards: u64 = 0x8080808080808080
-    choose_left: u64 = ((((left | guards) - right) & guards) >> 7) * 255
-    right ^ ((left ^ right) & choose_left)
-
-@inline(never)
-def star_mesh_output(vertices: i32&, triangles: i32&, vertex_count: usize, triangle_count: usize,
-                     output: mutable u8&?, capacity: usize) -> i64:
-    vertex_projections: mutable u64[5] = zeroed
-    for vertex in 0..<vertex_count:
-        x: i32 = vertices[2*vertex]
-        y: i32 = vertices[2*vertex+1]
-        vertex_projections[vertex] <- star_pack_cell(x,y,0)
-    projections_data: mutable u64[4] = zeroed
-    projections: mutable u64& = &projections_data[0]
-    edges_data: mutable u64[16] = zeroed
-    edges: mutable u64& = &edges_data[0]
-    edge_count: mutable usize = 0
-    seen_edges: mutable u32 = 0
-    tid: mutable usize = 0
-    while tid < triangle_count:
-        a: usize = triangles[3*tid].usize()
-        b: usize = triangles[3*tid+1].usize()
-        c: usize = triangles[3*tid+2].usize()
-        bounds: u64 = star_bounds_union(vertex_projections[a],vertex_projections[b])
-        projections[tid] <- star_bounds_union(bounds,vertex_projections[c]) | 0x8080808080808080.u64()
-        k: mutable usize = 0
-        while k < 3:
-            a: usize = triangles[3*tid+k].usize()
-            b: usize = triangles[3*tid+(k+1)%3].usize()
-            low: usize = a if a < b else b
-            high: usize = b if a < b else a
-            # Validated vertex IDs are in 0..4, so 25 bits cover all pairs.
-            edge_bit: u32 = 1.u32() << (5 * low + high)
-            if (seen_edges & edge_bit) == 0:
-                seen_edges <- seen_edges | edge_bit
-                slot: usize = 2 * edge_count
-                edges[slot] <- (star_bounds_union(vertex_projections[low],vertex_projections[high]) |
-                    0x8080808080808080.u64())
-                edges[slot+1] <- (1.u64() << low) | (1.u64() << high)
-                edge_count <- edge_count + 1
-            k <- k + 1
-        tid <- tid + 1
-    pairs_data: mutable i64[128] = zeroed
-    pairs: mutable i64& = &pairs_data[0]
-    result: i32 = star_visit(projections,edges,triangle_count,edge_count,
-        pairs)
-    if result < 0: return -1
-    pair_count: usize = result.usize()
-    required: usize = (1 + 2*pair_count)*8
-    if output == null or capacity < required: return -2
-    star_store_le(output,0,pair_count.i64())
+def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT:
+        return -1
+    if not ((input[0] == 4 and input[1] == 2) or (input[0] == 5 and input[1] == 4)):
+        return -1
+    v: i64 = input[0]
+    t: i64 = input[1]
+    if length != (2 + 2 * v + 3 * t).usize():
+        return -1
+    corners: i64[8] = [0, 0, 8, 0, 8, 8, 0, 8]
+    vertex_x: mutable i64[5] = zeroed
+    vertex_y: mutable i64[5] = zeroed
     i: mutable usize = 0
-    while i < pair_count:
-        star_store_le(output,8+16*i,pairs[2*i])
-        star_store_le(output,16+16*i,pairs[2*i+1])
+    while i < 4:
+        x: i64 = input[2 + 2 * i]
+        y: i64 = input[3 + 2 * i]
+        if x != corners[2 * i] or y != corners[2 * i + 1]:
+            return -1
+        vertex_x[i] <- x
+        vertex_y[i] <- y
         i <- i + 1
-    required.i64()
+    if v == 5:
+        if input[10] != 4 or input[11] != 4:
+            return -1
+        vertex_x[4] <- 4
+        vertex_y[4] <- 4
+    start: usize = (2 + 2 * v).usize()
+    triangles: mutable i64[12] = zeroed
+    i <- 0
+    while i.i64() < t:
+        j: mutable usize = 0
+        while j < 3:
+            id: i64 = input[start + 3 * i + j]
+            if id < 0 or id >= v:
+                return -1
+            triangles[3 * i + j] <- id
+            j <- j + 1
+        i <- i + 1
+    if v == 4:
+        diagonal_02: bool = triangles[0] == 0 and triangles[1] == 1 and triangles[2] == 2 and triangles[3] == 0 and triangles[4] == 2 and triangles[5] == 3
+        diagonal_13: bool = triangles[0] == 0 and triangles[1] == 1 and triangles[2] == 3 and triangles[3] == 1 and triangles[4] == 2 and triangles[5] == 3
+        if not diagonal_02 and not diagonal_13:
+            return -1
+    else:
+        fan: i64[12] = [0, 1, 4, 1, 2, 4, 2, 3, 4, 3, 0, 4]
+        i <- 0
+        while i < 12:
+            if input[start + i] != fan[i]:
+                return -1
+            i <- i + 1
+    edge_a: mutable i64[8] = zeroed
+    edge_b: mutable i64[8] = zeroed
+    edge_count: mutable usize = 0
+    i <- 0
+    while i < 3 * t.usize():
+        first: i64 = triangles[i]
+        second: i64 = triangles[i - i % 3 + (i % 3 + 1) % 3]
+        a: i64 = first if first < second else second
+        b: i64 = second if first < second else first
+        known: mutable bool = false
+        e: mutable usize = 0
+        while e < edge_count:
+            if edge_a[e] == a and edge_b[e] == b:
+                known <- true
+            e <- e + 1
+        if not known:
+            if edge_count >= MAX_EDGES:
+                return -1
+            edge_a[edge_count] <- a
+            edge_b[edge_count] <- b
+            edge_count <- edge_count + 1
+        i <- i + 1
+    mesh: StarMesh = StarMesh{vertex_x: vertex_x, vertex_y: vertex_y, triangles: triangles, edge_a: edge_a, edge_b: edge_b, vertex_count: v, triangle_count: t, edge_count: edge_count.i64()}
 
-def star_quadtree_fat_triangulation_impl(input: i64&?, length: usize,
-        output: mutable u8&?, capacity: usize) -> i64:
-    if input == null: return -1
-    if length != STAR_DIAGONAL_INPUT and length != STAR_FAN_INPUT: return -1
-    star_validate_mesh(input,length,output,capacity)
+    pairs: mutable i64[128] = zeroed
+    pair_count: i64 = star_visit(&mesh, 0, 0, 0, 0, pairs[0:2 * MAX_PAIRS], 0)
+    if pair_count < 0:
+        return -1
+    bytes: usize = (1 + 2 * pair_count.usize()) * 8
+    if bytes > MAX_OUTPUT:
+        return -1
+    if output == null or capacity < bytes:
+        return -2
+    star_store_i64_le(output, 0, pair_count)
+    cursor: mutable usize = 8
+    i <- 0
+    while i < 2 * pair_count.usize():
+        star_store_i64_le(output, cursor, pairs[i])
+        cursor <- cursor + 8
+        i <- i + 1
+    bytes.i64()
 
-export fn star_quadtree_fat_triangulation(input: i64&?, length: usize,
-        output: mutable u8&?, capacity: usize) -> i64 = star_quadtree_fat_triangulation_impl
+export fn star_quadtree_fat_triangulation(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = star_quadtree_fat_triangulation_impl
