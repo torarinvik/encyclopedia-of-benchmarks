@@ -1,147 +1,93 @@
-const max_n: usize = 64
-const max_input_length: usize = 130
-# The 32 distinct twiddles of the largest stage cover every supported length.
-const TWIDDLE_REAL: f64[32] = [
-    1.0, 0.9951847266721969, 0.9807852804032304, 0.9569403357322088,
-    0.9238795325112867, 0.881921264348355, 0.8314696123025452, 0.773010453362737,
-    0.7071067811865476, 0.6343932841636455, 0.5555702330196023, 0.4713967368259978,
-    0.38268343236508984, 0.29028467725446233, 0.19509032201612833, 0.09801714032956077,
-    0.0, -0.09801714032956065, -0.1950903220161282, -0.29028467725446216,
-    -0.3826834323650897, -0.4713967368259977, -0.555570233019602, -0.6343932841636454,
-    -0.7071067811865475, -0.773010453362737, -0.8314696123025453, -0.8819212643483549,
-    -0.9238795325112867, -0.9569403357322088, -0.9807852804032304, -0.9951847266721968,
-]
-const TWIDDLE_IMAG: f64[32] = [
-    -0.0, -0.0980171403295606, -0.19509032201612825, -0.29028467725446233,
-    -0.3826834323650898, -0.47139673682599764, -0.5555702330196022, -0.6343932841636455,
-    -0.7071067811865475, -0.773010453362737, -0.8314696123025452, -0.8819212643483549,
-    -0.9238795325112867, -0.9569403357322088, -0.9807852804032304, -0.9951847266721968,
-    -1.0, -0.9951847266721969, -0.9807852804032304, -0.9569403357322089,
-    -0.9238795325112867, -0.881921264348355, -0.8314696123025453, -0.7730104533627371,
-    -0.7071067811865476, -0.6343932841636455, -0.5555702330196022, -0.47139673682599786,
-    -0.3826834323650899, -0.2902846772544624, -0.1950903220161286, -0.09801714032956083,
-]
+# Stockham autosort radix-2 FFT: ping-pong stages that write each butterfly
+# straight to its sorted position, so no bit-reversal pass is needed.
+@intrinsic("llvm.sin.f64")
+extern sin(value: f64) -> f64
+@intrinsic("llvm.cos.f64")
+extern cos(value: f64) -> f64
+@intrinsic("llvm.fabs.f64")
+extern fabs(value: f64) -> f64
+@intrinsic("llvm.floor.f64")
+extern floor(value: f64) -> f64
 
-struct StockhamComplex:
-    real: f64
-    imaginary: f64
+const MAX_N: usize = 64
+const MAX_INPUT_LENGTH: usize = 130
+const MAX_SCALARS: usize = 128
+const TAU: f64 = 6.283185307179586476925286766559
 
-@inline(always)
-def stockham_stage(source: StockhamComplex[64]&, destination: mutable StockhamComplex[64]&,
-                   n: usize, stride: usize, twiddle_step: usize) -> void:
-    half: usize = n >> 1
-    for column in 0..<stride:
-        twiddle: usize = (column * twiddle_step) & 31
-        cosine: f64 = TWIDDLE_REAL[twiddle]
-        sine: f64 = TWIDDLE_IMAG[twiddle]
-        input_index: mutable usize = column
-        output_index: mutable usize = column
-        while input_index < half:
-            left: StockhamComplex = source[input_index & 63]
-            right: StockhamComplex = source[(input_index + half) & 63]
-            product_real: f64 = cosine * right.real - sine * right.imaginary
-            product_imag: f64 = cosine * right.imaginary + sine * right.real
-            destination[output_index & 63] <- StockhamComplex{real: left.real + product_real, imaginary: left.imaginary + product_imag}
-            destination[(output_index + stride) & 63] <- StockhamComplex{real: left.real - product_real, imaginary: left.imaginary - product_imag}
-            input_index <- input_index + stride
-            output_index <- output_index + 2 * stride
+const MAX_FINITE: f64 = 1.7976931348623157e308
 
-@inline(always)
-def stockham_final_stage(source: StockhamComplex[64]&, output: mutable f64&,
-                         n: usize, twiddle_step: usize) -> void:
-    # The final stage has one butterfly per column and writes two contiguous halves.
-    offset: mutable usize = 0
-    twiddle_index: mutable usize = 0
-    while offset < n:
-        left: StockhamComplex = source[(offset >> 1) & 63]
-        right: StockhamComplex = source[((offset + n) >> 1) & 63]
-        twiddle: usize = twiddle_index & 31
-        cosine: f64 = TWIDDLE_REAL[twiddle]
-        sine: f64 = TWIDDLE_IMAG[twiddle]
-        product_real: f64 = cosine * right.real - sine * right.imaginary
-        product_imag: f64 = cosine * right.imaginary + sine * right.real
-        output[offset] <- left.real + product_real
-        output[offset + 1] <- left.imaginary + product_imag
-        output[offset + n] <- left.real - product_real
-        output[offset + n + 1] <- left.imaginary - product_imag
-        offset <- offset + 2
-        twiddle_index <- twiddle_index + twiddle_step
+# False for NaN and both infinities, like C's isfinite.
+def stockham_finite(value: f64) -> bool:
+    fabs(value) <= MAX_FINITE
 
-def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize,
-                                      output: mutable f64&?, output_capacity: usize) -> i64:
-    if input == null or input_length < 3 or input_length > max_input_length:
+def stockham_stage(source: view[f64], destination: mutable view[f64], n: usize, stride: usize) -> void:
+    j: mutable usize = 0
+    while j < n / 2:
+        column: usize = j % stride
+        group: usize = j / stride
+        base: usize = group * 2 * stride + column
+        angle: f64 = -TAU * column.f64() / (2 * stride).f64()
+        cosine: f64 = cos(angle)
+        sine: f64 = sin(angle)
+        left: usize = 2 * j
+        right: usize = 2 * (j + n / 2)
+        product_real: f64 = cosine * source[right] - sine * source[right + 1]
+        product_imag: f64 = cosine * source[right + 1] + sine * source[right]
+        first_real: f64 = source[left]
+        first_imag: f64 = source[left + 1]
+        out_left: usize = 2 * base
+        out_right: usize = 2 * (base + stride)
+        destination[out_left] <- first_real + product_real
+        destination[out_left + 1] <- first_imag + product_imag
+        destination[out_right] <- first_real - product_real
+        destination[out_right + 1] <- first_imag - product_imag
+        j <- j + 1
+
+def stockham_autosort_radix2_fft_impl(input: f64&?, input_length: usize, output: mutable f64&?, output_capacity: usize) -> i64:
+    if input == null or input_length < 3 or input_length > MAX_INPUT_LENGTH:
         return -1
-    # The odd input length gives the number of complex pairs exactly.
-    n: usize = input_length >> 1
-    if (input_length & 1) == 0 or (n & (n - 1)) != 0:
-        return -1
-    if not (input[0] == n.f64()):
-        return -1
-    index: mutable usize = 1
-    while index < input_length:
-        value: f64 = input[index]
-        if not (value >= -8.0 and value <= 8.0):
+    i: mutable usize = 0
+    while i < input_length:
+        if not stockham_finite(input[i]):
             return -1
-        index <- index + 1
+        i <- i + 1
+    n_value: f64 = input[0]
+    if n_value < 1.0 or n_value > MAX_N.f64() or floor(n_value) != n_value:
+        return -1
+    n: usize = n_value.usize()
+    if (n & (n - 1)) != 0 or input_length != 1 + 2 * n:
+        return -1
+    i <- 0
+    while i < MAX_SCALARS and i < 2 * n:
+        if input[i + 1] < -8.0 or input[i + 1] > 8.0:
+            return -1
+        i <- i + 1
+
+    first: mutable f64[128] = zeroed
+    second: mutable f64[128] = zeroed
+    i <- 0
+    while i < 2 * n:
+        first[i] <- input[i + 1]
+        i <- i + 1
+    # Stages alternate first -> second -> first; the parity of the stage
+    # count says which buffer holds the result.
+    source_is_first: mutable bool = true
+    stride: mutable usize = 1
+    while stride < n:
+        if source_is_first:
+            stockham_stage(first[0:MAX_SCALARS], second[0:MAX_SCALARS], n, stride)
+        else:
+            stockham_stage(second[0:MAX_SCALARS], first[0:MAX_SCALARS], n, stride)
+        source_is_first <- not source_is_first
+        stride <- stride * 2
 
     needed: usize = 2 * n
     if output == null or output_capacity < needed:
         return -2
-    if n == 1:
-        real: f64 = input[1]
-        imaginary: f64 = input[2]
-        output[0] <- real
-        output[1] <- imaginary
-        return 2
-
-    if n == 2:
-        left_real: f64 = input[1]
-        left_imaginary: f64 = input[2]
-        right_real: f64 = input[3]
-        right_imaginary: f64 = input[4]
-        product_real: f64 = right_real - TWIDDLE_IMAG[0] * right_imaginary
-        product_imaginary: f64 = right_imaginary + TWIDDLE_IMAG[0] * right_real
-        output[0] <- left_real + product_real
-        output[1] <- left_imaginary + product_imaginary
-        output[2] <- left_real - product_real
-        output[3] <- left_imaginary - product_imaginary
-        return 4
-
-    first: mutable StockhamComplex[64] = zeroed
-    second: mutable StockhamComplex[64] = zeroed
-    # The stride-one stage has a single twiddle and writes contiguous pairs.
-    index <- 0
-    while index < n:
-        left_real: f64 = input[index + 1]
-        left_imaginary: f64 = input[index + 2]
-        right_real: f64 = input[index + n + 1]
-        right_imaginary: f64 = input[index + n + 2]
-        # Keep the signed-zero behavior of the general complex multiply.
-        product_real: f64 = right_real - TWIDDLE_IMAG[0] * right_imaginary
-        product_imaginary: f64 = right_imaginary + TWIDDLE_IMAG[0] * right_real
-        destination: usize = index & 62
-        first[destination] <- StockhamComplex{real: left_real + product_real, imaginary: left_imaginary + product_imaginary}
-        first[destination + 1] <- StockhamComplex{real: left_real - product_real, imaginary: left_imaginary - product_imaginary}
-        index <- index + 2
-
-    if n == 4:
-        stockham_final_stage(&first, output, 4, 16)
-        return needed.i64()
-    stockham_stage(&first, &second, n, 2, 16)
-    if n == 8:
-        stockham_final_stage(&second, output, 8, 8)
-        return needed.i64()
-    stockham_stage(&second, &first, n, 4, 8)
-    if n == 16:
-        stockham_final_stage(&first, output, 16, 4)
-        return needed.i64()
-    stockham_stage(&first, &second, n, 8, 4)
-    if n == 32:
-        stockham_final_stage(&second, output, 32, 2)
-        return needed.i64()
-    stockham_stage(&second, &first, 64, 16, 2)
-    stockham_final_stage(&first, output, 64, 1)
+    i <- 0
+    while i < needed:
+        output[i] <- first[i] if source_is_first else second[i]
+        i <- i + 1
     needed.i64()
 
-export fn stockham_autosort_radix2_fft(input: f64&?, input_length: usize,
-                                       output: mutable f64&?, output_capacity: usize) -> i64 = stockham_autosort_radix2_fft_impl
+export fn stockham_autosort_radix2_fft(input: f64&?, input_length: usize, output: mutable f64&?, output_capacity: usize) -> i64 = stockham_autosort_radix2_fft_impl

@@ -1,3 +1,4 @@
+# Circular mean of wrapped angles with Kahan-compensated cosine and sine sums.
 @intrinsic("llvm.sin.f64")
 extern sin(value: f64) -> f64
 @intrinsic("llvm.cos.f64")
@@ -5,6 +6,8 @@ extern cos(value: f64) -> f64
 extern atan2(y: f64, x: f64) -> f64
 @intrinsic("llvm.floor.f64")
 extern floor(value: f64) -> f64
+@intrinsic("llvm.trunc.f64")
+extern trunc(value: f64) -> f64
 @intrinsic("llvm.sqrt.f64")
 extern sqrt(value: f64) -> f64
 @intrinsic("llvm.fabs.f64")
@@ -13,50 +16,41 @@ extern fabs(value: f64) -> f64
 const CMD_PI: f64 = 3.14159265358979323846264338327950288
 const CMD_TAU: f64 = 6.28318530717958647692528676655900576
 
-# Two binary64 steps below pi keep angle + pi strictly below tau after rounding.
-const CMD_ZERO_QUOTIENT_LIMIT: f64 = 3.1415926535897922
+const CMD_MAX_FINITE: f64 = 1.7976931348623157e308
+
+# False for NaN and both infinities, like C's isfinite.
+def cmd_finite(value: f64) -> bool:
+    fabs(value) <= CMD_MAX_FINITE
 
 def cmd_wrap(angle: f64) -> f64:
-    value: f64 = angle - floor((angle + CMD_PI) / CMD_TAU) * CMD_TAU
-    if fabs(value) < CMD_PI: return value
-    if value < -CMD_PI: return value + CMD_TAU
-    if value >= CMD_PI: return value - CMD_TAU
+    value: mutable f64 = angle - floor((angle + CMD_PI) / CMD_TAU) * CMD_TAU
+    if value >= CMD_PI:
+        value <- value - CMD_TAU
+    if value < -CMD_PI:
+        value <- value + CMD_TAU
     value
 
-def circular_mean_direction_impl(values: f64&, length: usize, output: mutable f64&, output_capacity: usize) -> i64:
-    if values == null or length < 2 or length > 65: return -1
-    if length == 2:
-        if values[0] != 1.0: return -1
-        raw: f64 = values[1]
-        magnitude: f64 = fabs(raw)
-        angle: mutable f64 = raw
-        # The reduction quotient is zero throughout this interval.
-        if not (magnitude <= CMD_ZERO_QUOTIENT_LIMIT):
-            if not (magnitude <= 8.0 * CMD_PI): return -1
-            angle <- cmd_wrap(raw)
-        if output == null or output_capacity < 1: return -2
-        direction: f64 = atan2(0.0 + sin(angle), 0.0 + cos(angle))
-        output[0] <- -direction if direction >= CMD_PI else direction
-        return 1
+def circular_mean_direction_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 66:
+        return -1
+    count_value: f64 = input[0]
+    if not cmd_finite(count_value) or trunc(count_value) != count_value or count_value < 1.0 or count_value > 64.0:
+        return -1
+    count: usize = count_value.usize()
+    if length != count + 1:
+        return -1
 
-    count: usize = length - 1
-    if values[0] != count.f64(): return -1
-    circular_mean_multiple(values, count, output, output_capacity)
-
-@inline(never)
-def circular_mean_multiple(values: f64&, count: usize, output: mutable f64&, output_capacity: usize) -> i64:
-    first: f64 = values[1]
-    if not (fabs(first) <= 8.0 * CMD_PI): return -1
-    first_angle: f64 = first if fabs(first) <= CMD_ZERO_QUOTIENT_LIMIT else cmd_wrap(first)
-    # With zero initial sums the first Kahan correction is exactly zero.
-    sum_cos: mutable f64 = 0.0 + cos(first_angle)
-    sum_sin: mutable f64 = 0.0 + sin(first_angle)
+    sum_cos: mutable f64 = 0.0
+    sum_sin: mutable f64 = 0.0
     correction_cos: mutable f64 = 0.0
     correction_sin: mutable f64 = 0.0
-    for index in 1..<count:
-        raw: f64 = values[index + 1]
-        if not (fabs(raw) <= 8.0 * CMD_PI): return -1
-        angle: f64 = raw if fabs(raw) <= CMD_ZERO_QUOTIENT_LIMIT else cmd_wrap(raw)
+    angle_bound: f64 = 8.0 * CMD_PI
+    index: mutable usize = 0
+    while index < count:
+        raw: f64 = input[index + 1]
+        if not cmd_finite(raw) or fabs(raw) > angle_bound:
+            return -1
+        angle: f64 = cmd_wrap(raw)
         adjusted_cos: f64 = cos(angle) - correction_cos
         next_cos: f64 = sum_cos + adjusted_cos
         correction_cos <- (next_cos - sum_cos) - adjusted_cos
@@ -65,13 +59,14 @@ def circular_mean_multiple(values: f64&, count: usize, output: mutable f64&, out
         next_sin: f64 = sum_sin + adjusted_sin
         correction_sin <- (next_sin - sum_sin) - adjusted_sin
         sum_sin <- next_sin
+        index <- index + 1
     resultant: f64 = sqrt(sum_cos * sum_cos + sum_sin * sum_sin)
-    if not (resultant > count.f64() * 0.0000000037252902984619140625):
+    # 2^-28 per sample: below this the direction is numerically undefined.
+    if not cmd_finite(resultant) or resultant <= count.f64() * 0.0000000037252902984619140625:
         return -1
-    if output == null or output_capacity < 1: return -2
-    # atan2 already returns an angle in [-pi, pi].
-    direction: f64 = atan2(sum_sin, sum_cos)
-    output[0] <- -direction if direction >= CMD_PI else direction
+    if output == null or capacity < 1:
+        return -2
+    output[0] <- cmd_wrap(atan2(sum_sin, sum_cos))
     1
 
 export fn circular_mean_direction(input: f64&, input_length: usize, output: mutable f64&, output_capacity: usize) -> i64 = circular_mean_direction_impl
