@@ -45,7 +45,7 @@ def binary_addition_impl(values: i64&, length: usize, output: mutable u8&, outpu
         if offset < length_b:
             digit_b <- values[2 + length_a + length_b - 1 - offset]
         sum: i64 = digit_a + digit_b + carry
-        output[width - 1 - offset] <- (48 + (sum & 1)).u8()
+        output[output_length - 1 - offset] <- (48 + (sum & 1)).u8()
         carry <- sum >> 1
     if carry != 0:
         output[0] <- 49.u8()

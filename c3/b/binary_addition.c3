@@ -34,7 +34,7 @@ fn long binary_addition(long* values, usz length, char* output, usz output_capac
         long digit_a = offset < length_a ? values[2 + length_a - 1 - offset] : 0;
         long digit_b = offset < length_b ? values[2 + length_a + length_b - 1 - offset] : 0;
         long sum = digit_a + digit_b + carry;
-        output[width - 1 - offset] = (char)('0' + (sum & 1));
+        output[output_length - 1 - offset] = (char)('0' + (sum & 1));
         carry = sum >> 1;
     }
     if (carry != 0) output[0] = '1';

@@ -34,7 +34,7 @@ proc binary_addition*(values: ptr UncheckedArray[int64], length: csize_t,
     let digitA = if offset < lengthA: values[2 + lengthA - 1 - offset] else: 0
     let digitB = if offset < lengthB: values[2 + lengthA + lengthB - 1 - offset] else: 0
     let sum = digitA + digitB + carry
-    output[width - 1 - offset] = uint8(ord('0') + int(sum and 1))
+    output[outputLength - 1 - offset] = uint8(ord('0') + int(sum and 1))
     carry = sum shr 1
   if carry != 0:
     output[0] = uint8(ord('1'))
