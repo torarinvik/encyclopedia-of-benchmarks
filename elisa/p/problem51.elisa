@@ -82,9 +82,9 @@ def problem51_impl(ignored: i64) -> i64:
                         member_index: usize = member.usize()
                         if state[member_index] == FILTERED_PRIME:
                             state[member_index] <- FILTERED_CHECKED
-                        else if state[member_index] == 0:
+                        elif state[member_index] == 0:
                             state[member_index] <- CHECKED_NONPRIME
-                        else if state[member_index] == PRIME:
+                        elif state[member_index] == PRIME:
                             state[member_index] <- CHECKED_OTHER_PRIME
                         if state[member_index] == FILTERED_PRIME or state[member_index] == FILTERED_CHECKED:
                             family_count <- family_count + 1

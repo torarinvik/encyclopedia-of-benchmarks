@@ -1,6 +1,8 @@
 def neural_network_perceptron_classifier_impl(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     if length < 5: return -1
-    f: i64 = v[0]; s: i64 = v[1]; bias: i64 = v[2]
+    f: i64 = v[0]
+    s: i64 = v[1]
+    bias: i64 = v[2]
     if f < 1 or f > 3 or s < 1 or s > 4 or bias < -10000 or bias > 10000 or length != (3+f+f*s).usize(): return -1
     i: mutable usize = 0
     while i < f.usize():
@@ -17,7 +19,7 @@ def neural_network_perceptron_classifier_impl(v: i64&, length: usize, output: mu
         while i < f.usize():
             z <- z+v[3+i]*v[3+f.usize()+i*s.usize()+j]
             i <- i+1
-        output[j] <- (z > 0).u8()
+        output[j] <- (1 if z > 0 else 0).u8()
         j <- j+1
     s
-export neural_network_perceptron_classifier(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = neural_network_perceptron_classifier_impl
+export fn neural_network_perceptron_classifier(v: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = neural_network_perceptron_classifier_impl

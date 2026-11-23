@@ -70,6 +70,7 @@ def geohash_impl(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i
             bit <- 0
             value <- 0
     if out == null or capacity < 12: return -2
-    for i in 0..<12: out[i] <- buffer[i]
+    for i in 0..<12:
+        out[i] <- buffer[i]
     12
-export geohash(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = geohash_impl
+export fn geohash(v: i64&, length: usize, out: mutable u8&, capacity: usize) -> i64 = geohash_impl

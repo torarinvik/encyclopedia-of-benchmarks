@@ -5,7 +5,7 @@ const MAX_INPUT_LENGTH: usize = 43
 def match_word_pattern_search(
     input: i64&, pattern_length: usize, text_start: usize, text_length: usize,
     pattern_index: usize, text_index: usize,
-    mapped_start: mutable usize&, mapped_length: mutable usize&,
+    mapped_start: mutable usize&, mapped_length: mutable usize&
 ) -> bool:
     if pattern_index == pattern_length:
         return text_index == text_length
@@ -24,7 +24,7 @@ def match_word_pattern_search(
             offset <- offset + 1
         return match_word_pattern_search(
             input, pattern_length, text_start, text_length,
-            pattern_index + 1, text_index + known_length, mapped_start, mapped_length,
+            pattern_index + 1, text_index + known_length, mapped_start, mapped_length
         )
 
     end: mutable usize = text_index + 1
@@ -51,7 +51,7 @@ def match_word_pattern_search(
             mapped_length[symbol] <- candidate_length
             if match_word_pattern_search(
                 input, pattern_length, text_start, text_length,
-                pattern_index + 1, end, mapped_start, mapped_length,
+                pattern_index + 1, end, mapped_start, mapped_length
             ):
                 return true
             mapped_length[symbol] <- 0
@@ -59,7 +59,7 @@ def match_word_pattern_search(
     false
 
 def match_word_pattern_impl(input: i64&, input_length: usize) -> i64:
-    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH:
+    if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH:
         return -1
     pattern_length_arg: i64 = input[0]
     text_length_arg: i64 = input[1]
@@ -82,7 +82,7 @@ def match_word_pattern_impl(input: i64&, input_length: usize) -> i64:
     mapped_length: mutable usize[128] = zeroed
     result: bool = match_word_pattern_search(
         input, pattern_length, 2 + pattern_length, text_length, 0, 0,
-        &mapped_start[0], &mapped_length[0],
+        &mapped_start[0], &mapped_length[0]
     )
     if result:
         return 1

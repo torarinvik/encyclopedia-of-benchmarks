@@ -3,7 +3,7 @@ const MAX_INPUT_LENGTH: usize = 34
 
 def reverse_queue_recursive(
     queue: mutable u8&, capacity: usize,
-    front: mutable usize&, size: mutable usize&,
+    front: mutable usize&, size: mutable usize&
 ) -> void:
     if size == 0:
         return
@@ -16,12 +16,12 @@ def reverse_queue_recursive(
     size <- size + 1
 
 def reverse_queue_recursion_impl(
-    input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize,
+    input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize
 ) -> i64:
-    if input.is_null():
+    if input == null:
         if input_length != 1:
             return -1
-        if output.is_null():
+        if output == null:
             return -2
         return 0
     if input_length < 1 or input_length > MAX_INPUT_LENGTH:
@@ -38,7 +38,7 @@ def reverse_queue_recursion_impl(
         if value < 0 or value > 255:
             return -1
         index <- index + 1
-    if output.is_null() or output_capacity < queue_length:
+    if output == null or output_capacity < queue_length:
         return -2
 
     queue: mutable u8[MAX_QUEUE_LENGTH] = zeroed
@@ -57,5 +57,5 @@ def reverse_queue_recursion_impl(
 
 export fn reverse_queue_recursion(
     input: i64&, input_length: usize,
-    output: mutable u8&, output_capacity: usize,
+    output: mutable u8&, output_capacity: usize
 ) -> i64 = reverse_queue_recursion_impl

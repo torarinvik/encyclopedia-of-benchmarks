@@ -3,7 +3,7 @@ const max_input: usize = 132
 
 def splash2_ocean_rbgs_impl(input: f64&, input_length: usize,
                             output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > max_input:
+    if input == null or input_length < 3 or input_length > max_input:
         return -1
     index: mutable usize = 0
     while index < input_length:
@@ -35,7 +35,7 @@ def splash2_ocean_rbgs_impl(input: f64&, input_length: usize,
             return -1
         index <- index + 1
     needed: usize = 1 + cells
-    if output.is_null() or output_capacity < needed:
+    if output == null or output_capacity < needed:
         return -2
 
     max_change: mutable f64 = 0.0
@@ -50,7 +50,7 @@ def splash2_ocean_rbgs_impl(input: f64&, input_length: usize,
                     neighbors: f64 = grid[index + 1] + grid[index - 1] + grid[index - side] + grid[index + side]
                     old_value: f64 = grid[index]
                     updated: f64 = (neighbors - rhs[index]) / factor
-                    change: f64 = old_value - updated
+                    change: mutable f64 = old_value - updated
                     if change < 0.0: change <- -change
                     if change > max_change: max_change <- change
                     grid[index] <- updated

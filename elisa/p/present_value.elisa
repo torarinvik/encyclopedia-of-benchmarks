@@ -1,5 +1,3 @@
-module present_value;
-
 extern pow(base: f64, exponent: f64) -> f64
 
 const INVALID_RESULT: f64 = -1.0e300
@@ -8,7 +6,7 @@ def round_two_python(value: f64) -> f64:
     if value == 0.0:
         return value
     negative: bool = value < 0.0
-    normalized: mutable f64 = if negative: -value else: value
+    normalized: mutable f64 = -value if negative else value
     exponent: mutable i64 = 0
     while normalized >= 1.0:
         normalized <- normalized * 0.5
@@ -22,9 +20,9 @@ def round_two_python(value: f64) -> f64:
     cents: mutable u64 = 0.u64()
     if shift < 0:
         cents <- numerator << (-shift).u32()
-    else if shift == 0:
+    elif shift == 0:
         cents <- numerator
-    else if shift < 64:
+    elif shift < 64:
         denominator: u64 = 1.u64() << shift.u32()
         cents <- numerator >> shift.u32()
         remainder: u64 = numerator & (denominator - 1.u64())

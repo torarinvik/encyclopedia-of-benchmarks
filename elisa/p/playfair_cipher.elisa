@@ -2,11 +2,11 @@ const MIN_PARSEABLE_INPUT_LENGTH: usize = 3
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 157
 const MAX_KEY_LENGTH: usize = 25
 const MAX_TEXT_LENGTH: usize = 128
-const FNV_OFFSET_BASIS: u64 = 14695981039346656037.u64()
-const FNV_PRIME: u64 = 1099511628211.u64()
+const FNV_OFFSET_BASIS: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
 
 def playfair_cipher_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < MIN_PARSEABLE_INPUT_LENGTH or length > MAX_PARSEABLE_INPUT_LENGTH:
+    if input == null or length < MIN_PARSEABLE_INPUT_LENGTH or length > MAX_PARSEABLE_INPUT_LENGTH:
         return -1
     operation: i64 = input[0]
     key_length_value: i64 = input[1]
@@ -64,7 +64,7 @@ def playfair_cipher_impl(input: i64&, length: usize) -> i64:
         text_index <- text_index + 1
 
     hash: mutable u64 = FNV_OFFSET_BASIS
-    shift: i64 = if operation == 0: 1 else: -1
+    shift: i64 = 1 if operation == 0 else -1
     text_index <- 0
     while text_index < text_length:
         first: u8 = input[text_start + text_index].u8()
@@ -82,7 +82,7 @@ def playfair_cipher_impl(input: i64&, length: usize) -> i64:
             next2: usize = (column2.i64() + shift + 5).usize() % 5
             result1 <- square[row1 * 5 + next1]
             result2 <- square[row2 * 5 + next2]
-        else if column1 == column2:
+        elif column1 == column2:
             next1: usize = (row1.i64() + shift + 5).usize() % 5
             next2: usize = (row2.i64() + shift + 5).usize() % 5
             result1 <- square[next1 * 5 + column1]
@@ -93,6 +93,6 @@ def playfair_cipher_impl(input: i64&, length: usize) -> i64:
         hash <- (hash ^ result1.u64()) * FNV_PRIME
         hash <- (hash ^ result2.u64()) * FNV_PRIME
         text_index <- text_index + 2
-    (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()
+    (hash & 0x7fffffffffffffff).i64()
 
 export fn playfair_cipher(input: i64&, length: usize) -> i64 = playfair_cipher_impl
