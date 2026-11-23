@@ -48,7 +48,7 @@ def range_affine_point_get_read(mul: mutable view[i64], add: mutable view[i64],
     return range_affine_point_get_read(mul, add, initial, 2 * node + 1,
         middle, segment_right, index)
 
-def range_affine_point_get_store(output: mutable view[u8], offset: usize, value: i64) -> void:
+def range_affine_point_get_store(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -56,9 +56,10 @@ def range_affine_point_get_store(output: mutable view[u8], offset: usize, value:
 
 def range_affine_point_get_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_PARSEABLE_INPUT:
+    if input == null or length < 2 or length > MAX_PARSEABLE_INPUT:
         return -1
-    frame: view[i64] = input[0:length]
+    frame_storage: darray[i64] = [input[index] for index in 0..<length]
+    frame: view[i64] = frame_storage[0:length]
     n_value: i64 = frame[0]
     q_value: i64 = frame[1]
     if n_value < 1 or n_value > 256 or q_value < 0 or q_value > 256:
@@ -97,7 +98,7 @@ def range_affine_point_get_impl(input: i64&, length: usize,
             operations[operation_offset + 2] <- right
             operations[operation_offset + 3] <- multiplier
             operations[operation_offset + 4] <- offset
-        else if kind == 1:
+        elif kind == 1:
             if cursor >= length:
                 return -1
             point: i64 = frame[cursor]
@@ -112,7 +113,7 @@ def range_affine_point_get_impl(input: i64&, length: usize,
         return -1
 
     output_bytes: usize = 8 * query_count
-    if output_bytes > 0 and (output.is_null() or capacity < output_bytes):
+    if output_bytes > 0 and (output == null or capacity < output_bytes):
         return -2
     base: mutable usize = 1
     while base < n:
@@ -125,7 +126,6 @@ def range_affine_point_get_impl(input: i64&, length: usize,
     mut_add: mutable view[i64] = add[0:MAX_TREE]
     initial_view: view[i64] = initial[0:MAX_N]
     staging: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    staging_view: mutable view[u8] = staging[0:MAX_OUTPUT_BYTES]
     answer: mutable usize = 0
     for index in 0..<q:
         operation_offset: usize = 5 * index
@@ -138,14 +138,11 @@ def range_affine_point_get_impl(input: i64&, length: usize,
         else:
             value: i64 = range_affine_point_get_read(mut_mul, mut_add, initial_view,
                 1, 0, base, operations[operation_offset + 1].usize())
-            range_affine_point_get_store(staging_view, 8 * answer, value)
+            range_affine_point_get_store(&staging[0], 8 * answer, value)
             answer <- answer + 1
     if output_bytes > 0:
-        output_view: mutable view[u8] = output[0:output_bytes]
         for byte in 0..<output_bytes:
-            output_view[byte] <- staging[byte]
+            output[byte] <- staging[byte]
     i64(output_bytes)
 
-export "range_affine_point_get" fn range_affine_point_get(input: i64&, length: usize,
-    output: mutable u8&, capacity: usize) -> i64:
-    range_affine_point_get_impl(input, length, output, capacity)
+export fn range_affine_point_get(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = range_affine_point_get_impl

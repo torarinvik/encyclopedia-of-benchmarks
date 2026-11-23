@@ -1,18 +1,19 @@
 const MOD: i64 = 998244353
 const MAX_Q: usize = 16
-const CAP: usize = 4096
+const NODE_CAPACITY: usize = 4096
+
 struct AffineNode:
-    sum: i64
-    mul: i64
-    add: i64
-    left: i64
-    right: i64
+    sum: mutable i64
+    mul: mutable i64
+    add: mutable i64
+    left: mutable i64
+    right: mutable i64
 
 def aff_norm(x: i64) -> i64:
     return ((x % MOD) + MOD) % MOD
 
 def aff_clone(nodes: mutable view[AffineNode], used: mutable view[usize], source: i64) -> i64:
-    if source < 0 or used[0] >= CAP: return -1
+    if source < 0 or used[0] >= NODE_CAPACITY: return -1
     copy: i64 = used[0].i64()
     used[0] <- used[0] + 1
     nodes[copy.usize()].sum <- nodes[source.usize()].sum
@@ -24,7 +25,7 @@ def aff_clone(nodes: mutable view[AffineNode], used: mutable view[usize], source
 
 def aff_make(nodes: mutable view[AffineNode], used: mutable view[usize], value: i64,
              left: i64, right: i64) -> i64:
-    if used[0] >= CAP: return -1
+    if used[0] >= NODE_CAPACITY: return -1
     copy: i64 = used[0].i64()
     used[0] <- used[0] + 1
     nodes[copy.usize()].sum <- value
@@ -137,19 +138,22 @@ def aff_query(nodes: view[AffineNode], node: i64, left: i64, right: i64,
     if qr > middle: z <- aff_norm(z + aff_query(nodes, nodes[node.usize()].right, middle+1, right, ql, qr, nm, na))
     return z
 
-def aff_put(output: mutable view[u8], offset: i64, value: i64) -> void:
+def aff_put(output: mutable u8&, offset: i64, value: i64) -> void:
     bits: u64 = value.u64()
     for byte in 0..<8:
         output[offset.usize()+byte] <- ((bits >> (8*byte)) & 255).u8()
 
 def persistent_range_affine_range_sum_impl(input: i64&, length: usize,
     output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 115: return -1
-    frame: view[i64] = input[0:length]
+    if input == null or length < 2 or length > 115: return -1
+    frame_storage: darray[i64] = [input[index] for index in 0..<length]
+    frame: view[i64] = frame_storage[0:length]
     n0: i64 = frame[0]
     q0: i64 = frame[1]
     if n0 < 1 or n0 > 16 or q0 < 1 or q0 > 16: return -1
-    n: i64 = n0.i64(); q: i64 = q0.i64(); off: mutable i64 = 2+n
+    n: i64 = n0.i64()
+    q: i64 = q0.i64()
+    off: mutable i64 = 2+n
     if length < off.usize(): return -1
     for i in 0..<n.usize():
         if frame[2+i] < 0 or frame[2+i] >= MOD: return -1
@@ -160,7 +164,8 @@ def persistent_range_affine_range_sum_impl(input: i64&, length: usize,
     ends: mutable i64[MAX_Q] = zeroed
     mults: mutable i64[MAX_Q] = zeroed
     adds: mutable i64[MAX_Q] = zeroed
-    for i in 0..<MAX_Q: mults[i] <- 1
+    for i in 0..<MAX_Q:
+        mults[i] <- 1
     for i in 0..<q.usize():
         if off >= length.i64(): return -1
         op: i64 = frame[(off).usize()]
@@ -173,24 +178,29 @@ def persistent_range_affine_range_sum_impl(input: i64&, length: usize,
         k: i64 = frame[(off+1).usize()]
         if k < -1 or k >= i.i64(): return -1
         if k >= 0 and kind[k.usize()] != 0 and kind[k.usize()] != 1: return -1
-        kind[i] <- op; refs[i] <- k
+        kind[i] <- op
+        refs[i] <- k
         if op == 0 or op == 2:
-            starts[i] <- frame[(off+2).usize()]; ends[i] <- frame[(off+3).usize()]
+            starts[i] <- frame[(off+2).usize()]
+            ends[i] <- frame[(off+3).usize()]
             if starts[i] < 0 or ends[i] <= starts[i] or ends[i] > n0: return -1
         if op == 0:
-            mults[i] <- frame[(off+4).usize()]; adds[i] <- frame[(off+5).usize()]
+            mults[i] <- frame[(off+4).usize()]
+            adds[i] <- frame[(off+5).usize()]
             if mults[i] < 1 or mults[i] >= MOD or adds[i] < 0 or adds[i] >= MOD: return -1
         if op == 1:
-            srcs[i] <- frame[(off+2).usize()]; starts[i] <- frame[(off+3).usize()]; ends[i] <- frame[(off+4).usize()]
+            srcs[i] <- frame[(off+2).usize()]
+            starts[i] <- frame[(off+3).usize()]
+            ends[i] <- frame[(off+4).usize()]
             s: i64 = srcs[i]
             if s < -1 or s >= i.i64(): return -1
             if s >= 0 and kind[s.usize()] != 0 and kind[s.usize()] != 1: return -1
             if starts[i] < 0 or ends[i] <= starts[i] or ends[i] > n0: return -1
         off <- off + width
     if off != length.i64(): return -1
-    nodes: mutable AffineNode[CAP] = zeroed
+    nodes: mutable AffineNode[NODE_CAPACITY] = zeroed
     used: mutable usize[1] = zeroed
-    initial: i64 = aff_build(nodes[0:CAP], used[0:1], frame, 2, 0, n-1)
+    initial: i64 = aff_build(nodes[0:NODE_CAPACITY], used[0:1], frame, 2, 0, n-1)
     if initial < 0: return -1
     roots: mutable i64[MAX_Q] = zeroed
     answers: mutable i64[MAX_Q] = zeroed
@@ -199,24 +209,26 @@ def persistent_range_affine_range_sum_impl(input: i64&, length: usize,
         base: mutable i64 = initial
         if refs[i] >= 0: base <- roots[refs[i].usize()]
         if kind[i] == 0:
-            roots[i] <- aff_update(nodes[0:CAP], used[0:1], base, 0, n-1,
+            roots[i] <- aff_update(nodes[0:NODE_CAPACITY], used[0:1], base, 0, n-1,
                 starts[i].i64(), ends[i].i64()-1, mults[i], adds[i])
             if roots[i] < 0: return -1
         elif kind[i] == 1:
             source: mutable i64 = initial
             if srcs[i] >= 0: source <- roots[srcs[i].usize()]
-            roots[i] <- aff_copy(nodes[0:CAP], used[0:1], base, source, 0, n-1,
+            roots[i] <- aff_copy(nodes[0:NODE_CAPACITY], used[0:1], base, source, 0, n-1,
                 starts[i].i64(), ends[i].i64()-1)
             if roots[i] < 0: return -1
         else:
-            answers[answer_count.usize()] <- aff_query(nodes[0:CAP], base, 0, n-1,
+            answers[answer_count.usize()] <- aff_query(nodes[0:NODE_CAPACITY], base, 0, n-1,
                 starts[i].i64(), ends[i].i64()-1, 1, 0)
             answer_count <- answer_count + 1
     required: usize = 8*answer_count.usize()
-    if output.is_null() or capacity < required: return -2
-    for i in 0..<answer_count.usize(): aff_put(output[0:required], (8*i).i64(), answers[i])
+    if output == null or capacity < required: return -2
+    for i in 0..<answer_count.usize():
+        aff_put(output, (8*i).i64(), answers[i])
     return required.i64()
 
-export fn persistent_range_affine_range_sum(input: i64&, length: usize,
-    output: mutable u8&, capacity: usize) -> i64:
+def persistent_range_affine_range_sum_entry(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
     persistent_range_affine_range_sum_impl(input, length, output, capacity)
+
+export fn persistent_range_affine_range_sum(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = persistent_range_affine_range_sum_entry
