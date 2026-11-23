@@ -1,10 +1,9 @@
-# This divisor exceeds sqrt(541), the largest candidate. The spare slot
-# terminates the divisor scan even when every stored prime was tried.
-const STREAM_SIEVE_END_DIVISOR: i32 = 65535
+# Extend and reuse one process-wide prime prefix, like the source LazyList.
+const MAX_PRIMES: usize = 100
 
-global mutable STREAM_SIEVE_PRIME_CACHE: mutable i32[101] = [
+global mutable STREAM_SIEVE_PRIME_CACHE: mutable i32[100] = [
     2,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -16,60 +15,44 @@ global mutable STREAM_SIEVE_PRIME_CACHE: mutable i32[101] = [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ]
 global mutable STREAM_SIEVE_PRIME_COUNT: usize = 1
-global mutable STREAM_SIEVE_NEXT_CANDIDATE: i32 = 7
-global mutable STREAM_SIEVE_WHEEL_GAPS: u32 = 0x62642424
+global mutable STREAM_SIEVE_NEXT_CANDIDATE: i32 = 3
+
+def stream_sieve_is_prime_candidate(candidate: i32) -> bool:
+    can Global.Read:
+        index: mutable usize = 0
+        while index < STREAM_SIEVE_PRIME_COUNT:
+            divisor: i32 = STREAM_SIEVE_PRIME_CACHE[index]
+            if divisor > candidate / divisor:
+                break
+            if candidate % divisor == 0:
+                return false
+            index <- index + 1
+    true
+
+def stream_sieve_extend_prime_cache(requested_count: usize) -> void:
+    can Global.Read, Global.Write:
+        while STREAM_SIEVE_PRIME_COUNT < requested_count:
+            candidate: i32 = STREAM_SIEVE_NEXT_CANDIDATE
+            STREAM_SIEVE_NEXT_CANDIDATE <- STREAM_SIEVE_NEXT_CANDIDATE + 1
+            if stream_sieve_is_prime_candidate(candidate):
+                STREAM_SIEVE_PRIME_CACHE[STREAM_SIEVE_PRIME_COUNT] <- candidate
+                STREAM_SIEVE_PRIME_COUNT <- STREAM_SIEVE_PRIME_COUNT + 1
 
 def stream_sieve_impl(number_of_primes: i64, output: mutable u8&, output_capacity: usize) -> i64:
-    if number_of_primes < -2147483648 or number_of_primes > 100: return -1
+    if number_of_primes < -2147483648 or number_of_primes > MAX_PRIMES.i64(): return -1
     if number_of_primes <= 0: return 0
     count: usize = number_of_primes.usize()
     required: usize = count * 4
     if output == null or output_capacity < required: return -2
 
     can Global.Read, Global.Write:
-        cached_count: mutable usize = STREAM_SIEVE_PRIME_COUNT
-        if cached_count < count:
-            if cached_count == 1:
-                STREAM_SIEVE_PRIME_CACHE[1] <- 3
-                cached_count <- 2
-            if cached_count == 2 and count > 2:
-                STREAM_SIEVE_PRIME_CACHE[2] <- 5
-                STREAM_SIEVE_PRIME_CACHE[3] <- STREAM_SIEVE_END_DIVISOR
-                cached_count <- 3
-            if cached_count < count:
-                candidate: mutable u32 = STREAM_SIEVE_NEXT_CANDIDATE.u32()
-                wheel_gaps: mutable u32 = STREAM_SIEVE_WHEEL_GAPS
-                while cached_count < count:
-                    is_prime: mutable bool = true
-                    if candidate >= 49:
-                        is_prime <- candidate % 7 != 0
-                        if is_prime:
-                            divisors: mutable i32& = &STREAM_SIEVE_PRIME_CACHE[4]
-                            while true:
-                                divisor: u32 = divisors[0].u32()
-                                if divisor > candidate / divisor: break
-                                if candidate % divisor == 0:
-                                    is_prime <- false
-                                    break
-                                divisors <- &divisors[1]
-                    if is_prime:
-                        STREAM_SIEVE_PRIME_CACHE[cached_count] <- candidate.i32()
-                        cached_count <- cached_count + 1
-                        STREAM_SIEVE_PRIME_CACHE[cached_count] <- STREAM_SIEVE_END_DIVISOR
-                    # Gaps for residues 7, 11, 13, 17, 19, 23, 29, and 1 modulo 30.
-                    candidate <- candidate + (wheel_gaps & 15)
-                    wheel_gaps <- (wheel_gaps >> 4) | (wheel_gaps << 28)
-                STREAM_SIEVE_NEXT_CANDIDATE <- candidate.i32()
-                STREAM_SIEVE_WHEEL_GAPS <- wheel_gaps
-            STREAM_SIEVE_PRIME_COUNT <- cached_count
-
+        stream_sieve_extend_prime_cache(count)
         index: mutable usize = 0
         while index < count:
-            bits: mutable u32 = STREAM_SIEVE_PRIME_CACHE[index].u32()
+            bits: u32 = STREAM_SIEVE_PRIME_CACHE[index].u32()
             byte: mutable usize = 0
             while byte < 4:
-                output[index * 4 + byte] <- (bits & 255).u8()
-                bits <- bits >> 8
+                output[index * 4 + byte] <- ((bits >> (byte * 8).u32()) & 255).u8()
                 byte <- byte + 1
             index <- index + 1
     required.i64()

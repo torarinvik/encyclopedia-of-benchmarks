@@ -1,8 +1,9 @@
+# Offline rectangle add / rectangle sum: coordinate compression, a 2-D
+# difference grid, then a weighted 2-D prefix sum modulo 998244353.
 const MAX_N: usize = 32
 const MAX_Q: usize = 32
 const MAX_COORDS: usize = 128
 const STRIDE: usize = 129
-const GRID_INDEX_MASK: usize = MAX_COORDS * MAX_COORDS - 1
 const MODULUS: i64 = 998244353
 
 def sras_lower(a: view[i64], count: usize, value: i64) -> usize:
@@ -40,56 +41,15 @@ def sras_put64(value: i64, output: mutable u8&, offset: usize) -> void:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
-    output: mutable u8&?, capacity: usize) -> i64:
+def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
     if input == null or length < 2 or length > 291: return -1
     n64: i64 = input[0]
     q64: i64 = input[1]
-    if n64 < 1 or n64 > 32 or q64 < 0 or q64 > 32: return -1
+    if n64 < 1 or n64 > MAX_N.i64() or q64 < 0 or q64 > MAX_Q.i64(): return -1
     n: usize = n64.usize()
     q: usize = q64.usize()
     if length != 2 + 5 * n + 4 * q: return -1
-    for update in 0..<n:
-        base: usize = 2 + 5*update
-        left: i64 = input[base]
-        down: i64 = input[base+1]
-        right: i64 = input[base+2]
-        up: i64 = input[base+3]
-        weight: i64 = input[base+4]
-        if left < 0 or left >= right or right > 1000000 or down < 0 or down >= up or up > 1000000 or weight < 0 or weight >= MODULUS: return -1
-    for query in 0..<q:
-        base: usize = 2 + 5*n + 4*query
-        left: i64 = input[base]
-        down: i64 = input[base+1]
-        right: i64 = input[base+2]
-        up: i64 = input[base+3]
-        if left < 0 or left >= right or right > 1000000 or down < 0 or down >= up or up > 1000000: return -1
-    bytes: usize = 8 * q
-    if output == null or capacity < bytes: return -2
-    if q == 0: return 0
-    if n*q <= 64:
-        direct: mutable i64[MAX_Q] = zeroed
-        for query in 0..<q:
-            query_base: usize = 2 + 5*n + 4*query
-            residue: mutable u64 = 0
-            for update in 0..<n:
-                update_base: usize = 2 + 5*update
-                left: mutable i64 = input[query_base + 0]
-                left <- input[update_base + 0] if input[update_base + 0] > input[query_base + 0]
-                right: mutable i64 = input[query_base + 2]
-                right <- input[update_base + 2] if input[update_base + 2] < input[query_base + 2]
-                down: mutable i64 = input[query_base + 1]
-                down <- input[update_base + 1] if input[update_base + 1] > input[query_base + 1]
-                up: mutable i64 = input[query_base + 3]
-                up <- input[update_base + 3] if input[update_base + 3] < input[query_base + 3]
-                if right > left and up > down:
-                    area: u64 = (right.u64() - left.u64()) * (up.u64() - down.u64())
-                    weighted: u64 = ((area % MODULUS.u64()) * input[update_base + 4].u64()) % MODULUS.u64()
-                    residue <- residue + weighted
-            direct[query] <- (residue % MODULUS.u64()).i64()
-        for query in 0..<q:
-            sras_put64(direct[query], output, 8*query)
-        return bytes.i64()
+
     ul: mutable i64[MAX_N] = zeroed
     ud: mutable i64[MAX_N] = zeroed
     ur: mutable i64[MAX_N] = zeroed
@@ -112,6 +72,8 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         uu[i] <- input[off + 3]
         uw[i] <- input[off + 4]
         off <- off + 5
+        if ul[i] < 0 or ul[i] >= ur[i] or ur[i] > 1000000 or ud[i] < 0 or ud[i] >= uu[i] or uu[i] > 1000000 or uw[i] < 0 or uw[i] >= MODULUS:
+            return -1
         xs[nx] <- ul[i]
         xs[nx + 1] <- ur[i]
         ys[ny] <- ud[i]
@@ -126,6 +88,8 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         qr[i] <- input[off + 2]
         qu[i] <- input[off + 3]
         off <- off + 4
+        if ql[i] < 0 or ql[i] >= qr[i] or qr[i] > 1000000 or qd[i] < 0 or qd[i] >= qu[i] or qu[i] > 1000000:
+            return -1
         xs[nx] <- ql[i]
         xs[nx + 1] <- qr[i]
         ys[ny] <- qd[i]
@@ -135,54 +99,68 @@ def static_rectangle_add_rectangle_sum_impl(input: i64&?, length: usize,
         i <- i + 1
     sras_sort_unique(xs[0:MAX_COORDS], nx)
     sras_sort_unique(ys[0:MAX_COORDS], ny)
-    # Corner differences can wrap while accumulating. The recovered cell weight
-    # is nonnegative and at most MAX_N times the largest allowed weight.
-    diff: mutable u64[MAX_COORDS * MAX_COORDS] = zeroed
-    prefix: mutable u64[STRIDE * STRIDE] = zeroed
+
+    diff: mutable i64[MAX_COORDS * MAX_COORDS] = zeroed
+    prefix: mutable i64[STRIDE * STRIDE] = zeroed
     k: mutable usize = 0
     while k < n:
         x0: usize = sras_lower(xs[0:MAX_COORDS], nx, ul[k])
         x1: usize = sras_lower(xs[0:MAX_COORDS], nx, ur[k])
         y0: usize = sras_lower(ys[0:MAX_COORDS], ny, ud[k])
         y1: usize = sras_lower(ys[0:MAX_COORDS], ny, uu[k])
-        diff[(x0 * MAX_COORDS + y0) & GRID_INDEX_MASK] <- diff[(x0 * MAX_COORDS + y0) & GRID_INDEX_MASK] + uw[k].u64()
-        diff[(x1 * MAX_COORDS + y0) & GRID_INDEX_MASK] <- diff[(x1 * MAX_COORDS + y0) & GRID_INDEX_MASK] - uw[k].u64()
-        diff[(x0 * MAX_COORDS + y1) & GRID_INDEX_MASK] <- diff[(x0 * MAX_COORDS + y1) & GRID_INDEX_MASK] - uw[k].u64()
-        diff[(x1 * MAX_COORDS + y1) & GRID_INDEX_MASK] <- diff[(x1 * MAX_COORDS + y1) & GRID_INDEX_MASK] + uw[k].u64()
+        diff[x0 * MAX_COORDS + y0] <- diff[x0 * MAX_COORDS + y0] + uw[k]
+        diff[x1 * MAX_COORDS + y0] <- diff[x1 * MAX_COORDS + y0] - uw[k]
+        diff[x0 * MAX_COORDS + y1] <- diff[x0 * MAX_COORDS + y1] - uw[k]
+        diff[x1 * MAX_COORDS + y1] <- diff[x1 * MAX_COORDS + y1] + uw[k]
         k <- k + 1
-    previous_weights: mutable u64[MAX_COORDS] = zeroed
     i <- 0
-    while i + 1 < nx:
-        row_weight: mutable u64 = 0
-        weighted_height: mutable u64 = 0
-        width: u64 = xs[i + 1].u64() - xs[i].u64()
+    while i < nx:
         j: mutable usize = 0
-        while j + 1 < ny:
-            index: usize = i * MAX_COORDS + j
-            row_weight <- row_weight + diff[(index) & GRID_INDEX_MASK]
-            column: usize = j & (MAX_COORDS - 1)
-            weight: u64 = row_weight + previous_weights[column]
-            previous_weights[column] <- weight
-            height: u64 = ys[j + 1].u64() - ys[j].u64()
-            # Total height is at most one million, so this sum fits in u64.
-            weighted_height <- weighted_height + weight * height
-            row_area: u64 = (weighted_height % MODULUS.u64()) * width
-            prefix[(i + 1) * STRIDE + j + 1] <- (row_area + prefix[i * STRIDE + j + 1]) % MODULUS.u64()
+        while j < ny:
+            at: usize = i * MAX_COORDS + j
+            value: mutable i64 = diff[at]
+            if i != 0:
+                value <- value + diff[(i - 1) * MAX_COORDS + j]
+            if j != 0:
+                value <- value + diff[i * MAX_COORDS + j - 1]
+            if i != 0 and j != 0:
+                value <- value - diff[(i - 1) * MAX_COORDS + j - 1]
+            diff[at] <- value
             j <- j + 1
         i <- i + 1
-    answer: mutable i64[MAX_Q] = zeroed
+    i <- 0
+    while i + 1 < nx:
+        j: mutable usize = 0
+        while j + 1 < ny:
+            value: i64 = diff[i * MAX_COORDS + j] % MODULUS
+            dx: i64 = (xs[i + 1] - xs[i]) % MODULUS
+            dy: i64 = (ys[j + 1] - ys[j]) % MODULUS
+            cell: i64 = value * (dx * dy % MODULUS) % MODULUS
+            sum: mutable i64 = cell + prefix[i * STRIDE + j + 1] + prefix[(i + 1) * STRIDE + j] - prefix[i * STRIDE + j]
+            sum <- sum % MODULUS
+            if sum < 0:
+                sum <- sum + MODULUS
+            prefix[(i + 1) * STRIDE + (j + 1)] <- sum
+            j <- j + 1
+        i <- i + 1
+    answers: mutable i64[MAX_Q] = zeroed
     k <- 0
     while k < q:
         x0: usize = sras_lower(xs[0:MAX_COORDS], nx, ql[k])
         x1: usize = sras_lower(xs[0:MAX_COORDS], nx, qr[k])
         y0: usize = sras_lower(ys[0:MAX_COORDS], ny, qd[k])
         y1: usize = sras_lower(ys[0:MAX_COORDS], ny, qu[k])
-        value: u64 = 2 * MODULUS.u64() + prefix[x1 * STRIDE + y1] - prefix[x0 * STRIDE + y1] - prefix[x1 * STRIDE + y0] + prefix[x0 * STRIDE + y0]
-        answer[k] <- (value % MODULUS.u64()).i64()
+        value: mutable i64 = prefix[x1 * STRIDE + y1] - prefix[x0 * STRIDE + y1] - prefix[x1 * STRIDE + y0] + prefix[x0 * STRIDE + y0]
+        value <- value % MODULUS
+        if value < 0:
+            value <- value + MODULUS
+        answers[k] <- value
         k <- k + 1
+    bytes: usize = 8 * q
+    if output == null or capacity < bytes: return -2
     k <- 0
     while k < q:
-        sras_put64(answer[k], output, 8 * k)
+        sras_put64(answers[k], output, 8 * k)
         k <- k + 1
     bytes.i64()
 

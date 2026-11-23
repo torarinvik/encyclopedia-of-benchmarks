@@ -1,60 +1,20 @@
-@inline(always)
-def stooge_compare_endpoints(values: mutable i64&, last: usize) -> void:
-    first_value: i64 = values[0]
-    last_value: i64 = values[last]
-    if first_value > last_value:
-        values[0] <- last_value
-        values[last] <- first_value
-
-@inline(always)
-def stooge_sort_three(values: mutable i64&) -> void:
-    # Compare the outer pair, then the adjacent pairs. The final
-    # left comparison is redundant because the minimum is in place.
-    first: i64 = values[0]
-    middle: i64 = values[1]
-    last: i64 = values[2]
-    outer_low: i64 = first if first <= last else last
-    outer_high: i64 = last if first <= last else first
-    inner_high: i64 = middle if outer_low <= middle else outer_low
-    values[0] <- outer_low if outer_low <= middle else middle
-    values[1] <- inner_high if inner_high <= outer_high else outer_high
-    values[2] <- outer_high if inner_high <= outer_high else inner_high
-
-@inline(always)
-def stooge_sort_four(values: mutable i64&) -> void:
-    stooge_compare_endpoints(values, 3)
-    stooge_sort_three(values)
-    stooge_sort_three(&values[1])
-    stooge_sort_three(values)
-
-# Each recursive call receives the start and length of its subrange.
-def stooge_sort_range(values: mutable i64&, length: usize) -> void:
-    span: mutable usize = length
-    # The caller handles lengths below three, and splitting a span of at least
-    # five leaves at least four elements in each recursive subrange.
-    while true:
-        if span == 3:
-            stooge_sort_three(values)
-            return
-        stooge_compare_endpoints(values, span - 1)
-        if span == 4:
-            stooge_sort_three(values)
-            stooge_sort_three(&values[1])
-            stooge_sort_three(values)
-            return
-        third: usize = span / 3
-        span <- span - third
-        stooge_sort_range(values, span)
-        stooge_sort_range(&values[third], span)
+# Portable stooge sort using half-open subranges.
+def stooge_sort_range(values: mutable i64&, low: usize, high: usize) -> void:
+    length: usize = high - low
+    if length < 2:
+        return
+    if values[low] > values[high - 1]:
+        temporary: i64 = values[low]
+        values[low] <- values[high - 1]
+        values[high - 1] <- temporary
+    if length > 2:
+        third: usize = length / 3
+        stooge_sort_range(values, low, high - third)
+        stooge_sort_range(values, low + third, high)
+        stooge_sort_range(values, low, high - third)
 
 def stooge_sort_impl(values: mutable i64&, length: usize) -> void:
-    if length <= 2:
-        if length == 2:
-            stooge_compare_endpoints(values, 1)
-        return
-    if length == 4:
-        stooge_sort_four(values)
-    else:
-        stooge_sort_range(values, length)
+    if length > 1:
+        stooge_sort_range(values, 0, length)
 
 export fn stooge_sort(values: mutable i64&, length: usize) -> void = stooge_sort_impl
