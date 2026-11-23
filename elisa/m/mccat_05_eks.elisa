@@ -1,15 +1,17 @@
-/****
-    Copyright (C) 1996 McGill University.
-    Copyright (C) 1996 McCAT System Group.
-    Copyright (C) 1996 ACAPS Benchmark Administrator
-                       benadmin@acaps.cs.mcgill.ca
-
-    This program is free software; you can redistribute it and/or modify
-    it provided this copyright notice is maintained.
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-****/
+# 
+# Copyright (C) 1996 McGill University.
+# Copyright (C) 1996 McCAT System Group.
+# Copyright (C) 1996 ACAPS Benchmark Administrator
+# benadmin@acaps.cs.mcgill.ca
+# 
+# This program is free software
+# you can redistribute it and/or modify
+# it provided this copyright notice is maintained.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY
+# without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# 
 extern sqrt(value: f64) -> f64
 
 const MIN_N: i64 = 3
@@ -28,14 +30,16 @@ def eks_givens(a: f64, b: f64, s: mutable f64&, c: mutable f64&) -> void:
     if b == 0.0:
         c <- 1.0
         s <- 0.0
-    else if eks_abs(b) > eks_abs(a):
+    elif eks_abs(b) > eks_abs(a):
         t: f64 = -a / b
-        s <- 1.0 / sqrt(1.0 + t * t)
-        c <- s * t
+        sine: f64 = 1.0 / sqrt(1.0 + t * t)
+        s <- sine
+        c <- sine * t
     else:
         t: f64 = -b / a
-        c <- 1.0 / sqrt(1.0 + t * t)
-        s <- c * t
+        cosine: f64 = 1.0 / sqrt(1.0 + t * t)
+        c <- cosine
+        s <- cosine * t
 
 def eks_apply_givens(a: mutable view[f64], n: usize, s: f64, c: f64,
         i: usize, j: usize, start: usize, end: usize) -> void:
@@ -62,12 +66,12 @@ def eks_reduce_band(a: mutable view[f64], n: usize, bandwidth: usize) -> void:
             s: mutable f64 = 0.0
             c: mutable f64 = 0.0
             eks_givens(a[j * n + j + i - 1], a[j * n + j + i], s, c)
-            end: usize = if j + 2 * i < n: j + 2 * i else: n - 1
+            end: mutable usize = j + 2 * i if j + 2 * i < n else n - 1
             eks_apply_givens(a, n, s, c, j + i - 1, j + i, j, end)
             m: mutable usize = j + i
             while m < n - i:
                 eks_givens(a[(m - 1) * n + m + i - 1], a[(m - 1) * n + m + i], s, c)
-                end <- if m + 2 * i < n: m + 2 * i else: n - 1
+                end <- m + 2 * i if m + 2 * i < n else n - 1
                 eks_apply_givens(a, n, s, c, m + i - 1, m + i, m - 1, end)
                 m <- m + i
             j <- j + 1
@@ -83,15 +87,17 @@ def eks_qr_iterate(a: mutable view[f64], n: usize) -> bool:
                 a[i * n + i + 1] <- 0.0
             i <- i + 1
         q: mutable usize = n - 1
-        while q > 0 and a[(q - 1) * n + q] == 0.0: q <- q - 1
+        while q > 0 and a[(q - 1) * n + q] == 0.0:
+            q <- q - 1
         if q == 0: return true
         steps <- steps + 1
         if steps > MAX_QR_STEPS: return false
         p: mutable usize = q
-        while p > 0 and a[(p - 1) * n + p] != 0.0: p <- p - 1
+        while p > 0 and a[(p - 1) * n + p] != 0.0:
+            p <- p - 1
         d: f64 = (a[(q - 1) * n + q - 1] - a[q * n + q]) / 2.0
         t: f64 = a[q * n + q - 1] * a[q * n + q - 1]
-        sign: f64 = if d < 0.0: -1.0 else: 1.0
+        sign: f64 = -1.0 if d < 0.0 else 1.0
         mu: f64 = a[q * n + q] - t / (d + sign * sqrt(d * d + t))
         x: mutable f64 = a[p * n + p] - mu
         z: mutable f64 = a[(p + 1) * n + p]
@@ -100,8 +106,8 @@ def eks_qr_iterate(a: mutable view[f64], n: usize) -> bool:
             s: mutable f64 = 0.0
             c: mutable f64 = 0.0
             eks_givens(x, z, s, c)
-            l: usize = if i > p: i - 1 else: p
-            m: usize = if q < i + 2: q else: i + 2
+            l: usize = i - 1 if i > p else p
+            m: usize = q if q < i + 2 else i + 2
             k: mutable usize = l
             while k <= m:
                 u: f64 = a[i * n + k]
@@ -132,7 +138,7 @@ def eks_before(left: f64, right: f64) -> bool:
     if eks_abs(left) < eks_abs(right): return false
     left < right
 
-def eks_put_i32(value: i64, output: mutable view[u8], offset: usize) -> void:
+def eks_put_i32(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u32 = value.u32()
     output[offset] <- bits.u8()
     output[offset + 1] <- (bits >> 8).u8()
@@ -141,7 +147,7 @@ def eks_put_i32(value: i64, output: mutable view[u8], offset: usize) -> void:
 
 def mccat_05_eks_impl(input: i64&, input_length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
+    if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
     n64: i64 = input[0]
     bw64: i64 = input[1]
     if n64 < MIN_N or n64 > MAX_N or bw64 < 2 or bw64 > 5 or bw64 >= n64: return -1
@@ -156,18 +162,19 @@ def mccat_05_eks_impl(input: i64&, input_length: usize,
             value: i64 = input[2 + row * n + column]
             if value < -1000000 or value > 1000000: return -1
             if row > column and value != input[2 + column * n + row]: return -1
-            distance: usize = if row > column: row - column else: column - row
+            distance: usize = row - column if row > column else column - row
             if distance > bandwidth and value != 0: return -1
             a[row * n + column] <- value.f64() / INPUT_SCALE
             column <- column + 1
         row <- row + 1
     required: usize = n * 4
-    if output.is_null() or capacity < required: return -2
+    if output == null or capacity < required: return -2
     matrix_view: mutable view[f64] = a[0:64]
     eks_reduce_band(matrix_view, n, bandwidth)
     if not eks_qr_iterate(matrix_view, n): return -1
     eigenvalues: mutable f64[8] = zeroed
-    for i in 0..<n: eigenvalues[i] <- a[i * n + i]
+    for i in 0..<n:
+        eigenvalues[i] <- a[i * n + i]
     for i in 1..<n:
         value: f64 = eigenvalues[i]
         j: mutable usize = i
@@ -176,9 +183,10 @@ def mccat_05_eks_impl(input: i64&, input_length: usize,
             j <- j - 1
         eigenvalues[j] <- value
     staged: mutable u8[32] = zeroed
-    staged_view: mutable view[u8] = staged[0:32]
-    for i in 0..<n: eks_put_i32(eks_project(eigenvalues[i]), staged_view, 4 * i)
-    for i in 0..<required: output[i] <- staged[i]
+    for i in 0..<n:
+        eks_put_i32(eks_project(eigenvalues[i]), &staged[0], 4 * i)
+    for i in 0..<required:
+        output[i] <- staged[i]
     required.i64()
 
 export fn mccat_05_eks(input: i64&, input_length: usize,

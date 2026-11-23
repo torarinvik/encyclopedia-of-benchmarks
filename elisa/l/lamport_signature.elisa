@@ -2,7 +2,7 @@ const MAX_INPUT_LENGTH: usize = 64
 const MAX_PADDED_LENGTH: usize = 128
 
 def sha256_add32(left: u32, right: u32) -> u32:
-    ((left.u64() + right.u64()) & 0xFFFF_FFFF.u64()).u32()
+    ((left.u64() + right.u64()) & 0xFFFFFFFF).u32()
 
 def sha256_rotr(value: u32, amount: usize) -> u32:
     (value >> amount) | (value << (32 - amount))
@@ -129,9 +129,9 @@ def lamport_signature_impl(input: i64&, length: usize) -> i64:
         for value in 0..<2:
             secret_offset: usize = entropy_start + (bit * 2 + value) * LAMPORT_SECRET_BYTES
             public_offset: usize = (bit * 2 + value) * 32
-            if sha256_impl(input + secret_offset, LAMPORT_SECRET_BYTES, &public_key[public_offset], 32) != 32:
+            if sha256_impl(&input[secret_offset], LAMPORT_SECRET_BYTES, &public_key[public_offset], 32) != 32:
                 return -1
-    if sha256_impl(input + 1, message_length, &message_digest[0], 32) != 32:
+    if sha256_impl(&input[1], message_length, &message_digest[0], 32) != 32:
         return -1
     for bit in 0..<LAMPORT_DIGEST_BITS:
         value: usize = ((message_digest[bit / 8] >> (7 - (bit % 8))) & 1).usize()
@@ -144,7 +144,7 @@ def lamport_signature_impl(input: i64&, length: usize) -> i64:
     if tamper_index >= 0:
         signature[tamper_index.usize()] <- signature[tamper_index.usize()] ^ 1
     verify_digest: mutable u8[32] = zeroed
-    if sha256_impl(input + verify_start, verify_length, &verify_digest[0], 32) != 32:
+    if sha256_impl(&input[verify_start], verify_length, &verify_digest[0], 32) != 32:
         return -1
     verified: mutable u8 = 1
     for bit in 0..<LAMPORT_DIGEST_BITS:

@@ -1,7 +1,7 @@
 struct SplayNode:
-    key: i32
-    left: i64
-    right: i64
+    key: mutable i32
+    left: mutable i64
+    right: mutable i64
 
 def splay_rotate_right(nodes: mutable view[SplayNode], root: i64) -> i64:
     child: i64 = nodes[root.usize()].left
@@ -15,14 +15,14 @@ def splay_rotate_left(nodes: mutable view[SplayNode], root: i64) -> i64:
     nodes[child.usize()].left <- root
     return child
 
-def splay_tree_splay(nodes: mutable view[SplayNode], root: i64, key: i32) -> i64:
+def splay_tree_splay(nodes: mutable view[SplayNode], root: mutable i64, key: i32) -> i64:
     if root < 0 or nodes[root.usize()].key == key: return root
     if key < nodes[root.usize()].key:
         left: i64 = nodes[root.usize()].left
         if left < 0: return root
         if key < nodes[left.usize()].key:
             nodes[left.usize()].left <- splay_tree_splay(nodes, nodes[left.usize()].left, key)
-            root = splay_rotate_right(nodes, root)
+            root <- splay_rotate_right(nodes, root)
         elif key > nodes[left.usize()].key:
             nodes[left.usize()].right <- splay_tree_splay(nodes, nodes[left.usize()].right, key)
             if nodes[left.usize()].right >= 0:
@@ -33,7 +33,7 @@ def splay_tree_splay(nodes: mutable view[SplayNode], root: i64, key: i32) -> i64
     if right < 0: return root
     if key > nodes[right.usize()].key:
         nodes[right.usize()].right <- splay_tree_splay(nodes, nodes[right.usize()].right, key)
-        root = splay_rotate_left(nodes, root)
+        root <- splay_rotate_left(nodes, root)
     elif key < nodes[right.usize()].key:
         nodes[right.usize()].left <- splay_tree_splay(nodes, nodes[right.usize()].left, key)
         if nodes[right.usize()].left >= 0:
@@ -48,16 +48,16 @@ def splay_tree_inorder(nodes: view[SplayNode], root: i64, keys: mutable view[i64
     count <- count + 1
     splay_tree_inorder(nodes, nodes[root.usize()].right, keys, count)
 
-def splay_tree_write_word(output: mutable view[u8], offset: mutable usize&, word: i64) -> void:
-    bits: u64 = if word < 0: (word + 18446744073709551616).u64() else: word.u64()
-    i: usize = 0
+def splay_tree_write_word(output: mutable u8&, offset: mutable usize&, word: i64) -> void:
+    bits: u64 = word.u64()
+    i: mutable usize = 0
     while i < 8:
         output[offset] <- (bits >> (8 * i)).u8()
         offset <- offset + 1
         i <- i + 1
 
 def splay_tree_impl(input: i64&, input_length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or input_length == 0 or input_length > 130 or input[0] < 0 or input[0] > 64: return -1
+    if input == null or input_length == 0 or input_length > 130 or input[0] < 0 or input[0] > 64: return -1
     op_count: usize = input[0].usize()
     if input_length != 1 + 2 * op_count: return -1
     ops: mutable i64[64] = zeroed
@@ -66,7 +66,7 @@ def splay_tree_impl(input: i64&, input_length: usize, output: mutable u8&, capac
     live: mutable i64[32] = zeroed
     live_count: mutable usize = 0
     offset: mutable usize = 1
-    i: mutable usize = 0
+    i: mutable  mutable usize = 0
     while i < op_count:
         op: i64 = input[offset]
         key: i64 = input[offset + 1]
@@ -123,7 +123,7 @@ def splay_tree_impl(input: i64&, input_length: usize, output: mutable u8&, capac
             tags[i] <- -2
         elif ops[i] == 1:
             root <- splay_tree_splay(nodes[0:64], root, key)
-            tags[i] <- if root >= 0 and nodes[root.usize()].key == key: 1 else: 0
+            tags[i] <- 1 if root >= 0 and nodes[root.usize()].key == key else 0
         else:
             root <- splay_tree_splay(nodes[0:64], root, key)
             tags[i] <- -3
@@ -140,17 +140,17 @@ def splay_tree_impl(input: i64&, input_length: usize, output: mutable u8&, capac
     splay_tree_inorder(nodes[0:64], root, final_keys[0:32], final_count)
     staged: mutable u8[784] = zeroed
     written: mutable usize = 0
-    splay_tree_write_word(staged[0:784], written, op_count.i64())
+    splay_tree_write_word(&staged[0], written, op_count.i64())
     i <- 0
     while i < op_count:
-        splay_tree_write_word(staged[0:784], written, tags[i])
+        splay_tree_write_word(&staged[0], written, tags[i])
         i <- i + 1
-    splay_tree_write_word(staged[0:784], written, final_count.i64())
+    splay_tree_write_word(&staged[0], written, final_count.i64())
     i <- 0
     while i < final_count:
-        splay_tree_write_word(staged[0:784], written, final_keys[i])
+        splay_tree_write_word(&staged[0], written, final_keys[i])
         i <- i + 1
-    if output.is_null() or capacity < written: return -2
+    if output == null or capacity < written: return -2
     i <- 0
     while i < written:
         output[i] <- staged[i]
