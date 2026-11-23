@@ -15,7 +15,7 @@ def geo_mod_pow(base_value: i64, exponent_value: i64) -> i64:
         exponent <- exponent >> 1
     return result
 
-def geo_store_le(output: mutable view[u8], offset: usize, value: i64) -> void:
+def geo_store_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -51,7 +51,8 @@ def geo_ntt(values: mutable view[i64], inverse: bool) -> void:
         block <- block * 2
     if inverse:
         scale: i64 = geo_mod_pow(GEO_NTT_SIZE.i64(), GEO_MODULUS - 2)
-        for i in 0..<GEO_NTT_SIZE: values[i] <- values[i] * scale % GEO_MODULUS
+        for i in 0..<GEO_NTT_SIZE:
+            values[i] <- values[i] * scale % GEO_MODULUS
 
 def geo_evaluate(coefficients: view[i64], offset: usize, count: usize, x: i64) -> i64:
     value: mutable i64 = 0
@@ -62,8 +63,8 @@ def geo_evaluate(coefficients: view[i64], offset: usize, count: usize, x: i64) -
     return value
 
 def multipoint_evaluation_on_geometric_sequence_impl(
-    input: view[i64], length: usize, output: mutable view[u8],
-    capacity: usize, output_is_null: bool,
+    input: view[i64], length: usize, output: mutable u8&,
+    capacity: usize, output_is_null: bool
 ) -> i64:
     if length < 5 or length > GEO_MAX_INPUT: return -1
     n_value: i64 = input[0]
@@ -79,11 +80,13 @@ def multipoint_evaluation_on_geometric_sequence_impl(
     bytes: usize = 8 * m
     if output_is_null or capacity < bytes: return -2
     if start == 0:
-        for i in 0..<m: geo_store_le(output, 8 * i, input[4])
+        for i in 0..<m:
+            geo_store_le(output, 8 * i, input[4])
         return bytes.i64()
     if ratio == 0:
         geo_store_le(output, 0, geo_evaluate(input, 4, n, start))
-        for i in 1..<m: geo_store_le(output, 8 * i, input[4])
+        for i in 1..<m:
+            geo_store_le(output, 8 * i, input[4])
         return bytes.i64()
 
     inverse_ratio: i64 = geo_mod_pow(ratio, GEO_MODULUS - 2)
@@ -105,7 +108,8 @@ def multipoint_evaluation_on_geometric_sequence_impl(
         ratio_power <- ratio_power * ratio % GEO_MODULUS
     geo_ntt(left[0:GEO_NTT_SIZE], false)
     geo_ntt(right[0:GEO_NTT_SIZE], false)
-    for i in 0..<GEO_NTT_SIZE: left[i] <- left[i] * right[i] % GEO_MODULUS
+    for i in 0..<GEO_NTT_SIZE:
+        left[i] <- left[i] * right[i] % GEO_MODULUS
     geo_ntt(left[0:GEO_NTT_SIZE], true)
     inverse_chirp <- 1
     inverse_ratio_power <- 1
@@ -115,15 +119,15 @@ def multipoint_evaluation_on_geometric_sequence_impl(
         inverse_ratio_power <- inverse_ratio_power * inverse_ratio % GEO_MODULUS
     return bytes.i64()
 
-export fn multipoint_evaluation_on_geometric_sequence(
-    input: i64&, length: usize, output: mutable u8&, capacity: usize,
-) -> i64:
-    if input.is_null() or length < 5 or length > GEO_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+def multipoint_evaluation_on_geometric_sequence_entry(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 5 or length > GEO_MAX_INPUT: return -1
+    input_view_storage: darray[i64] = [input[index] for index in 0..<length]
+    input_view: view[i64] = input_view_storage[0:length]
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return multipoint_evaluation_on_geometric_sequence_impl(input_view, length, scratch[0:1], 0, true)
+        return multipoint_evaluation_on_geometric_sequence_impl(input_view, length, &scratch[0], 0, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > GEO_MAX_OUTPUT_BYTES: safe_capacity <- GEO_MAX_OUTPUT_BYTES
-    output_view: mutable view[u8] = output[0:safe_capacity]
-    multipoint_evaluation_on_geometric_sequence_impl(input_view, length, output_view, capacity, false)
+    multipoint_evaluation_on_geometric_sequence_impl(input_view, length, output, capacity, false)
+
+export fn multipoint_evaluation_on_geometric_sequence(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = multipoint_evaluation_on_geometric_sequence_entry

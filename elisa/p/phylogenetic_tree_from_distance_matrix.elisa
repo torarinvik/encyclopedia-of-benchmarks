@@ -3,7 +3,7 @@ const MAX_NODES: usize = 10
 const MAX_EDGES: usize = 9
 const MAX_OUTPUT_BYTES: usize = 152
 
-def phylo_put64(output: mutable view[u8], offset: usize, value: i64): void:
+def phylo_put64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
@@ -11,31 +11,31 @@ def phylo_put64(output: mutable view[u8], offset: usize, value: i64): void:
 
 def phylo_tree_distance(node_count: usize, edge_count: usize,
         edge_u: view[usize], edge_v: view[usize], edge_w: view[i64], start: usize, target: usize,
-        distances: mutable view[i64]): bool:
+        distances: mutable view[i64]) -> bool:
     parent: mutable i64[MAX_NODES] = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
     queue: mutable usize[MAX_NODES] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_index: mutable usize = 0
     parent[start] <- start.i64()
     distances[start] <- 0
-    queue[tail] <- start
-    tail <- tail + 1
-    while head < tail:
+    queue[tail_index] <- start
+    tail_index <- tail_index + 1
+    while head < tail_index:
         node: usize = queue[head]
         head <- head + 1
         if node == target: return true
         for e in 0..<edge_count:
-            neighbor: usize = if edge_u[e] == node: edge_v[e] else if edge_v[e] == node: edge_u[e] else: MAX_NODES
+            neighbor: usize = edge_v[e] if edge_u[e] == node else (edge_u[e] if edge_v[e] == node else MAX_NODES)
             if neighbor == MAX_NODES or parent[neighbor] >= 0: continue
             parent[neighbor] <- node.i64()
             distances[neighbor] <- distances[node] + edge_w[e]
-            queue[tail] <- neighbor
-            tail <- tail + 1
+            queue[tail_index] <- neighbor
+            tail_index <- tail_index + 1
     false
 
 def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize): i64:
-    if input.is_null() or length < 1 or length > MAX_N * MAX_N + 2: return -1
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 1 or length > MAX_N * MAX_N + 2: return -1
     raw_n: i64 = input[0]
     if raw_n < 2 or raw_n > MAX_N.i64() or length != 1 + raw_n.usize() * raw_n.usize(): return -1
     n: usize = raw_n.usize()
@@ -71,7 +71,9 @@ def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
             for j in (i + 1)..<leaf:
                 candidate: i64 = d[i * MAX_N + leaf] + d[j * MAX_N + leaf] - d[i * MAX_N + j]
                 if candidate < limb2: limb2 <- candidate
-        if limb2 < 0: additive <- false; break
+        if limb2 < 0:
+            additive <- false
+            break
         witness_i: mutable usize = MAX_N
         witness_j: mutable usize = MAX_N
         attach_distance: mutable i64 = 0
@@ -85,7 +87,9 @@ def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
                     witness_j <- j
                     attach_distance <- from_i
                     break
-        if witness_i == MAX_N: additive <- false; break
+        if witness_i == MAX_N:
+            additive <- false
+            break
 
         start: usize = label_node[witness_i]
         target: usize = label_node[witness_j]
@@ -93,21 +97,23 @@ def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
         parent_edge: mutable i64[MAX_NODES] = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
         queue: mutable usize[MAX_NODES] = zeroed
         head: mutable usize = 0
-        tail: mutable usize = 0
+        tail_index: mutable usize = 0
         parent_node[start] <- start.i64()
-        queue[tail] <- start
-        tail <- tail + 1
-        while head < tail and parent_node[target] < 0:
+        queue[tail_index] <- start
+        tail_index <- tail_index + 1
+        while head < tail_index and parent_node[target] < 0:
             node: usize = queue[head]
             head <- head + 1
             for e in 0..<edge_count:
-                neighbor: usize = if edge_u[e] == node: edge_v[e] else if edge_v[e] == node: edge_u[e] else: MAX_NODES
+                neighbor: usize = edge_v[e] if edge_u[e] == node else (edge_u[e] if edge_v[e] == node else MAX_NODES)
                 if neighbor == MAX_NODES or parent_node[neighbor] >= 0: continue
                 parent_node[neighbor] <- node.i64()
                 parent_edge[neighbor] <- e.i64()
-                queue[tail] <- neighbor
-                tail <- tail + 1
-        if parent_node[target] < 0: additive <- false; break
+                queue[tail_index] <- neighbor
+                tail_index <- tail_index + 1
+        if parent_node[target] < 0:
+            additive <- false
+            break
         reverse_nodes: mutable usize[MAX_NODES] = zeroed
         reverse_edges: mutable usize[MAX_NODES] = zeroed
         path_node_count: mutable usize = 1
@@ -122,8 +128,10 @@ def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
             path_node_count <- path_node_count + 1
         path_nodes: mutable usize[MAX_NODES] = zeroed
         path_edges: mutable usize[MAX_NODES] = zeroed
-        for i in 0..<path_node_count: path_nodes[i] <- reverse_nodes[path_node_count - 1 - i]
-        for i in 0..<path_edge_count: path_edges[i] <- reverse_edges[path_edge_count - 1 - i]
+        for i in 0..<path_node_count:
+            path_nodes[i] <- reverse_nodes[path_node_count - 1 - i]
+        for i in 0..<path_edge_count:
+            path_edges[i] <- reverse_edges[path_edge_count - 1 - i]
         elapsed: mutable i64 = 0
         attach_node: mutable usize = MAX_NODES
         split_edge: mutable usize = MAX_EDGES
@@ -131,7 +139,9 @@ def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
         split_right: mutable usize = MAX_NODES
         split_from_left: mutable i64 = 0
         for step in 0..<path_node_count:
-            if attach_distance == elapsed: attach_node <- path_nodes[step]; break
+            if attach_distance == elapsed:
+                attach_node <- path_nodes[step]
+                break
             if step == path_edge_count: break
             e: usize = path_edges[step]
             weight: i64 = edge_w[e]
@@ -142,9 +152,13 @@ def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
                 split_from_left <- attach_distance - elapsed
                 break
             elapsed <- elapsed + weight
-        if attach_node == MAX_NODES and split_edge == MAX_EDGES: additive <- false; break
+        if attach_node == MAX_NODES and split_edge == MAX_EDGES:
+            additive <- false
+            break
         if split_edge != MAX_EDGES:
-            if node_count >= MAX_NODES or edge_count >= MAX_EDGES: additive <- false; break
+            if node_count >= MAX_NODES or edge_count >= MAX_EDGES:
+                additive <- false
+                break
             internal: usize = node_count
             node_count <- node_count + 1
             whole: i64 = edge_w[split_edge]
@@ -157,11 +171,15 @@ def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
             edge_count <- edge_count + 1
             attach_node <- internal
         if limb2 == 0:
-            if label_mask[attach_node] != 0: additive <- false; break
+            if label_mask[attach_node] != 0:
+                additive <- false
+                break
             label_node[leaf] <- attach_node
             label_mask[attach_node] <- label_mask[attach_node] | (1 << leaf)
         else:
-            if node_count >= MAX_NODES or edge_count >= MAX_EDGES: additive <- false; break
+            if node_count >= MAX_NODES or edge_count >= MAX_EDGES:
+                additive <- false
+                break
             new_leaf: usize = node_count
             node_count <- node_count + 1
             label_node[leaf] <- new_leaf
@@ -185,21 +203,21 @@ def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
         seen: mutable usize = 1 << edge_u[e]
         cut_queue: mutable usize[MAX_NODES] = zeroed
         head: mutable usize = 0
-        tail: mutable usize = 0
-        cut_queue[tail] <- edge_u[e]
-        tail <- tail + 1
+        tail_index: mutable usize = 0
+        cut_queue[tail_index] <- edge_u[e]
+        tail_index <- tail_index + 1
         mask: mutable usize = 0
-        while head < tail:
+        while head < tail_index:
             node: usize = cut_queue[head]
             head <- head + 1
             mask <- mask | label_mask[node]
             for other in 0..<edge_count:
                 if other == e: continue
-                neighbor: usize = if edge_u[other] == node: edge_v[other] else if edge_v[other] == node: edge_u[other] else: MAX_NODES
+                neighbor: usize = edge_v[other] if edge_u[other] == node else (edge_u[other] if edge_v[other] == node else MAX_NODES)
                 if neighbor == MAX_NODES or seen & (1 << neighbor) != 0: continue
                 seen <- seen | (1 << neighbor)
-                cut_queue[tail] <- neighbor
-                tail <- tail + 1
+                cut_queue[tail_index] <- neighbor
+                tail_index <- tail_index + 1
         if mask & 1 == 0: mask <- full_mask ^ mask
         record_mask[e] <- mask.i64()
         record_weight[e] <- edge_w[e]
@@ -214,14 +232,15 @@ def phylogenetic_tree_from_distance_matrix_impl(input: i64&, length: usize,
         record_mask[j] <- key_mask
         record_weight[j] <- key_weight
     output_bytes: usize = 8 * (1 + 2 * edge_count)
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    phylo_put64(staged[0:MAX_OUTPUT_BYTES], 0, edge_count.i64())
+    phylo_put64(&staged[0], 0, edge_count.i64())
     for i in 0..<edge_count:
-        phylo_put64(staged[0:MAX_OUTPUT_BYTES], 8 * (1 + 2 * i), record_mask[i])
-        phylo_put64(staged[0:MAX_OUTPUT_BYTES], 8 * (2 + 2 * i), record_weight[i])
-    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+        phylo_put64(&staged[0], 8 * (1 + 2 * i), record_mask[i])
+        phylo_put64(&staged[0], 8 * (2 + 2 * i), record_weight[i])
+    for byte in 0..<output_bytes:
+        output[byte] <- staged[byte]
     output_bytes.i64()
 
 export fn phylogenetic_tree_from_distance_matrix(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 @export("phylogenetic_tree_from_distance_matrix") = phylogenetic_tree_from_distance_matrix_impl
+        output: mutable u8&, capacity: usize) -> i64 = phylogenetic_tree_from_distance_matrix_impl

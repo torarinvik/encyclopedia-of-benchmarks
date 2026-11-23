@@ -4,33 +4,34 @@ const MAX_OPERATIONS: usize = 20
 const MAX_INPUT: usize = 97
 const MAX_OUTPUT_BYTES: usize = 168
 
-def ssdr_store64(output: mutable view[u8], offset: usize, value: i64): void:
+def ssdr_store64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def ssdr_rebuild(adjacency: view[bool], n: usize, source: usize,
-        reachable: mutable view[bool]): void:
+        reachable: mutable view[bool]) -> void:
     queue: mutable usize[MAX_N] = zeroed
     head: mutable usize = 0
-    tail: mutable usize = 0
-    for i in 0..<n: reachable[i] <- false
+    tail_index: mutable usize = 0
+    for i in 0..<n:
+        reachable[i] <- false
     reachable[source] <- true
-    queue[tail] <- source
-    tail <- tail + 1
-    while head < tail:
+    queue[tail_index] <- source
+    tail_index <- tail_index + 1
+    while head < tail_index:
         u: usize = queue[head]
         head <- head + 1
         for v in 0..<n:
             if adjacency[u * MAX_N + v] and not reachable[v]:
                 reachable[v] <- true
-                queue[tail] <- v
-                tail <- tail + 1
+                queue[tail_index] <- v
+                tail_index <- tail_index + 1
 
 def single_source_dynamic_reachability_rebuild_impl(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize): i64:
-    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+        output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT: return -1
     n_raw: i64 = input[0]
     source_raw: i64 = input[1]
     edge_count_raw: i64 = input[2]
@@ -78,7 +79,7 @@ def single_source_dynamic_reachability_rebuild_impl(input: i64&, length: usize,
         op_v[i] <- v_raw.usize()
 
     output_bytes: usize = 8 * (1 + query_count)
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     reachable: mutable bool[MAX_N] = zeroed
     answers: mutable i64[MAX_OPERATIONS] = zeroed
     answer_count: mutable usize = 0
@@ -91,13 +92,15 @@ def single_source_dynamic_reachability_rebuild_impl(input: i64&, length: usize,
             adjacency[op_u[i] * MAX_N + op_v[i]] <- false
             ssdr_rebuild(adjacency[0:MAX_N * MAX_N], n, source, reachable[0:MAX_N])
         else:
-            answers[answer_count] <- if reachable[op_u[i]]: 1 else: 0
+            answers[answer_count] <- 1 if (reachable[op_u[i]]) else 0
             answer_count <- answer_count + 1
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    ssdr_store64(staged[0:output_bytes], 0, answer_count.i64())
-    for i in 0..<answer_count: ssdr_store64(staged[0:output_bytes], 8 * (i + 1), answers[i])
-    for byte in 0..<output_bytes: output[byte] <- staged[byte]
+    ssdr_store64(&staged[0], 0, answer_count.i64())
+    for i in 0..<answer_count:
+        ssdr_store64(&staged[0], 8 * (i + 1), answers[i])
+    for byte in 0..<output_bytes:
+        output[byte] <- staged[byte]
     output_bytes.i64()
 
 export fn single_source_dynamic_reachability_rebuild(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 @export("single_source_dynamic_reachability_rebuild") = single_source_dynamic_reachability_rebuild_impl
+        output: mutable u8&, capacity: usize) -> i64 = single_source_dynamic_reachability_rebuild_impl

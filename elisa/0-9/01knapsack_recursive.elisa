@@ -29,6 +29,9 @@ def knapsack_01_recursive_impl(items_data: view[i64], length: usize) -> i64:
         return -1
     knapsack_01_recursive_solve(items_data, item_count.usize(), capacity)
 
-export fn knapsack_01_recursive_benchmark(items_data: i64&, length: usize) -> i64:
-    if items_data.is_null() or length < 2 or length > 34: return -1
-    knapsack_01_recursive_impl(items_data[0:length], length)
+def knapsack_01_recursive_benchmark_impl(items_data: i64&, length: usize) -> i64:
+    if items_data == null or length < 2 or length > 34: return -1
+    items_data_copy: darray[i64] = [items_data[index] for index in 0..<length]
+    knapsack_01_recursive_impl(items_data_copy[0:length], length)
+
+export fn knapsack_01_recursive_benchmark(items_data: i64&, length: usize) -> i64 = knapsack_01_recursive_benchmark_impl

@@ -41,17 +41,18 @@ def vc_search(adj: view[bool], n: usize, active: u64) -> u64:
     second_count: usize = vc_count_bits(second)
     if first_count < second_count: return first
     if second_count < first_count: return second
-    if first < second: return first else: return second
+    if first < second: return first
+    else: return second
 
-def vc_put_i64(value: i64, output: mutable view[u8], offset: usize) -> void:
+def vc_put_i64(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[offset + byte] <- ((bits >> (byte * 8)) & 255).u8()
         byte <- byte + 1
 
-def vertex_cover_search_trees(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("vertex_cover_search_trees"):
-    if input.is_null() or length < 3 or length > MAX_INPUT: return -1
+def vertex_cover_search_trees_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT: return -1
     n64: i64 = input[0]
     m64: i64 = input[1]
     k: i64 = input[2]
@@ -71,10 +72,12 @@ def vertex_cover_search_trees(input: i64&, length: usize, output: mutable u8&, c
         previous_u <- u
         previous_v <- v
         e <- e + 1
-    if output.is_null() or capacity < 24: return -2
+    if output == null or capacity < 24: return -2
     cover: u64 = vc_search(adj[0:MAX_N * MAX_N], n, (1.u64() << n) - 1)
     count: usize = vc_count_bits(cover)
-    vc_put_i64(if count <= k.usize(): 1 else: 0, output[0:capacity], 0)
-    vc_put_i64(count.i64(), output[0:capacity], 8)
-    vc_put_i64(cover.i64(), output[0:capacity], 16)
+    vc_put_i64(1 if count <= k.usize() else 0, output, 0)
+    vc_put_i64(count.i64(), output, 8)
+    vc_put_i64(cover.i64(), output, 16)
     24
+
+export fn vertex_cover_search_trees(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = vertex_cover_search_trees_impl

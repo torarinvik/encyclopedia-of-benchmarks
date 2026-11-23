@@ -21,9 +21,9 @@ def rmq_fcb_range_minimum(first: usize, last: usize, euler_count: usize,
     if block_a == block_b: return block_a * block_size + micro[(pattern[block_a] * 4 + offset_a) * 4 + offset_b]
     base_a: usize = block_a * block_size
     base_b: usize = block_b * block_size
-    len_a: usize = block_size
+    len_a: mutable usize = block_size
     if euler_count - base_a < len_a: len_a <- euler_count - base_a
-    best: usize = base_a + micro[(pattern[block_a] * 4 + offset_a) * 4 + len_a - 1]
+    best: mutable usize = base_a + micro[(pattern[block_a] * 4 + offset_a) * 4 + len_a - 1]
     best <- rmq_fcb_shallower(best, base_b + micro[pattern[block_b] * 16 + offset_b], depth)
     if block_b > block_a + 1:
         lo: usize = block_a + 1
@@ -36,13 +36,13 @@ def rmq_fcb_range_minimum(first: usize, last: usize, euler_count: usize,
     best
 
 def rmq_cartesian_tree_fcb_impl(input: view[i64], length: usize,
-    output: mutable view[u8], output_capacity: usize, output_is_null: bool) -> i64:
+    output: mutable u8&, output_capacity: usize, output_is_null: bool) -> i64:
     if length < 2 or length > 195 or input[0] < 1 or input[0] > i64(N) or input[1] < 0 or input[1] > i64(Q): return -1
     n: usize = input[0].usize()
     q: usize = input[1].usize()
     qo: usize = 2 + n
     if length != qo + 2 * q: return -1
-    var values: mutable i64[N] = zeroed
+    values: mutable i64[N] = zeroed
     for i in 0..<n |input, values|:
         values[i] <- input[2 + i]
         if values[i] < -1000 or values[i] > 1000: return -1
@@ -52,115 +52,159 @@ def rmq_cartesian_tree_fcb_impl(input: view[i64], length: usize,
         if lo < 0 or lo > hi or hi >= i64(n): return -1
     if output_is_null or output_capacity < q + 1: return -2
 
-    var left: mutable i64[N] = zeroed
-    var right: mutable i64[N] = zeroed
-    var parent: mutable i64[N] = zeroed
-    var mono: mutable usize[N] = zeroed
+    left: mutable i64[N] = zeroed
+    right: mutable i64[N] = zeroed
+    parent: mutable i64[N] = zeroed
+    mono: mutable usize[N] = zeroed
     for i in 0..<n |left, right, parent|:
-        left[i] <- -1; right[i] <- -1; parent[i] <- -1
-    var top: mutable usize = 0
+        left[i] <- -1
+        right[i] <- -1
+        parent[i] <- -1
+    top: mutable usize = 0
     for i in 0..<n |values, left, right, parent, mono, top|:
-        var last: i64 = -1
+        last: mutable i64 = -1
         while top > 0 and values[mono[top - 1]] > values[i]:
             top <- top - 1
             last <- mono[top].i64()
         if top > 0:
             p: usize = mono[top - 1]
-            right[p] <- i.i64(); parent[i] <- p.i64()
+            right[p] <- i.i64()
+            parent[i] <- p.i64()
         if last >= 0:
-            left[i] <- last; parent[last.usize()] <- i.i64()
-        mono[top] <- i; top <- top + 1
-    var root: mutable usize = 0
-    while parent[root] >= 0: root <- root + 1
+            left[i] <- last
+            parent[last.usize()] <- i.i64()
+        mono[top] <- i
+        top <- top + 1
+    root: mutable usize = 0
+    while parent[root] >= 0:
+        root <- root + 1
 
-    var euler: mutable usize[E] = zeroed
-    var depth: mutable usize[E] = zeroed
-    var first: mutable usize[N] = zeroed
-    var node_depth: mutable usize[N] = zeroed
-    var frame_node: mutable usize[N] = zeroed
-    var state: mutable usize[N] = zeroed
-    var ec: mutable usize = 1
-    var sp: mutable usize = 1
-    euler[0] <- root; depth[0] <- 0; first[root] <- 0; node_depth[root] <- 0; frame_node[0] <- root
+    euler: mutable usize[E] = zeroed
+    depth: mutable usize[E] = zeroed
+    first: mutable usize[N] = zeroed
+    node_depth: mutable usize[N] = zeroed
+    frame_node: mutable usize[N] = zeroed
+    state: mutable usize[N] = zeroed
+    ec: mutable usize = 1
+    sp: mutable usize = 1
+    euler[0] <- root
+    depth[0] <- 0
+    first[root] <- 0
+    node_depth[root] <- 0
+    frame_node[0] <- root
     while sp > 0:
         slot: usize = sp - 1
         v: usize = frame_node[slot]
         if state[slot] == 0:
             if left[v] >= 0:
-                c: usize = left[v].usize(); state[slot] <- 1; node_depth[c] <- node_depth[v] + 1
-                first[c] <- ec; euler[ec] <- c; depth[ec] <- node_depth[c]; ec <- ec + 1
-                frame_node[sp] <- c; state[sp] <- 0; sp <- sp + 1
+                c: usize = left[v].usize()
+                state[slot] <- 1
+                node_depth[c] <- node_depth[v] + 1
+                first[c] <- ec
+                euler[ec] <- c
+                depth[ec] <- node_depth[c]
+                ec <- ec + 1
+                frame_node[sp] <- c
+                state[sp] <- 0
+                sp <- sp + 1
             elif right[v] >= 0:
-                c: usize = right[v].usize(); state[slot] <- 2; node_depth[c] <- node_depth[v] + 1
-                first[c] <- ec; euler[ec] <- c; depth[ec] <- node_depth[c]; ec <- ec + 1
-                frame_node[sp] <- c; state[sp] <- 0; sp <- sp + 1
+                c: usize = right[v].usize()
+                state[slot] <- 2
+                node_depth[c] <- node_depth[v] + 1
+                first[c] <- ec
+                euler[ec] <- c
+                depth[ec] <- node_depth[c]
+                ec <- ec + 1
+                frame_node[sp] <- c
+                state[sp] <- 0
+                sp <- sp + 1
             else: sp <- sp - 1
         elif state[slot] == 1:
-            euler[ec] <- v; depth[ec] <- node_depth[v]; ec <- ec + 1
+            euler[ec] <- v
+            depth[ec] <- node_depth[v]
+            ec <- ec + 1
             if right[v] >= 0:
-                c: usize = right[v].usize(); state[slot] <- 2; node_depth[c] <- node_depth[v] + 1
-                first[c] <- ec; euler[ec] <- c; depth[ec] <- node_depth[c]; ec <- ec + 1
-                frame_node[sp] <- c; state[sp] <- 0; sp <- sp + 1
+                c: usize = right[v].usize()
+                state[slot] <- 2
+                node_depth[c] <- node_depth[v] + 1
+                first[c] <- ec
+                euler[ec] <- c
+                depth[ec] <- node_depth[c]
+                ec <- ec + 1
+                frame_node[sp] <- c
+                state[sp] <- 0
+                sp <- sp + 1
             else: sp <- sp - 1
         else:
-            euler[ec] <- v; depth[ec] <- node_depth[v]; ec <- ec + 1; sp <- sp - 1
+            euler[ec] <- v
+            depth[ec] <- node_depth[v]
+            ec <- ec + 1
+            sp <- sp - 1
 
-    var logarithm: mutable usize = 0
-    var temp: mutable usize = ec
-    while temp > 1: temp <- temp / 2; logarithm <- logarithm + 1
-    var block_size: mutable usize = logarithm / 2
+    logarithm: mutable usize = 0
+    temp: mutable usize = ec
+    while temp > 1:
+        temp <- temp / 2
+        logarithm <- logarithm + 1
+    block_size: mutable usize = logarithm / 2
     if block_size < 1: block_size <- 1
     block_count: usize = (ec + block_size - 1) / block_size
-    var micro: mutable usize[8 * 16] = zeroed
-    var pattern: mutable usize[B] = zeroed
-    var logs: mutable usize[B + 1] = zeroed
-    var macro_table: mutable usize[L * B] = zeroed
+    micro: mutable usize[8 * 16] = zeroed
+    pattern: mutable usize[B] = zeroed
+    logs: mutable usize[B + 1] = zeroed
+    macro_table: mutable usize[L * B] = zeroed
     for shape in 0..<(1 << (block_size - 1)):
-        var relative: mutable i64[M] = zeroed
+        relative: mutable i64[M] = zeroed
         for step in 0..<(block_size - 1):
-            direction: i64 = if ((shape >> step) & 1) != 0: 1 else: -1
+            direction: i64 = 1 if ((shape >> step) & 1) != 0 else -1
             relative[step + 1] <- relative[step] + direction
         for lo in 0..<block_size:
             for hi in lo..<block_size:
-                var best: mutable usize = lo
+                best: mutable usize = lo
                 for at in (lo + 1)..<(hi + 1):
                     if relative[at] < relative[best]: best <- at
                 micro[shape * 16 + lo * 4 + hi] <- best
     for block in 0..<block_count:
         base: usize = block * block_size
-        end: usize = if ec < base + block_size: ec else: base + block_size
-        var best: mutable usize = base
+        end: usize = ec if ec < base + block_size else base + block_size
+        best: mutable usize = base
         for at in base..<(end - 1):
             if depth[at + 1] > depth[at]: pattern[block] <- pattern[block] | (1 << (at - base))
             best <- rmq_fcb_shallower(best, at + 1, depth[0:ec])
         macro_table[block] <- best
-    for count in 2..<(block_count + 1): logs[count] <- logs[count / 2] + 1
-    var levels: mutable usize = 1
+    for count in 2..<(block_count + 1):
+        logs[count] <- logs[count / 2] + 1
+    levels: mutable usize = 1
     while (1 << levels) <= block_count and levels < L:
         half: usize = 1 << (levels - 1)
         span: usize = 2 * half
         for block in 0..<(block_count - span + 1):
             macro_table[levels * B + block] <- rmq_fcb_shallower(macro_table[(levels - 1) * B + block], macro_table[(levels - 1) * B + block + half], depth[0:ec])
         levels <- levels + 1
-    var answers: mutable u8[Q] = zeroed
+    answers: mutable u8[Q] = zeroed
     for i in 0..<q |input, first, euler, answers, depth, pattern, micro, macro_table, logs|:
-        var lo: usize = first[input[qo + 2 * i].usize()]
-        var hi: usize = first[input[qo + 2 * i + 1].usize()]
-        if lo > hi: var swap: usize = lo; lo <- hi; hi <- swap
+        lo: mutable usize = first[input[qo + 2 * i].usize()]
+        hi: mutable usize = first[input[qo + 2 * i + 1].usize()]
+        if lo > hi:
+            swap: usize = lo
+            lo <- hi
+            hi <- swap
         at: usize = rmq_fcb_range_minimum(lo, hi, ec, block_size, depth[0:ec], pattern[0:block_count], micro[0:128], macro_table[0:L * B], logs[0:block_count + 1])
         answers[i] <- euler[at].u8()
     output[0] <- q.u8()
-    for i in 0..<q |output, answers|: output[i + 1] <- answers[i]
+    for i in 0..<q |output, answers|:
+        output[i + 1] <- answers[i]
     (q + 1).i64()
 
-export fn rmq_cartesian_tree_fcb(input: i64&, length: usize,
-    output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length > 195: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
-        var dummy: mutable u8[1] = zeroed
-        return rmq_cartesian_tree_fcb_impl(input_view, length, dummy[0:0], output_capacity, true)
-    var cap: mutable usize = output_capacity
+def rmq_cartesian_tree_fcb_entry(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or length > 195: return -1
+    input_view_storage: darray[i64] = [input[index] for index in 0..<length]
+    input_view: view[i64] = input_view_storage[0:length]
+    if output == null:
+        dummy: mutable u8[1] = zeroed
+        return rmq_cartesian_tree_fcb_impl(input_view, length, &dummy[0], output_capacity, true)
+    cap: mutable usize = output_capacity
     if cap > Q + 1: cap <- Q + 1
-    var output_view: mutable view[u8] = output[0:cap]
-    rmq_cartesian_tree_fcb_impl(input_view, length, output_view, output_capacity, false)
+    rmq_cartesian_tree_fcb_impl(input_view, length, output, output_capacity, false)
+
+export fn rmq_cartesian_tree_fcb(input: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64 = rmq_cartesian_tree_fcb_entry

@@ -1,4 +1,4 @@
-const SHIFT_SAMPLES_MODULUS: i64 = 998_244_353
+const SHIFT_SAMPLES_MODULUS: i64 = 998244353
 const SHIFT_SAMPLES_MAX_N: usize = 16
 const SHIFT_SAMPLES_MAX_M: usize = 16
 const SHIFT_SAMPLES_MAX_INPUT: usize = 20
@@ -14,15 +14,15 @@ def shift_samples_mod_pow(base_value: i64, exponent_value: i64) -> i64:
         exponent <- exponent >> 1
     return result
 
-def shift_samples_store_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def shift_samples_store_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[offset + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def shift_of_sampling_points_of_polynomial_impl(
-    input: view[i64], length: usize, output: mutable view[u8],
-    capacity: usize, output_is_null: bool,
+    input: view[i64], length: usize, output: mutable u8&,
+    capacity: usize, output_is_null: bool
 ) -> i64:
     if length < 4 or length > SHIFT_SAMPLES_MAX_INPUT: return -1
     n_value: i64 = input[0]
@@ -41,9 +41,11 @@ def shift_of_sampling_points_of_polynomial_impl(
     newton: mutable i64[SHIFT_SAMPLES_MAX_N] = zeroed
     factorial: mutable i64[SHIFT_SAMPLES_MAX_N] = zeroed
     inverse_factorial: mutable i64[SHIFT_SAMPLES_MAX_N] = zeroed
-    for i in 0..<n: differences[i] <- input[i + 3]
+    for i in 0..<n:
+        differences[i] <- input[i + 3]
     factorial[0] <- 1
-    for k in 1..<n: factorial[k] <- factorial[k - 1] * k.i64() % SHIFT_SAMPLES_MODULUS
+    for k in 1..<n:
+        factorial[k] <- factorial[k - 1] * k.i64() % SHIFT_SAMPLES_MODULUS
     inverse_factorial[n - 1] <- shift_samples_mod_pow(factorial[n - 1], SHIFT_SAMPLES_MODULUS - 2)
     k: mutable usize = n - 1
     while k > 0:
@@ -68,15 +70,15 @@ def shift_of_sampling_points_of_polynomial_impl(
         shift_samples_store_le(value, output, 8 * offset)
     output_bytes.i64()
 
-export fn shift_of_sampling_points_of_polynomial(
-    input: i64&, length: usize, output: mutable u8&, capacity: usize,
-) -> i64:
-    if input.is_null() or length < 4 or length > SHIFT_SAMPLES_MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+def shift_of_sampling_points_of_polynomial_entry(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > SHIFT_SAMPLES_MAX_INPUT: return -1
+    input_view_storage: darray[i64] = [input[index] for index in 0..<length]
+    input_view: view[i64] = input_view_storage[0:length]
+    if output == null:
         scratch: mutable u8[1] = zeroed
-        return shift_of_sampling_points_of_polynomial_impl(input_view, length, scratch[0:1], 0, true)
+        return shift_of_sampling_points_of_polynomial_impl(input_view, length, &scratch[0], 0, true)
     safe_capacity: mutable usize = capacity
     if safe_capacity > SHIFT_SAMPLES_MAX_OUTPUT_BYTES: safe_capacity <- SHIFT_SAMPLES_MAX_OUTPUT_BYTES
-    output_view: mutable view[u8] = output[0:safe_capacity]
-    shift_of_sampling_points_of_polynomial_impl(input_view, length, output_view, capacity, false)
+    shift_of_sampling_points_of_polynomial_impl(input_view, length, output, capacity, false)
+
+export fn shift_of_sampling_points_of_polynomial(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = shift_of_sampling_points_of_polynomial_entry
