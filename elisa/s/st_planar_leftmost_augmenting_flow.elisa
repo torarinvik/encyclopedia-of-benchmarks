@@ -1,153 +1,167 @@
-@intrinsic("llvm.cttz.i64")
-extern planar_flow_trailing_zeros(value: u64, zero_undefined: bool) -> u64
-
+# Maximum flow on a small embedded planar graph, augmenting along the
+# leftmost depth-first path in rotation order.
 const MAX_N: usize = 6
-
-# Packed predecessors use three bits for a vertex ID.
-const VERTEX_SLOTS: usize = 8
-
 const MAX_M: usize = 10
-
-# DFS paths store the residual arc index in five bits.
-const ARC_SLOTS: usize = 32
-
 const MAX_INPUT: usize = 60
 
 def planar_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if (((input == null) or (length < 4)) or (length > MAX_INPUT)):
-        return (-1)
+    if input == null or length < 4 or length > MAX_INPUT:
+        return -1
     n0: i64 = input[0]
     m0: i64 = input[1]
     s0: i64 = input[2]
     t0: i64 = input[3]
-    if n0 < 2 or n0 > 6 or m0 < 1 or m0 > 10 or s0 == t0 or s0.u64() >= n0.u64() or t0.u64() >= n0.u64():
-        return (-1)
+    if n0 < 2 or n0 > MAX_N.i64() or m0 < 1 or m0 > MAX_M.i64() or s0 < 0 or s0 >= n0 or t0 < 0 or t0 >= n0 or s0 == t0:
+        return -1
     n: usize = n0.usize()
     m: usize = m0.usize()
     s: usize = s0.usize()
     t: usize = t0.usize()
-    if length != 4 + 5 * m + n:
-        return (-1)
-    arc_target: mutable u8[ARC_SLOTS] = zeroed
-    residual_capacity: mutable u8[ARC_SLOTS] = zeroed
-    # Each byte holds the undirected neighbors of one vertex.
-    adjacency: mutable u64 = 0
+    if length < 4 + 3 * m:
+        return -1
+    edge_u: mutable usize[10] = zeroed
+    edge_v: mutable usize[10] = zeroed
+    edge_cap: mutable i64[10] = zeroed
+    degree: mutable usize[6] = zeroed
+    rot: mutable usize[36] = zeroed
+    seen_pair: mutable bool[36] = zeroed
     at: mutable usize = 4
     e: mutable usize = 0
-    while (e < m):
-        u0: i64 = input[at]
-        v0: i64 = input[(at + 1)]
-        c: i64 = input[(at + 2)]
-        at <- (at + 3)
-        if u0 == v0 or u0.u64() >= n0.u64() or v0.u64() >= n0.u64() or c.u64() > 5:
-            return (-1)
-        u: usize = u0.usize()
-        v: usize = v0.usize()
-        edge_bit: u64 = 1 << (8 * u + v)
-        if (adjacency & edge_bit) != 0:
+    while e < m:
+        u: i64 = input[at]
+        v: i64 = input[at + 1]
+        c: i64 = input[at + 2]
+        at <- at + 3
+        if u < 0 or u >= n0 or v < 0 or v >= n0 or u == v or c < 0 or c > 5:
             return -1
-        adjacency <- adjacency | edge_bit | (1.u64() << (8 * v + u))
-        arc_target[2 * e] <- v.u8()
-        arc_target[2 * e + 1] <- u.u8()
-        residual_capacity[2 * e] <- c.u8()
-        e <- (e + 1)
-    # A leading one marks the end of up to five five-bit arc IDs.
-    rotations: mutable u32[VERTEX_SLOTS] = zeroed
-    # Each edge has two bits, one for each endpoint in the rotation.
-    occurrences: mutable u64 = 0
+        if seen_pair[u.usize() * MAX_N + v.usize()] or seen_pair[v.usize() * MAX_N + u.usize()]:
+            return -1
+        seen_pair[u.usize() * MAX_N + v.usize()] <- true
+        seen_pair[v.usize() * MAX_N + u.usize()] <- true
+        edge_u[e] <- u.usize()
+        edge_v[e] <- v.usize()
+        edge_cap[e] <- c
+        e <- e + 1
+    occurrence: mutable i64[20] = zeroed
+    rot_seen: mutable bool[60] = zeroed
     x: mutable usize = 0
-    while (x < n):
-        if (at >= length):
-            return (-1)
-        d0: i64 = input[at]
-        at <- (at + 1)
-        if d0.u64() >= n0.u64() or at + d0.usize() > length:
-            return (-1)
-        d: usize = d0.usize()
-        rotation: mutable u32 = 1 << (5 * d)
+    while x < n:
+        if at >= length:
+            return -1
+        d: i64 = input[at]
+        at <- at + 1
+        if d < 0 or d > n0 - 1 or at + d.usize() > length:
+            return -1
+        degree[x] <- d.usize()
         j: mutable usize = 0
-        while (j < d):
-            e0: i64 = input[at + j]
-            if e0.u64() >= m0.u64():
-                return (-1)
-            edge: usize = e0.usize()
-            forward_arc: usize = (2 * edge) & (ARC_SLOTS - 2)
-            arc: mutable usize = forward_arc
-            if arc_target[forward_arc + 1].usize() != x:
-                if arc_target[forward_arc].usize() != x:
-                    return -1
-                arc <- forward_arc + 1
-            bit: u64 = 1 << arc
-            if (occurrences & bit) != 0:
+        while j < degree[x]:
+            e0: i64 = input[at]
+            at <- at + 1
+            if e0 < 0 or e0 >= m0:
                 return -1
-            occurrences <- occurrences | bit
-            rotation <- rotation | (arc.u32() << (5 * j))
-            j <- (j + 1)
-        at <- at + d
-        rotations[x] <- rotation
-        x <- (x + 1)
-    if occurrences != ((1.u64() << (2 * m)) - 1):
+            edge: usize = e0.usize()
+            if rot_seen[x * MAX_M + edge]:
+                return -1
+            rot_seen[x * MAX_M + edge] <- true
+            rot[x * MAX_N + j] <- edge
+            if edge_u[edge] == x:
+                occurrence[2 * edge] <- occurrence[2 * edge] + 1
+            elif edge_v[edge] == x:
+                occurrence[2 * edge + 1] <- occurrence[2 * edge + 1] + 1
+            else:
+                return -1
+            j <- j + 1
+        x <- x + 1
+    if at != length:
         return -1
-    all_vertices: u64 = (1.u64() << n) - 1
-    # Connectivity is undirected, so start at vertex zero.
-    frontier: mutable u64 = adjacency & 255
-    connected: mutable u64 = frontier | 1
-    while frontier != 0 and connected != all_vertices:
-        vertex: u64 = planar_flow_trailing_zeros(frontier, true)
-        neighbors: u64 = (adjacency >> (8 * vertex)) & 255
-        discovered: u64 = neighbors & ~connected
-        frontier <- (frontier & (frontier - 1)) | discovered
-        connected <- connected | discovered
-    if connected != all_vertices:
-        return -1
+    e <- 0
+    while e < m:
+        if occurrence[2 * e] != 1 or occurrence[2 * e + 1] != 1:
+            return -1
+        e <- e + 1
+    reached: mutable bool[6] = zeroed
+    queue: mutable usize[6] = zeroed
+    queue_start: mutable usize = 0
+    queue_end: mutable usize = 0
+    reached[s] <- true
+    queue[queue_end] <- s
+    queue_end <- queue_end + 1
+    while queue_start < queue_end:
+        current: usize = queue[queue_start]
+        queue_start <- queue_start + 1
+        e <- 0
+        while e < m:
+            if edge_u[e] == current or edge_v[e] == current:
+                y: usize = edge_v[e] if edge_u[e] == current else edge_u[e]
+                if not reached[y]:
+                    reached[y] <- true
+                    queue[queue_end] <- y
+                    queue_end <- queue_end + 1
+            e <- e + 1
+    x <- 0
+    while x < n:
+        if not reached[x]:
+            return -1
+        x <- x + 1
+
+    flow: mutable i64[10] = zeroed
     total: mutable i64 = 0
     while true:
-        seen: mutable bool[VERTEX_SLOTS] = zeroed
-        # The low byte stores predecessor and arc, and the high byte stores capacity.
-        path: mutable u16[VERTEX_SLOTS] = zeroed
-        path[s] <- 5 << 8
-        pending: mutable u32[VERTEX_SLOTS] = rotations
-        # A discovered vertex has a parent chain back to the source.
+        seen: mutable bool[6] = zeroed
+        parent: mutable i64[6] = zeroed
+        parent_edge: mutable i64[6] = zeroed
+        parent_dir: mutable i64[6] = zeroed
+        next: mutable usize[6] = zeroed
+        dfs_stack: mutable usize[6] = zeroed
+        top: mutable usize = 0
+        x <- 0
+        while x < n:
+            parent[x] <- -1
+            parent_edge[x] <- -1
+            x <- x + 1
         seen[s] <- true
-        u: mutable usize = s & (VERTEX_SLOTS - 1)
-        parent_capacity: mutable u8 = 5
-        while not seen[t]:
-            remaining: u32 = pending[u]
-            if remaining == 1:
-                if u == s:
-                    break
-                u <- path[u].usize() & (VERTEX_SLOTS - 1)
-                parent_capacity <- (path[u] >> 8).u8()
+        dfs_stack[top] <- s
+        top <- top + 1
+        while top > 0 and not seen[t]:
+            current: usize = dfs_stack[top - 1]
+            if next[current] >= degree[current]:
+                top <- top - 1
                 continue
-            arc: usize = remaining.usize() & (ARC_SLOTS - 1)
-            pending[u] <- remaining >> 5
-            v: usize = arc_target[arc].usize() & (VERTEX_SLOTS - 1)
-            available: u8 = residual_capacity[arc]
-            if available > 0 and not seen[v]:
-                seen[v] <- true
-                path_capacity: u8 = available if available < parent_capacity else parent_capacity
-                path[v] <- (u | (arc << 3) | (path_capacity.usize() << 8)).u16()
-                parent_capacity <- path_capacity
-                u <- v
-        if (not seen[t]):
+            edge: usize = rot[current * MAX_N + next[current]]
+            next[current] <- next[current] + 1
+            y: usize = edge_v[edge] if edge_u[edge] == current else edge_u[edge]
+            residual: i64 = edge_cap[edge] - flow[edge] if edge_u[edge] == current else flow[edge]
+            if residual > 0 and not seen[y]:
+                seen[y] <- true
+                parent[y] <- current.i64()
+                parent_edge[y] <- edge.i64()
+                parent_dir[y] <- 1 if edge_u[edge] == current else -1
+                dfs_stack[top] <- y
+                top <- top + 1
+        if not seen[t]:
             break
-        delta: u8 = (path[t] >> 8).u8()
-        y: mutable usize = t & (VERTEX_SLOTS - 1)
-        while (y != s):
-            link: usize = path[y].usize()
-            arc: usize = (link >> 3) & (ARC_SLOTS - 1)
-            reverse_arc: usize = arc ^ 1
-            residual_capacity[arc] <- residual_capacity[arc] - delta
-            residual_capacity[reverse_arc] <- residual_capacity[reverse_arc] + delta
-            y <- link & (VERTEX_SLOTS - 1)
-        total <- (total + delta.i64())
-    if ((output == null) or (capacity < 8)):
-        return (-2)
+        delta: mutable i64 = 1000000
+        y: mutable usize = t
+        while y != s:
+            edge: usize = parent_edge[y].usize()
+            from: usize = parent[y].usize()
+            residual: i64 = edge_cap[edge] - flow[edge] if edge_u[edge] == from else flow[edge]
+            if residual < delta:
+                delta <- residual
+            y <- from
+        y <- t
+        while y != s:
+            edge: usize = parent_edge[y].usize()
+            flow[edge] <- flow[edge] + parent_dir[y] * delta
+            y <- parent[y].usize()
+        total <- total + delta
+    if output == null or capacity < 8:
+        return -2
     bits: u64 = total.u64()
     b: mutable usize = 0
-    while (b < 8):
+    while b < 8:
         output[b] <- ((bits >> (8 * b)) & 255).u8()
-        b <- (b + 1)
-    return 8.i64()
+        b <- b + 1
+    8
 
 export fn st_planar_leftmost_augmenting_flow(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = planar_flow
