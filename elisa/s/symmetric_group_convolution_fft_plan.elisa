@@ -20,12 +20,14 @@ def sg_enumerate(n: usize, next: usize, shape: mutable view[i64],
             index <- index+1
         if index == shape_count:
             if shape_count == 30: return -4
-            for i in 0..<9: shapes[(n*30+index)*9+i] <- shape[i]
+            for i in 0..<9:
+                shapes[(n*30+index)*9+i] <- shape[i]
             level_counts[n] <- (shape_count+1).i64()
         slot: usize = n*30+index
         count: usize = counts[slot].usize()
         if count >= 603: return -4
-        for i in 0..<n: basis[(slot*603+count)*9+i] <- tableau[i]
+        for i in 0..<n:
+            basis[(slot*603+count)*9+i] <- tableau[i]
         counts[slot] <- (count+1).i64()
         return 0
     row: mutable usize = 0
@@ -62,9 +64,10 @@ def sg_make_tableau_plan(degree: usize, level_counts: mutable view[i64],
                          children: mutable view[i64], offsets: mutable view[i64],
                          widths: mutable view[i64]) -> i64:
     if degree < 1 or degree > 9: return -4
-    if level_counts.len() < 10 or shapes.len() < 2700 or counts.len() < 300 or basis.len() < 1628100: return -4
-    if restriction_counts.len() < 300 or children.len() < 2700 or offsets.len() < 2700 or widths.len() < 2700: return -4
-    for i in 0..<10: level_counts[i] <- 0
+    if level_counts.len < 10 or shapes.len < 2700 or counts.len < 300 or basis.len < 1628100: return -4
+    if restriction_counts.len < 300 or children.len < 2700 or offsets.len < 2700 or widths.len < 2700: return -4
+    for i in 0..<10:
+        level_counts[i] <- 0
     for i in 0..<300:
         counts[i] <- 0
         restriction_counts[i] <- 0
@@ -152,8 +155,8 @@ def sg_make_generators(degree: usize, level_counts: view[i64], counts: view[i64]
                        basis: view[i64], diagonals: mutable view[i64],
                        partners: mutable view[i64], coefficients: mutable view[i64]) -> i64:
     if degree < 1 or degree > 9: return -4
-    if level_counts.len() < 10 or counts.len() < 300 or basis.len() < 1628100: return -4
-    if diagonals.len() < 1447200 or partners.len() < 1447200 or coefficients.len() < 1447200: return -4
+    if level_counts.len < 10 or counts.len < 300 or basis.len < 1628100: return -4
+    if diagonals.len < 1447200 or partners.len < 1447200 or coefficients.len < 1447200: return -4
     for n in 1..<degree+1:
         if level_counts[n] < 0 or level_counts[n] > 30: return -4
         for r in 0..<level_counts[n].usize():
@@ -173,7 +176,8 @@ def sg_make_generators(degree: usize, level_counts: view[i64], counts: view[i64]
                     coefficients[at] <- 0
                     if distance != 1 and distance != -1:
                         target: mutable i64[9] = zeroed
-                        for i in 0..<n: target[i] <- basis[(slot*603+index)*9+i]
+                        for i in 0..<n:
+                            target[i] <- basis[(slot*603+index)*9+i]
                         temp: i64 = target[label]
                         target[label] <- target[label+1]
                         target[label+1] <- temp

@@ -11,9 +11,9 @@ def sg_fft_convolve(n: usize, left_input: view[i64], right_input: view[i64],
     total: usize = sg_fft_factorial(n)
     scratch_size: mutable usize = 8*total
     if scratch_size < 1809: scratch_size <- 1809
-    if left_input.len() < total or right_input.len() < total or output.len() < total: return -4
-    if workspace.len() < 4*total+scratch_size: return -4
-    if level_counts.len() < 10 or counts.len() < 300: return -4
+    if left_input.len < total or right_input.len < total or output.len < total: return -4
+    if workspace.len < 4*total+scratch_size: return -4
+    if level_counts.len < 10 or counts.len < 300: return -4
     if level_counts[n] < 1 or level_counts[n] > 30: return -4
     if sg_fft_block_offset(n,level_counts[n].usize(),level_counts,counts) != total.i64(): return -4
     for i in 0..<total:
