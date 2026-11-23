@@ -34,7 +34,7 @@ def cfrac_is_prime(value: u64) -> bool:
         divisor <- divisor + 1
     true
 
-export fn mallocbench_cfrac(input: i64&, length: usize) -> i64:
+def mallocbench_cfrac_impl(input: i64&, length: usize) -> i64:
     if input == null or length != 3:
         return -1
     n_value: i64 = input[0]
@@ -146,7 +146,7 @@ export fn mallocbench_cfrac(input: i64&, length: usize) -> i64:
             y: mutable u64 = 1
             for j in 0..<base_count:
                 y <- (y * cfrac_modpow(base[j].u64(), exponent_sum[j] / 2, n)) % n
-            difference: u64 = if x >= y: x - y else: y - x
+            difference: u64 = x - y if x >= y else y - x
             minus: u64 = cfrac_gcd(difference, n)
             if minus > 1 and minus < n:
                 return minus.i64()
@@ -154,3 +154,5 @@ export fn mallocbench_cfrac(input: i64&, length: usize) -> i64:
             if plus > 1 and plus < n:
                 return plus.i64()
     n.i64()
+
+export fn mallocbench_cfrac(input: i64&, length: usize) -> i64 = mallocbench_cfrac_impl

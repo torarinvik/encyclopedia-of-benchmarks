@@ -22,6 +22,8 @@ def jump_search_impl(values: view[i64], length: usize, target: i64) -> i64:
         break if block_end == length
         block_start <- block_end
         block_end <- length if step > length - block_end else block_end + step
+    if values[block_end - 1] < target:
+        return -1
     index: i64 =
         for index in block_start..<block_end |found: i64 = -1| -> found:
             if values[index] == target:
@@ -30,5 +32,8 @@ def jump_search_impl(values: view[i64], length: usize, target: i64) -> i64:
                 break -1
     index
 
-export fn jump_search(values: i64&, length: usize, target: i64) -> i64:
-    jump_search_impl(values[0:length], length, target)
+def jump_search_entry(values: i64&, length: usize, target: i64) -> i64:
+    values_copy: darray[i64] = [values[index] for index in 0..<length]
+    jump_search_impl(values_copy[0:length], length, target)
+
+export fn jump_search(values: i64&, length: usize, target: i64) -> i64 = jump_search_entry
