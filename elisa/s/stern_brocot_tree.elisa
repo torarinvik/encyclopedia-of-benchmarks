@@ -117,7 +117,6 @@ def stern_brocot_tree_impl(input: i64&?, length: usize, output: mutable u8&?, ou
     words: mutable i64[MAX_OUTPUT_WORDS] = zeroed
     sbt_process(input, length, output, output_capacity, query_count, words[0:MAX_OUTPUT_WORDS])
 
-@inline(never)
 def sbt_process(input: i64&, length: usize, output: mutable u8&?, output_capacity: usize, query_count: i64, words: mutable view[i64]) -> i64:
     word_count: mutable usize = 0
     position: mutable usize = 1
