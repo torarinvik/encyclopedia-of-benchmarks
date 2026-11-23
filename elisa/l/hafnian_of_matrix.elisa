@@ -3,7 +3,7 @@ const MAX_INPUT_VALUES: usize = 1 + MAX_N * MAX_N
 const STATES: usize = 1 << MAX_N
 const MOD: i64 = 998244353
 
-def hafnian_store_i64_le(value: i64, output: mutable view[u8], offset: usize) -> void:
+def hafnian_store_i64_le(value: i64, output: mutable u8&, offset: usize) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -11,7 +11,7 @@ def hafnian_store_i64_le(value: i64, output: mutable view[u8], offset: usize) ->
         byte <- byte + 1
 
 def hafnian_of_matrix_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_VALUES: return -1
+    if input == null or length < 1 or length > MAX_INPUT_VALUES: return -1
     n_value: i64 = input[0]
     if n_value < 2 or n_value > MAX_N.i64() or n_value % 2 != 0: return -1
     n: usize = n_value.usize()
@@ -29,7 +29,7 @@ def hafnian_of_matrix_impl(input: i64&, length: usize, output: mutable u8&, capa
         row <- row + 1
     row <- 0
     while row < n:
-        column <- 0
+        column: mutable usize = 0
         while column < row:
             if matrix[row * MAX_N + column] != matrix[column * MAX_N + row]: return -1
             column <- column + 1
@@ -47,7 +47,8 @@ def hafnian_of_matrix_impl(input: i64&, length: usize, output: mutable u8&, capa
             bits <- bits & (bits - 1)
         if not odd:
             first: mutable usize = 0
-            while (mask & (1 << first)) == 0: first <- first + 1
+            while (mask & (1 << first)) == 0:
+                first <- first + 1
             without_first: usize = mask ^ (1 << first)
             second: mutable usize = first + 1
             while second < n:
@@ -58,8 +59,8 @@ def hafnian_of_matrix_impl(input: i64&, length: usize, output: mutable u8&, capa
                 second <- second + 1
         mask <- mask + 1
 
-    if output.is_null() or capacity < 8: return -2
-    hafnian_store_i64_le(dp[full], output[0:8], 0)
+    if output == null or capacity < 8: return -2
+    hafnian_store_i64_le(dp[full], output, 0)
     8
 
 export fn hafnian_of_matrix(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = hafnian_of_matrix_impl

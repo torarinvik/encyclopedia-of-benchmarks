@@ -62,14 +62,16 @@ def rct_connect(index: usize, left: usize, right: usize, query_left: usize, quer
         rct_connect(2 * index + 1, middle, right, query_left, query_right, kind, target,
                     down, up, any, heads, degrees, edge_to, edge_next, counts)
 
-export fn range_constraint_topological_feasibility(input: i64&, length: usize) -> i64:
+def range_constraint_topological_feasibility_impl(input: i64&, length: usize) -> i64:
     if input == null or length < 2: return -1
-    header: view[i64] = input[0:2]
+    header_storage: darray[i64] = [input[index] for index in 0..<2]
+    header: view[i64] = header_storage[0:2]
     if header[0] < 1 or header[0] > 4096 or header[1] < 0 or header[1] > 8192: return -1
     n: usize = header[0].usize()
     m: usize = header[1].usize()
     if length != 2 + 4 * m: return -1
-    values: view[i64] = input[0:length]
+    values_storage: darray[i64] = [input[index] for index in 0..<length]
+    values: view[i64] = values_storage[0:length]
     for i in 0..<m:
         kind: i64 = values[2 + 4 * i]
         left: i64 = values[3 + 4 * i]
@@ -84,7 +86,8 @@ export fn range_constraint_topological_feasibility(input: i64&, length: usize) -
     tree_capacity: usize = 4 * n
     total: usize = 4 * node_capacity + 2 * edge_capacity + 3 * tree_capacity
     memory: mutable i64& = get calloc(total, 8) else return -1
-    workspace: mutable view[i64] = memory[0:total]
+    workspace_storage: mutable darray[i64] = [memory[index] for index in 0..<total]
+    workspace: mutable view[i64] = workspace_storage[0:total]
     heads: mutable view[i64] = workspace[0:node_capacity]
     degrees: mutable view[i64] = workspace[node_capacity:2 * node_capacity]
     first: mutable view[i64] = workspace[2 * node_capacity:3 * node_capacity]
@@ -111,14 +114,14 @@ export fn range_constraint_topological_feasibility(input: i64&, length: usize) -
         else:
             rct_connect(1, 0, n, left, right, kind, target, down, up, any, heads, degrees, edge_to, edge_next, counters[0:2])
     head: mutable usize = 0
-    tail: mutable usize = 0
+    tail_value: mutable usize = 0
     emitted: mutable usize = 0
     for i in 0..<counters[0].usize():
         if first[i] != 0: degrees[i] <- 1
         if degrees[i] == 0:
-            queue[tail] <- i.i64()
-            tail <- tail + 1
-    while head < tail:
+            queue[tail_value] <- i.i64()
+            tail_value <- tail_value + 1
+    while head < tail_value:
         node: usize = queue[head].usize()
         head <- head + 1
         if node < n: emitted <- emitted + 1
@@ -128,9 +131,11 @@ export fn range_constraint_topological_feasibility(input: i64&, length: usize) -
             if degrees[target] > 0:
                 degrees[target] <- degrees[target] - 1
                 if degrees[target] == 0:
-                    queue[tail] <- target.i64()
-                    tail <- tail + 1
+                    queue[tail_value] <- target.i64()
+                    tail_value <- tail_value + 1
             edge <- edge_next[edge.usize()]
     free(memory)
     if emitted == n: return 1
     0
+
+export fn range_constraint_topological_feasibility(input: i64&, length: usize) -> i64 = range_constraint_topological_feasibility_impl

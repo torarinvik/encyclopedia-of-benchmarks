@@ -4,12 +4,12 @@ const MAX_INPUT_LENGTH: usize = 2306
 const VALUE_LIMIT: i64 = 1000000
 const QUERY_OFFSET: i64 = 131328000001
 
-def lazy_segment_tree_apply(tree: mutable i64[512], pending: mutable i64[512],
+def lazy_segment_tree_apply(tree: mutable i64[512]&, pending: mutable i64[512]&,
                              node: usize, segment_length: usize, delta: i64) -> void:
     tree[node] <- tree[node] + delta * segment_length.i64()
     pending[node] <- pending[node] + delta
 
-def lazy_segment_tree_push(tree: mutable i64[512], pending: mutable i64[512],
+def lazy_segment_tree_push(tree: mutable i64[512]&, pending: mutable i64[512]&,
                             node: usize, segment_length: usize) -> void:
     if segment_length > 1 and pending[node] != 0:
         child_length: usize = segment_length / 2
@@ -17,7 +17,7 @@ def lazy_segment_tree_push(tree: mutable i64[512], pending: mutable i64[512],
         lazy_segment_tree_apply(tree, pending, 2 * node + 1, child_length, pending[node])
         pending[node] <- 0
 
-def lazy_segment_tree_add(tree: mutable i64[512], pending: mutable i64[512],
+def lazy_segment_tree_add(tree: mutable i64[512]&, pending: mutable i64[512]&,
                            node: usize, low: usize, high: usize,
                            query_low: usize, query_high: usize, delta: i64) -> void:
     if query_low <= low and high <= query_high:
@@ -31,7 +31,7 @@ def lazy_segment_tree_add(tree: mutable i64[512], pending: mutable i64[512],
         lazy_segment_tree_add(tree, pending, 2 * node + 1, middle, high, query_low, query_high, delta)
     tree[node] <- tree[2 * node] + tree[2 * node + 1]
 
-def lazy_segment_tree_sum(tree: mutable i64[512], pending: mutable i64[512],
+def lazy_segment_tree_sum(tree: mutable i64[512]&, pending: mutable i64[512]&,
                            node: usize, low: usize, high: usize,
                            query_low: usize, query_high: usize) -> i64:
     if query_low <= low and high <= query_high: return tree[node]
@@ -75,7 +75,8 @@ def lazy_segment_tree_range_add_sum_impl(values: i64&, length: usize) -> i64:
         index <- index + 1
 
     base: mutable usize = 1
-    while base < item_count: base <- base * 2
+    while base < item_count:
+        base <- base * 2
     tree: mutable i64[512] = zeroed
     pending: mutable i64[512] = zeroed
     index <- 0

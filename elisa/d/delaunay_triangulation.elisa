@@ -11,13 +11,13 @@ struct DelaunayPoint:
     y: f64
 
 struct DelaunayEdge:
-    a: usize
-    b: usize
+    a: mutable usize
+    b: mutable usize
 
 struct DelaunayTriangle:
-    a: usize
-    b: usize
-    c: usize
+    a: mutable usize
+    b: mutable usize
+    c: mutable usize
     cx: f64
     cy: f64
     radius_squared: f64
@@ -58,16 +58,19 @@ def delaunay_make_triangle(points: view[DelaunayPoint], a: usize, b: usize, c: u
     dy: f64 = p0.y - cy
     DelaunayTriangle{a: a, b: b, c: c, cx: cx, cy: cy, radius_squared: dx * dx + dy * dy}
 
-def delaunay_swap_if_greater(a: mutable usize&, b: mutable usize&) -> void:
-    if a > b:
-        temporary: usize = a
-        a <- b
-        b <- temporary
-
 def delaunay_sort_triangle(triangle: mutable DelaunayTriangle&) -> void:
-    delaunay_swap_if_greater(triangle.a, triangle.b)
-    delaunay_swap_if_greater(triangle.b, triangle.c)
-    delaunay_swap_if_greater(triangle.a, triangle.b)
+    if triangle.a > triangle.b:
+        first: usize = triangle.a
+        triangle.a <- triangle.b
+        triangle.b <- first
+    if triangle.b > triangle.c:
+        second: usize = triangle.b
+        triangle.b <- triangle.c
+        triangle.c <- second
+    if triangle.a > triangle.b:
+        third: usize = triangle.a
+        triangle.a <- triangle.b
+        triangle.b <- third
 
 def delaunay_triangle_less(a: DelaunayTriangle, b: DelaunayTriangle) -> bool:
     if a.a != b.a:
@@ -76,7 +79,7 @@ def delaunay_triangle_less(a: DelaunayTriangle, b: DelaunayTriangle) -> bool:
         return a.b < b.b
     a.c < b.c
 
-def delaunay_put_i64(output: mutable view[u8], offset: usize, value: i64) -> void:
+def delaunay_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
@@ -138,9 +141,9 @@ def delaunay_triangulation_impl(values: i64&, length: usize,
         a <- a + 1
     a <- 0
     while a < n:
-        b <- a + 1
+        b: mutable usize = a + 1
         while b < n:
-            c <- b + 1
+            c: mutable usize = b + 1
             while c < n:
                 d: mutable usize = c + 1
                 while d < n:
@@ -153,7 +156,7 @@ def delaunay_triangulation_impl(values: i64&, length: usize,
 
     dx: i64 = max_x - min_x
     dy: i64 = max_y - min_y
-    dmax: i64 = if dx > dy: dx else: dy
+    dmax: i64 = dx if dx > dy else dy
     midx: f64 = (min_x.f64() + max_x.f64()) / 2.0
     midy: f64 = (min_y.f64() + max_y.f64()) / 2.0
     s0: usize = n
@@ -164,9 +167,9 @@ def delaunay_triangulation_impl(values: i64&, length: usize,
     points[s2] <- DelaunayPoint{x: midx + 20.0 * dmax.f64(), y: midy - dmax.f64()}
     a <- 0
     while a < n + 3:
-        b <- a + 1
+        b: mutable usize = a + 1
         while b < n + 3:
-            c <- b + 1
+            c: mutable usize = b + 1
             while c < n + 3:
                 area2: f64 = (points[b].x - points[a].x) * (points[c].y - points[a].y) - (points[b].y - points[a].y) * (points[c].x - points[a].x)
                 if area2 == 0.0:
@@ -244,12 +247,12 @@ def delaunay_triangulation_impl(values: i64&, length: usize,
     if result_count == 0:
         return -1
     staged: mutable u8[MAX_OUTPUT_BYTES] = zeroed
-    delaunay_put_i64(staged[0:MAX_OUTPUT_BYTES], 0, result_count.i64())
+    delaunay_put_i64(&staged[0], 0, result_count.i64())
     i <- 0
     while i < result_count:
-        delaunay_put_i64(staged[0:MAX_OUTPUT_BYTES], 8 + 24 * i, result[i].a.i64())
-        delaunay_put_i64(staged[0:MAX_OUTPUT_BYTES], 16 + 24 * i, result[i].b.i64())
-        delaunay_put_i64(staged[0:MAX_OUTPUT_BYTES], 24 + 24 * i, result[i].c.i64())
+        delaunay_put_i64(&staged[0], 8 + 24 * i, result[i].a.i64())
+        delaunay_put_i64(&staged[0], 16 + 24 * i, result[i].b.i64())
+        delaunay_put_i64(&staged[0], 24 + 24 * i, result[i].c.i64())
         i <- i + 1
     required: usize = 8 + 24 * result_count
     if output == null or output_capacity < required:

@@ -1,8 +1,9 @@
 # Nth derivative of x^power via truncated dual-number coefficients.
 const MAX_POWER: i64 = 8
+const MAX_COEFFICIENTS: usize = 9
 const INVALID_RESULT: f64 = -1e300
 
-export fn dual_number_automatic_differentiation(position: f64, power: f64, order: f64) -> f64:
+def dual_number_automatic_differentiation_impl(position: f64, power: f64, order: f64) -> f64:
     if not (position >= -1.0 and position <= 1.0) or not (power >= 0.0 and power <= 8.0) or not (order >= 0.0 and order <= 8.0):
         return INVALID_RESULT
     exponent: i64 = power.i64()
@@ -10,11 +11,11 @@ export fn dual_number_automatic_differentiation(position: f64, power: f64, order
     if power != exponent.f64() or order != derivative_order.f64() or derivative_order > exponent:
         return INVALID_RESULT
 
-    coefficients: mutable f64[MAX_POWER.usize() + 1] = zeroed
+    coefficients: mutable f64[MAX_COEFFICIENTS] = zeroed
     coefficients[0] <- 1.0
     step: mutable i64 = 0
     while step < exponent:
-        next: mutable f64[MAX_POWER.usize() + 1] = zeroed
+        next: mutable f64[MAX_COEFFICIENTS] = zeroed
         next[0] <- coefficients[0] * position
         degree: mutable i64 = 1
         while degree <= step + 1:
@@ -32,3 +33,5 @@ export fn dual_number_automatic_differentiation(position: f64, power: f64, order
         result <- result * factor.f64()
         factor <- factor + 1
     return result
+
+export fn dual_number_automatic_differentiation(position: f64, power: f64, order: f64) -> f64 = dual_number_automatic_differentiation_impl

@@ -3,7 +3,7 @@ const M: usize = 256
 const Q: usize = 64
 
 def graph_swift_directed_paths_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 3:
+    if input == null or length < 3:
         return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]
@@ -84,11 +84,11 @@ def graph_swift_directed_paths_impl(input: i64&, length: usize, output: mutable 
                 parent[index] <- -1
             queue: mutable usize[N] = zeroed
             head: mutable usize = 0
-            tail: mutable usize = 0
+            tail_value: mutable usize = 0
             parent[start] <- start.i64()
-            queue[tail] <- start
-            tail <- tail + 1
-            while head < tail:
+            queue[tail_value] <- start
+            tail_value <- tail_value + 1
+            while head < tail_value:
                 current: usize = queue[head]
                 head <- head + 1
                 if current == destination:
@@ -97,8 +97,8 @@ def graph_swift_directed_paths_impl(input: i64&, length: usize, output: mutable 
                     next: usize = adjacency[current * M + index]
                     if parent[next] == -1:
                         parent[next] <- current.i64()
-                        queue[tail] <- next
-                        tail <- tail + 1
+                        queue[tail_value] <- next
+                        tail_value <- tail_value + 1
             if parent[destination] != -1:
                 reverse: mutable usize[N] = zeroed
                 count: mutable usize = 0
@@ -119,7 +119,7 @@ def graph_swift_directed_paths_impl(input: i64&, length: usize, output: mutable 
             for index in 0..<length_found.usize():
                 paths[query * N + 1 + index] <- path_nodes[index].i64()
     required: usize = words * 8
-    if output.is_null() or capacity < required:
+    if output == null or capacity < required:
         return -2
     word: mutable usize = 0
     for query in 0..<q:

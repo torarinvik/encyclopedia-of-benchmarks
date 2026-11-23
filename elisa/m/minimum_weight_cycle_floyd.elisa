@@ -3,22 +3,20 @@ const MAX_CELLS: usize = 81
 const MAX_INPUT_LENGTH: usize = 111
 const INF: i64 = 1152921504606846976
 
-def mwcf_store(output: mutable view[u8], value: i64) -> void:
+def mwcf_store(output: mutable u8&, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[byte] <- ((bits >> (8 * byte)) & 255).u8()
         byte <- byte + 1
 
-export fn minimum_weight_cycle_floyd(
-    input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize
-) -> i64:
-    if input.is_null() or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
-    values: view[i64] = input[0:input_length]
+def minimum_weight_cycle_floyd_impl(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64:
+    if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH: return -1
+    values_storage: darray[i64] = [input[index] for index in 0..<input_length]
+    values: view[i64] = values_storage[0:input_length]
     n_value: i64 = values[0]
     m_value: i64 = values[1]
-    if n_value < 3 or n_value > MAX_N.i64() or m_value < 0
-            or m_value > n_value * (n_value - 1) / 2: return -1
+    if n_value < 3 or n_value > MAX_N.i64() or m_value < 0 or m_value > n_value * (n_value - 1) / 2: return -1
     n: usize = n_value.usize()
     m: usize = m_value.usize()
     if input_length != 2 + 3 * m: return -1
@@ -39,18 +37,17 @@ export fn minimum_weight_cycle_floyd(
         u_value: i64 = values[offset]
         v_value: i64 = values[offset + 1]
         weight: i64 = values[offset + 2]
-        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value
-                or u_value == v_value or weight < 1 or weight > 1000: return -1
+        if u_value < 0 or u_value >= n_value or v_value < 0 or v_value >= n_value or u_value == v_value or weight < 1 or weight > 1000: return -1
         u: usize = u_value.usize()
         v: usize = v_value.usize()
         if edge[u * MAX_N + v] != INF: return -1
         edge[u * MAX_N + v] <- weight
         edge[v * MAX_N + u] <- weight
         e <- e + 1
-    if output.is_null() or output_capacity < 8: return -2
+    if output == null or output_capacity < 8: return -2
     i <- 0
     while i < n:
-        j <- 0
+        j: mutable usize = 0
         while j < n:
             dist[i * MAX_N + j] <- edge[i * MAX_N + j]
             j <- j + 1
@@ -62,18 +59,17 @@ export fn minimum_weight_cycle_floyd(
         i <- 0
         while i < k:
             if edge[i * MAX_N + k] != INF:
-                j <- i + 1
+                j: mutable usize = i + 1
                 while j < k:
                     if edge[k * MAX_N + j] != INF and dist[i * MAX_N + j] != INF:
-                        candidate: i64 = edge[i * MAX_N + k] + edge[k * MAX_N + j]
-                            + dist[i * MAX_N + j]
+                        candidate: i64 = edge[i * MAX_N + k] + edge[k * MAX_N + j] + dist[i * MAX_N + j]
                         if candidate < best: best <- candidate
                     j <- j + 1
             i <- i + 1
         i <- 0
         while i < n:
             if dist[i * MAX_N + k] != INF:
-                j <- 0
+                j: mutable usize = 0
                 while j < n:
                     if dist[k * MAX_N + j] != INF:
                         candidate: i64 = dist[i * MAX_N + k] + dist[k * MAX_N + j]
@@ -84,6 +80,7 @@ export fn minimum_weight_cycle_floyd(
         k <- k + 1
     result: mutable i64 = -1
     if best != INF: result <- best
-    output_view: mutable view[u8] = output[0:8]
-    mwcf_store(output_view, result)
+    mwcf_store(output, result)
     8
+
+export fn minimum_weight_cycle_floyd(input: i64&, input_length: usize, output: mutable u8&, output_capacity: usize) -> i64 = minimum_weight_cycle_floyd_impl

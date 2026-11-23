@@ -3,20 +3,18 @@ const MAX_INPUT: usize = 34
 const MAX_OUTPUT: usize = 128
 
 def put64(value: i64, output: mutable u8&, position: usize) -> void:
-    bits: u64 = value.u64()
+    bits: mutable u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
         output[position + byte] <- (bits & 255).u8()
         bits <- bits >> 8
         byte <- byte + 1
 
-def list_ranking_independent_set_contraction(input: i64&, length: usize,
-        output: mutable u8&, capacity: usize) -> i64 @export("list_ranking_independent_set_contraction"):
-    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+def list_ranking_independent_set_contraction_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 4 or length > MAX_INPUT: return -1
     n_value: i64 = input[0]
     head_value: i64 = input[1]
-    if n_value < 1 or n_value > 16 or length != 2 + 2 * n_value.usize() or
-            head_value < 0 or head_value >= n_value: return -1
+    if n_value < 1 or n_value > 16 or length != 2 + 2 * n_value.usize() or head_value < 0 or head_value >= n_value: return -1
     n: usize = n_value.usize()
     head: usize = head_value.usize()
     weight: mutable i64[MAX_N] = zeroed
@@ -27,8 +25,7 @@ def list_ranking_independent_set_contraction(input: i64&, length: usize,
     while node < n:
         weight[node] <- input[2 + node]
         successor[node] <- input[2 + n + node]
-        if weight[node] < 1 or weight[node] > 10000 or successor[node] < -1 or
-                successor[node] >= n_value: return -1
+        if weight[node] < 1 or weight[node] > 10000 or successor[node] < -1 or successor[node] >= n_value: return -1
         if successor[node] == -1:
             tail_count <- tail_count + 1
         else:
@@ -51,7 +48,7 @@ def list_ranking_independent_set_contraction(input: i64&, length: usize,
         current <- successor[index]
     if path_length != n: return -1
     output_bytes: usize = 8 * n
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
 
     removed_node: mutable usize[MAX_N] = zeroed
     removed_successor: mutable usize[MAX_N] = zeroed
@@ -96,10 +93,12 @@ def list_ranking_independent_set_contraction(input: i64&, length: usize,
     staged: mutable u8[MAX_OUTPUT] = zeroed
     node <- 0
     while node < n:
-        put64(rank[node], staged&, 8 * node)
+        put64(rank[node], &staged[0], 8 * node)
         node <- node + 1
     node <- 0
     while node < output_bytes:
         output[node] <- staged[node]
         node <- node + 1
     output_bytes.i64()
+
+export fn list_ranking_independent_set_contraction(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = list_ranking_independent_set_contraction_impl

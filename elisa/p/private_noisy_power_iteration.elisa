@@ -14,7 +14,10 @@ def floor_sqrt(value:i64)->i64:
     high:mutable i64=13000001
     while low+1<high:
         middle:i64=(low+high)/2
-        if middle<=value/middle:low<-middle else:high<-middle
+        if middle<=value/middle:
+            low<-middle
+        else:
+            high<-middle
     low
 
 def put64(value:i64,output:mutable view[u8],pos:usize)->void:
@@ -24,11 +27,16 @@ def put64(value:i64,output:mutable view[u8],pos:usize)->void:
         output[pos+j]<-((bits>>(8*j))&255).u8()
         j<-j+1
 
-def private_noisy_power_iteration(input:i64&,length:usize,output:mutable u8&,capacity:usize)->i64 @export("private_noisy_power_iteration"):
-    if input.is_null() or length<11 or length>MAX_INPUT:return -1
-    n64:i64=input[0];rounds64:i64=input[1];sigma:i64=input[2]
+def private_noisy_power_iteration_impl(input:i64&,length:usize,output:mutable u8&,capacity:usize) -> i64:
+    if input == null or length<11 or length>MAX_INPUT:return -1
+    n64:i64=input[0]
+    rounds64:i64=input[1]
+    sigma:i64=input[2]
     if n64<2 or n64>4 or rounds64<1 or rounds64>4 or sigma<0 or sigma>S or length!=3+n64.usize()*n64.usize()+n64.usize()+rounds64.usize()*n64.usize():return -1
-    n:usize=n64.usize();rounds:usize=rounds64.usize();vector_start:usize=3+n*n;noise_start:usize=vector_start+n
+    n:usize=n64.usize()
+    rounds:usize=rounds64.usize()
+    vector_start:usize=3+n*n
+    noise_start:usize=vector_start+n
     matrix:mutable i64[16]=zeroed
     x:mutable i64[4]=zeroed
     noise:mutable i64[16]=zeroed
@@ -44,7 +52,8 @@ def private_noisy_power_iteration(input:i64&,length:usize,output:mutable u8&,cap
             if matrix[i*n+j]!=matrix[j*n+i]:return -1
             j<-j+1
         i<-i+1
-    initial_norm:mutable i64=0;i<-0
+    initial_norm:mutable i64=0
+    i<-0
     while i<n:
         x[i]<-input[vector_start+i]
         if x[i] < -S or x[i]>S:return -1
@@ -59,7 +68,8 @@ def private_noisy_power_iteration(input:i64&,length:usize,output:mutable u8&,cap
     y:mutable i64[4]=zeroed
     step:mutable usize=0
     while step<rounds:
-        norm_sq:mutable i64=0;i<-0
+        norm_sq:mutable i64=0
+        i<-0
         while i<n:
             sum:mutable i64=sigma*noise[step*n+i]
             j:mutable usize=0
@@ -77,8 +87,9 @@ def private_noisy_power_iteration(input:i64&,length:usize,output:mutable u8&,cap
             i<-i+1
         step<-step+1
     bytes:usize=8*n
-    if output.is_null() or capacity<bytes:return -2
-    staged:mutable u8[32]=zeroed;i<-0
+    if output == null or capacity<bytes:return -2
+    staged:mutable u8[32]=zeroed
+    i<-0
     while i<n:
         put64(x[i],staged[0:32],8*i)
         i<-i+1
@@ -87,3 +98,5 @@ def private_noisy_power_iteration(input:i64&,length:usize,output:mutable u8&,cap
         output[i]<-staged[i]
         i<-i+1
     bytes.i64()
+
+export fn private_noisy_power_iteration(input:i64&,length:usize,output:mutable u8&,capacity:usize) -> i64 = private_noisy_power_iteration_impl

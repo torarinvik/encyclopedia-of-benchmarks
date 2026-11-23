@@ -5,15 +5,15 @@ const MAX_SIZE: usize = 16
 const MAX_INPUT: usize = 27
 const MAX_OUTPUT: usize = 128
 
-def store_le(value: i64, output: mutable view[u8], position: usize) -> void:
+def store_le(value: i64, output: mutable u8&, position: usize) -> void:
     bits: mutable u64 = value.u64()
     for byte in 0..<8:
         output[position + byte] <- (bits & 255).u8()
         bits <- bits >> 8
 
 def polynomial_composite_set_power_series_impl(
-    input: view[i64], length: usize, output: mutable view[u8],
-    capacity: usize, output_is_null: bool,
+    input: view[i64], length: usize, output: mutable u8&,
+    capacity: usize, output_is_null: bool
 ) -> i64:
     if length < 2 or length > MAX_INPUT: return -1
     count_value: i64 = input[0]
@@ -31,9 +31,9 @@ def polynomial_composite_set_power_series_impl(
     bytes: usize = 8 * size
     if output_is_null or capacity < bytes: return -2
 
-    series: mutable [MAX_SIZE]i64 = [0; MAX_SIZE]
-    result: mutable [MAX_SIZE]i64 = [0; MAX_SIZE]
-    temporary: mutable [MAX_SIZE]i64 = [0; MAX_SIZE]
+    series: mutable i64[MAX_SIZE] = zeroed
+    result: mutable i64[MAX_SIZE] = zeroed
+    temporary: mutable i64[MAX_SIZE] = zeroed
     for mask in 0..<size:
         series[mask] <- input[2 + count + mask]
 
@@ -55,19 +55,19 @@ def polynomial_composite_set_power_series_impl(
         store_le(result[mask], output, 8 * mask)
     return bytes.i64()
 
-export fn polynomial_composite_set_power_series(
-    input: i64&, length: usize, output: mutable u8&, capacity: usize,
-) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
-    input_view: view[i64] = input[0:length]
-    if output.is_null():
+def polynomial_composite_set_power_series_entry(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT: return -1
+    input_view_storage: darray[i64] = [input[index] for index in 0..<length]
+    input_view: view[i64] = input_view_storage[0:length]
+    if output == null:
         scratch: mutable u8[1] = zeroed
         return polynomial_composite_set_power_series_impl(
-            input_view, length, scratch[0:1], capacity, true,
+            input_view, length, &scratch[0], capacity, true
         )
     safe_capacity: mutable usize = capacity
     if safe_capacity > MAX_OUTPUT: safe_capacity <- MAX_OUTPUT
-    output_view: mutable view[u8] = output[0:safe_capacity]
     polynomial_composite_set_power_series_impl(
-        input_view, length, output_view, capacity, false,
+        input_view, length, output, capacity, false
     )
+
+export fn polynomial_composite_set_power_series(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = polynomial_composite_set_power_series_entry

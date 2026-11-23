@@ -1,13 +1,13 @@
 const MAX_STRINGS: usize = 256
 const MAX_LENGTH: usize = 32
 const MAX_INPUT: usize = 1 + MAX_STRINGS * (1 + MAX_LENGTH) + 1
-const FNV_OFFSET: u64 = 14_695_981_039_346_656_037.u64()
-const FNV_PRIME: u64 = 1_099_511_628_211.u64()
-const MASK_63: u64 = 0x7fff_ffff_ffff_ffff.u64()
+const FNV_OFFSET: u64 = 14695981039346656037
+const FNV_PRIME: u64 = 1099511628211
+const MASK_63: u64 = 0x7fffffffffffffff
 
 struct EncodedString:
     bytes: u8[32]
-    length: usize
+    length: mutable usize
 
 def bucket(value: EncodedString&, digit: usize) -> usize:
     if digit >= value.length:
@@ -85,7 +85,7 @@ def msd_radix_string_sorter_impl(input: i64&, length: usize) -> i64:
     string_index <- 0
     while string_index < count:
         hash <- (hash ^ values[string_index].length.u64()) * FNV_PRIME
-        digit <- 0
+        digit: mutable usize = 0
         while digit < values[string_index].length:
             hash <- (hash ^ values[string_index].bytes[digit].u64()) * FNV_PRIME
             digit <- digit + 1
