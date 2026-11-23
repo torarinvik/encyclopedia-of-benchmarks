@@ -9,7 +9,7 @@ def choose_ten(n: i64) -> i64:
 def problem493_impl(picks: i64) -> i64:
     if picks < 0 or picks > 70: return -1
     denominator: i64 = choose_ten(70)
-    missing: i64 = if picks > 60 then 0 else choose_ten(70 - picks)
+    missing: i64 = 0 if picks > 60 else choose_ten(70 - picks)
     numerator: i64 = 7 * (denominator - missing)
     whole: i64 = numerator / denominator
     remainder: mutable i64 = numerator % denominator

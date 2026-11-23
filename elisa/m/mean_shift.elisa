@@ -39,7 +39,8 @@ def mean_shift_impl(input: f64&, length: usize, output: mutable f64&, capacity: 
         data[index] <- value
     candidates: mutable f64[48] = zeroed
     next: mutable f64[48] = zeroed
-    for index in 0..<n * dimensions: candidates[index] <- data[index]
+    for index in 0..<n * dimensions:
+        candidates[index] <- data[index]
     for _ in 0..<max_iterations:
         for candidate_index in 0..<n:
             sums: mutable f64[3] = zeroed
@@ -49,9 +50,10 @@ def mean_shift_impl(input: f64&, length: usize, output: mutable f64&, capacity: 
                 if mean_shift_near(distance, bandwidth): return -1
                 if distance <= bandwidth:
                     neighbor_count <- neighbor_count + 1
-                    for dimension in 0..<dimensions: sums[dimension] <- sums[dimension] + data[point_index * dimensions + dimension]
+                    for dimension in 0..<dimensions:
+                        sums[dimension] <- sums[dimension] + data[point_index * dimensions + dimension]
             for dimension in 0..<dimensions:
-                next[candidate_index * dimensions + dimension] <- if neighbor_count == 0: candidates[candidate_index * dimensions + dimension] else: sums[dimension] / neighbor_count.f64()
+                next[candidate_index * dimensions + dimension] <- candidates[candidate_index * dimensions + dimension] if neighbor_count == 0 else sums[dimension] / neighbor_count.f64()
         all_converged: mutable bool = true
         for candidate_index in 0..<n:
             movement: f64 = mean_shift_distance(candidates[0:n * dimensions], next[0:n * dimensions], candidate_index * dimensions, candidate_index * dimensions, dimensions)
@@ -60,7 +62,8 @@ def mean_shift_impl(input: f64&, length: usize, output: mutable f64&, capacity: 
                 all_converged <- false
                 break
         if all_converged: break
-        for index in 0..<n * dimensions: candidates[index] <- next[index]
+        for index in 0..<n * dimensions:
+            candidates[index] <- next[index]
     centroids: mutable f64[48] = zeroed
     centroid_count: mutable usize = 0
     for candidate_index in 0..<n:
@@ -72,7 +75,8 @@ def mean_shift_impl(input: f64&, length: usize, output: mutable f64&, capacity: 
                 keep <- false
                 break
         if keep:
-            for dimension in 0..<dimensions: centroids[centroid_count * dimensions + dimension] <- candidates[candidate_index * dimensions + dimension]
+            for dimension in 0..<dimensions:
+                centroids[centroid_count * dimensions + dimension] <- candidates[candidate_index * dimensions + dimension]
             centroid_count <- centroid_count + 1
     labels: mutable f64[16] = zeroed
     for point_index in 0..<n:
@@ -86,7 +90,8 @@ def mean_shift_impl(input: f64&, length: usize, output: mutable f64&, capacity: 
                 best_distance <- distance
         labels[point_index] <- best_index.f64()
     if output == null or capacity < n: return -2
-    for index in 0..<n: output[index] <- labels[index]
+    for index in 0..<n:
+        output[index] <- labels[index]
     n.i64()
 
 export fn mean_shift(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64 = mean_shift_impl

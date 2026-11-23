@@ -30,7 +30,7 @@ def problem81_impl(input: i64&, length: usize) -> i64:
         while column < dimension:
             above: i64 = costs[column]
             left: i64 = costs[column - 1]
-            costs[column] <- (if above < left: above else: left) + input[row_offset + column]
+            costs[column] <- ((above if above < left else left)) + input[row_offset + column]
             column <- column + 1
         row <- row + 1
     costs[dimension - 1]

@@ -2,7 +2,7 @@
 def perfect_cube_checker_impl(n: i64) -> i64:
     if n < -2147483648 or n > 2147483647:
         return -1
-    magnitude: i64 = if n < 0: -n else: n
+    magnitude: i64 = -n if n < 0 else n
     low: mutable i64 = 0
     high: mutable i64 = 1290
     while low <= high:

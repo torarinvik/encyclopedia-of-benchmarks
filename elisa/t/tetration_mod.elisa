@@ -18,7 +18,7 @@ def tetration_mod_totient(value_input: i64) -> i64:
 
 def tetration_mod_power_capped(base: i64, exponent_input: i64, cap: i64) -> i64:
     result: mutable i64 = 1
-    factor: mutable i64 = if base < cap then base else cap
+    factor: mutable i64 = base if base < cap else cap
     exponent: mutable i64 = exponent_input
     while exponent > 0:
         if exponent % 2 != 0:
@@ -34,11 +34,11 @@ def tetration_mod_power_capped(base: i64, exponent_input: i64, cap: i64) -> i64:
 
 def tetration_mod_tower_capped(base: i64, height_input: i64, cap: i64) -> i64:
     if height_input == 0:
-        return if 1 < cap then 1 else cap
+        return 1 if 1 < cap else cap
     if base == 0:
-        return if height_input % 2 == 0 then 1 else 0
+        return 1 if height_input % 2 == 0 else 0
     if base == 1:
-        return if 1 < cap then 1 else cap
+        return 1 if 1 < cap else cap
     value: mutable i64 = 1
     if value >= cap:
         return cap

@@ -22,11 +22,11 @@ def npb_advance_state(state: i64) -> i64:
     (low_product + (cross << 23)) & MODULUS_MASK
 
 def npb_ep_impl(input: f64&, length: usize, output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or length != 2: return -1
+    if input == null or length != 2: return -1
     if not npb_is_bounded_integer(input[0], 1.0, MAX_PAIRS.f64()) or
             not npb_is_bounded_integer(input[1], 1.0, 70368744177663.0): return -1
     pair_count: usize = input[0].usize()
-    if output.is_null() or capacity < 12: return -2
+    if output == null or capacity < 12: return -2
 
     state: mutable i64 = input[1].i64()
     histogram: mutable i64[10] = zeroed
@@ -45,7 +45,7 @@ def npb_ep_impl(input: f64&, length: usize, output: mutable f64&, capacity: usiz
             normal_y: f64 = y * scale
             abs_x: f64 = fabs(normal_x)
             abs_y: f64 = fabs(normal_y)
-            extent: f64 = if abs_x > abs_y then abs_x else abs_y
+            extent: f64 = abs_x if abs_x > abs_y else abs_y
             if extent < 10.0: histogram[extent.usize()] <- histogram[extent.usize()] + 1
             sum_x <- sum_x + normal_x
             sum_y <- sum_y + normal_y

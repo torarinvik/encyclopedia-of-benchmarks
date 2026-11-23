@@ -11,7 +11,7 @@ def bit_count(value: usize) -> usize:
     return count
 
 def ryser_permanent_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
 
     values: mutable i64[65] = zeroed
@@ -48,7 +48,7 @@ def ryser_permanent_impl(input: i64&, length: usize) -> i64:
             column: mutable usize = 0
             while ((changed >> column) & 1) == 0:
                 column <- column + 1
-            direction: i64 = if (gray & changed) != 0: 1 else: -1
+            direction: i64 = 1 if (gray & changed) != 0 else -1
             row: mutable usize = 0
             while row < dimension:
                 row_sums[row] <- row_sums[row] + direction * matrix[row * dimension + column]

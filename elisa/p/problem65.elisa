@@ -11,11 +11,11 @@ def problem65_impl(max_n: i64) -> i64:
     current_length: mutable i64 = 1
     i: mutable i64 = 2
     while i <= max_n:
-        coefficient: i64 = if i % 3 == 0: (2 * i) / 3 else: 1
+        coefficient: i64 = (2 * i) / 3 if i % 3 == 0 else 1
         carry: mutable i64 = 0
         position: mutable i64 = 0
         while position < current_length:
-            old: i64 = if position < previous_length: previous[position.usize()] else: 0
+            old: i64 = previous[position.usize()] if position < previous_length else 0
             total: i64 = coefficient * current[position.usize()] + old + carry
             next[position.usize()] <- total % 10
             carry <- total / 10

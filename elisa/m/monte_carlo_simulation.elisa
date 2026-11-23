@@ -15,7 +15,7 @@ def allowed_step_count(value: f64) -> bool:
 
 def monte_carlo_simulation_impl(input: f64&, input_length: usize,
         output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 7 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input == null or input_length < 7 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
     i: mutable usize = 0
     while i < input_length:
         if not finite_value(input[i]): return -1
@@ -58,7 +58,7 @@ def monte_carlo_simulation_impl(input: f64&, input_length: usize,
         exponent: f64 = drift + volatility * brownian
         terminal_price: f64 = s0 * exp(exponent)
         difference: f64 = terminal_price - strike
-        payoffs[simulation] <- if difference > 0.0: difference else: 0.0
+        payoffs[simulation] <- difference if difference > 0.0 else 0.0
         simulation <- simulation + 1
 
     total: mutable f64 = 0.0
@@ -68,7 +68,7 @@ def monte_carlo_simulation_impl(input: f64&, input_length: usize,
         simulation <- simulation + 1
     option_price: f64 = (total / simulations.f64()) * exp(-(rate * maturity))
     if not finite_value(option_price): return -1
-    if output.is_null() or capacity < 1: return -2
+    if output == null or capacity < 1: return -2
     output[0] <- option_price
     return 1
 

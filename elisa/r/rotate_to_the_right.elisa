@@ -20,7 +20,7 @@ def rotate_to_the_right_impl(input: i64&, length: usize,
             return -1
 
     remainder: i64 = places % n_value
-    shift: usize = (if remainder < 0: remainder + n_value else: remainder).usize()
+    shift: usize = ((remainder + n_value if remainder < 0 else remainder)).usize()
     output_bytes: usize = n * 8
     if output == null or output_capacity < output_bytes:
         return -2

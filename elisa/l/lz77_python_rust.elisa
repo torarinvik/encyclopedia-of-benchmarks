@@ -4,7 +4,7 @@ const MAX_OUTPUT_BYTES: usize = 1536
 
 def lz77_python_rust_compress_impl(input: i64&, input_length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
+    if input == null or input_length < 1 or input_length > MAX_INPUT_LENGTH: return -1
     if input[0] < 0 or input[0] > 64: return -1
     text_length: usize = input[0].usize()
     if input_length != 1 + text_length: return -1
@@ -27,7 +27,7 @@ def lz77_python_rust_compress_impl(input: i64&, input_length: usize,
     while current < text_length:
         best_offset: mutable usize = 0
         best_length: mutable usize = 0
-        search_start: usize = if current > 7: current - 7 else: 0
+        search_start: usize = current - 7 if current > 7 else 0
         candidate: mutable usize = search_start
         while candidate < current:
             offset: usize = current - candidate
@@ -60,7 +60,7 @@ def lz77_python_rust_compress_impl(input: i64&, input_length: usize,
 
     output_bytes: usize = token_count * 24
     if output_bytes > MAX_OUTPUT_BYTES: return -1
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     index <- 0
     while index < output_bytes:
         output[index] <- staged[index]

@@ -9,7 +9,7 @@ def derivative(x: f64) -> f64:
     3.0 * pow(x, 2.0) - 4.0
 
 def newton_raphson_method_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 2:
+    if values == null or length != 2:
         return INVALID_RESULT
     initial_milli: i64 = values[0]
     iteration_limit: i64 = values[1]
@@ -23,7 +23,7 @@ def newton_raphson_method_impl(values: i64&, length: usize) -> f64:
         n: f64 = derivative(c)
         z <- c - (m / n)
         c <- z
-        if (if m < 0.0: -m else: m) < 1e-10:
+        if ((-m if m < 0.0 else m)) < 1e-10:
             break
         iteration <- iteration + 1
     z

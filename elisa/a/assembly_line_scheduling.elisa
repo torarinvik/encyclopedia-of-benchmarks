@@ -25,12 +25,12 @@ def assembly_line_scheduling_impl(values: i64&, length: usize,
         switch0: i64 = line1 + values[t1 + station - 1] + values[a0 + station]
         stay1: i64 = line1 + values[a1 + station]
         switch1: i64 = line0 + values[t0 + station - 1] + values[a1 + station]
-        line0 <- if stay0 < switch0: stay0 else: switch0
-        line1 <- if stay1 < switch1: stay1 else: switch1
+        line0 <- stay0 if stay0 < switch0 else switch0
+        line1 <- stay1 if stay1 < switch1 else switch1
         station <- station + 1
     total0: i64 = line0 + values[entry + 2]
     total1: i64 = line1 + values[entry + 3]
-    answer: i64 = if total0 < total1: total0 else: total1
+    answer: i64 = total0 if total0 < total1 else total1
     if output_capacity < 4:
         return -2
     index <- 0

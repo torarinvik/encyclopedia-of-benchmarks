@@ -20,7 +20,7 @@ def problem78_impl(modulus: i64) -> i64:
             first: i64 = (3 * j * j - j) / 2
             if first > n.i64():
                 break
-            sign: i64 = if j % 2 == 0 then -1 else 1
+            sign: i64 = -1 if j % 2 == 0 else 1
             value <- problem78_positive_mod(value + sign * partitions[(n.i64() - first).usize()].i64(), modulus)
             second: i64 = first + j
             if second > n.i64():

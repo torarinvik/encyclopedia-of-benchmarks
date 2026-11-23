@@ -13,7 +13,7 @@ def sio_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
 
 def single_indeterminate_operations_impl(input: f64&, input_length: usize,
         output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+    if input == null or input_length < 3 or input_length > MAX_PARSEABLE_INPUT_LENGTH: return -1
     index: mutable usize = 0
     while index < input_length:
         if not sio_finite(input[index]): return -1
@@ -50,7 +50,7 @@ def single_indeterminate_operations_impl(input: f64&, input_length: usize,
             index <- index + 1
         cursor <- cursor + degree_b + 1
         if cursor != input_length: return -1
-    else if operation == 3 or operation == 5:
+    elif operation == 3 or operation == 5:
         if cursor + 1 != input_length: return -1
         parameter <- input[cursor]
         if operation == 3:
@@ -64,7 +64,7 @@ def single_indeterminate_operations_impl(input: f64&, input_length: usize,
     staged: mutable f64[MAX_OUTPUT_ELEMENTS] = zeroed
     result_length: mutable usize = 0
     if operation == 0:
-        result_length <- if degree_a > degree_b: degree_a + 1 else: degree_b + 1
+        result_length <- degree_a + 1 if degree_a > degree_b else degree_b + 1
         if degree_a > degree_b:
             index <- 0
             while index <= degree_a:
@@ -83,13 +83,13 @@ def single_indeterminate_operations_impl(input: f64&, input_length: usize,
             while index <= degree_a:
                 staged[index] <- staged[index] + coefficients_a[index]
                 index <- index + 1
-    else if operation == 1:
+    elif operation == 1:
         negated_b: mutable f64[MAX_DEGREE + 1] = zeroed
         index <- 0
         while index <= degree_b:
             negated_b[index] <- coefficients_b[index] * -1.0
             index <- index + 1
-        result_length <- if degree_a > degree_b: degree_a + 1 else: degree_b + 1
+        result_length <- degree_a + 1 if degree_a > degree_b else degree_b + 1
         if degree_a > degree_b:
             index <- 0
             while index <= degree_a:
@@ -108,7 +108,7 @@ def single_indeterminate_operations_impl(input: f64&, input_length: usize,
             while index <= degree_a:
                 staged[index] <- staged[index] + coefficients_a[index]
                 index <- index + 1
-    else if operation == 2:
+    elif operation == 2:
         result_length <- degree_a + degree_b + 1
         left: mutable usize = 0
         while left <= degree_a:
@@ -117,13 +117,13 @@ def single_indeterminate_operations_impl(input: f64&, input_length: usize,
                 staged[left + right] <- staged[left + right] + coefficients_a[left] * coefficients_b[right]
                 right <- right + 1
             left <- left + 1
-    else if operation == 3:
+    elif operation == 3:
         result_length <- 1
         index <- 0
         while index <= degree_a:
             staged[0] <- staged[0] + coefficients_a[index] * pow(parameter, index.f64())
             index <- index + 1
-    else if operation == 4:
+    elif operation == 4:
         result_length <- degree_a
         index <- 0
         while index < degree_a:
@@ -141,7 +141,7 @@ def single_indeterminate_operations_impl(input: f64&, input_length: usize,
     while index < result_length:
         if not sio_finite(staged[index]): return -1
         index <- index + 1
-    if output.is_null() or capacity < result_length: return -2
+    if output == null or capacity < result_length: return -2
     index <- 0
     while index < result_length:
         output[index] <- staged[index]

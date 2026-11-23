@@ -33,7 +33,7 @@ def problem142_impl(number_of_terms: i64) -> i64:
         while b <= MAX_SQUARE_ROOT:
             b_sq: i64 = b * b
             if problem142_is_square(a_sq + b_sq):
-                first_c: i64 = if a > b: a + 1 else: b + 1
+                first_c: i64 = a + 1 if a > b else b + 1
                 c: mutable i64 = first_c
                 while c <= MAX_SQUARE_ROOT:
                     c_sq: i64 = c * c

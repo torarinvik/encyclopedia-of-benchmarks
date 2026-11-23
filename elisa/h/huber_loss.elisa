@@ -1,5 +1,5 @@
 def huber_loss_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length < 3 or length > 133:
+    if values == null or length < 3 or length > 133:
         return -1.0e300
     delta_value: i64 = values[0]
     true_count: i64 = values[1]
@@ -25,7 +25,7 @@ def huber_loss_impl(values: i64&, length: usize) -> f64:
         true_value: f64 = values[3 + index].f64() / 1000000.0
         predicted_value: f64 = values[3 + count + index].f64() / 1000000.0
         difference: f64 = true_value - predicted_value
-        residual: f64 = if difference < 0.0: -difference else: difference
+        residual: f64 = -difference if difference < 0.0 else difference
         if residual <= delta:
             total_loss <- total_loss + 0.5 * (residual * residual)
         else:

@@ -5,12 +5,12 @@ def problem55_reverse_add(digits: mutable view[u8], length: usize) -> usize:
     reverse_length: mutable usize = length
     while reverse_length > 0 and digits[length - reverse_length] == 0:
         reverse_length <- reverse_length - 1
-    combined_length: usize = if length > reverse_length then length else reverse_length
+    combined_length: usize = length if length > reverse_length else reverse_length
     next: mutable u8[MAX_DIGITS] = zeroed
     carry: mutable i64 = 0
     for position in 0..<combined_length:
-        left: i64 = if position < length then digits[position].i64() else 0
-        right: i64 = if position < reverse_length then digits[length - 1 - position].i64() else 0
+        left: i64 = digits[position].i64() if position < length else 0
+        right: i64 = digits[length - 1 - position].i64() if position < reverse_length else 0
         sum: i64 = left + right + carry
         next[position] <- (sum % 10).u8()
         carry <- sum / 10

@@ -10,7 +10,7 @@ def max_non_adjacent_sum_impl(values: i64&, length: usize) -> i64:
         if value < 0 or value > 10000:
             return invalid
         take: i64 = two_back + value
-        current: i64 = if take > one_back: take else: one_back
+        current: i64 = take if take > one_back else one_back
         two_back <- one_back
         one_back <- current
         i <- i + 1

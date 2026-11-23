@@ -87,7 +87,7 @@ def look_scheduling_impl(input: i64&, length: usize) -> i64:
     while index < route_count:
         hash <- look_hash_i64(hash, route[index])
         index <- index + 1
-    hash <- look_hash_i64(hash, if direction == 1 then 0 else 1)
+    hash <- look_hash_i64(hash, (0 if direction == 1 else 1))
     hash <- look_hash_i64(hash, farthest)
     hash <- look_hash_i64(hash, start64)
     (hash & 0x7fff_ffff_ffff_ffff.u64()).i64()

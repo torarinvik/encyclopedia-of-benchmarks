@@ -2,7 +2,7 @@ const MAX_INPUT_BYTES: usize = 4096
 const MAX_OUTPUT_BYTES: usize = 5675
 
 def uuencode_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length > MAX_INPUT_BYTES:
+    if input == null or length > MAX_INPUT_BYTES:
         return -1
     index: mutable usize = 0
     while index < length:
@@ -10,7 +10,7 @@ def uuencode_impl(input: i64&, length: usize, output: mutable u8&, capacity: usi
             return -1
         index <- index + 1
     required: usize = 22 + 4 * ((length + 2) / 3) + 2 * ((length + 44) / 45) + 5
-    if output.is_null() or capacity < required:
+    if output == null or capacity < required:
         return -2
 
     output[0] <- 98.u8()
@@ -50,8 +50,8 @@ def uuencode_impl(input: i64&, length: usize, output: mutable u8&, capacity: usi
             first: u32 = input[index].u32()
             has_second: bool = index + 1 < stop
             has_third: bool = index + 2 < stop
-            second: u32 = if has_second: input[index + 1].u32() else: 0.u32()
-            third: u32 = if has_third: input[index + 2].u32() else: 0.u32()
+            second: u32 = input[index + 1].u32() if has_second else 0.u32()
+            third: u32 = input[index + 2].u32() if has_third else 0.u32()
             output[written] <- (32.u32() + (first >> 2)).u8()
             written <- written + 1
             output[written] <- (32.u32() + (((first << 4) | (second >> 4)) & 63.u32())).u8()

@@ -1,5 +1,5 @@
 def matrix_rank_is_zero(value: f64) -> bool:
-    magnitude: f64 = if value < 0.0: -value else value
+    magnitude: f64 = -value if value < 0.0 else value
     magnitude < 1e-10
 
 def matrix_rank_impl(values: i64&, length: usize) -> i64:

@@ -19,7 +19,7 @@ def geometric_dist_impl(values: i64&, length: usize) -> f64:
     p_code: i64 = values[1]
     if p_code < 0 or p_code > 2:
         return -1.0e300
-    p: f32 = if p_code == 0: 0.25.f32() else: if p_code == 1: 0.5.f32() else: 0.75.f32()
+    p: f32 = 0.25.f32() if p_code == 0 else (0.5.f32() if p_code == 1 else 0.75.f32())
     if operation >= 0 and operation <= 2:
         if length != 2:
             return -1.0e300
@@ -43,7 +43,7 @@ def geometric_dist_impl(values: i64&, length: usize) -> f64:
     if operation == 5:
         if length != 3 or values[2] < 0 or values[2] > 2:
             return -1.0e300
-        cdf: f32 = if values[2] == 0: 0.25.f32() else: if values[2] == 1: 0.5.f32() else: 0.75.f32()
+        cdf: f32 = 0.25.f32() if values[2] == 0 else (0.5.f32() if values[2] == 1 else 0.75.f32())
         numerator: f32 = log_f32(1.0.f32() - cdf)
         denominator: f32 = log_f32(1.0.f32() - p)
         return (numerator / denominator).f64()

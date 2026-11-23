@@ -11,7 +11,7 @@ def kohonen_exact_integer(value: f64, minimum: i64, maximum: i64) -> bool:
 
 def kohonen_som_trace_impl(input: f64&, input_length: usize,
                            output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 4 or input_length > MAX_INPUT_LENGTH: return -1
+    if input == null or input_length < 4 or input_length > MAX_INPUT_LENGTH: return -1
     if not kohonen_exact_integer(input[0], 1, MAX_NODE_COUNT.i64()) or
         not kohonen_exact_integer(input[1], 1, MAX_FEATURE_COUNT.i64()) or
         not kohonen_exact_integer(input[2], 0, 8) or
@@ -57,8 +57,8 @@ def kohonen_som_trace_impl(input: f64&, input_length: usize,
             best_matching_unit <- node
         node <- node + 1
 
-    first_node: usize = if best_matching_unit > radius then best_matching_unit - radius else 0
-    after_last_node: usize = if best_matching_unit + radius + 1 < node_count then best_matching_unit + radius + 1 else node_count
+    first_node: usize = best_matching_unit - radius if best_matching_unit > radius else 0
+    after_last_node: usize = best_matching_unit + radius + 1 if best_matching_unit + radius + 1 < node_count else node_count
     alpha: f64 = alpha_code.f64() / 16.0
     node <- first_node
     while node < after_last_node:
@@ -72,7 +72,7 @@ def kohonen_som_trace_impl(input: f64&, input_length: usize,
             feature <- feature + 1
         node <- node + 1
 
-    if output.is_null() or capacity < weight_count: return -2
+    if output == null or capacity < weight_count: return -2
     index <- 0
     while index < weight_count:
         output[index] <- weights[index]

@@ -3,8 +3,8 @@ const MAX_CLAUSES: usize = 32
 const MAX_INPUT: usize = 98
 const MAX_OUTPUT: usize = 104
 
-def random_3sat_greedy_dpll(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 @export("random_3sat_greedy_dpll"):
-    if input.is_null() or length < 2 or length > MAX_INPUT: return -1
+def random_3sat_greedy_dpll_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT: return -1
     n_raw: i64 = input[0]
     m_raw: i64 = input[1]
     if n_raw < 3 or n_raw > MAX_VARS.i64() or m_raw < 0 or m_raw > MAX_CLAUSES.i64(): return -1
@@ -21,7 +21,7 @@ def random_3sat_greedy_dpll(input: i64&, length: usize, output: mutable u8&, cap
         while offset < 3:
             literal: i64 = input[2 + 3 * clause + offset]
             if literal == 0 or literal < -n.i64() or literal > n.i64(): return -1
-            variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
+            variable: usize = (literal - 1).usize() if literal > 0 else (-literal - 1).usize()
             if seen[variable]: return -1
             seen[variable] <- true
             clauses[3 * clause + offset] <- literal
@@ -55,8 +55,8 @@ def random_3sat_greedy_dpll(input: i64&, length: usize, output: mutable u8&, cap
                     offset: mutable usize = 0
                     while offset < lengths[clause]:
                         literal: i64 = clauses[3 * clause + offset]
-                        variable: usize = if literal > 0: (literal - 1).usize() else: (-literal - 1).usize()
-                        sign: usize = if literal < 0: 1 else: 0
+                        variable: usize = (literal - 1).usize() if literal > 0 else (-literal - 1).usize()
+                        sign: usize = 1 if literal < 0 else 0
                         counts[2 * variable + sign] <- counts[2 * variable + sign] + 1
                         offset <- offset + 1
                 clause <- clause + 1
@@ -68,14 +68,14 @@ def random_3sat_greedy_dpll(input: i64&, length: usize, output: mutable u8&, cap
                     count: usize = counts[2 * variable + sign]
                     if count > best:
                         best <- count
-                        chosen <- if sign == 0: (variable + 1).i64() else: -((variable + 1).i64())
+                        chosen <- (variable + 1).i64() if sign == 0 else -((variable + 1).i64())
                     sign <- sign + 1
                 variable <- variable + 1
         if chosen == 0:
             failed <- true
             break
-        variable: usize = if chosen > 0: (chosen - 1).usize() else: (-chosen - 1).usize()
-        assigned[variable] <- if chosen > 0: 1 else: -1
+        variable: usize = (chosen - 1).usize() if chosen > 0 else (-chosen - 1).usize()
+        assigned[variable] <- 1 if chosen > 0 else -1
         clause <- 0
         while clause < m:
             if active[clause]:
@@ -114,10 +114,10 @@ def random_3sat_greedy_dpll(input: i64&, length: usize, output: mutable u8&, cap
             if assigned[variable] == 0: assigned[variable] <- -1
             variable <- variable + 1
     byte_count: usize = 8 * (n + 1)
-    if output.is_null() or capacity < byte_count: return -2
+    if output == null or capacity < byte_count: return -2
     staged: mutable u8[MAX_OUTPUT] = zeroed
     values: i64[MAX_VARS + 1] = zeroed
-    values[0] <- if success: 1 else: 0
+    values[0] <- 1 if success else 0
     variable: mutable usize = 0
     while variable < n:
         values[variable + 1] <- assigned[variable]
@@ -135,3 +135,5 @@ def random_3sat_greedy_dpll(input: i64&, length: usize, output: mutable u8&, cap
         output[byte] <- staged[byte]
         byte <- byte + 1
     byte_count.i64()
+
+export fn random_3sat_greedy_dpll(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64 = random_3sat_greedy_dpll_impl

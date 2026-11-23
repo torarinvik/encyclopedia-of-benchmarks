@@ -24,7 +24,7 @@ def problem18_impl(input: i64&, length: usize) -> i64:
             child: usize = child_start + column.usize()
             left: i64 = best[child]
             right: i64 = best[child + 1]
-            best[parent] <- best[parent] + (if left > right then left else right)
+            best[parent] <- best[parent] + ((left if left > right else right))
             column <- column + 1
         row <- row - 1
     best[0]

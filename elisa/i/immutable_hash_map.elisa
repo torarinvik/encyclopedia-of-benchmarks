@@ -39,7 +39,7 @@ def immutable_hash_map_impl(input: i64&, length: usize) -> i64:
             values[map_size] <- value
             map_size <- map_size + 1
             trace[index] <- map_size.i64()
-        else if operation == 1 or operation == 2:
+        elif operation == 1 or operation == 2:
             found_value: mutable i32 = 0
             cursor: mutable usize = map_size
             while cursor > 0:
@@ -50,7 +50,7 @@ def immutable_hash_map_impl(input: i64&, length: usize) -> i64:
             if operation == 1:
                 trace[index] <- found_value.i64()
             else:
-                trace[index] <- if found_value != 0 then 1 else 0
+                trace[index] <- 1 if found_value != 0 else 0
         else:
             trace[index] <- map_size.i64()
         index <- index + 1

@@ -20,7 +20,7 @@ def product_cipher_impl(input: i64&, length: usize, output: mutable u8&, output_
         if byte < 0 or byte > 127 or byte == 10 or byte == 13:
             return -1
 
-    padded_length: usize = if text_length == 0 then 0 else ((text_length + columns - 1) / columns) * columns
+    padded_length: usize = 0 if text_length == 0 else ((text_length + columns - 1) / columns) * columns
     if padded_length > MAX_OUTPUT_BYTES:
         return -1
     if padded_length == 0:

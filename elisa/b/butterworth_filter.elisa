@@ -20,10 +20,10 @@ def butterworth_filter_impl(values: i64&, length: usize) -> f64:
     if needs_gain:
         if gain_milli_db < -60000 or gain_milli_db > 60000:
             return -1.0e300
-    else if gain_milli_db != 0:
+    elif gain_milli_db != 0:
         return -1.0e300
-    gain_db: f64 = if needs_gain: gain_milli_db.f64() / 1000.0 else: 0.0
-    q_factor: f64 = if q_micro == -1: 1.0 / sqrt(2.0) else: q_micro.f64() / 1000000.0
+    gain_db: f64 = gain_milli_db.f64() / 1000.0 if needs_gain else 0.0
+    q_factor: f64 = 1.0 / sqrt(2.0) if q_micro == -1 else q_micro.f64() / 1000000.0
     w0: f64 = 6.283185307179586476925286766559 * frequency.f64() / samplerate.f64()
     sine: f64 = sin(w0)
     cosine: f64 = cos(w0)
@@ -38,22 +38,22 @@ def butterworth_filter_impl(values: i64&, length: usize) -> f64:
         b0 <- (1.0 - cosine) / 2.0
         b1 <- 1.0 - cosine
         b2 <- b0
-    else if kind == 1:
+    elif kind == 1:
         b0 <- (1.0 + cosine) / 2.0
         b1 <- -1.0 - cosine
         b2 <- b0
-    else if kind == 2:
+    elif kind == 2:
         b0 <- sine / 2.0
         b1 <- 0.0
         b2 <- -b0
-    else if kind == 3:
+    elif kind == 3:
         b0 <- 1.0 - alpha
         b1 <- -2.0 * cosine
         b2 <- 1.0 + alpha
         a0 <- b2
         a1 <- b1
         a2 <- b0
-    else if kind == 4:
+    elif kind == 4:
         big_a: f64 = pow(10.0, gain_db / 40.0)
         b0 <- 1.0 + alpha * big_a
         b1 <- -2.0 * cosine
@@ -61,7 +61,7 @@ def butterworth_filter_impl(values: i64&, length: usize) -> f64:
         a0 <- 1.0 + alpha / big_a
         a1 <- -2.0 * cosine
         a2 <- 1.0 - alpha / big_a
-    else if kind == 5 or kind == 6:
+    elif kind == 5 or kind == 6:
         big_a: f64 = pow(10.0, gain_db / 40.0)
         pmc: f64 = (big_a + 1.0) - (big_a - 1.0) * cosine
         ppmc: f64 = (big_a + 1.0) + (big_a - 1.0) * cosine
@@ -82,7 +82,7 @@ def butterworth_filter_impl(values: i64&, length: usize) -> f64:
             a0 <- pmc + aa2
             a1 <- 2.0 * mpc
             a2 <- pmc - aa2
-    else if kind == 7:
+    elif kind == 7:
         b0 <- 1.0
         b1 <- -2.0 * cosine
         b2 <- 1.0

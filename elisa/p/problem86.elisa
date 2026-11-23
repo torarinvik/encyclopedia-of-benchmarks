@@ -16,8 +16,8 @@ def problem86_impl(limit: i64) -> i64:
         sum_sides: mutable i64 = 2
         while sum_sides <= 2 * max_side:
             if is_square(sum_sides * sum_sides + max_side * max_side):
-                high: i64 = if max_side < sum_sides / 2: max_side else: sum_sides / 2
-                low: i64 = if sum_sides - max_side > 1: sum_sides - max_side else: 1
+                high: i64 = max_side if max_side < sum_sides / 2 else sum_sides / 2
+                low: i64 = sum_sides - max_side if sum_sides - max_side > 1 else 1
                 cuboid_count <- cuboid_count + high - low + 1
             sum_sides <- sum_sides + 1
     max_side

@@ -30,9 +30,9 @@ def pn_mix(t: f64, a: f64, b: f64) -> f64:
 
 def pn_gradient(hash: i64, x: f64, y: f64, z: f64) -> f64:
     k: i64 = hash & 15
-    u: f64 = if k < 8: x else: y
-    v: f64 = if k < 4: y else: (if k == 12 or k == 14: x else: z)
-    (if (k & 1) == 0: u else: -u) + (if (k & 2) == 0: v else: -v)
+    u: f64 = x if k < 8 else y
+    v: f64 = y if k < 4 else ((x if k == 12 or k == 14 else z))
+    ((u if (k & 1) == 0 else -u)) + ((v if (k & 2) == 0 else -v))
 
 def improved_perlin_noise_3d_impl(x_input: f64, y_input: f64, z_input: f64) -> f64:
     if x_input != x_input or y_input != y_input or z_input != z_input: return -1.0

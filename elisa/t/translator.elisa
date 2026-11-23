@@ -5,7 +5,7 @@ const MAX_INPUT_LENGTH: usize = 107
 const MAX_OUTPUT_LENGTH: usize = 256
 
 def translator_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
     if input[0] < 0 or input[0] > 4 or input[1] < 0 or input[1] > 64:
         return -1
@@ -66,7 +66,7 @@ def translator_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
     while start < text_length:
         matched: mutable bool = false
         remaining: usize = text_length - start
-        maximum_length: usize = if remaining < MAX_KEY_LENGTH then remaining else MAX_KEY_LENGTH
+        maximum_length: usize = remaining if remaining < MAX_KEY_LENGTH else MAX_KEY_LENGTH
         candidate_length: mutable usize = 1
         while candidate_length <= maximum_length and not matched:
             for key_index in 0..<key_count:
@@ -87,7 +87,7 @@ def translator_impl(input: i64&, length: usize, output: mutable u8&, capacity: u
             candidate_length <- candidate_length + 1
         if not matched:
             break
-    if output.is_null() or capacity < result_length:
+    if output == null or capacity < result_length:
         return -2
     for index in 0..<result_length:
         output[index] <- result[index]

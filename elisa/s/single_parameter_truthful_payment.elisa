@@ -5,7 +5,7 @@ const MAX_OUTPUT: usize = 16
 
 def single_parameter_truthful_payment_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 4 or length > MAX_INPUT: return -1
+    if input == null or length < 4 or length > MAX_INPUT: return -1
     if input[0] < 0 or input[0] > MAX_BID.i64() or input[1] < 1 or input[1] > MAX_STEPS.i64(): return -1
     bid: usize = input[0].usize()
     count: usize = input[1].usize()
@@ -28,12 +28,12 @@ def single_parameter_truthful_payment_impl(input: i64&, length: usize,
     i <- 0
     while i < count:
         start: usize = input[2 + 2 * i].usize()
-        finish: usize = if i + 1 < count: input[2 + 2 * (i + 1)].usize() else: MAX_BID
-        left: usize = if start > bid: start else: bid
+        finish: usize = input[2 + 2 * (i + 1)].usize() if i + 1 < count else MAX_BID
+        left: usize = start if start > bid else bid
         if finish > left: area <- area + (finish - left).i64() * input[3 + 2 * i]
         i <- i + 1
     payment: i64 = bid.i64() * allocation + area
-    if output.is_null() or capacity < MAX_OUTPUT: return -2
+    if output == null or capacity < MAX_OUTPUT: return -2
     alloc_bits: u64 = allocation.u64()
     payment_bits: u64 = payment.u64()
     i <- 0

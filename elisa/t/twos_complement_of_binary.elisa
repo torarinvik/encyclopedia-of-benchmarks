@@ -24,7 +24,7 @@ def twos_complement_of_binary_impl(value: i64) -> i64:
         width <- width + 1
     while remaining > 0:
         digit: i64 = remaining % 10
-        reversed <- reversed * 10 + (if digit == 1: 0 else: 1)
+        reversed <- reversed * 10 + ((0 if digit == 1 else 1))
         remaining <- remaining / 10
         width <- width + 1
 

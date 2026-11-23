@@ -4,7 +4,7 @@ def is_binary_digit(value: i64) -> bool = value == 48 or value == 49
 
 # The input array contains one ASCII code point per byte.
 def binary_to_excess3_impl(values: i64&, length: usize, output: mutable u8&, output_capacity: usize) -> i64:
-    if length == 0 or length > 128 or values.is_null():
+    if length == 0 or length > 128 or values == null:
         return -1
     start: mutable usize = 0
     end: mutable usize = length
@@ -49,10 +49,10 @@ def binary_to_excess3_impl(values: i64&, length: usize, output: mutable u8&, out
             have_digit <- true
             last_was_digit <- true
             allow_prefix_underscore <- false
-        else if value == 95:
+        elif value == 95:
             if last_was_digit and index + 1 < end and is_binary_digit(values[index + 1]):
                 last_was_digit <- false
-            else if allow_prefix_underscore and not have_digit and index == digit_start and index + 1 < end and is_binary_digit(values[index + 1]):
+            elif allow_prefix_underscore and not have_digit and index == digit_start and index + 1 < end and is_binary_digit(values[index + 1]):
                 allow_prefix_underscore <- false
             else:
                 return -1
@@ -62,7 +62,7 @@ def binary_to_excess3_impl(values: i64&, length: usize, output: mutable u8&, out
     if not have_digit or not last_was_digit:
         return -1
 
-    result: i64 = (if negative: -magnitude else: magnitude) + 3
+    result: i64 = ((-magnitude if negative else magnitude)) + 3
     result_is_negative: bool = result < 0
     remaining: mutable i64 = result
     if result_is_negative:
@@ -76,7 +76,7 @@ def binary_to_excess3_impl(values: i64&, length: usize, output: mutable u8&, out
         if remaining == 0:
             break
 
-    sign_length: usize = if result_is_negative: 1 else: 0
+    sign_length: usize = 1 if result_is_negative else 0
     output_length: mutable usize = sign_length + digit_count
     if output_length < 4:
         output_length <- 4

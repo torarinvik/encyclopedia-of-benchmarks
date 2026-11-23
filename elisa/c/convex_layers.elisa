@@ -15,8 +15,8 @@ def convex_layers_before(left: ConvexLayersPoint, right: ConvexLayersPoint) -> b
 def convex_layers_on_segment(point: ConvexLayersPoint, a: ConvexLayersPoint,
                              b: ConvexLayersPoint) -> bool:
     convex_layers_cross(a, b, point) == 0 and
-        point.x >= (if a.x < b.x: a.x else: b.x) and point.x <= (if a.x > b.x: a.x else: b.x) and
-        point.y >= (if a.y < b.y: a.y else: b.y) and point.y <= (if a.y > b.y: a.y else: b.y)
+        point.x >= ((a.x if a.x < b.x else b.x)) and point.x <= ((a.x if a.x > b.x else b.x)) and
+        point.y >= ((a.y if a.y < b.y else b.y)) and point.y <= ((a.y if a.y > b.y else b.y))
 
 def convex_layers_sort(points: mutable view[ConvexLayersPoint], count: usize) -> void:
     index: mutable usize = 1

@@ -24,7 +24,7 @@ def count_reversible(remaining: i64, carry_in: i64, digits: mutable i64[9], leng
     digit1: mutable i64 = 0
     while digit1 < 10:
         digits[right_index.usize()] <- digit1
-        parity: i64 = if (carry_in + digit1) % 2 == 0: 1 else: 0
+        parity: i64 = 1 if (carry_in + digit1) % 2 == 0 else 0
         digit2: mutable i64 = parity
         while digit2 < 10:
             digits[left_index.usize()] <- digit2

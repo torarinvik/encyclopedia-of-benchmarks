@@ -2,8 +2,8 @@ const MAX_SEQUENCE_LENGTH: usize = 16
 const MAX_PARSEABLE_INPUT_LENGTH: usize = 38
 const SCORE_STRIDE: usize = 17
 
-export fn smith_waterman_java(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 5 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
+def smith_waterman_java_impl(input: i64&, length: usize) -> i64:
+    if input == null or length < 5 or length > MAX_PARSEABLE_INPUT_LENGTH: return -1
     query_length_value: i64 = input[0]
     subject_length_value: i64 = input[1]
     match_score: i64 = input[2]
@@ -21,7 +21,7 @@ export fn smith_waterman_java(input: i64&, length: usize) -> i64:
         if not ((value >= 65 and value <= 90) or (value >= 97 and value <= 122) or value == 45): return -1
         index <- index + 1
 
-    scores: mutable [289]i64 = zeroed
+    scores: mutable i64[289] = zeroed
     maximum: mutable i64 = 0
     row: mutable usize = 1
     while row <= query_length:
@@ -29,7 +29,7 @@ export fn smith_waterman_java(input: i64&, length: usize) -> i64:
         while column <= subject_length:
             query_char: i64 = input[4 + row]
             subject_char: i64 = input[4 + query_length + column]
-            pair_score: i64 = if query_char == subject_char then match_score else mismatch_score
+            pair_score: i64 = match_score if query_char == subject_char else mismatch_score
             diagonal: i64 = scores[(row - 1) * SCORE_STRIDE + column - 1] + pair_score
             above: i64 = scores[(row - 1) * SCORE_STRIDE + column] + gap_score
             left: i64 = scores[row * SCORE_STRIDE + column - 1] + gap_score
@@ -42,3 +42,5 @@ export fn smith_waterman_java(input: i64&, length: usize) -> i64:
             column <- column + 1
         row <- row + 1
     maximum
+
+export fn smith_waterman_java(input: i64&, length: usize) -> i64 = smith_waterman_java_impl

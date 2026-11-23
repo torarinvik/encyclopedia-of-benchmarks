@@ -16,7 +16,7 @@ def problem41_is_prime(number: i64) -> bool:
 
 def problem41_search(digits: i64, depth: i64, used: usize, value: i64) -> i64:
     if depth == digits:
-        return if problem41_is_prime(value) then value else 0
+        return value if problem41_is_prime(value) else 0
     best: mutable i64 = 0
     digit: mutable i64 = 1
     while digit <= digits:

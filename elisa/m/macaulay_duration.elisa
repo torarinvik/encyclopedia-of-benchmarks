@@ -8,7 +8,7 @@ const MAX_INPUT_LENGTH: usize = 5
 const INVALID_RESULT: f64 = -1.0e300
 
 def macaulay_duration_impl(values: i64&, length: usize) -> f64:
-    if values.is_null() or length != 4 or length > MAX_INPUT_LENGTH:
+    if values == null or length != 4 or length > MAX_INPUT_LENGTH:
         return INVALID_RESULT
     face_micro: i64 = values[0]
     coupon_micro: i64 = values[1]
@@ -23,7 +23,7 @@ def macaulay_duration_impl(values: i64&, length: usize) -> f64:
     total_time_weighted_value: mutable f64 = 0.0
     period: mutable i64 = 1
     while period <= periods:
-        cash_flow: f64 = face_value * coupon_rate + (if period == periods then face_value else 0.0)
+        cash_flow: f64 = face_value * coupon_rate + ((face_value if period == periods else 0.0))
         time_weighted_value: f64 = (period.f64() * cash_flow) / pow(1.0 + yield_rate, period.f64())
         total_time_weighted_value <- total_time_weighted_value + time_weighted_value
         present_value: f64 = cash_flow / pow(1.0 + yield_rate, period.f64())

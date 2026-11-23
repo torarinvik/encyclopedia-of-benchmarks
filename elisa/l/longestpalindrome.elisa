@@ -8,7 +8,9 @@ def longestpalindrome_impl(v: i64&, length: usize) -> i64:
     while i < count.usize():
         x: i64 = v[i + 1]
         if x < 32 or x > 126 or x == 35: return -1
-        if x != 32: a[m] <- x; m <- m + 1
+        if x != 32:
+            a[m] <- x
+            m <- m + 1
         i <- i + 1
     t: mutable i64[129] = zeroed
     z: usize = 2 * m + 1
@@ -25,10 +27,13 @@ def longestpalindrome_impl(v: i64&, length: usize) -> i64:
     while i < z:
         if i < right:
             mirror: usize = 2 * center - i
-            p[i] <- if p[mirror] < right - i: p[mirror] else: right - i
-        while i >= p[i] + 1 and i + p[i] + 1 < z and t[i - p[i] - 1] == t[i + p[i] + 1]: p[i] <- p[i] + 1
+            p[i] <- p[mirror] if p[mirror] < right - i else right - i
+        while i >= p[i] + 1 and i + p[i] + 1 < z and t[i - p[i] - 1] == t[i + p[i] + 1]:
+            p[i] <- p[i] + 1
         if p[i] > best: best <- p[i]
-        if i + p[i] > right: center <- i; right <- i + p[i]
+        if i + p[i] > right:
+            center <- i
+            right <- i + p[i]
         i <- i + 1
     best.i64()
 export fn longestpalindrome(v: i64&, length: usize) -> i64 = longestpalindrome_impl

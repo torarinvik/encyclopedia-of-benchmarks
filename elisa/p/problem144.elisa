@@ -5,9 +5,9 @@ const INVALID_RESULT: f64 = -1.0e300
 const MAX_REFLECTIONS: i64 = 10000
 
 def is_close(left: f64, right: f64) -> bool:
-    left_abs: f64 = if left < 0.0: -left else: left
-    right_abs: f64 = if right < 0.0: -right else: right
-    scale: f64 = if left_abs > right_abs: left_abs else: right_abs
+    left_abs: f64 = -left if left < 0.0 else left
+    right_abs: f64 = -right if right < 0.0 else right
+    scale: f64 = left_abs if left_abs > right_abs else right_abs
     fabs(left - right) <= 1.0e-9 * scale
 
 def problem144_impl(first_x_coord: f64, first_y_coord: f64) -> f64:
@@ -35,7 +35,7 @@ def problem144_impl(first_x_coord: f64, first_y_coord: f64) -> f64:
         root: f64 = sqrt(linear_term * linear_term - 4.0 * quadratic_term * constant_term)
         x_minus: f64 = (-linear_term - root) / (2.0 * quadratic_term)
         x_plus: f64 = (-linear_term + root) / (2.0 * quadratic_term)
-        next_x: f64 = if is_close(x_plus, point_x): x_minus else: x_plus
+        next_x: f64 = x_minus if is_close(x_plus, point_x) else x_plus
         next_y: f64 = point_y + outgoing_gradient * (next_x - point_x)
         if next_x != next_x or next_y != next_y:
             return INVALID_RESULT

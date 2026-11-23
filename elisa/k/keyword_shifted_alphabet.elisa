@@ -4,7 +4,7 @@ const MAX_INPUT_LENGTH: usize = 3 + MAX_KEYWORD_LENGTH + MAX_MESSAGE_LENGTH + 1
 
 def keyword_shifted_alphabet_impl(input: i64&, length: usize,
                                   output: mutable u8&, output_capacity: usize) -> i64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH:
         return -1
     operation: i64 = input[0]
     keyword_length_value: i64 = input[1]
@@ -55,7 +55,7 @@ def keyword_shifted_alphabet_impl(input: i64&, length: usize,
         encode[i] <- cipher_alphabet[i]
         decode[(cipher_alphabet[i] - 97).usize()] <- (97 + i).u8()
 
-    if output_capacity < message_length or output.is_null():
+    if output_capacity < message_length or output == null:
         return -2
     for i in 0..<message_length:
         value: u8 = message[i]
@@ -63,13 +63,13 @@ def keyword_shifted_alphabet_impl(input: i64&, length: usize,
         index: mutable usize = 0
         if uppercase:
             index <- (value - 65).usize()
-        else if value >= 97 and value <= 122:
+        elif value >= 97 and value <= 122:
             index <- (value - 97).usize()
         else:
             output[i] <- value
             continue
-        translated: u8 = if operation == 0: encode[index] else: decode[index]
-        output[i] <- if uppercase: (translated - 32).u8() else: translated
+        translated: u8 = encode[index] if operation == 0 else decode[index]
+        output[i] <- (translated - 32).u8() if uppercase else translated
     message_length.i64()
 
 export fn keyword_shifted_alphabet(input: i64&, length: usize,

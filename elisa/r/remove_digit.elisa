@@ -1,7 +1,7 @@
 def remove_digit_impl(value: i64) -> i64:
     if value < -9223372036854775807 or value > 9223372036854775807:
         return -1
-    magnitude: mutable i64 = if value < 0: -value else: value
+    magnitude: mutable i64 = -value if value < 0 else value
     if magnitude < 10:
         return -1
     top_place: mutable i64 = 1

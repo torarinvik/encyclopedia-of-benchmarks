@@ -26,9 +26,9 @@ def problem68_impl(gon_side: i64) -> i64:
         minimum_outer: mutable i64 = values[indices[0].usize()]
         line: mutable i64 = 1
         while line < n:
-            outer: i64 = if line == n - 1: 2 * n - 1 else: 2 * line + 1
+            outer: i64 = 2 * n - 1 if line == n - 1 else 2 * line + 1
             inner_left: i64 = 2 * line
-            inner_right: i64 = if line == n - 1: 1 else: 2 * line + 2
+            inner_right: i64 = 1 if line == n - 1 else 2 * line + 2
             external: i64 = values[indices[outer.usize()].usize()]
             if external + values[indices[inner_left.usize()].usize()] + values[indices[inner_right.usize()].usize()] != total:
                 magic <- false
@@ -38,9 +38,9 @@ def problem68_impl(gon_side: i64) -> i64:
             result: mutable i64 = 0
             line <- 0
             while line < n:
-                outer: i64 = if line == 0: 0 else if line == n - 1: 2 * n - 1 else: 2 * line + 1
-                inner_left: i64 = if line == 0: 1 else: 2 * line
-                inner_right: i64 = if line == n - 1: 1 else if line == 0: 2 else: 2 * line + 2
+                outer: i64 = 0 if line == 0 else (2 * n - 1 if line == n - 1 else 2 * line + 1)
+                inner_left: i64 = 1 if line == 0 else 2 * line
+                inner_right: i64 = 1 if line == n - 1 else (2 if line == 0 else 2 * line + 2)
                 first: i64 = values[indices[outer.usize()].usize()]
                 second: i64 = values[indices[inner_left.usize()].usize()]
                 third: i64 = values[indices[inner_right.usize()].usize()]
@@ -53,12 +53,14 @@ def problem68_impl(gon_side: i64) -> i64:
                 line <- line + 1
             return result
         pivot: mutable i64 = length - 2
-        while pivot >= 0 and indices[pivot.usize()] >= indices[(pivot + 1).usize()]: pivot <- pivot - 1
+        while pivot >= 0 and indices[pivot.usize()] >= indices[(pivot + 1).usize()]:
+            pivot <- pivot - 1
         if pivot < 0:
             done <- true
         else:
             successor: mutable i64 = length - 1
-            while indices[successor.usize()] <= indices[pivot.usize()]: successor <- successor - 1
+            while indices[successor.usize()] <= indices[pivot.usize()]:
+                successor <- successor - 1
             temporary: mutable i64 = indices[pivot.usize()]
             indices[pivot.usize()] <- indices[successor.usize()]
             indices[successor.usize()] <- temporary

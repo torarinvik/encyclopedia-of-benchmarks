@@ -2,7 +2,7 @@ const GAPBS_SV_MAX_N: usize = 16
 
 def gapbs_shiloach_vishkin_components_impl(input: i64&, length: usize,
         output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 130: return -1
+    if input == null or length < 2 or length > 130: return -1
     n_value: i64 = input[0]
     m_value: i64 = input[1]
     if n_value < 1 or n_value > 16 or m_value < 0 or m_value > 64 or length != 2 + 2 * m_value.usize(): return -1
@@ -22,7 +22,7 @@ def gapbs_shiloach_vishkin_components_impl(input: i64&, length: usize,
         adjacency[v * 16 + u] <- 1
         edge <- edge + 1
     output_bytes: usize = 8 * n
-    if output.is_null() or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes: return -2
     component: mutable usize[16] = zeroed
     node: mutable usize = 0
     while node < n:
@@ -41,7 +41,7 @@ def gapbs_shiloach_vishkin_components_impl(input: i64&, length: usize,
                     component_u: usize = component[u]
                     component_v: usize = component[v]
                     if component_u != component_v:
-                        high: usize = if component_u > component_v: component_u else: component_v
+                        high: usize = component_u if component_u > component_v else component_v
                         low: usize = component_u + component_v - high
                         if component[high] == high:
                             changed <- true

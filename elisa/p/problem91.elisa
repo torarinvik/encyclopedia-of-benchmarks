@@ -11,7 +11,7 @@ def problem91_impl(limit: i64) -> i64:
         while y1 <= limit:
             x2: mutable i64 = x1
             while x2 <= limit:
-                first_y2: i64 = if x2 == x1: y1 + 1 else: 0
+                first_y2: i64 = y1 + 1 if x2 == x1 else 0
                 y2: mutable i64 = first_y2
                 while y2 <= limit:
                     if not ((x1 == 0 and y1 == 0) or (x2 == 0 and y2 == 0)):

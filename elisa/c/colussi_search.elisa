@@ -41,7 +41,7 @@ def colussi_preprocess(pattern: view[i64], m: usize,
     while i >= 0:
         if hmax[(i + 1).usize()].usize() == m:
             r <- i + 1
-        rmin[i.usize()] <- if kmin[i.usize()] == 0: r else: 0
+        rmin[i.usize()] <- r if kmin[i.usize()] == 0 else 0
         i <- i - 1
 
     s: mutable i64 = -1
@@ -91,7 +91,7 @@ def colussi_preprocess(pattern: view[i64], m: usize,
     nd
 
 def colussi_search_impl(input: i64&, length: usize) -> i64:
-    if input.is_null() or length < 2 or length > COLUSSI_MAX_PARSEABLE_LENGTH:
+    if input == null or length < 2 or length > COLUSSI_MAX_PARSEABLE_LENGTH:
         return -1
     text_length_value: i64 = input[0]
     pattern_length_value: i64 = input[1]

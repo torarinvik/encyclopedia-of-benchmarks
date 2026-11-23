@@ -22,7 +22,7 @@ def goldbach_conjecture_impl(number: i64, output: mutable u8&, output_capacity: 
         if goldbach_is_prime(first) and goldbach_is_prime(second):
             for index in 0..<8:
                 shift: i64 = (index % 4) * 8
-                value: i64 = if index < 4 then first else second
+                value: i64 = first if index < 4 else second
                 output[index] <- ((value >> shift) & 255).u8()
             return 8
         first <- first + 1

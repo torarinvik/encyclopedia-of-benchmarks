@@ -7,7 +7,7 @@ const MAX_SAMPLE_MICRO: i64 = 1000000
 const INVALID_RESULT: f64 = -1.0e300
 
 def laplace_transformation_impl(input: i64&, length: usize) -> f64:
-    if input.is_null() or length < 3 or length > MAX_INPUT_LENGTH: return INVALID_RESULT
+    if input == null or length < 3 or length > MAX_INPUT_LENGTH: return INVALID_RESULT
     sample_count_value: i64 = input[0]
     s_milli: i64 = input[1]
     dt_micro: i64 = input[2]
@@ -32,7 +32,7 @@ def laplace_transformation_impl(input: i64&, length: usize) -> f64:
     integrand: mutable f64[64] = zeroed
     index <- 0
     while index < sample_count:
-        time: f64 = if index == sample_count - 1: stop else: index.f64() * step
+        time: f64 = stop if index == sample_count - 1 else index.f64() * step
         integrand[index] <- samples[index] * exp(-s_value * time)
         index <- index + 1
 

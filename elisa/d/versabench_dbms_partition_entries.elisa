@@ -8,7 +8,8 @@ def dbmsp_valid_box(values: i64&, at: usize) -> bool:
 
 def dbmsp_volume(values: i64&, at: usize) -> i64:
     product: mutable i64 = 1
-    for d in 0..<4: product <- product * (values[at + 4 + d] - values[at + d])
+    for d in 0..<4:
+        product <- product * (values[at + 4 + d] - values[at + d])
     product
 
 def dbmsp_union_volume(values: i64&, left: usize, right: usize) -> i64:
@@ -18,8 +19,8 @@ def dbmsp_union_volume(values: i64&, left: usize, right: usize) -> i64:
         right_lo: i64 = values[right + d]
         left_hi: i64 = values[left + 4 + d]
         right_hi: i64 = values[right + 4 + d]
-        lo: i64 = if left_lo < right_lo: left_lo else: right_lo
-        hi: i64 = if left_hi > right_hi: left_hi else: right_hi
+        lo: i64 = left_lo if left_lo < right_lo else right_lo
+        hi: i64 = left_hi if left_hi > right_hi else right_hi
         product <- product * (hi - lo)
     product
 
@@ -27,7 +28,7 @@ def dbmsp_penalty(values: i64&, seed: usize, entry: usize) -> i64:
     dbmsp_union_volume(values, seed, entry) - dbmsp_volume(values, seed)
 
 def versabench_dbms_partition_entries_impl(values: i64&, length: usize) -> i64:
-    if values.is_null() or length < 1 or length > MAX_INPUT_LENGTH + 1: return -1
+    if values == null or length < 1 or length > MAX_INPUT_LENGTH + 1: return -1
     raw_fan: i64 = values[0]
     if raw_fan < 2 or raw_fan > MAX_FAN.i64(): return -1
     fan: usize = raw_fan.usize()

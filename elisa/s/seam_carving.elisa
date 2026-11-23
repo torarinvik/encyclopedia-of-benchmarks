@@ -3,7 +3,7 @@
 extern sqrt(value: f64) -> f64
 
 def seam_carving_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 2 or length > 39: return -1
+    if input == null or length < 2 or length > 39: return -1
     width_value: i64 = input[0]
     height_value: i64 = input[1]
     if width_value < 2 or width_value > 6 or height_value < 1 or height_value > 6: return -1
@@ -37,8 +37,8 @@ def seam_carving_impl(input: i64&, length: usize, output: mutable u8&, capacity:
         for x in 0 ..< width:
             minimum: mutable f64 = 1.0e300
             best_x: mutable usize = x
-            start: usize = if x == 0: 0 else: x - 1
-            end: usize = if x + 1 < width: x + 1 else: width - 1
+            start: usize = 0 if x == 0 else x - 1
+            end: usize = x + 1 if x + 1 < width else width - 1
             for candidate in start ..< end + 1:
                 if cumulative[y - 1][candidate] < minimum:
                     minimum <- cumulative[y - 1][candidate]
@@ -58,7 +58,7 @@ def seam_carving_impl(input: i64&, length: usize, output: mutable u8&, capacity:
         y <- y - 1
 
     needed: usize = height * (width - 1)
-    if output.is_null() or capacity < needed: return -2
+    if output == null or capacity < needed: return -2
     staged: mutable u8[30] = zeroed
     position: mutable usize = 0
     for row_index in 0 ..< height:

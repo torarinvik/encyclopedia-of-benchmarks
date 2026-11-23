@@ -36,7 +36,7 @@ def sum_of_totient_function_impl(n: i64) -> i64:
     while value <= BASE_LIMIT:
         prefix[value] <- value.i64()
         value <- value + 1
-    sieve_limit: usize = if n < BASE_LIMIT.i64(): n.usize() else: BASE_LIMIT
+    sieve_limit: usize = n.usize() if n < BASE_LIMIT.i64() else BASE_LIMIT
     prime: mutable usize = 2
     while prime <= sieve_limit:
         if prefix[prime] == prime.i64():

@@ -13,7 +13,7 @@ def single_bit_manipulation_operations_impl(input: i64&, length: usize) -> i64:
     if opcode == 1: return number & ~mask
     if opcode == 2: return number ^ mask
     if opcode == 3: return (((number.u64() >> position.usize()) & 1).i64())
-    if opcode == 4: return if (number & mask) != 0: 1 else: 0
+    if opcode == 4: return 1 if (number & mask) != 0 else 0
     -1
 
 export fn single_bit_manipulation_operations(input: i64&, length: usize) -> i64 = single_bit_manipulation_operations_impl

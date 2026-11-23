@@ -35,7 +35,7 @@ def round_three_away(scaled: f64) -> f64:
     if scaled == 0.0:
         return scaled / 1000.0
     negative: bool = scaled < 0.0
-    magnitude: f64 = if negative: -scaled else: scaled
+    magnitude: f64 = -scaled if negative else scaled
     rounded_milli: mutable u64 = magnitude.u64()
     if magnitude - rounded_milli.f64() >= 0.5:
         rounded_milli <- rounded_milli + 1.u64()

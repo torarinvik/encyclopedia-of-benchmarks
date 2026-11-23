@@ -16,7 +16,7 @@ def put_record(output: mutable view[u8], offset: usize, opcode: i64, tag: i64, v
     put_i64_le(value, output, offset + 16)
 
 def linked_stack_impl(input: i64&, length: usize, output: mutable u8&, capacity: usize) -> i64:
-    if input.is_null() or length < 1 or length > MAX_INPUT_LENGTH:
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
         return -1
     raw_count: i64 = input[0]
     if raw_count < 0 or raw_count > 64:
@@ -69,12 +69,12 @@ def linked_stack_impl(input: i64&, length: usize, output: mutable u8&, capacity:
                 head <- below[head]
         else:
             tag <- 1
-            value <- if head == 0 then 1 else 0
+            value <- 1 if head == 0 else 0
         put_record(buffer[0:written + 24], written, opcode, tag, value)
         written <- written + 24
         index <- index + 1
 
-    if output.is_null() or capacity < written: return -2
+    if output == null or capacity < written: return -2
     index <- 0
     while index < written:
         output[index] <- buffer[index]

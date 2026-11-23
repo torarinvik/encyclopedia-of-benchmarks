@@ -19,7 +19,7 @@ def thin_lens_impl(values: i64&, length: usize) -> f64:
     if operation == 2:
         if b != 0:
             return -1.0e300
-        return if a > 0: 1.0 else: 0.0
+        return 1.0 if a > 0 else 0.0
     -1.0e300
 
 export fn thin_lens(values: i64&, length: usize) -> f64 = thin_lens_impl

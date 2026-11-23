@@ -33,7 +33,7 @@ def fft_line(real: mutable view[f64], imag: mutable view[f64], n: usize, inverse
 
     block: mutable usize = 2
     while block <= n:
-        direction: f64 = if inverse: 1.0 else: -1.0
+        direction: f64 = 1.0 if inverse else -1.0
         angle: f64 = direction * TAU / block.f64()
         step_real: f64 = cos(angle)
         step_imag: f64 = sin(angle)
@@ -60,7 +60,7 @@ def fft_line(real: mutable view[f64], imag: mutable view[f64], n: usize, inverse
             start <- start + block
         block <- block * 2
     if inverse:
-        for i in 0..n:
+        for i in 0..<n:
             real[i] <- real[i] / n.f64()
             imag[i] <- imag[i] / n.f64()
 
@@ -68,9 +68,9 @@ def axis_transform(real: mutable view[f64], imag: mutable view[f64], n: usize,
                    axis: usize, inverse: bool) -> void:
     line_real: mutable f64[4] = zeroed
     line_imag: mutable f64[4] = zeroed
-    for a in 0..n:
-        for b in 0..n:
-            for p in 0..n:
+    for a in 0..<n:
+        for b in 0..<n:
+            for p in 0..<n:
                 x: mutable usize = a
                 y: mutable usize = b
                 z: mutable usize = p
@@ -86,7 +86,7 @@ def axis_transform(real: mutable view[f64], imag: mutable view[f64], n: usize,
                 line_real[p] <- real[index]
                 line_imag[p] <- imag[index]
             fft_line(line_real[0:4], line_imag[0:4], n, inverse)
-            for p in 0..n:
+            for p in 0..<n:
                 x: mutable usize = a
                 y: mutable usize = b
                 z: mutable usize = p
@@ -115,7 +115,7 @@ def signed_frequency(index: usize, n: usize) -> i64:
 
 def npb_ft_3d_spectral_step_impl(input: f64&, input_length: usize,
                                 output: mutable f64&, output_capacity: usize) -> i64:
-    if input.is_null() or input_length < 2 or input_length > 130:
+    if input == null or input_length < 2 or input_length > 130:
         return -1
     if not bounded_integer(input[0], 2.0, 4.0) or not bounded_integer(input[1], 1.0, MAX_STEPS.f64()):
         return -1
@@ -125,26 +125,26 @@ def npb_ft_3d_spectral_step_impl(input: f64&, input_length: usize,
         return -1
     volume: usize = n * n * n
     needed: usize = 2 * steps
-    for i in 2..input_length:
+    for i in 2..<input_length:
         if input[i] != input[i] or input[i] < -1.0 or input[i] > 1.0:
             return -1
-    if output.is_null() or output_capacity < needed:
+    if output == null or output_capacity < needed:
         return -2
 
     spectrum_real: mutable f64[64] = zeroed
     spectrum_imag: mutable f64[64] = zeroed
     work_real: mutable f64[64] = zeroed
     work_imag: mutable f64[64] = zeroed
-    for i in 0..volume:
+    for i in 0..<volume:
         spectrum_real[i] <- input[2 + 2 * i]
         spectrum_imag[i] <- input[2 + 2 * i + 1]
     transform3d(spectrum_real[0:64], spectrum_imag[0:64], n, false)
 
     step: mutable usize = 1
     while step <= steps:
-        for x in 0..n:
-            for y in 0..n:
-                for z in 0..n:
+        for x in 0..<n:
+            for y in 0..<n:
+                for z in 0..<n:
                     index: usize = (x * n + y) * n + z
                     kx: i64 = signed_frequency(x, n)
                     ky: i64 = signed_frequency(y, n)
@@ -156,7 +156,7 @@ def npb_ft_3d_spectral_step_impl(input: f64&, input_length: usize,
         transform3d(work_real[0:64], work_imag[0:64], n, true)
         sum_real: mutable f64 = 0.0
         sum_imag: mutable f64 = 0.0
-        for j in 1..(CHECKSUM_TERMS + 1):
+        for j in 1..<(CHECKSUM_TERMS + 1):
             x: usize = (j - 1) % n
             y: usize = (3 * j - 1) % n
             z: usize = (5 * j - 1) % n

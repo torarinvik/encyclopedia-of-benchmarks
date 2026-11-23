@@ -14,7 +14,7 @@ def kohonen_topology_exact_integer(value: f64, minimum: i64, maximum: i64) -> bo
 
 def kohonen_som_topology_impl(input: f64&, input_length: usize,
                               output: mutable f64&, capacity: usize) -> i64:
-    if input.is_null() or input_length < 4 or input_length > MAX_INPUT_LENGTH: return -1
+    if input == null or input_length < 4 or input_length > MAX_INPUT_LENGTH: return -1
     if not kohonen_topology_exact_integer(input[0], 1, MAX_MAP_SIZE.i64()) or
         not kohonen_topology_exact_integer(input[1], 1, MAX_FEATURE_COUNT.i64()) or
         not kohonen_topology_exact_integer(input[2], 0, 8) or
@@ -66,18 +66,18 @@ def kohonen_som_topology_impl(input: f64&, input_length: usize,
 
     best_x: usize = best_matching_unit / map_size
     best_y: usize = best_matching_unit % map_size
-    first_x: usize = if best_x > radius then best_x - radius else 0
-    after_x: usize = if best_x + radius + 1 < map_size then best_x + radius + 1 else map_size
-    first_y: usize = if best_y > radius then best_y - radius else 0
-    after_y: usize = if best_y + radius + 1 < map_size then best_y + radius + 1 else map_size
+    first_x: usize = best_x - radius if best_x > radius else 0
+    after_x: usize = best_x + radius + 1 if best_x + radius + 1 < map_size else map_size
+    first_y: usize = best_y - radius if best_y > radius else 0
+    after_y: usize = best_y + radius + 1 if best_y + radius + 1 < map_size else map_size
     alpha: f64 = alpha_code.f64() / 16.0
 
     x: mutable usize = first_x
     while x < after_x:
         y: mutable usize = first_y
         while y < after_y:
-            dx: usize = if best_x > x then best_x - x else x - best_x
-            dy: usize = if best_y > y then best_y - y else y - best_y
+            dx: usize = best_x - x if best_x > x else x - best_x
+            dy: usize = best_y - y if best_y > y else y - best_y
             grid_distance_squared: f64 = (dx * dx + dy * dy).f64()
             scale: f64 = exp(-grid_distance_squared / (2.0 * alpha * alpha))
             feature <- 0
@@ -92,7 +92,7 @@ def kohonen_som_topology_impl(input: f64&, input_length: usize,
         x <- x + 1
 
     output_length: usize = 1 + weight_count
-    if output.is_null() or capacity < output_length: return -2
+    if output == null or capacity < output_length: return -2
     output[0] <- best_distance
     index <- 0
     while index < weight_count:

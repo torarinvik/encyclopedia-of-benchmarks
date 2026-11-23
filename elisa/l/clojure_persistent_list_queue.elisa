@@ -54,16 +54,16 @@ def clojure_persistent_list_queue_impl(input: i64&, length: usize) -> i64:
             newest_first[0] <- argument.i32()
             queue_size <- queue_size + 1
             results[operation] <- queue_size.i64()
-        else if opcode == 1:
+        elif opcode == 1:
             if argument != 0: return -1
             if queue_size > 0: queue_size <- queue_size - 1
             results[operation] <- queue_size.i64()
-        else if opcode == 2:
+        elif opcode == 2:
             if argument != 0: return -1
-            results[operation] <- if queue_size == 0: -9223372036854775807 - 1 else: newest_first[queue_size - 1].i64()
+            results[operation] <- -9223372036854775807 - 1 if queue_size == 0 else newest_first[queue_size - 1].i64()
         else:
             if argument != 0: return -1
-            results[operation] <- if queue_size == 0: 1 else: 0
+            results[operation] <- 1 if queue_size == 0 else 0
 
     hash: mutable u64 = PERSISTENT_QUEUE_FNV_OFFSET
     hash <- persistent_queue_hash_u16(hash, operation_count)
