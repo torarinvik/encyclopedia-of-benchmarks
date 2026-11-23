@@ -1,50 +1,27 @@
-# Entry e is the largest signed-32-bit base b for which b^e fits in i64.
-const MAXIMUM_BASE: array[u32, 63] = [
-    2147483647, 2147483647, 2147483647, 2097151, 55108, 6208, 1448, 511,
-    234, 127, 78, 52, 38, 28, 22, 18,
-    15, 13, 11, 9, 8, 7, 7, 6,
-    6, 5, 5, 5, 4, 4, 4, 4,
-    3, 3, 3, 3, 3, 3, 3, 3,
-    2, 2, 2, 2, 2, 2, 2, 2,
-    2, 2, 2, 2, 2, 2, 2, 2,
-    2, 2, 2, 2, 2, 2, 2,
-]
-
-@intrinsic("llvm.ctlz.i32")
-extern leading_zeros(value: u32, zero_undefined: bool) -> u32
-
 # Exponentiation by squaring with exact i64 overflow detection.
+const MAX_I32: i64 = 2147483647
+const MAX_RESULT: u64 = 9223372036854775807
+
 def binary_exponentiation_impl(values: i64&, length: usize) -> i64:
     if values == null or length != 2:
         return -1
     base_input: i64 = values[0]
     exponent_input: i64 = values[1]
-    # Either negative or out-of-range operand sets a bit above bit 30.
-    if ((base_input.u64() | exponent_input.u64()) >> 31) != 0:
+    if base_input < 0 or base_input > MAX_I32 or exponent_input < 0 or exponent_input > MAX_I32:
         return -1
-    if exponent_input <= 1 or base_input <= 1:
-        return 1 if exponent_input == 0 else base_input
-    # Every base above one overflows at exponent 63 or higher.
-    if exponent_input > 62:
-        return -1
-    if (base_input & (base_input - 1)) == 0:
-        shift: u32 = (31 - leading_zeros(base_input.u32(), true)) * exponent_input.u32()
-        if shift > 62:
-            return -1
-        return (1.u64() << shift).i64()
-    base: u64 = base_input.u64()
-    if base > MAXIMUM_BASE[exponent_input.usize()].u64():
-        return -1
-    # All intermediate powers have exponents at most the requested exponent.
-    exponent: u32 = exponent_input.u32()
-    highest_bit: u32 = 31 - leading_zeros(exponent, true)
-    bit: mutable u32 = (1.u32() << highest_bit) >> 1
-    result: mutable u64 = base
-    while bit != 0:
-        result <- result * result
-        if (exponent & bit) != 0:
+    base: mutable u64 = base_input.u64()
+    exponent: mutable u64 = exponent_input.u64()
+    result: mutable u64 = 1
+    while exponent != 0:
+        if (exponent & 1) != 0:
+            if base != 0 and result > MAX_RESULT / base:
+                return -1
             result <- result * base
-        bit <- bit >> 1
+        exponent <- exponent >> 1
+        if exponent != 0:
+            if base != 0 and base > MAX_RESULT / base:
+                return -1
+            base <- base * base
     result.i64()
 
 export fn binary_exponentiation(values: i64&, length: usize) -> i64 = binary_exponentiation_impl

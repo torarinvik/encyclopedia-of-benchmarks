@@ -1,23 +1,26 @@
-@intrinsic("llvm.ctlz.i32")
-extern leading_zeros(value: u32, zero_undefined: bool) -> u32
+# Total set bits in every integer from 1 through value, inclusive.
+const MAX_INPUT: i64 = 67108863
 
-# Count set bits across every integer from 1 through value, inclusive.
+def highest_power_position(value: i64) -> i64:
+    position: mutable i64 = 0
+    power: mutable i64 = 1
+    while power <= value / 2:
+        power <- power * 2
+        position <- position + 1
+    position
+
+def count_set_bits_recursive(value: i64) -> i64:
+    if value == 0:
+        return 0
+    position: i64 = highest_power_position(value)
+    power: i64 = 1.i64() << position
+    bits_at_position: i64 = 0 if position == 0 else position * (power >> 1)
+    remaining_numbers: i64 = value - power + 1
+    bits_at_position + remaining_numbers + count_set_bits_recursive(value - power)
+
 def count_set_bits_impl(value: i64) -> i64:
-    return 0 if value == 0
-    if value.u64() > 67108863:
+    if value < 0 or value > MAX_INPUT:
         return -1
-    remaining: mutable u32 = value.u32()
-    # In a complete power-of-two block, each bit is set in half the values.
-    if (remaining & (remaining + 1)) == 0:
-        width: u32 = 31 - leading_zeros(remaining + 1, true)
-        return (width * ((remaining + 1) >> 1)).i64()
-    total: mutable u32 = 0
-    while remaining != 0:
-        # The lower full block contributes position * power / 2 set bits.
-        position: u32 = 31 - leading_zeros(remaining, true)
-        power: u32 = 1.u32() << position
-        remaining <- remaining - power
-        total <- total + position * (power >> 1) + remaining + 1
-    total.i64()
+    count_set_bits_recursive(value)
 
 export fn count_set_bits(value: i64) -> i64 = count_set_bits_impl
