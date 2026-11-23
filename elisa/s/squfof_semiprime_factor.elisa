@@ -1,109 +1,85 @@
-@link_name("llvm.assume")
-extern assume_reduced_form_bound(condition: bool) -> void
+# Shanks' square forms factorization: a forward walk to a square form, then a
+# reverse walk to the symmetry point whose numerator shares a factor.
+const SQUFOF_MAX_NUMBER: i64 = 1000000000000
+const SQUFOF_MAX_STEPS: i64 = 256
 
-const SQ_MAX_NUMBER: i64 = 1000000000000
-const SQ_MAX_STEPS: i64 = 256
+def squfof_isqrt(value: i64, upper: i64) -> i64:
+    low: mutable i64 = 0
+    high: mutable i64 = upper + 1
+    while low + 1 < high:
+        middle: i64 = low + (high - low) / 2
+        if middle * middle <= value:
+            low <- middle
+        else:
+            high <- middle
+    low
 
-@link_name("llvm.sqrt.f64")
-extern sqrt(value: f64) -> f64
-
-def sq_gcd(left_value: i64, right_value: i64) -> i64:
-    # At reverse symmetry, the positive numerator fits u32. After the first
-    # remainder, both Euclidean operands have that bound.
-    left: mutable u32 = right_value.u32()
-    right: mutable u32 = (left_value.u64() % right_value.u64()).u32()
+def squfof_gcd(left_value: i64, right_value: i64) -> i64:
+    left: mutable i64 = left_value
+    right: mutable i64 = right_value
     while right != 0:
-        remainder: u32 = left % right
+        remainder: i64 = left % right
         left <- right
         right <- remainder
-    left.i64()
+    left
 
-# In both walks, reduced forms keep the numerator magnitude and denominator
-# within twice the discriminant root. The quotients and differences fit i32.
-# Both division operands are positive and fit u32.
-def sq_reverse(number: i64, discriminant: i64, a: i64, p: i64, q: i64, cap: i64) -> i64:
-    # For the nonsquare discriminant D, reduced forms keep p*p < D.
-    # Consecutive denominators multiply to D - p*p and start positive.
-    # Reduced denominators are at most twice the discriminant root.
-    assume_reduced_form_bound(q > 0 and q < 3000000)
-    root: i64 = sqrt(q.f64()).i32().i64()
-    if root * root != q:
+def squfof_reverse(number: i64, discriminant: i64, root_bound: i64, p: i64, q: i64, reverse_cap: i64) -> i64:
+    square_root: i64 = squfof_isqrt(q, root_bound)
+    if square_root * square_root != q:
         return 0
-    r: mutable i64 = a - ((a.i32().i64() - p.i32().i64()).u32() % root.u32()).i64()
-    previous_s: mutable i64 = root
-    s: mutable i64 = (discriminant - r.i32().i64() * r.i32().i64()) / root
+    quotient: i64 = (root_bound - p) / square_root
+    r: mutable i64 = quotient * square_root + p
+    previous_s: mutable i64 = square_root
+    s: mutable i64 = (discriminant - r * r) / square_root
     step: mutable i64 = 0
-    while step < cap:
-        assume_reduced_form_bound(s > 0 and s < 3000000)
-        next_quotient: i64 = ((a.i32().i64() + r.i32().i64()).u32() / s.u32()).i64()
-        next_r: i64 = a - ((a.i32().i64() + r.i32().i64()).u32() % s.u32()).i64()
+    while step < reverse_cap:
+        next_quotient: i64 = (root_bound + r) / s
+        next_r: i64 = next_quotient * s - r
         if next_r == r:
-            # At symmetry, 2*r is the positive quotient times s, and r <= a.
-            assume_reduced_form_bound(r > 0 and r < 1500000)
-            factor: i64 = sq_gcd(number, r)
+            factor: i64 = squfof_gcd(number, r)
             if factor > 1 and factor < number:
                 other: i64 = number / factor
-                if factor < other:
-                    return factor
-                return other
+                return factor if factor < other else other
             return 0
-        next_s: i64 = previous_s + next_quotient.i32().i64() * (r.i32().i64() - next_r.i32().i64()).i32().i64()
+        next_s: i64 = previous_s + next_quotient * (r - next_r)
         previous_s <- s
         s <- next_s
         r <- next_r
         step <- step + 1
     0
 
-def squfof_semiprime_factor_impl(input: i64&?, input_length: usize) -> i64:
-    if input_length != 3 or input == null:
+def squfof_semiprime_factor_impl(input: i64&?, length: usize) -> i64:
+    if input == null or length != 3:
         return -1
     number: i64 = input[0]
     forward_cap: i64 = input[1]
     reverse_cap: i64 = input[2]
-    if number == 1 or number.u64() > SQ_MAX_NUMBER.u64() or (number & 1) == 0 or forward_cap.u64() > SQ_MAX_STEPS.u64() or reverse_cap.u64() > SQ_MAX_STEPS.u64():
+    if number < 3 or number > SQUFOF_MAX_NUMBER or number % 2 == 0 or forward_cap < 0 or forward_cap > SQUFOF_MAX_STEPS or reverse_cap < 0 or reverse_cap > SQUFOF_MAX_STEPS:
         return -1
-    # Validation bounds the number and discriminant below 2^41 for exact floor roots.
-    # Every odd square is 1 modulo 8.
-    if (number & 7) == 1:
-        exact_root: i64 = sqrt(number.f64()).i32().i64()
-        if exact_root * exact_root == number:
-            return exact_root
-    # A zero budget in either walk precludes a split after the square check.
-    if forward_cap.i32().i64() * reverse_cap.i32().i64() == 0:
-        return 0
-    # The input is odd, so bit 1 distinguishes the residues 1 and 3 modulo 4.
-    discriminant: i64 = number << 1 if (number & 2) == 0 else number
-    a: i64 = sqrt(discriminant.f64()).i32().i64()
+
+    initial_root: i64 = squfof_isqrt(number, 1000000)
+    if initial_root * initial_root == number:
+        return initial_root
+    discriminant: i64 = 2 * number if number % 4 == 1 else number
+    a: i64 = squfof_isqrt(discriminant, 1414214)
     previous_q: mutable i64 = 1
     q: mutable i64 = discriminant - a * a
     p: mutable i64 = a
-    remaining: mutable u32 = forward_cap.u32()
-    while true:
-        # The forward reduced-form recurrence also preserves positivity.
-        assume_reduced_form_bound(q > 0)
-        quotient: i64 = ((a.i32().i64() + p.i32().i64()).u32() / q.u32()).i64()
-        next_p: i64 = a - ((a.i32().i64() + p.i32().i64()).u32() % q.u32()).i64()
-        next_q: i64 = previous_q + quotient.i32().i64() * (p.i32().i64() - next_p.i32().i64()).i32().i64()
+    index: mutable i64 = 1
+    step: mutable i64 = 0
+    while step < forward_cap:
+        quotient: i64 = (a + p) / q
+        next_p: i64 = quotient * q - p
+        next_q: i64 = previous_q + quotient * (p - next_p)
         previous_q <- q
         q <- next_q
         p <- next_p
-        factor: i64 = sq_reverse(number, discriminant, a, p, q, reverse_cap)
-        if factor != 0:
-            return factor
-        if remaining == 1:
-            return 0
-        # The intervening odd-index step does not trigger a reverse walk.
-        assume_reduced_form_bound(q > 0)
-        second_quotient: i64 = ((a.i32().i64() + p.i32().i64()).u32() / q.u32()).i64()
-        second_p: i64 = a - ((a.i32().i64() + p.i32().i64()).u32() % q.u32()).i64()
-        assume_reduced_form_bound(previous_q > 0 and previous_q < 3000000)
-        second_q: i64 = previous_q + second_quotient.i32().i64() * (p.i32().i64() - second_p.i32().i64()).i32().i64()
-        previous_q <- q
-        q <- second_q
-        p <- second_p
-        if remaining == 2:
-            return 0
-        remaining <- remaining - 2
+        index <- index + 1
+        if index % 2 == 0:
+            factor: i64 = squfof_reverse(number, discriminant, a, p, q, reverse_cap)
+            if factor != 0:
+                return factor
+        step <- step + 1
     0
 
-export fn squfof_semiprime_factor(input: i64&?, input_length: usize) -> i64 = squfof_semiprime_factor_impl
+export fn squfof_semiprime_factor(input: i64&?, length: usize) -> i64 = squfof_semiprime_factor_impl

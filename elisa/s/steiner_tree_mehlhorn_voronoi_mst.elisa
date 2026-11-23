@@ -1,290 +1,403 @@
-@intrinsic("llvm.cttz.i64")
-extern mt_pair_index(bits: u64, zero_undefined: bool) -> u64
+# Mehlhorn's Steiner tree approximation: terminal Voronoi regions by
+# multi-source Dijkstra, Kruskal over the cheapest bridge per region pair,
+# path expansion, an MST of the expanded edges and non-terminal leaf pruning.
+const MAX_N: usize = 8
+const MAX_M: usize = 14
+const MAX_INPUT: usize = 54
+const MAX_OUTPUT: usize = 72
+const INF: i64 = 0x3fffffffffffffff
 
-@intrinsic("llvm.cttz.i32")
-extern mt_edge_index(bits: u32, zero_undefined: bool) -> u32
+struct SteinerEdge:
+    u: usize
+    v: usize
+    weight: i64
 
-const MT_N: usize = 8
-const MT_M: usize = 14
-const MT_MAX_INPUT: usize = 54
-const MT_MAX_OUTPUT: usize = 72
-# A shortest path uses at most seven edges of weight at most nine.
-const MT_UNREACHED: u32 = 256 << 11
+struct SteinerCandidate:
+    a: usize
+    b: usize
+    left: usize
+    right: usize
+    edge: usize
+    weight: i64
 
-# The eight component labels occupy consecutive three-bit fields.
-const MT_SINGLETON_LABELS: u32 = 0xfac688
-const MT_LABEL_LOW_BITS: u32 = 0x249249
+struct SteinerResult:
+    cost: i64
+    count: usize
 
-def mt_label(labels: u32, vertex: usize) -> u32:
-    (labels >> (3*vertex)) & 7
+def steiner_find_root(parent: mutable view[usize], start: usize) -> usize:
+    x: mutable usize = start
+    while parent[x] != x:
+        parent[x] <- parent[parent[x]]
+        x <- parent[x]
+    x
 
-def mt_join(labels: mutable u32&, a: usize, b: usize) -> bool:
-    first: u32 = mt_label(labels, a)
-    second: u32 = mt_label(labels, b)
-    if first == second:
+def steiner_join(parent: mutable view[usize], rank: mutable view[i64], first: usize, second: usize) -> bool:
+    root_a: mutable usize = steiner_find_root(parent, first)
+    root_b: mutable usize = steiner_find_root(parent, second)
+    if root_a == root_b:
         return false
-    different: u32 = labels ^ (second * MT_LABEL_LOW_BITS)
-    matching: u32 = ~(different | (different >> 1) | (different >> 2)) & MT_LABEL_LOW_BITS
-    labels <- labels ^ (matching * (first ^ second))
+    if rank[root_a] < rank[root_b]:
+        swap: usize = root_a
+        root_a <- root_b
+        root_b <- swap
+    parent[root_b] <- root_a
+    if rank[root_a] == rank[root_b]:
+        rank[root_a] <- rank[root_a] + 1
     true
 
-def mt_put_i64(output: mutable u8&, offset: usize, value: i64) -> void:
-    bits: mutable u64 = value.u64()
-    for i in 0..<8:
-        output[offset+i] <- (bits & 255).u8()
-        bits <- bits >> 8
+def steiner_candidate_before(x: SteinerCandidate, y: SteinerCandidate) -> bool:
+    if x.weight != y.weight:
+        return x.weight < y.weight
+    if x.a != y.a:
+        return x.a < y.a
+    if x.b != y.b:
+        return x.b < y.b
+    if x.left != y.left:
+        return x.left < y.left
+    if x.right != y.right:
+        return x.right < y.right
+    x.edge < y.edge
 
-def mt_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if input == null or length < 3 or length > MT_MAX_INPUT:
-        return -1
+def steiner_edge_before(edges: view[SteinerEdge], first: usize, second: usize) -> bool:
+    if edges[first].weight != edges[second].weight:
+        return edges[first].weight < edges[second].weight
+    first < second
+
+# The endpoint of edge opposite to vertex, or -1 when edge does not touch it.
+def steiner_other(edge: SteinerEdge, vertex: usize) -> i64:
+    if edge.u == vertex:
+        return edge.v.i64()
+    if edge.v == vertex:
+        return edge.u.i64()
+    -1
+
+def steiner_parse(input: i64&, length: usize, terminals: mutable view[usize], edges: mutable view[SteinerEdge]) -> bool:
+    if length < 3 or length > MAX_INPUT:
+        return false
     n0: i64 = input[0]
     m0: i64 = input[1]
     k0: i64 = input[2]
-    if n0 < 2 or n0 > MT_N.i64() or m0 < 1 or m0 > MT_M.i64() or k0 < 2 or k0 > n0:
-        return -1
+    if n0 < 2 or n0 > MAX_N.i64() or m0 < 1 or m0 > MAX_M.i64() or k0 < 2 or k0 > n0:
+        return false
     n: usize = n0.usize()
     m: usize = m0.usize()
     k: usize = k0.usize()
-    if length != 3+k+3*m:
-        return -1
-    terminal_mask: mutable u32 = 0
+    if length < 3 + k + 3 * m:
+        return false
+    is_terminal: mutable bool[8] = zeroed
     at: mutable usize = 3
-    for i in 0..<k:
-        raw: i64 = input[at]
-        at <- at+1
-        if raw < 0 or raw >= n0:
-            return -1
-        t: usize = raw.usize()
-        terminal_bit: u32 = 1.u32() << t
-        if (terminal_mask & terminal_bit) != 0:
-            return -1
-        terminal_mask <- terminal_mask | terminal_bit
-    # Store each edge in the same format as an all-terminal Kruskal candidate.
-    edges: mutable u32[16] = zeroed
-    incident: mutable u32[MT_N] = zeroed
-    pair_seen: mutable u64 = 0
-    edge: mutable usize = 0
-    while edge < m:
-        u0: i64 = input[at]
-        v0: i64 = input[at+1]
-        w: i64 = input[at+2]
-        at <- at+3
-        if u0 < 0 or u0 >= v0 or v0 >= n0 or w < 1 or w > 9:
-            return -1
-        u: usize = u0.usize()
-        v: usize = v0.usize()
-        pair_bit: u64 = 1.u64() << (u*MT_N+v)
-        if (pair_seen & pair_bit) != 0:
-            return -1
-        pair_seen <- pair_seen | pair_bit
-        edges[edge & 15] <- (w.u32() << 16) | (u.u32() << 13) | (v.u32() << 10) | edge.u32()
-        bit: u32 = 1.u32() << edge
-        incident[u] <- incident[u] | bit
-        incident[v] <- incident[v] | bit
-        edge <- edge+1
+    i: mutable usize = 0
+    while i < k:
+        t: i64 = input[at]
+        at <- at + 1
+        if t < 0 or t >= n0 or is_terminal[t.usize()]:
+            return false
+        terminals[i] <- t.usize()
+        is_terminal[t.usize()] <- true
+        i <- i + 1
+    seen: mutable u32[8] = zeroed
+    e: mutable usize = 0
+    while e < m:
+        u: i64 = input[at]
+        v: i64 = input[at + 1]
+        w: i64 = input[at + 2]
+        at <- at + 3
+        if u < 0 or u >= v or v >= n0 or w < 1 or w > 9:
+            return false
+        if (seen[u.usize()] & (1.u32() << v.u32())) != 0:
+            return false
+        seen[u.usize()] <- seen[u.usize()] | (1.u32() << v.u32())
+        edges[e] <- SteinerEdge{u: u.usize(), v: v.usize(), weight: w}
+        e <- e + 1
+    if at != length:
+        return false
+    reached: mutable bool[8] = zeroed
+    queue: mutable usize[8] = zeroed
+    queue_start: mutable usize = 0
+    queue_end: mutable usize = 0
+    reached[0] <- true
+    queue[queue_end] <- 0
+    queue_end <- queue_end + 1
+    while queue_start < queue_end:
+        u: usize = queue[queue_start]
+        queue_start <- queue_start + 1
+        e <- 0
+        while e < m:
+            v: i64 = steiner_other(edges[e], u)
+            if v >= 0 and not reached[v.usize()]:
+                reached[v.usize()] <- true
+                queue[queue_end] <- v.usize()
+                queue_end <- queue_end + 1
+            e <- e + 1
+    v: mutable usize = 0
+    while v < n:
+        if not reached[v]:
+            return false
+        v <- v + 1
+    true
 
-    vertex: mutable usize = 0
+def steiner_solve(n: usize, m: usize, k: usize, terminals: view[usize], edges: view[SteinerEdge], result_edges: mutable view[usize]) -> SteinerResult:
+    failed: SteinerResult = SteinerResult{cost: 0, count: 0}
+    dist: mutable i64[8] = zeroed
+    owner: mutable usize[8] = zeroed
+    pred: mutable i64[8] = zeroed
+    pred_edge: mutable i64[8] = zeroed
+    settled: mutable bool[8] = zeroed
+    v: mutable usize = 0
+    while v < n:
+        dist[v] <- INF
+        owner[v] <- n
+        pred[v] <- -1
+        pred_edge[v] <- -1
+        v <- v + 1
+    i: mutable usize = 0
+    while i < k:
+        dist[terminals[i]] <- 0
+        owner[terminals[i]] <- terminals[i]
+        i <- i + 1
+    iteration: mutable usize = 0
+    while iteration < n:
+        chosen: mutable i64 = -1
+        v <- 0
+        while v < n:
+            if not settled[v]:
+                if chosen < 0:
+                    chosen <- v.i64()
+                else:
+                    u: usize = chosen.usize()
+                    if dist[v] < dist[u] or (dist[v] == dist[u] and (owner[v] < owner[u] or (owner[v] == owner[u] and v < u))):
+                        chosen <- v.i64()
+            v <- v + 1
+        if chosen < 0 or dist[chosen.usize()] == INF:
+            break
+        u: usize = chosen.usize()
+        settled[u] <- true
+        e: mutable usize = 0
+        while e < m:
+            other: i64 = steiner_other(edges[e], u)
+            if other >= 0:
+                target: usize = other.usize()
+                next_distance: i64 = dist[u] + edges[e].weight
+                if next_distance < dist[target] or (next_distance == dist[target] and owner[u] < owner[target]):
+                    dist[target] <- next_distance
+                    owner[target] <- owner[u]
+                    pred[target] <- u.i64()
+                    pred_edge[target] <- e.i64()
+                elif next_distance == dist[target] and owner[u] == owner[target] and not settled[target] and (pred[target] < 0 or u.i64() < pred[target] or (u.i64() == pred[target] and e.i64() < pred_edge[target])):
+                    pred[target] <- u.i64()
+                    pred_edge[target] <- e.i64()
+            e <- e + 1
+        iteration <- iteration + 1
+    v <- 0
+    while v < n:
+        if dist[v] == INF or owner[v] == n:
+            return failed
+        v <- v + 1
 
-    # Order by distance, owner, then predecessor vertex and edge.
-    # Equal-distance vertices can settle in either order because weights are positive.
-    distance_key: mutable u32[MT_N] = zeroed
-    if k != n:
-        for index in 0..<n:
-            if (terminal_mask & (1.u32() << index)) != 0:
-                distance_key[index] <- (index.u32() << 8) | 255
-            else:
-                distance_key[index] <- MT_UNREACHED
-        unsettled: mutable u32 = (1.u32() << n) - 1
-        while unsettled != 0:
-            chosen_vertex: mutable usize = MT_N
-            chosen_key: mutable u32 = MT_UNREACHED
-            remaining: mutable u32 = unsettled
-            while remaining != 0:
-                vertex <- (mt_edge_index(remaining, true) & 7).usize()
-                remaining <- remaining & (remaining - 1)
-                if distance_key[vertex] < chosen_key:
-                    chosen_vertex <- vertex
-                    chosen_key <- distance_key[vertex]
-            # A component without a terminal cannot be reached.
-            if chosen_vertex == MT_N:
-                return -1
-            chosen_bit: u32 = 1.u32() << chosen_vertex
-            unsettled <- unsettled ^ chosen_bit
-            chosen_distance_owner: u32 = chosen_key & 0xffffff00
-            pending: mutable u32 = incident[chosen_vertex]
-            while pending != 0:
-                edge <- mt_edge_index(pending, true).usize()
-                pending <- pending & (pending - 1)
-                next_vertex: usize = ((edges[edge & 15] >> 13) & 7).usize() ^ ((edges[edge & 15] >> 10) & 7).usize() ^ chosen_vertex
-                if (unsettled & (1.u32() << next_vertex)) == 0:
-                    continue
-                route: u32 = ((chosen_vertex << 4) | edge).u32()
-                next_key: u32 = (chosen_distance_owner + ((edges[edge & 15] >> 16) << 11)) | route
-                if next_key < distance_key[next_vertex]:
-                    distance_key[next_vertex] <- next_key
+    best: mutable SteinerCandidate[64] = zeroed
+    has: mutable bool[64] = zeroed
+    e: mutable usize = 0
+    while e < m:
+        u: usize = edges[e].u
+        w: usize = edges[e].v
+        a: mutable usize = owner[u]
+        b: mutable usize = owner[w]
+        if a != b:
+            left: mutable usize = u
+            right: mutable usize = w
+            if a > b:
+                swap: usize = a
+                a <- b
+                b <- swap
+                left <- w
+                right <- u
+            candidate: SteinerCandidate = SteinerCandidate{a: a, b: b, left: left, right: right, edge: e, weight: dist[u] + edges[e].weight + dist[w]}
+            old: SteinerCandidate = best[a * MAX_N + b]
+            if not has[a * MAX_N + b] or candidate.weight < old.weight or (candidate.weight == old.weight and (candidate.left < old.left or (candidate.left == old.left and (candidate.right < old.right or (candidate.right == old.right and candidate.edge < old.edge))))):
+                best[a * MAX_N + b] <- candidate
+                has[a * MAX_N + b] <- true
+        e <- e + 1
+    candidates: mutable SteinerCandidate[14] = zeroed
+    candidate_count: mutable usize = 0
+    a: mutable usize = 0
+    while a < n:
+        b: mutable usize = a + 1
+        while b < n:
+            if has[a * MAX_N + b]:
+                candidates[candidate_count] <- best[a * MAX_N + b]
+                candidate_count <- candidate_count + 1
+            b <- b + 1
+        a <- a + 1
+    i <- 1
+    while i < candidate_count:
+        x: SteinerCandidate = candidates[i]
+        j: mutable usize = i
+        while j > 0 and steiner_candidate_before(x, candidates[j - 1]):
+            candidates[j] <- candidates[j - 1]
+            j <- j - 1
+        candidates[j] <- x
+        i <- i + 1
+    parent: mutable usize[8] = zeroed
+    rank: mutable i64[8] = zeroed
+    chosen: mutable usize[8] = zeroed
+    chosen_count: mutable usize = 0
+    v <- 0
+    while v < n:
+        parent[v] <- v
+        v <- v + 1
+    i <- 0
+    while i < candidate_count and chosen_count < k - 1:
+        if steiner_join(parent[0:MAX_N], rank[0:MAX_N], candidates[i].a, candidates[i].b):
+            chosen[chosen_count] <- i
+            chosen_count <- chosen_count + 1
+        i <- i + 1
+    if chosen_count != k - 1:
+        return failed
 
-    candidates: mutable u32[16] = zeroed
-    cn: mutable usize = 0
-    if k == n:
-        # Each edge already connects its own pair of terminal owners.
-        for index in 0..<m:
-            candidates[index & 15] <- edges[index & 15]
-        cn <- m
-    else:
-        best_candidate: mutable u32[64] = zeroed
-        occupied_pairs: mutable u64 = 0
-        edge <- 0
-        while edge < m:
-            u: usize = ((edges[edge & 15] >> 13) & 7).usize()
-            v: usize = ((edges[edge & 15] >> 10) & 7).usize()
-            a: mutable usize = ((distance_key[u] >> 8) & 7).usize()
-            b: mutable usize = ((distance_key[v] >> 8) & 7).usize()
-            if a != b:
-                left: mutable usize = u
-                right: mutable usize = v
-                if a > b:
-                    tmp: usize = a
-                    a <- b
-                    b <- tmp
-                    left <- v
-                    right <- u
-                ix: usize = a*MT_N+b
-                cw: u32 = (distance_key[u] >> 11) + (edges[edge & 15] >> 16) + (distance_key[v] >> 11)
-                # The key orders weight, owners, endpoints and original edge ID.
-                key: u32 = (cw << 16) | (a.u32() << 13) | (b.u32() << 10) | (left.u32() << 7) | (right.u32() << 4) | edge.u32()
-                occupied_pairs <- occupied_pairs | (1.u64() << ix)
-                previous: u32 = best_candidate[ix & 63]
-                if previous == 0 or key < previous:
-                    best_candidate[ix & 63] <- key
-            edge <- edge+1
-        while occupied_pairs != 0:
-            pair: usize = mt_pair_index(occupied_pairs, true).usize()
-            occupied_pairs <- occupied_pairs & (occupied_pairs - 1)
-            candidates[cn & 15] <- best_candidate[pair & 63]
-            cn <- cn+1
-    i: mutable usize = 1
-    j: mutable usize = 0
-    while i < cn:
-        key: u32 = candidates[i & 15]
-        j <- i
-        while j > 0 and key < candidates[(j-1) & 15]:
-            candidates[j & 15] <- candidates[(j-1) & 15]
-            j <- j-1
-        candidates[j & 15] <- key
-        i <- i+1
-    labels: mutable u32 = MT_SINGLETON_LABELS
-    tree: mutable u32 = 0
+    used: mutable bool[14] = zeroed
+    i <- 0
+    while i < chosen_count:
+        c: SteinerCandidate = candidates[chosen[i]]
+        used[c.edge] <- true
+        x: mutable usize = c.left
+        while x != c.a:
+            if pred_edge[x] < 0:
+                return failed
+            used[pred_edge[x].usize()] <- true
+            x <- pred[x].usize()
+        x <- c.right
+        while x != c.b:
+            if pred_edge[x] < 0:
+                return failed
+            used[pred_edge[x].usize()] <- true
+            x <- pred[x].usize()
+        i <- i + 1
+
+    order: mutable usize[14] = zeroed
+    order_count: mutable usize = 0
+    e <- 0
+    while e < m:
+        if used[e]:
+            order[order_count] <- e
+            order_count <- order_count + 1
+        e <- e + 1
+    i <- 1
+    while i < order_count:
+        x: usize = order[i]
+        j: mutable usize = i
+        while j > 0 and steiner_edge_before(edges, x, order[j - 1]):
+            order[j] <- order[j - 1]
+            j <- j - 1
+        order[j] <- x
+        i <- i + 1
+    v <- 0
+    while v < n:
+        parent[v] <- v
+        v <- v + 1
+    v <- 0
+    while v < n:
+        rank[v] <- 0
+        v <- v + 1
+    tree: mutable bool[14] = zeroed
+    i <- 0
+    while i < order_count:
+        edge: usize = order[i]
+        if steiner_join(parent[0:MAX_N], rank[0:MAX_N], edges[edge].u, edges[edge].v):
+            tree[edge] <- true
+        i <- i + 1
+    root: usize = steiner_find_root(parent[0:MAX_N], terminals[0])
+    i <- 1
+    while i < k:
+        if steiner_find_root(parent[0:MAX_N], terminals[i]) != root:
+            return failed
+        i <- i + 1
+
+    terminal_flag: mutable bool[8] = zeroed
+    degree: mutable i64[8] = zeroed
+    incident: mutable bool[112] = zeroed
+    i <- 0
+    while i < k:
+        terminal_flag[terminals[i]] <- true
+        i <- i + 1
+    e <- 0
+    while e < m:
+        if tree[e]:
+            degree[edges[e].u] <- degree[edges[e].u] + 1
+            degree[edges[e].v] <- degree[edges[e].v] + 1
+            incident[edges[e].u * MAX_M + e] <- true
+            incident[edges[e].v * MAX_M + e] <- true
+        e <- e + 1
+    queue: mutable usize[16] = zeroed
+    queued: mutable bool[8] = zeroed
+    queue_start: mutable usize = 0
+    queue_end: mutable usize = 0
+    v <- 0
+    while v < n:
+        if not terminal_flag[v] and degree[v] <= 1:
+            queue[queue_end] <- v
+            queue_end <- queue_end + 1
+            queued[v] <- true
+        v <- v + 1
+    while queue_start < queue_end:
+        u: usize = queue[queue_start]
+        queue_start <- queue_start + 1
+        if degree[u] <= 1:
+            e <- 0
+            while e < m:
+                if tree[e] and incident[u * MAX_M + e]:
+                    tree[e] <- false
+                    w: usize = edges[e].v if edges[e].u == u else edges[e].u
+                    degree[u] <- degree[u] - 1
+                    degree[w] <- degree[w] - 1
+                    if not terminal_flag[w] and degree[w] <= 1 and not queued[w]:
+                        queue[queue_end] <- w
+                        queue_end <- queue_end + 1
+                        queued[w] <- true
+                e <- e + 1
     count: mutable usize = 0
-    cost: mutable u32 = 0
-    chosen: mutable usize[MT_N] = zeroed
-    ch: mutable usize = 0
-    i <- 0
-    while i < cn and ch < k-1:
-        key: u32 = candidates[i & 15]
-        if mt_join(&labels, ((key >> 13) & 7).usize(), ((key >> 10) & 7).usize()):
-            if k == n:
-                tree <- tree | (1.u32() << (key & 15))
-                cost <- cost+(key >> 16)
-            else:
-                chosen[ch] <- i
-            ch <- ch+1
-        i <- i+1
-    # Distinct components containing terminals cannot be joined by Kruskal.
-    if ch != k-1:
+    cost: mutable i64 = 0
+    e <- 0
+    while e < m:
+        if tree[e]:
+            result_edges[count] <- e
+            count <- count + 1
+            cost <- cost + edges[e].weight
+        e <- e + 1
+    if count == 0 or count > n - 1:
+        return failed
+    SteinerResult{cost: cost, count: count}
+
+def steiner_put_i64(output: mutable u8&, at: usize, value: i64) -> void:
+    bits: mutable u64 = value.u64()
+    i: mutable usize = 0
+    while i < 8:
+        output[at + i] <- (bits & 255).u8()
+        bits <- bits >> 8
+        i <- i + 1
+
+def steiner_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
+    if input == null or length < 3 or length > MAX_INPUT:
         return -1
-    if k == n:
-        # The first Kruskal pass already produced the required tree.
-        count <- ch
-    else:
-        used: mutable u32 = 0
-        ix: mutable usize = 0
-        i <- 0
-        while i < ch:
-            ix <- chosen[i]
-            key: u32 = candidates[ix & 15]
-            used <- used | (1.u32() << (key & 15))
-            x: mutable usize = ((key >> 7) & 7).usize()
-            while x != ((key >> 13) & 7).usize():
-                route: u8 = distance_key[x].u8()
-                if route == 255:
-                    return -1
-                used <- used | (1.u32() << (route & 15).usize())
-                x <- (route >> 4).usize()
-            x <- ((key >> 4) & 7).usize()
-            while x != ((key >> 10) & 7).usize():
-                route: u8 = distance_key[x].u8()
-                if route == 255:
-                    return -1
-                used <- used | (1.u32() << (route & 15).usize())
-                x <- (route >> 4).usize()
-            i <- i+1
-        order: mutable u32[16] = zeroed
-        on: mutable usize = 0
-        while used != 0:
-            edge <- mt_edge_index(used, true).usize()
-            used <- used & (used - 1)
-            key: u32 = ((edges[edge & 15] >> 16) << 4) | edge.u32()
-            j <- on
-            while j > 0 and key < order[(j-1) & 15]:
-                order[j & 15] <- order[(j-1) & 15]
-                j <- j-1
-            order[j & 15] <- key
-            on <- on+1
-        labels <- MT_SINGLETON_LABELS
-        degree: mutable usize[MT_N] = zeroed
-        for index in 0..<on:
-            key: u32 = order[index & 15]
-            e: usize = (key & 15).usize()
-            u: usize = ((edges[e & 15] >> 13) & 7).usize()
-            v: usize = ((edges[e & 15] >> 10) & 7).usize()
-            if mt_join(&labels, u, v):
-                tree <- tree | (1.u32() << e)
-                degree[u] <- degree[u]+1
-                degree[v] <- degree[v]+1
-                count <- count+1
-                cost <- cost+(key >> 4)
-        first_terminal: usize = (mt_edge_index(terminal_mask, true) & 7).usize()
-        first_label: u32 = mt_label(labels, first_terminal)
-        remaining_terminals: mutable u32 = terminal_mask & (terminal_mask - 1)
-        while remaining_terminals != 0:
-            terminal: usize = (mt_edge_index(remaining_terminals, true) & 7).usize()
-            remaining_terminals <- remaining_terminals & (remaining_terminals - 1)
-            if mt_label(labels, terminal) != first_label:
-                return -1
-        leaves: mutable u32 = 0
-        for index in 0..<n:
-            bit: u32 = 1.u32() << index
-            if (terminal_mask & bit) == 0 and degree[index] == 1:
-                leaves <- leaves | bit
-        while leaves != 0:
-            u: usize = (mt_edge_index(leaves, true) & 7).usize()
-            leaves <- leaves & (leaves - 1)
-            pending: u32 = incident[u] & tree
-            if pending != 0:
-                edge <- mt_edge_index(pending, true).usize()
-                tree <- tree ^ pending
-                count <- count-1
-                cost <- cost-(edges[edge & 15] >> 16)
-                v: usize = ((edges[edge & 15] >> 13) & 7).usize() ^ ((edges[edge & 15] >> 10) & 7).usize() ^ u
-                degree[u] <- 0
-                degree[v] <- degree[v]-1
-                bit: u32 = 1.u32() << v
-                if (terminal_mask & bit) == 0 and degree[v] == 1:
-                    leaves <- leaves | bit
-    if count == 0 or count > n-1:
+    terminals: mutable usize[8] = zeroed
+    edges: mutable SteinerEdge[14] = zeroed
+    result_edges: mutable usize[14] = zeroed
+    if not steiner_parse(input, length, terminals[0:MAX_N], edges[0:MAX_M]):
         return -1
-    bytes: usize = (2+count)*8
-    if output == null or capacity < bytes:
+    n: usize = input[0].usize()
+    m: usize = input[1].usize()
+    k: usize = input[2].usize()
+    result: SteinerResult = steiner_solve(n, m, k, terminals[0:MAX_N], edges[0:MAX_M], result_edges[0:MAX_M])
+    if result.count == 0:
+        return -1
+    bytes: usize = (2 + result.count) * 8
+    if output == null or capacity < bytes or bytes > MAX_OUTPUT:
         return -2
-    mt_put_i64(output,0,cost.i64())
-    mt_put_i64(output,8,count.i64())
-    i <- 0
-    while tree != 0:
-        edge <- mt_edge_index(tree, true).usize()
-        tree <- tree & (tree - 1)
-        mt_put_i64(output,16+i*8,edge.i64())
-        i <- i+1
+    steiner_put_i64(output, 0, result.cost)
+    steiner_put_i64(output, 8, result.count.i64())
+    i: mutable usize = 0
+    while i < result.count:
+        steiner_put_i64(output, 16 + i * 8, result_edges[i].i64())
+        i <- i + 1
     bytes.i64()
 
-
-export fn steiner_tree_mehlhorn_voronoi_mst(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = mt_impl
+export fn steiner_tree_mehlhorn_voronoi_mst(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = steiner_impl

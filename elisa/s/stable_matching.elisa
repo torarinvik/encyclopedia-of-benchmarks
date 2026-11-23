@@ -1,117 +1,88 @@
+# Men-proposing deferred acceptance for bounded complete preference lists.
 const MAX_N: usize = 8
 const MAX_INPUT_LENGTH: usize = 129
 
 def stable_matching_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if input == null or length < 1 or length > MAX_INPUT_LENGTH: return -1
-    n_arg: i64 = input[0]
-    if n_arg.u64() > MAX_N.u64(): return -1
-    n: usize = n_arg.usize()
+    if input == null or length < 1 or length > MAX_INPUT_LENGTH:
+        return -1
+    if input[0] < 0 or input[0] > MAX_N.i64():
+        return -1
+    n: usize = input[0].usize()
     side_size: usize = n * n
-    if length != 1 + 2 * side_size: return -1
+    if length != 1 + 2 * side_size:
+        return -1
 
-    if n < 2:
-        if n == 0: return -2 if output == null else 0
-        if input[1] != 0 or input[2] != 0:
-            return -1
-        if output == null or capacity < 16:
-            return -2
-        offset: mutable usize = 0
-        while offset < 16:
-            output[offset] <- 0
-            offset <- offset + 1
-        return 16
-    stable_matching_valid_input(input, n, output, capacity)
-
-@inline(never)
-def stable_matching_valid_input(input: i64&, n: usize, output: mutable u8&?, capacity: usize) -> i64:
-    n_arg: i64 = n.i64()
-    complete_row: u64 = (1.u64() << n) - 1
+    men_preferences: mutable i64[64] = zeroed
+    women_rank: mutable i64[64] = zeroed
     row: mutable usize = 0
-    while row < n:
-        seen: mutable u64 = 0
-        row_start: usize = 1 + row * n
+    while row < 2 * n:
+        seen: mutable u8[8] = zeroed
+        row_start: usize = 1 + row * n if row < n else 1 + side_size + (row - n) * n
         rank: mutable usize = 0
-        while rank + 1 < n:
-            first: u64 = input[row_start + rank].u64()
-            second: u64 = input[row_start + rank + 1].u64()
-            if first >= n_arg.u64() or second >= n_arg.u64(): return -1
-            seen <- seen | (1.u64() << first) | (1.u64() << second)
-            rank <- rank + 2
-        if rank < n:
+        while rank < n:
             participant: i64 = input[row_start + rank]
-            if participant.u64() >= n_arg.u64(): return -1
-            seen <- seen | (1.u64() << participant.u64())
-        if seen != complete_row: return -1
-        row <- row + 1
-
-    stable_matching_match(input, n, output, capacity)
-
-@inline(never)
-def stable_matching_match(input: i64&, n: usize, output: mutable u8&?, capacity: usize) -> i64:
-    n_arg: i64 = n.i64()
-    side_size: usize = n * n
-    women_rank: mutable u8[64] = zeroed
-    complete_row: u64 = (1.u64() << n) - 1
-    row: mutable usize = 0
-    while row < n:
-        seen: mutable u64 = 0
-        row_start: usize = 1 + side_size + row * n
-        rank: mutable usize = 0
-        while rank + 1 < n:
-            first: u64 = input[row_start + rank].u64()
-            second: u64 = input[row_start + rank + 1].u64()
-            if first >= n_arg.u64() or second >= n_arg.u64(): return -1
-            seen <- seen | (1.u64() << first) | (1.u64() << second)
-            women_rank[row * MAX_N + first.usize()] <- rank.u8()
-            women_rank[row * MAX_N + second.usize()] <- (rank + 1).u8()
-            rank <- rank + 2
-        if rank < n:
-            participant: i64 = input[row_start + rank]
-            if participant.u64() >= n_arg.u64(): return -1
-            seen <- seen | (1.u64() << participant.u64())
-            women_rank[row * MAX_N + participant.usize()] <- rank.u8()
-        if seen != complete_row: return -1
+            if participant < 0 or participant >= n.i64() or seen[participant.usize()] != 0:
+                return -1
+            seen[participant.usize()] <- 1
+            if row < n:
+                men_preferences[row * n + rank] <- participant
+            else:
+                women_rank[(row - n) * n + participant.usize()] <- rank.i64()
+            rank <- rank + 1
         row <- row + 1
 
     output_bytes: usize = 16 * n
-    if output == null or capacity < output_bytes: return -2
+    if output == null or capacity < output_bytes:
+        return -2
 
-    woman_partner: mutable u8[8] = zeroed
+    woman_partner: mutable i64[8] = zeroed
     man_partner: mutable i64[8] = zeroed
-    next_offset: mutable usize[8] = zeroed
-    proposer: mutable usize = 0
-    while proposer < n:
-        offset: mutable usize = 1 + proposer * n
-        active: mutable usize = proposer
-        while true:
-            woman: usize = input[offset].usize() & (MAX_N - 1)
-            offset <- offset + 1
-            incumbent_code: usize = woman_partner[woman].usize()
-            if incumbent_code != 0:
-                incumbent: usize = (incumbent_code - 1) & (MAX_N - 1)
-                if women_rank[woman * MAX_N + active] >= women_rank[woman * MAX_N + incumbent]:
-                    continue
-            next_offset[active] <- offset
-            woman_partner[woman] <- (active + 1).u8()
-            man_partner[active] <- woman.i64()
-            if incumbent_code == 0:
-                break
-            active <- (incumbent_code - 1) & (MAX_N - 1)
-            offset <- next_offset[active]
-        proposer <- proposer + 1
+    next_proposal: mutable usize[8] = zeroed
+    free_queue: mutable usize[8] = zeroed
+    index: mutable usize = 0
+    while index < n:
+        woman_partner[index] <- -1
+        man_partner[index] <- -1
+        free_queue[index] <- index
+        index <- index + 1
+    queue_start: mutable usize = 0
+    queue_end: mutable usize = 0
+    queue_count: mutable usize = n
+    while queue_count > 0:
+        man: usize = free_queue[queue_start]
+        queue_start <- (queue_start + 1) % n
+        queue_count <- queue_count - 1
+        rank: usize = next_proposal[man]
+        next_proposal[man] <- rank + 1
+        woman: usize = men_preferences[man * n + rank].usize()
+        incumbent: i64 = woman_partner[woman]
+        if incumbent < 0:
+            woman_partner[woman] <- man.i64()
+            man_partner[man] <- woman.i64()
+        elif women_rank[woman * n + man] < women_rank[woman * n + incumbent.usize()]:
+            woman_partner[woman] <- man.i64()
+            man_partner[man] <- woman.i64()
+            man_partner[incumbent.usize()] <- -1
+            free_queue[queue_end] <- incumbent.usize()
+            queue_end <- (queue_end + 1) % n
+            queue_count <- queue_count + 1
+        else:
+            free_queue[queue_end] <- man
+            queue_end <- (queue_end + 1) % n
+            queue_count <- queue_count + 1
 
     man: mutable usize = 0
     while man < n:
-        pair_index: mutable usize = 0
-        while pair_index < 2:
-            value: i64 = man.i64() if pair_index == 0 else man_partner[man]
-            bits: mutable u64 = value.u64()
+        pair: i64[2] = [man.i64(), man_partner[man]]
+        item: mutable usize = 0
+        while item < 2:
+            bits: mutable u64 = pair[item].u64()
             byte: mutable usize = 0
             while byte < 8:
-                output[(man * 2 + pair_index) * 8 + byte] <- (bits & 255).u8()
+                output[(man * 2 + item) * 8 + byte] <- (bits & 255).u8()
                 bits <- bits >> 8
                 byte <- byte + 1
-            pair_index <- pair_index + 1
+            item <- item + 1
         man <- man + 1
     output_bytes.i64()
 
