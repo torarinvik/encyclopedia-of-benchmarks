@@ -1,141 +1,86 @@
-@intrinsic("llvm.ctlz.i32")
-extern leading_zeros(value: u32, zero_undefined: bool) -> u32
+# A bounded wavelet matrix with per-level zero-partition prefix sums.
 def range_sum_upper_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if input == null or length < 2 or length > 258: return -1
-    if input[0] < 1 or input[0] > 64 or input[1] < 1 or input[1] > 64: return -1
+    if input == null or length < 2 or input[0] < 1 or input[0] > 64 or input[1] < 1 or input[1] > 64:
+        return -1
     n: usize = input[0].usize()
     q: usize = input[1].usize()
-    if length != 2+n+3*q: return -1
-    maximum: mutable i64 = 0
-    minimum: mutable i64 = 1000000000
-    for i in 0..<n:
-        if input[2+i] < 0 or input[2+i] > 1000000000: return -1
-        value: i64 = input[2+i]
-        maximum <- value if value > maximum
-        minimum <- value if value < minimum
-    full_scan_length: mutable usize = 0
-    filtered_scan_length: mutable usize = 0
-    for i in 0..<q:
-        b: usize = 2+n+3*i
-        if input[b] < 0 or input[b] > input[b+1] or input[b+1] > n.i64(): return -1
-        if input[b+2] < 0 or input[b+2] > 1000000000: return -1
-        width: usize = input[b+1].usize() - input[b].usize()
-        if input[b+2] >= maximum:
-            full_scan_length <- full_scan_length + width
-        elif input[b+2] >= minimum:
-            filtered_scan_length <- filtered_scan_length + width
-    if output == null or capacity < 16*q: return -2
-    # The maximum sum is 64 billion, which fits below bit 36.
-    # Each valid prefix index is below 1950. Round up to bound the index in LLVM.
-    prefixes: mutable u64[2048] = zeroed
-    # Bits shared by the minimum and maximum cannot partition any input value.
-    first_level: usize = (leading_zeros((maximum ^ minimum).u32() | 1, false) - 2).usize()
-    # Each matrix level scans and partitions values, then queries traverse it.
-    use_matrix: bool = filtered_scan_length > 8 * n * (30 - first_level)
-    if use_matrix:
-        current: mutable i64[128] = zeroed
-        for i in 0..<n:
-            # Keep the count bit above the value bits used for partitioning.
-            current[i] <- input[2+i] | (1.i64() << 36)
-        mask: mutable i64 = 1.i64() << (29-first_level)
-        source: mutable usize = 0
-        for level in first_level..<30:
-            target: usize = source ^ 64
-            prefix: mutable u64 = 0
-            for i in 0..<n:
-                value: i64 = current[source + i]
-                if (value & mask) == 0:
-                    prefix <- prefix + value.u64()
-                prefixes[(65*level+i+1) & 2047] <- prefix
-            zeros: usize = (prefix >> 36).usize()
-            if level == 29: break
-            partition_mask: i64 = mask
-            mask <- mask >> 1
-            # A uniform bit leaves the stable partition in its original order.
-            if zeros == 0 or zeros == n: continue
-            # Each stable partition writes exactly n entries into the target half.
-            z: mutable usize = 0
-            o: mutable usize = zeros
-            for i in 0..<n:
-                value: i64 = current[source + i]
-                if (value & partition_mask) == 0:
-                    current[(target + z) & 127] <- value
-                    z <- z+1
-                else:
-                    current[(target + o) & 127] <- value
-                    o <- o+1
-            source <- target
-    # Store the ordinary prefix row in the padding beyond the wavelet rows.
-    use_full_prefix: bool = full_scan_length > 2*n
-    if use_full_prefix:
-        running_sum: mutable u64 = 0
-        for index in 0..<n:
-            running_sum <- running_sum + input[2+index].u64()
-            prefixes[1984+index] <- running_sum
-    answers: mutable i64[128] = zeroed
-    for i in 0..<q:
-        b: usize = 2+n+3*i
-        l: mutable usize = input[b].usize()
-        r: mutable usize = input[b+1].usize()
-        key: i64 = input[b+2]+1
-        count: mutable i64 = 0
-        total: mutable i64 = 0
-        if key > maximum:
-            count <- (r - l).i64()
-            if use_full_prefix:
-                total <- (prefixes[(1983+r) & 2047] - prefixes[(1983+l) & 2047]).i64()
+    if length != 2 + n + 3 * q:
+        return -1
+    current: mutable u32[64] = zeroed
+    next: mutable u32[64] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        if input[2 + i] < 0 or input[2 + i] > 1000000000:
+            return -1
+        current[i] <- input[2 + i].u32()
+        i <- i + 1
+    i <- 0
+    while i < q:
+        l: i64 = input[2 + n + 3 * i]
+        r: i64 = input[3 + n + 3 * i]
+        x: i64 = input[4 + n + 3 * i]
+        if l < 0 or l > r or r > n.i64() or x < 0 or x > 1000000000:
+            return -1
+        i <- i + 1
+    if output == null or capacity < 16 * q:
+        return -2
+    zeros: mutable u8[1950] = zeroed
+    zero_total: mutable u8[30] = zeroed
+    sums: mutable u64[1950] = zeroed
+    level: mutable usize = 0
+    while level < 30:
+        bit: u32 = 29 - level.u32()
+        row: usize = level * 65
+        i <- 0
+        while i < n:
+            zero: bool = ((current[i] >> bit) & 1) == 0
+            zeros[row + i + 1] <- zeros[row + i] + (1.u8() if zero else 0.u8())
+            sums[row + i + 1] <- sums[row + i] + (current[i].u64() if zero else 0.u64())
+            i <- i + 1
+        zero_total[level] <- zeros[row + n]
+        a: mutable usize = 0
+        b: mutable usize = zero_total[level].usize()
+        i <- 0
+        while i < n:
+            if ((current[i] >> bit) & 1) != 0:
+                next[b] <- current[i]
+                b <- b + 1
             else:
-                range_sum: mutable u64 = 0
-                for index in l..<r:
-                    range_sum <- range_sum + input[2 + index].u64()
-                total <- range_sum.i64()
-        elif key <= minimum:
-            count <- 0
-        elif not use_matrix:
-            filtered: mutable u64 = 0
-            for index in l..<r:
-                value: u64 = input[2 + index].u64()
-                contribution: u64 = (value | (1.u64() << 36)) if value < key.u64() else 0
-                filtered <- filtered + contribution
-            count <- (filtered >> 36).i64()
-            total <- (filtered & ((1.u64() << 36) - 1)).i64()
-        else:
-            prefix_total: mutable u64 = 0
-            # Align the first active key bit with the high bit for each step.
-            query_bits: mutable u32 = key.u32() << (first_level + 2)
-            level: mutable usize = first_level
-            # Remaining zero bits cannot add any more prefixes to the result.
-            while query_bits != 0 and l != r:
-                left: u64 = prefixes[(65*level+l) & 2047]
-                right: u64 = prefixes[(65*level+r) & 2047]
-                zl: usize = (left >> 36).usize()
-                zr: usize = (right >> 36).usize()
-                if (query_bits & 0x80000000.u32()) != 0:
-                    prefix_total <- prefix_total + right - left
-                    partition_size: usize = (prefixes[(65*level+n) & 2047] >> 36).usize()
-                    l <- l+partition_size-zl
-                    r <- r+partition_size-zr
-                else:
-                    l <- zl
-                    r <- zr
-                query_bits <- query_bits << 1
-                level <- level + 1
-            count <- (prefix_total >> 36).i64()
-            total <- (prefix_total & ((1.u64() << 36) - 1)).i64()
-        answers[2*i] <- count
-        answers[2*i+1] <- total
-    for i in 0..<q:
-        count: i64 = answers[2*i]
-        total: i64 = answers[2*i+1]
-        position: usize = 16*i
-        # At most 64 values contribute, and their sum fits in 36 bits.
-        output[position] <- count.u8()
-        for byte in 1..<8:
-            output[position+byte] <- 0
-        for byte in 0..<5:
-            output[position+8+byte] <- ((total >> (8*byte)) & 255).u8()
-        for byte in 13..<16:
-            output[position+byte] <- 0
-    return (16*q).i64()
+                next[a] <- current[i]
+                a <- a + 1
+            i <- i + 1
+        i <- 0
+        while i < n:
+            current[i] <- next[i]
+            i <- i + 1
+        level <- level + 1
+    i <- 0
+    while i < q:
+        l: mutable usize = input[2 + n + 3 * i].usize()
+        r: mutable usize = input[3 + n + 3 * i].usize()
+        upper: u32 = input[4 + n + 3 * i].u32() + 1
+        count: mutable u64 = 0
+        sum: mutable u64 = 0
+        level <- 0
+        while level < 30:
+            row: usize = level * 65
+            zl: usize = zeros[row + l].usize()
+            zr: usize = zeros[row + r].usize()
+            if ((upper >> (29 - level.u32())) & 1) != 0:
+                count <- count + (zr - zl).u64()
+                sum <- sum + (sums[row + r] - sums[row + l])
+                l <- zero_total[level].usize() + l - zl
+                r <- zero_total[level].usize() + r - zr
+            else:
+                l <- zl
+                r <- zr
+            level <- level + 1
+        byte: mutable usize = 0
+        while byte < 8:
+            output[16 * i + byte] <- ((count >> (8 * byte)) & 255).u8()
+            output[16 * i + 8 + byte] <- ((sum >> (8 * byte)) & 255).u8()
+            byte <- byte + 1
+        i <- i + 1
+    (16 * q).i64()
 
 export fn static_range_sum_with_upper_bound(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = range_sum_upper_impl

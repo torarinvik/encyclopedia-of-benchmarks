@@ -1,307 +1,169 @@
+# Inversion counts of static ranges, answered offline with Mo's ordering
+# and a Fenwick tree over value ranks.
 const MAX_N: usize = 128
 const MAX_Q: usize = 32
 
-# The first eight entries are unused by the rank-sorting path.
-# For longer inputs, entry n-1 is ceil(2048 / floor(sqrt(n))). The round-up error
-# for left < 128 is less than 1/11, the smallest quotient step.
-const BLOCK_RECIPROCALS: u16[MAX_N] = [
-    0, 0, 0, 0, 0, 0, 0, 0, 683, 683, 683, 683, 683, 683, 683, 512,
-    512, 512, 512, 512, 512, 512, 512, 512, 410, 410, 410, 410, 410, 410, 410, 410,
-    410, 410, 410, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342, 342,
-    293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 293, 256,
-    256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256, 256,
-    228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228, 228,
-    228, 228, 228, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205, 205,
-    205, 205, 205, 205, 205, 205, 205, 205, 187, 187, 187, 187, 187, 187, 187, 187
-]
+def lower_bound_i64(sorted: view[i64], count: usize, value: i64) -> usize:
+    low: mutable usize = 0
+    high: mutable usize = count
+    while low < high:
+        middle: usize = low + (high - low) / 2
+        if sorted[middle] < value:
+            low <- middle + 1
+        else:
+            high <- middle
+    low
 
-# Each byte holds the number of values at or below that rank.
-# Adding a rank increments every prefix at or above it, with no carry
-# between bytes because even a full window contains at most 128 values.
-def srin_packed_sum(prefixes: u64, rank: usize) -> i64:
-    ((prefixes >> rank) & 255).i64()
+def bit_sum(bit: view[i64], count_input: usize) -> i64:
+    sum: mutable i64 = 0
+    count: mutable usize = count_input
+    while count != 0:
+        sum <- sum + bit[count]
+        count <- count - (count & (~count + 1))
+    sum
 
-def srin_packed_sum_below(prefixes: u64, rank: usize) -> i64:
-    # Insert a zero byte before rank zero for the exclusive count.
-    (((prefixes << 8) >> rank) & 255).i64()
+def bit_add(bit: mutable view[i64], rank: usize, delta: i64) -> void:
+    index: mutable usize = rank + 1
+    while index <= MAX_N:
+        bit[index] <- bit[index] + delta
+        index <- index + (index & (~index + 1))
 
-# Each local word counts prefixes within eight ranks. Two more words count
-# prefixes across the sixteen groups, using the same carry-free byte lanes.
-def srin_group_sum(groups: u64&, local_prefixes: u64&, rank: usize, inclusive: bool) -> i64:
-    group: usize = rank >> 6
-    local_rank: usize = rank & 63
-    local_count: i64 = srin_packed_sum(local_prefixes[group], local_rank) if inclusive else srin_packed_sum_below(local_prefixes[group], local_rank)
-    group_rank: usize = group << 3
-    preceding: i64 = srin_packed_sum(groups[0], 56) if group == 8 else srin_packed_sum_below(groups[group >> 3], group_rank & 63)
-    preceding + local_count
+def before(block_a: usize, right_a: usize, id_a: usize, block_b: usize, right_b: usize, id_b: usize) -> bool:
+    if block_a != block_b:
+        return block_a < block_b
+    if right_a != right_b:
+        return right_a > right_b if (block_a & 1) != 0 else right_a < right_b
+    id_a < id_b
 
-def srin_group_add(groups: mutable u64&, local_prefixes: mutable u64&, rank: usize, delta: i64) -> void:
-    group: usize = rank >> 6
-    increment: u64 = 0x0101010101010101.u64() << (rank & 63)
-    local_prefixes[group] <- local_prefixes[group] + increment if delta > 0 else local_prefixes[group] - increment
-    all_bytes: u64 = 0x0101010101010101.u64()
-    increment_groups: u64 = all_bytes << ((group & 7) << 3)
-    lower: u64 = increment_groups if group < 8 else 0.u64()
-    upper: u64 = all_bytes if group < 8 else increment_groups
-    groups[0] <- groups[0] + lower if delta > 0 else groups[0] - lower
-    groups[1] <- groups[1] + upper if delta > 0 else groups[1] - upper
+def static_range_inversions_query_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
+    if input == null or length < 2 or length > 195:
+        return -1
+    n64: i64 = input[0]
+    q64: i64 = input[1]
+    if n64 < 1 or n64 > MAX_N.i64() or q64 < 1 or q64 > MAX_Q.i64():
+        return -1
+    n: usize = n64.usize()
+    q: usize = q64.usize()
+    if length != 2 + n + 2 * q:
+        return -1
+    values: mutable i64[128] = zeroed
+    sorted: mutable i64[128] = zeroed
+    i: mutable usize = 0
+    while i < n:
+        values[i] <- input[2 + i]
+        if values[i] < 0 or values[i] > 1000000000:
+            return -1
+        sorted[i] <- values[i]
+        i <- i + 1
+    i <- 1
+    while i < n:
+        x: i64 = sorted[i]
+        j: mutable usize = i
+        while j != 0 and sorted[j - 1] > x:
+            sorted[j] <- sorted[j - 1]
+            j <- j - 1
+        sorted[j] <- x
+        i <- i + 1
+    distinct: mutable usize = 0
+    i <- 0
+    while i < n:
+        if distinct == 0 or sorted[i] != sorted[distinct - 1]:
+            sorted[distinct] <- sorted[i]
+            distinct <- distinct + 1
+        i <- i + 1
+    rank: mutable usize[128] = zeroed
+    i <- 0
+    while i < n:
+        rank[i] <- lower_bound_i64(sorted[0:128], distinct, values[i])
+        i <- i + 1
 
-@inline(always)
-def srin_sweep(queries: u32&, ranks: u16&, output: mutable u8&,
-               q: usize, use_packed: bool, use_wide: bool) -> void:
-    group_prefixes: mutable u64[2] = zeroed
-    local_prefixes: mutable u64[MAX_N / 8] = zeroed
-    prefixes: mutable u64 = 0
-    # The second word holds cumulative counts for ranks eight through fifteen.
-    upper_prefixes: mutable u64 = 0
-    # Start with an empty window at the first query, skipping its unused prefix.
-    first_left: usize = (queries[0] & 255).usize()
-    current_left: mutable usize = first_left
-    current_right: mutable usize = first_left
+    query_left: mutable usize[32] = zeroed
+    query_right: mutable usize[32] = zeroed
+    query_id: mutable usize[32] = zeroed
+    query_block: mutable usize[32] = zeroed
+    offset: mutable usize = 2 + n
+    block: mutable usize = 1
+    while (block + 1) * (block + 1) <= n:
+        block <- block + 1
+    k: mutable usize = 0
+    while k < q:
+        l: i64 = input[offset]
+        r: i64 = input[offset + 1]
+        offset <- offset + 2
+        if l < 0 or l >= r or r > n64:
+            return -1
+        query_left[k] <- l.usize()
+        query_right[k] <- r.usize()
+        query_id[k] <- k
+        query_block[k] <- l.usize() / block
+        k <- k + 1
+    i <- 1
+    while i < q:
+        x_left: usize = query_left[i]
+        x_right: usize = query_right[i]
+        x_id: usize = query_id[i]
+        x_block: usize = query_block[i]
+        j: mutable usize = i
+        while j != 0 and before(x_block, x_right, x_id, query_block[j - 1], query_right[j - 1], query_id[j - 1]):
+            query_left[j] <- query_left[j - 1]
+            query_right[j] <- query_right[j - 1]
+            query_id[j] <- query_id[j - 1]
+            query_block[j] <- query_block[j - 1]
+            j <- j - 1
+        query_left[j] <- x_left
+        query_right[j] <- x_right
+        query_id[j] <- x_id
+        query_block[j] <- x_block
+        i <- i + 1
+
+    bit: mutable i64[129] = zeroed
+    answers: mutable i64[32] = zeroed
+    left: mutable usize = 0
+    right: mutable usize = 0
+    window: mutable usize = 0
     inversions: mutable i64 = 0
     qi: mutable usize = 0
     while qi < q:
-        query: u32 = queries[qi]
-        id: usize = ((query >> 8) & 31).usize()
-        target_left: usize = (query & 255).usize()
-        sweep: u32 = (query >> 13) & 255
-        target_right: usize = (sweep ^ ((0.u32() - ((query >> 21) & 1)) & 255)).usize()
-        while current_left > target_left:
-            current_left <- current_left - 1
-            rank: usize = ranks[current_left].usize()
-            inversions <- inversions + (current_right-current_left-1).i64() - (srin_packed_sum(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank)) if use_packed else srin_group_sum(&group_prefixes[0], &local_prefixes[0], rank, true))
-            if use_packed:
-                increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
-                if use_wide:
-                    upper_prefixes <- upper_prefixes + (increment if rank >= 64 else 0x0101010101010101.u64())
-                prefixes <- prefixes + (0.u64() if use_wide and rank >= 64 else increment)
-            else:
-                srin_group_add(&group_prefixes[0], &local_prefixes[0], rank, 1)
-        while current_right < target_right:
-            rank: usize = ranks[current_right].usize()
-            inversions <- inversions + ((srin_packed_sum(prefixes, 56) if use_wide and rank == 64 else srin_packed_sum_below(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank))) if use_packed else srin_group_sum(&group_prefixes[0], &local_prefixes[0], rank, false))
-            if use_packed:
-                increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
-                if use_wide:
-                    upper_prefixes <- upper_prefixes + (increment if rank >= 64 else 0x0101010101010101.u64())
-                prefixes <- prefixes + (0.u64() if use_wide and rank >= 64 else increment)
-            else:
-                srin_group_add(&group_prefixes[0], &local_prefixes[0], rank, 1)
-            current_right <- current_right + 1
-        while current_left < target_left:
-            rank: usize = ranks[current_left].usize()
-            inversions <- inversions - (current_right-current_left).i64() + (srin_packed_sum(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank)) if use_packed else srin_group_sum(&group_prefixes[0], &local_prefixes[0], rank, true))
-            if use_packed:
-                increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
-                if use_wide:
-                    upper_prefixes <- upper_prefixes - (increment if rank >= 64 else 0x0101010101010101.u64())
-                prefixes <- prefixes - (0.u64() if use_wide and rank >= 64 else increment)
-            else:
-                srin_group_add(&group_prefixes[0], &local_prefixes[0], rank, -1)
-            current_left <- current_left + 1
-        while current_right > target_right:
-            current_right <- current_right - 1
-            rank: usize = ranks[current_right].usize()
-            inversions <- inversions - ((srin_packed_sum(prefixes, 56) if use_wide and rank == 64 else srin_packed_sum_below(upper_prefixes if use_wide and rank >= 64 else prefixes, (rank & 63 if use_wide else rank))) if use_packed else srin_group_sum(&group_prefixes[0], &local_prefixes[0], rank, false))
-            if use_packed:
-                increment: u64 = 0x0101010101010101.u64() << ((rank & 63 if use_wide else rank))
-                if use_wide:
-                    upper_prefixes <- upper_prefixes - (increment if rank >= 64 else 0x0101010101010101.u64())
-                prefixes <- prefixes - (0.u64() if use_wide and rank >= 64 else increment)
-            else:
-                srin_group_add(&group_prefixes[0], &local_prefixes[0], rank, -1)
-        bits: u64 = inversions.u64()
-        byte: mutable usize = 0
-        while byte < 8:
-            output[8 * id + byte] <- ((bits >> (8 * byte)) & 255).u8()
-            byte <- byte + 1
+        target_left: usize = query_left[qi]
+        target_right: usize = query_right[qi]
+        while left > target_left:
+            left <- left - 1
+            x: usize = rank[left]
+            inversions <- inversions + bit_sum(bit[0:129], x)
+            bit_add(bit[0:129], x, 1)
+            window <- window + 1
+        while right < target_right:
+            x: usize = rank[right]
+            inversions <- inversions + window.i64() - bit_sum(bit[0:129], x + 1)
+            bit_add(bit[0:129], x, 1)
+            window <- window + 1
+            right <- right + 1
+        while left < target_left:
+            x: usize = rank[left]
+            inversions <- inversions - bit_sum(bit[0:129], x)
+            bit_add(bit[0:129], x, -1)
+            window <- window - 1
+            left <- left + 1
+        while right > target_right:
+            right <- right - 1
+            x: usize = rank[right]
+            inversions <- inversions - (window.i64() - bit_sum(bit[0:129], x + 1))
+            bit_add(bit[0:129], x, -1)
+            window <- window - 1
+        answers[query_id[qi]] <- inversions
         qi <- qi + 1
 
-def srin_assign_ranks(ranked_items: u64&, ranks: mutable u16&, n: usize) -> usize:
-    distinct: mutable usize = 0
-    previous: mutable i64 = -1
-    i: mutable usize = n
-    while i > 0:
-        i <- i - 1
-        item: u64 = ranked_items[i]
-        value: i64 = (item >> 7).i64()
-        if value != previous:
-            distinct <- distinct + 1
-            previous <- value
-        ranks[(item & 127).usize()] <- ((distinct - 1) << 3).u16()
-    distinct
-
-@inline(never)
-def srin_dense_ranks(sorted: u64&, ranks: mutable u16&, n: usize) -> usize:
-    high_bits: u64 = sorted[0] >> 15
-    for index in 1..<n:
-        if (sorted[index] >> 15) != high_bits: return 0
-    # Equal high bits make the low byte sufficient to order the values.
-    by_value: mutable u16[256] = zeroed
-    low: mutable usize = 255
-    high: mutable usize = 0
-    for index in 0..<n:
-        value: usize = ((sorted[index] >> 7) & 255).usize()
-        by_value[value] <- 1
-        low <- value if value < low
-        high <- value if value > high
-    distinct: mutable usize = 0
-    remaining: mutable usize = high + 1
-    while remaining > low:
-        remaining <- remaining - 1
-        if by_value[remaining] != 0:
-            by_value[remaining] <- (distinct << 3).u16()
-            distinct <- distinct + 1
-    for index in 0..<n:
-        item: u64 = sorted[index]
-        ranks[(item & 127).usize()] <- by_value[((item >> 7) & 255).usize()]
-    distinct
-
-# Stage counts before writing so output may overlap the input frame.
-@inline(never)
-def srin_write_short_queries(input: i64&, output: mutable u8&, n: usize, q: usize, bytes: usize) -> i64:
-    for index in 2..<(2 + n):
-        if input[index].u64() > 1000000000: return -1
-    counts: mutable u8[MAX_Q] = zeroed
-    for id in 0..<q:
-        offset: usize = 2 + n + 2 * id
-        left: u64 = input[offset].u64()
-        right: u64 = input[offset + 1].u64()
-        if left >= right or right > n.u64(): return -1
-        inversions: mutable u8 = 0
-        for later in (left.usize() + 3)..<(right.usize() + 2):
-            value: i64 = input[later]
-            for earlier in (left.usize() + 2)..<later:
-                inversions <- inversions + (1.u8() if input[earlier] > value else 0.u8())
-        counts[id] <- inversions
-    for id in 0..<q:
-        output[8 * id] <- counts[id]
-        for byte in 1..<8:
-            output[8 * id + byte] <- 0
-    bytes.i64()
-
-@inline(never)
-def srin_rank_short_prefix(sorted: mutable u64&, ranks: mutable u16&, n: usize, ordered: usize) -> usize:
-    i: mutable usize = ordered
-    while i < n:
-        value: u64 = sorted[i]
-        j: mutable usize = i
-        while j > 0 and sorted[j - 1] > value:
-            sorted[j] <- sorted[j - 1]
-            j <- j - 1
-        sorted[j] <- value
-        i <- i + 1
-    srin_assign_ranks(sorted, ranks, n)
-
-@inline(never)
-def srin_write_queries(input: i64&, output: mutable u8&, n: usize, q: usize, bytes: usize) -> i64:
-    sorted: mutable u64[MAX_N] = zeroed
-    i: mutable usize = 0
-    while i < n:
-        value: i64 = input[2 + i]
-        if value.u64() > 1000000000: return -1
-        sorted[i] <- (value.u64() << 7) | i.u64()
-        i <- i + 1
-    block_reciprocal: u32 = BLOCK_RECIPROCALS[n - 1].u32()
-    queries: mutable u32[MAX_Q] = zeroed
-    off: mutable usize = 2 + n
-    k: mutable usize = 0
-    while k < q:
-        left: i64 = input[off]
-        right: i64 = input[off + 1]
-        off <- off + 2
-        if left.u64() >= right.u64() or right.u64() > n.u64(): return -1
-        block: u32 = (left.u32() * block_reciprocal) >> 11
-        endpoint: u32 = right.u32()
-        sweep: u32 = endpoint ^ ((0.u32() - (block & 1)) & 255)
-        # Sort by block, sweep, then original ID. The endpoints travel with the key.
-        queries[k] <- (block << 21) | (sweep << 13) | (k.u32() << 8) | left.u32()
-        k <- k + 1
-    # A low-byte rank table suffices when all values share their high bits.
-    ranks: mutable u16[MAX_N] = zeroed
-    distinct: mutable usize = srin_dense_ranks(&sorted[0],&ranks[0],n) if n >= 32 else 0
-    if n < 16:
-        ordered: mutable usize = 1
-        previous: mutable u64 = sorted[0]
-        while ordered < n:
-            value: u64 = sorted[ordered]
-            if previous > value: break
-            previous <- value
-            ordered <- ordered + 1
-        distinct <- srin_rank_short_prefix(&sorted[0], &ranks[0], n, ordered)
-    elif distinct == 0:
-        # Select the same Knuth gap for the supported lengths 16 through 128.
-        gap: mutable usize = 121 if n >= 123 else (40 if n >= 42 else 13)
-        while gap > 1:
-            i <- gap
-            while i < n:
-                value: u64 = sorted[i]
-                j: mutable usize = i
-                while j >= gap and sorted[j - gap] > value:
-                    sorted[j] <- sorted[j - gap]
-                    j <- j - gap
-                sorted[j] <- value
-                i <- i + 1
-            gap <- gap / 3
-        i <- 1
-        while i < n:
-            value: u64 = sorted[i]
-            j: mutable usize = i
-            while j > 0 and sorted[j - 1] > value:
-                sorted[j] <- sorted[j - 1]
-                j <- j - 1
-            sorted[j] <- value
-            i <- i + 1
-        distinct <- srin_assign_ranks(&sorted[0],&ranks[0],n)
-    i <- 1
-    while i < q:
-        query: u32 = queries[i]
-        j: mutable usize = i
-        while j > 0 and query < queries[j - 1]:
-            queries[j] <- queries[j - 1]
-            j <- j - 1
-        queries[j] <- query
-        i <- i + 1
-    # All input data needed by the sweep is now in ranks and query keys.
-    if distinct <= 8:
-        srin_sweep(&queries[0],&ranks[0],output,q,true,false)
-    elif distinct <= 16:
-        srin_sweep(&queries[0],&ranks[0],output,q,true,true)
-    else:
-        srin_sweep(&queries[0],&ranks[0],output,q,false,false)
-    bytes.i64()
-
-def static_range_inversions_query_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if input == null or length < 2 or length > 195: return -1
-    n64: i64 = input[0]
-    q64: i64 = input[1]
-    if (n64.u64() - 1) >= 128 or (q64.u64() - 1) >= 32: return -1
-    n: usize = n64.usize()
-    q: usize = q64.usize()
-    if length != 2 + n + 2 * q: return -1
     bytes: usize = 8 * q
-    if output != null and capacity >= bytes:
-        previous: mutable u64 = input[2].u64()
-        for index in 3..<(2 + n):
-            value: u64 = input[index].u64()
-            if previous > value:
-                if n <= 8: return srin_write_short_queries(input, output, n, q, bytes)
-                return srin_write_queries(input, output, n, q, bytes)
-            previous <- value
-        # On nondecreasing input the last value bounds every earlier value.
-        if previous > 1000000000: return -1
-    else:
-        # A malformed input still takes precedence over unusable output.
-        for index in 2..<(2 + n):
-            if input[index].u64() > 1000000000: return -1
-    for index in 0..<q:
-        offset: usize = 2 + n + 2 * index
-        left: u64 = input[offset].u64()
-        right: u64 = input[offset + 1].u64()
-        if left >= right or right > n.u64(): return -1
-    if output == null or capacity < bytes: return -2
-    for byte in 0..<bytes:
-        output[byte] <- 0
+    if output == null or capacity < bytes:
+        return -2
+    k <- 0
+    while k < q:
+        bits: u64 = answers[k].u64()
+        b: mutable usize = 0
+        while b < 8:
+            output[8 * k + b] <- ((bits >> (8 * b)) & 255).u8()
+            b <- b + 1
+        k <- k + 1
     bytes.i64()
 
 export fn static_range_inversions_query(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64 = static_range_inversions_query_impl

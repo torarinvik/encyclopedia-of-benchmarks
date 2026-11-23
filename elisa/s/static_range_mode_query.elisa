@@ -1,300 +1,187 @@
-# Static range mode queries with whole-block modes and occurrence bitmasks.
+# Static range mode queries using whole-block modes and occurrence lists.
 const MAX_N: usize = 32
 const MAX_Q: usize = 16
-const MAX_BLOCKS: usize = 4
+const MAX_BLOCKS: usize = 6
 const MAX_INPUT_LENGTH: usize = 66
 
-def mode_frequency(positions: u32, range_mask: u32) -> usize:
-    bits: u32 = positions & range_mask
-    pairs: u32 = bits - ((bits >> 1) & 0x55555555.u32())
-    nibbles: u32 = (pairs & 0x33333333.u32()) + ((pairs >> 2) & 0x33333333.u32())
-    bytes: u32 = (nibbles + (nibbles >> 4)) & 0x0f0f0f0f.u32()
-    ((bytes * 0x01010101.u32()) >> 24).usize()
+def lower_bound_i64(values: view[i64], begin_input: usize, end_input: usize, target: i64) -> usize:
+    begin: mutable usize = begin_input
+    end: mutable usize = end_input
+    while begin < end:
+        middle: usize = begin + (end - begin) / 2
+        if values[middle] < target:
+            begin <- middle + 1
+        else:
+            end <- middle
+    begin
 
-def mode_write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
+def lower_bound_size(values: view[usize], begin_input: usize, end_input: usize, target: usize) -> usize:
+    begin: mutable usize = begin_input
+    end: mutable usize = end_input
+    while begin < end:
+        middle: usize = begin + (end - begin) / 2
+        if values[middle] < target:
+            begin <- middle + 1
+        else:
+            end <- middle
+    begin
+
+def range_frequency(occurrences: view[usize], offsets: view[usize], id: usize, left: usize, right: usize) -> usize:
+    begin: usize = offsets[id]
+    end: usize = offsets[id + 1]
+    lower_bound_size(occurrences, begin, end, right) - lower_bound_size(occurrences, begin, end, left)
+
+def write_i64(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
-    for byte in 0..<8:
+    byte: mutable usize = 0
+    while byte < 8:
         output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        byte <- byte + 1
 
-@inline(always)
-def mode_insert(sorted: mutable i64&, index: usize, value: i64) -> void:
-    position: mutable usize = index
-    while position > 0:
-        previous: i64 = sorted[position - 1]
-        if previous <= value: break
-        sorted[position] <- previous
-        position <- position - 1
-    sorted[position] <- value
-
-@inline(never)
-def mode_few_ranks(input: i64&, output: mutable u8&, n: usize, q: usize, values: u32&, positions: u32&) -> i64:
-    answers: mutable u64[MAX_Q] = zeroed
-    for query in 0..<q:
-        left: usize = input[2 + n + 2 * query].usize()
-        right: usize = input[3 + n + 2 * query].usize()
-        range_mask: u32 = ((1.u64() << right) - (1.u64() << left)).u32()
-        best: mutable i64 = 0
-        # Unused slots have empty masks and cannot beat a nonempty range.
-        for id in 0..<4:
-            score: i64 = values[id].i64() - (mode_frequency(positions[id], range_mask).i64() << 30)
-            best <- score if score < best
-        answers[query] <- (best & 1073741823).u64() | ((0 - (best >> 30)).u64() << 32)
-    for query in 0..<q:
-        answer: u64 = answers[query]
-        mode_write_i64(output, 16 * query, answer.u32().i64())
-        mode_write_i64(output, 16 * query + 8, (answer >> 32).i64())
-    (16 * q).i64()
-
-@inline(never)
-def mode_try_few_values(input: i64&, output: mutable u8&, n: usize, q: usize) -> i64:
-    # Bias each value so zero can mark an unused slot.
-    first: mutable u32 = 0
-    second: mutable u32 = 0
-    third: mutable u32 = 0
-    fourth: mutable u32 = 0
-    small_positions: mutable u32[4] = zeroed
-    scanned: mutable usize = 0
-    while scanned < n:
-        key: u32 = input[2 + scanned].u32() + 1
-        id: mutable usize = 0
-        if first == 0 or first == key:
-            first <- key
-        elif second == 0 or second == key:
-            second <- key
-            id <- 1
-        elif third == 0 or third == key:
-            third <- key
-            id <- 2
-        elif fourth == 0 or fourth == key:
-            fourth <- key
-            id <- 3
-        else:
-            break
-        small_positions[id] <- small_positions[id] | (1.u32() << scanned)
-        scanned <- scanned + 1
-    if scanned == n:
-        small_values: u32[4] = [first - 1, second - 1, third - 1, fourth - 1]
-        return mode_few_ranks(input, output, n, q, &small_values[0], &small_positions[0])
-    0
-
-@inline(never)
-def mode_distinct_ranges(input: i64&, output: mutable u8&, n: usize, q: usize) -> i64:
-    minima: mutable i64[MAX_Q] = zeroed
-    for query in 0..<q:
-        left: usize = input[2 + n + 2 * query].usize()
-        right: usize = input[3 + n + 2 * query].usize()
-        minimum: mutable i64 = input[2 + left]
-        for index in (left + 1)..<right:
-            value: i64 = input[2 + index]
-            minimum <- value if value < minimum
-        minima[query] <- minimum
-    for query in 0..<q:
-        mode_write_i64(output, 16 * query, minima[query])
-        mode_write_i64(output, 16 * query + 8, 1)
-    (16 * q).i64()
-
-@inline(never)
-def mode_build_ranks(input: i64&, n: usize, unique_values: mutable u32&, compressed: mutable u8&, positions: mutable u32&, q: usize, block_mask: usize) -> bool:
-    sorted: mutable i64[MAX_N] = zeroed
-    # Reject an obvious mismatch before the vectorizable group check.
-    first_value: u64 = input[2].u64()
-    difference: mutable u64 = (input[3].u64() ^ first_value) if n > 1 else 0
-    if difference < 32:
-        for index in 2..<n:
-            difference <- difference | (input[2 + index].u64() ^ first_value)
-    if difference < 32:
-        endpoint_bits: mutable usize = 0
-        for query in 0..<q:
-            endpoint_bits <- endpoint_bits | input[2 + n + 2 * query].usize() | input[3 + n + 2 * query].usize()
-        needs_positions: bool = (endpoint_bits & block_mask) != 0
-        # Value offsets preserve tie order and fit the existing rank tables.
-        group_base: u32 = (first_value.u32() & ~31.u32())
-        for rank in 0..<MAX_N:
-            unique_values[rank] <- group_base | rank.u32()
-        for index in 0..<n:
-            value: u32 = input[2 + index].u32()
-            rank: usize = (value & 31).usize()
-            compressed[index] <- rank.u8()
-            positions[rank] <- positions[rank] | (1.u32() << index) if needs_positions
-    else:
-        if n >= 16:
-            for index in 0..<n:
-                sorted[index] <- (input[2 + index] << 5) | index.i64()
-            # A gap of four limits long shifts before the final insertion pass.
-            for index in 4..<n:
-                value: i64 = sorted[index]
-                position: mutable usize = index
-                while position >= 4:
-                    previous: i64 = sorted[position - 4]
-                    if previous <= value: break
-                    sorted[position] <- previous
-                    position <- position - 4
-                sorted[position] <- value
-            for index in 1..<n:
-                mode_insert(&sorted[0], index, sorted[index])
-        else:
-            for index in 0..<n:
-                mode_insert(&sorted[0], index, (input[2 + index] << 5) | index.i64())
-
-        distinct_prefix: mutable usize = 1
-        preceding: mutable i64 = sorted[0] >> 5
-        while distinct_prefix < n:
-            value: i64 = sorted[distinct_prefix] >> 5
-            if preceding == value: break
-            preceding <- value
-            distinct_prefix <- distinct_prefix + 1
-        if distinct_prefix == n:
-            return true
-
-        # Accumulate each sorted run's position mask in a register.
-        id: mutable usize = 0
-        first_item: i64 = sorted[0]
-        first_position: usize = (first_item & 31).usize()
-        previous: mutable i64 = first_item >> 5
-        mask: mutable u32 = 1.u32() << first_position
-        unique_values[0] <- previous.u32()
-        compressed[first_position] <- 0
-        for index in 1..<n:
-            item: i64 = sorted[index]
-            value: i64 = item >> 5
-            if value != previous:
-                positions[id] <- mask
-                id <- id + 1
-                unique_values[id] <- value.u32()
-                previous <- value
-                mask <- 0
-            position: usize = (item & 31).usize()
-            compressed[position] <- id.u8()
-            mask <- mask | (1.u32() << position)
-        positions[id] <- mask
-
-    false
-
-def static_range_mode_query_impl(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
-    if input == null or input_length < 2 or input_length > MAX_INPUT_LENGTH:
+def static_range_mode_query_impl(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
-    n_value: u64 = input[0].u64()
-    q_value: u64 = input[1].u64()
-    if n_value - 1 >= 32 or q_value - 1 >= 16:
+    n_value: i64 = input[0]
+    q_value: i64 = input[1]
+    if n_value < 1 or n_value > MAX_N.i64() or q_value < 1 or q_value > MAX_Q.i64():
         return -1
     n: usize = n_value.usize()
     q: usize = q_value.usize()
-    if input_length != 2 + n + 2 * q:
+    if length != 2 + n + 2 * q:
         return -1
-    for index in 0..<n:
-        value: i64 = input[2 + index]
-        if value.u64() > 1000000000:
+    index: mutable usize = 0
+    while index < n:
+        if input[2 + index] < 0 or input[2 + index] > 1000000000:
             return -1
-    for query in 0..<q:
-        left: u64 = input[2 + n + 2 * query].u64()
-        right: u64 = input[3 + n + 2 * query].u64()
-        if left >= right or right > n_value:
+        index <- index + 1
+    query: mutable usize = 0
+    while query < q:
+        left: i64 = input[2 + n + 2 * query]
+        right: i64 = input[3 + n + 2 * query]
+        if left < 0 or right <= left or right > n_value:
             return -1
+        query <- query + 1
     if output == null or output_capacity < 16 * q:
         return -2
 
-    if q == 1:
-        left: usize = input[2 + n].usize()
-        right: usize = input[3 + n].usize()
-        # Bias keys by one to reserve zero for an empty slot. At most 32 slots fill.
-        keys: mutable u32[64] = zeroed
-        counts: mutable u8[64] = zeroed
-        best_score: mutable i64 = 0
-        for index in left..<right:
-            key: u32 = input[2 + index].u32() + 1
-            slot: mutable usize = ((key * 2654435761.u32()) >> 26).usize()
-            while keys[slot] != 0 and keys[slot] != key:
-                slot <- (slot + 1) & 63
-            keys[slot] <- key
-            count: u8 = counts[slot] + 1
-            counts[slot] <- count
-            # A frequency increment outweighs any difference between values.
-            score: i64 = (key.i64() - 1) - (count.i64() << 30)
-            best_score <- score if score < best_score
-        mode_write_i64(output, 0, best_score & 1073741823)
-        mode_write_i64(output, 8, 0 - (best_score >> 30))
-        return 16
+    sorted: mutable i64[32] = zeroed
+    unique_values: mutable i64[32] = zeroed
+    compressed: mutable usize[32] = zeroed
+    frequencies: mutable usize[32] = zeroed
+    offsets: mutable usize[33] = zeroed
+    cursor: mutable usize[32] = zeroed
+    occurrences: mutable usize[32] = zeroed
+    block_mode: mutable usize[36] = zeroed
+    index <- 0
+    while index < n:
+        value: i64 = input[2 + index]
+        position: mutable usize = index
+        while position > 0 and sorted[position - 1] > value:
+            sorted[position] <- sorted[position - 1]
+            position <- position - 1
+        sorted[position] <- value
+        index <- index + 1
+    distinct: mutable usize = 0
+    index <- 0
+    while index < n:
+        if distinct == 0 or sorted[index] != unique_values[distinct - 1]:
+            unique_values[distinct] <- sorted[index]
+            distinct <- distinct + 1
+        index <- index + 1
 
-    small_result: i64 = mode_try_few_values(input, output, n, q)
-    if small_result != 0: return small_result
+    index <- 0
+    while index < n:
+        id: usize = lower_bound_i64(unique_values[0:32], 0, distinct, input[2 + index])
+        compressed[index] <- id
+        frequencies[id] <- frequencies[id] + 1
+        index <- index + 1
+    id: mutable usize = 0
+    while id < distinct:
+        offsets[id + 1] <- offsets[id] + frequencies[id]
+        id <- id + 1
+    id <- 0
+    while id < distinct:
+        cursor[id] <- offsets[id]
+        id <- id + 1
+    index <- 0
+    while index < n:
+        occurrences[cursor[compressed[index]]] <- index
+        cursor[compressed[index]] <- cursor[compressed[index]] + 1
+        index <- index + 1
 
-    unique_values: mutable u32[MAX_N] = zeroed
-    compressed: mutable u8[MAX_N] = zeroed
-    positions: mutable u32[MAX_N] = zeroed
-    block_mode: mutable i16[MAX_BLOCKS * MAX_BLOCKS] = zeroed
-    # Round the block width up to a power of two for shift-based indexing.
-    block_shift: usize = 1 if n <= 4 else (2 if n <= 16 else 3)
-    block_size: usize = 1.usize() << block_shift
-    if mode_build_ranks(input, n, &unique_values[0], &compressed[0], &positions[0], q, block_size - 1):
-        return mode_distinct_ranges(input, output, n, q)
+    block_size: mutable usize = 1
+    while block_size * block_size < n:
+        block_size <- block_size + 1
+    block_count: usize = (n + block_size - 1) / block_size
+    frequency: mutable usize[32] = zeroed
+    first: mutable usize = 0
+    while first < block_count:
+        id <- 0
+        while id < distinct:
+            frequency[id] <- 0
+            id <- id + 1
+        best_id: mutable usize = 0
+        best_count: mutable usize = 0
+        last: mutable usize = first
+        while last < block_count:
+            begin: usize = last * block_size
+            end: mutable usize = begin + block_size
+            if end > n:
+                end <- n
+            index <- begin
+            while index < end:
+                current: usize = compressed[index]
+                frequency[current] <- frequency[current] + 1
+                count: usize = frequency[current]
+                if count > best_count or (count == best_count and current < best_id):
+                    best_id <- current
+                    best_count <- count
+                index <- index + 1
+            block_mode[first * MAX_BLOCKS + last] <- best_id
+            last <- last + 1
+        first <- first + 1
 
-    # Extend each starting block’s histogram only as far as requested.
-    # Store counts scaled by 32 so the score update can subtract them directly.
-    row_counts: mutable u16[MAX_BLOCKS * MAX_N] = zeroed
-    # The low three bits hold the exclusive block end, at most four.
-    row_state: mutable i16[MAX_BLOCKS] = zeroed
-    # Stage each pair in one word before writing the two 64-bit ABI fields.
-    answers: mutable u64[MAX_Q] = zeroed
-    for query in 0..<q:
+    query <- 0
+    while query < q:
         left: usize = input[2 + n + 2 * query].usize()
         right: usize = input[3 + n + 2 * query].usize()
-        first_full: usize = (left + block_size - 1) >> block_shift
-        after_full: usize = right >> block_shift
-        # Minimize rank minus 32 times frequency, so ties favor the smaller rank.
-        best_score_query: mutable i64 = 0
+        first_full: usize = (left + block_size - 1) / block_size
+        after_full: usize = right / block_size
+        best_id: mutable usize = 0
+        best_count: mutable usize = 0
         if first_full < after_full:
-            span_start: usize = first_full << block_shift
-            span_end: usize = after_full << block_shift
-            # Validated endpoints limit this table to four blocks in either dimension.
-            slot: usize = (first_full * MAX_BLOCKS + after_full - 1) & (MAX_BLOCKS * MAX_BLOCKS - 1)
-            stored: mutable i64 = block_mode[slot].i64()
-            if stored == 0:
-                state: i64 = row_state[first_full & (MAX_BLOCKS - 1)].i64()
-                previous_end: usize = (state & 7).usize()
-                next_block: mutable usize = first_full if previous_end == 0 else previous_end
-                best_score: mutable i64 = state >> 3
-                count_base: usize = first_full * MAX_N
-                while next_block < after_full:
-                    begin: usize = next_block << block_shift
-                    for index in begin..<(begin + block_size):
-                        id: usize = compressed[index & (MAX_N - 1)].usize() & (MAX_N - 1)
-                        # A row base and a five-bit rank occupy disjoint bits.
-                        count_slot: usize = (count_base | id) & (MAX_BLOCKS * MAX_N - 1)
-                        scaled_count: u16 = row_counts[count_slot] + 32
-                        row_counts[count_slot] <- scaled_count
-                        score: i64 = id.i64() - scaled_count.i64()
-                        best_score <- score if score < best_score
-                    block_mode[(first_full * MAX_BLOCKS + next_block) & (MAX_BLOCKS * MAX_BLOCKS - 1)] <- best_score.i16()
-                    next_block <- next_block + 1
-                row_state[first_full & (MAX_BLOCKS - 1)] <- ((best_score << 3) | after_full.i64()).i16()
-                stored <- best_score
-            id: usize = (stored & 31).usize()
-            if ((left | right) & (block_size - 1)) == 0:
-                best_score_query <- stored
-            else:
-                range_mask: u32 = ((1.u64() << right) - (1.u64() << left)).u32()
-                best_score_query <- id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
-                for index in left..<span_start:
-                    id: usize = compressed[index & (MAX_N - 1)].usize() & (MAX_N - 1)
-                    score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
-                    best_score_query <- score if score < best_score_query
-                for index in span_end..<right:
-                    id: usize = compressed[index & (MAX_N - 1)].usize() & (MAX_N - 1)
-                    score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
-                    best_score_query <- score if score < best_score_query
+            best_id <- block_mode[first_full * MAX_BLOCKS + after_full - 1]
+            best_count <- range_frequency(occurrences[0:32], offsets[0:33], best_id, left, right)
+            span_start: usize = first_full * block_size
+            span_end: usize = after_full * block_size
+            index <- left
+            while index < span_start:
+                current: usize = compressed[index]
+                count: usize = range_frequency(occurrences[0:32], offsets[0:33], current, left, right)
+                if count > best_count or (count == best_count and current < best_id):
+                    best_id <- current
+                    best_count <- count
+                index <- index + 1
+            index <- span_end
+            while index < right:
+                current: usize = compressed[index]
+                count: usize = range_frequency(occurrences[0:32], offsets[0:33], current, left, right)
+                if count > best_count or (count == best_count and current < best_id):
+                    best_id <- current
+                    best_count <- count
+                index <- index + 1
         else:
-            range_mask: u32 = ((1.u64() << right) - (1.u64() << left)).u32()
-            for index in left..<right:
-                id: usize = compressed[index & (MAX_N - 1)].usize() & (MAX_N - 1)
-                score: i64 = id.i64() - (mode_frequency(positions[id], range_mask).i64() << 5)
-                best_score_query <- score if score < best_score_query
-        value: u64 = unique_values[(best_score_query & 31).usize()].u64()
-        count: u64 = (0 - (best_score_query >> 5)).u64()
-        answers[query] <- value | (count << 32)
-    for query in 0..<q:
-        answer: u64 = answers[query]
-        mode_write_i64(output, 16 * query, answer.u32().i64())
-        mode_write_i64(output, 16 * query + 8, (answer >> 32).i64())
+            index <- left
+            while index < right:
+                current: usize = compressed[index]
+                count: usize = range_frequency(occurrences[0:32], offsets[0:33], current, left, right)
+                if count > best_count or (count == best_count and current < best_id):
+                    best_id <- current
+                    best_count <- count
+                index <- index + 1
+        write_i64(output, 16 * query, unique_values[best_id])
+        write_i64(output, 16 * query + 8, best_count.i64())
+        query <- query + 1
     (16 * q).i64()
 
-export fn static_range_mode_query(input: i64&?, input_length: usize, output: mutable u8&?, output_capacity: usize) -> i64 = static_range_mode_query_impl
+export fn static_range_mode_query(input: i64&?, length: usize, output: mutable u8&?, output_capacity: usize) -> i64 = static_range_mode_query_impl

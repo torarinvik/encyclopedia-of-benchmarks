@@ -1,128 +1,41 @@
-const SP_MAX_LENGTH: usize = 8
-const SEVEN_RUN_EXTRA_TURN_MASK: u64 = 0x5b5bb5ef
-const EIGHT_RUN_EXTRA_TURN_MASK: u64 = 0x100010100104b
-
-@inline(always)
-def append_printer_symbol(symbol: u64, symbols: mutable u64&, previous: mutable u64&, invalid: mutable u64&) -> void:
-    invalid[0] <- invalid[0] | (1 if symbol > 2 else 0)
-    if symbol != previous[0]:
-        # Fixed shifts pack the runs in reverse order. Reversing every print
-        # interval preserves the optimal turn count.
-        symbols[0] <- (symbols[0] << 2) | symbol
-        previous[0] <- symbol
+# Minimum turns for a printer that prints one symbol over a range per turn.
+const MAX_LENGTH: i64 = 8
+const MAX_SYMBOL: i64 = 2
+const TABLE_SIDE: usize = 9
 
 def strange_printer_impl(input: i64&?, length: usize) -> i64:
-    if input == null or length - 1 > SP_MAX_LENGTH: return -1
-    length_from_header: usize = length - 1
-    if unlikely input[0].usize() != length_from_header: return -1
-    if length_from_header == 0: return 0
-    first: u64 = input[1].u64()
-    if unlikely first > 2: return -1
-    if length_from_header == 1: return 1
-    if length_from_header <= 4:
-        second: u64 = input[2].u64()
-        if length_from_header == 2:
-            if second > 2: return -1
-            return 1 if first == second else 2
-        third: u64 = input[3].u64()
-        pair_maximum: u64 = second if second > third else third
-        if length_from_header == 3:
-            if pair_maximum > 2: return -1
-            if first == third: return 1 if first == second else 2
-            return 2 if second == first or second == third else 3
-        fourth: u64 = input[4].u64()
-        if pair_maximum > 2 or fourth > 2: return -1
-        if second == third:
-            if first == fourth: return 1 if first == second else 2
-            return 2 if first == second or fourth == second else 3
-        if first == second: return 2 if fourth == first or fourth == third else 3
-        if third == fourth: return 2 if first == third or second == third else 3
-        return 3
-    if length_from_header == SP_MAX_LENGTH:
-        last: u64 = input[8].u64()
-        # Equal endpoints can only use the uniform fast path.
-        if last == first:
-            differences: mutable u64 = 0
-            for position in 2..<8:
-                differences <- differences | (input[position].u64() ^ first)
-            if differences == 0: return 1
-        # One change between distinct valid endpoints proves two runs.
-        else:
-            if last > 2: return -1
-            equal_edges: mutable i64 = 0
-            previous: mutable u64 = first
-            for position in 2..<9:
-                symbol: u64 = input[position].u64()
-                equal_edges <- equal_edges + (1 if previous == symbol else 0)
-                previous <- symbol
-            if equal_edges == 6: return 2
-    # The leading 1 sits just above the two bits for each run.
-    symbols: mutable u64 = 4 | first
-    previous: mutable u64 = first
-    # Reject accumulated invalid symbols before interpreting the packed runs.
-    invalid: mutable u64 = 0
-    if length > 2: append_printer_symbol(input[2].u64(), &symbols, &previous, &invalid)
-    if length > 3: append_printer_symbol(input[3].u64(), &symbols, &previous, &invalid)
-    if length > 4: append_printer_symbol(input[4].u64(), &symbols, &previous, &invalid)
-    if length > 5: append_printer_symbol(input[5].u64(), &symbols, &previous, &invalid)
-    if length > 6: append_printer_symbol(input[6].u64(), &symbols, &previous, &invalid)
-    if length > 7: append_printer_symbol(input[7].u64(), &symbols, &previous, &invalid)
-    # The maximum-length path already validated the final symbol.
+    if input == null or length < 1 or length > 10:
+        return -1
+    n_raw: i64 = input[0]
+    if n_raw < 0 or n_raw > MAX_LENGTH or length != n_raw.usize() + 1:
+        return -1
+    n: usize = n_raw.usize()
+    position: mutable usize = 0
+    while position < n:
+        if input[position + 1] < 0 or input[position + 1] > MAX_SYMBOL:
+            return -1
+        position <- position + 1
+    if n == 0:
+        return 0
 
-    if length > 8:
-        last_symbol: u64 = input[8].u64()
-        if last_symbol != previous: symbols <- (symbols << 2) | last_symbol
-    if invalid != 0: return -1
-    if symbols < 64: return 1 if symbols < 16 else 2
-    if symbols < 256:
-        if (symbols & 3) == ((symbols >> 4) & 3): return 2
-        return 3
-    # Two turns can create at most three runs. Four runs over three symbols
-    # repeat some symbol, so one shared turn plus two others suffices.
-    if symbols < 1024: return 3
-
-    n: usize = (5 if symbols < 4096 else 6) if symbols < 16384 else (7 if symbols < 65536 else 8)
-    # The run count excludes the leading marker.
-    strange_printer_compressed(symbols, n)
-
-@inline(always)
-def first_printer_lane(bits: u64) -> usize:
-    if bits == 0: return 0
-    remaining: mutable u64 = bits
-    zeros: mutable usize = 0
-    while (remaining & 1) == 0:
-        remaining <- remaining >> 1
-        zeros <- zeros + 1
-    zeros >> 1
-
-@inline(always)
-def strange_printer_compressed(symbols: u64, n: usize) -> i64:
-    # The sole caller derives a run count from 5 through 8 from the marker.
-    if n == 5:
-        # With five runs, a three-turn solution must merge the endpoints.
-        # The middle run can share that turn, or the other two can share one.
-        first_run: u64 = symbols & 3
-        if first_run != ((symbols >> 8) & 3): return 4
-        if first_run == ((symbols >> 4) & 3): return 3
-        return 3 if ((symbols >> 2) & 3) == ((symbols >> 6) & 3) else 4
-
-    # After two distinct runs, each new run either repeats the symbol two
-    # positions back or uses the remaining symbol. That determines the
-    # string up to renaming. Gather those equality bits into a pattern.
-    differences: u64 = symbols ^ (symbols >> 4)
-    equal_lanes: u64 = ~(differences | (differences >> 1)) & 0x555
-    # A six-run string needs five turns only when each run uses the
-    # remaining symbol, so none of the first four pairs match.
-    if n == 6: return 5 if (equal_lanes & 0x55) == 0 else 4
-    pairs: u64 = (equal_lanes | (equal_lanes >> 1)) & 0x333
-    groups: u64 = (pairs | (pairs >> 2)) & 0x0f0f
-    pattern: u64 = (groups | (groups >> 4)) & 63
-
-    # For each mask, generate patterns starting with 0, 1 and append the
-    # repeated symbol for a set bit or the remaining symbol for a clear bit.
-    # Set the mask bit when the interval recurrence needs an extra turn.
-    if n == 7: return 4 + ((SEVEN_RUN_EXTRA_TURN_MASK >> (pattern & 31)) & 1).i64()
-    return 5 + ((EIGHT_RUN_EXTRA_TURN_MASK >> pattern) & 1).i64()
-
+    dp: mutable i64[81] = zeroed
+    left: mutable usize = n
+    while left > 0:
+        left <- left - 1
+        dp[left * TABLE_SIDE + left] <- 1
+        right: mutable usize = left + 1
+        while right < n:
+            best: mutable i64 = dp[(left + 1) * TABLE_SIDE + right] + 1
+            merge: mutable usize = left + 1
+            while merge <= right:
+                if input[left + 1] == input[merge + 1]:
+                    middle: i64 = 0 if merge == left + 1 else dp[(left + 1) * TABLE_SIDE + merge - 1]
+                    candidate: i64 = middle + dp[merge * TABLE_SIDE + right]
+                    if candidate < best:
+                        best <- candidate
+                merge <- merge + 1
+            dp[left * TABLE_SIDE + right] <- best
+            right <- right + 1
+    dp[n - 1]
 
 export fn strange_printer(input: i64&?, length: usize) -> i64 = strange_printer_impl
