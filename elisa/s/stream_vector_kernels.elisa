@@ -1,63 +1,66 @@
+# STREAM-style vector kernels: copy, scale, add and triad over bounded i64 arrays.
+const MAX_COUNT: usize = 128
+const MAX_INPUT_LENGTH: usize = 259
+
 def stream_vector_kernels_write_i64_le(output: mutable u8&, offset: usize, value: i64) -> void:
     bits: u64 = value.u64()
     byte: mutable usize = 0
     while byte < 8:
-        output[offset + byte] <- ((bits >> (8 * byte)) & 255).u8()
+        output[offset + byte] <- ((bits >> (byte * 8).u64()) & 255).u8()
         byte <- byte + 1
 
 def stream_vector_kernels_impl(input: i64&?, length: usize, output: mutable u8&?, capacity: usize) -> i64:
-    if input == null or length < 2 or length > 259:
+    if input == null or length < 2 or length > MAX_INPUT_LENGTH:
         return -1
     mode: i64 = input[0]
-    count: usize = input[1].usize()
-    if mode.u64() > 3 or count > 128: return -1
-    alpha_fields: usize = mode.usize() & 1
-    array_count: usize = (mode.usize() >> 1) + 1
-    a_start: usize = 2 + alpha_fields
-    if length != a_start + count * array_count: return -1
+    count_value: i64 = input[1]
+    if mode < 0 or mode > 3 or count_value < 0 or count_value > MAX_COUNT.i64():
+        return -1
+
+    count: usize = count_value.usize()
+    has_alpha: bool = mode == 1 or mode == 3
+    array_count: usize = 1 if mode == 0 or mode == 1 else 2
+    expected_length: usize = 2 + (1 if has_alpha else 0) + array_count * count
+    if length != expected_length:
+        return -1
+
+    a_start: mutable usize = 2
     alpha: mutable i64 = 0
-    if alpha_fields != 0:
+    if has_alpha:
         alpha <- input[2]
-        if alpha.u64() + 1000 > 2000: return -1
-    invalid: mutable u64 = 0
-    for index in 0..<array_count * count:
-        out_of_range: u64 = 1.u64() if input[a_start + index].u64() + 1000 > 2000 else 0.u64()
-        invalid <- invalid + out_of_range
-    if invalid != 0: return -1
+        if alpha < -1000 or alpha > 1000:
+            return -1
+        a_start <- 3
+    b_start: usize = a_start + count
+    index: mutable usize = 0
+    while index < array_count * count:
+        if input[a_start + index] < -1000 or input[a_start + index] > 1000:
+            return -1
+        index <- index + 1
+
+    staged: mutable i64[128] = zeroed
+    index <- 0
+    while index < count:
+        a: i64 = input[a_start + index]
+        value: mutable i64 = 0
+        if mode == 0:
+            value <- a
+        elif mode == 1:
+            value <- alpha * a
+        elif mode == 2:
+            value <- a + input[b_start + index]
+        else:
+            value <- a + alpha * input[b_start + index]
+        # Bounded operands keep every multiplication and sum inside i64.
+        staged[index] <- value
+        index <- index + 1
 
     output_bytes: usize = count * 8
     if output == null or capacity < output_bytes:
         return -2
-    if count == 0: return 0
-    if count <= 4:
-        staged: mutable u64[4] = zeroed
-        return stream_vector_compute(input, output, count, mode, alpha, a_start, &staged[0])
-    staged: mutable u64[128] = zeroed
-    return stream_vector_compute(input, output, count, mode, alpha, a_start, &staged[0])
-
-@inline(always)
-def stream_vector_compute(input: i64&, output: mutable u8&, count: usize, mode: i64, alpha: i64, a_start: usize, staged: mutable u64&) -> i64:
-    output_bytes: usize = count * 8
-    left: i64& = &input[a_start]
-    # Validated operands keep results within i64. Modular arithmetic preserves
-    # their exact two's-complement output bytes.
-    if mode == 0:
-        for index in 0..<count:
-            staged[index] <- left[index].u64()
-    elif mode == 1:
-        for index in 0..<count:
-            staged[index] <- alpha.u64() * left[index].u64()
-    elif mode == 2:
-        right: i64& = &left[count]
-        for index in 0..<count:
-            staged[index] <- left[index].u64() + right[index].u64()
-    else:
-        right: i64& = &left[count]
-        for index in 0..<count:
-            staged[index] <- left[index].u64() + alpha.u64() * right[index].u64()
-    index: mutable usize = 0
+    index <- 0
     while index < count:
-        stream_vector_kernels_write_i64_le(output, index * 8, staged[index].i64())
+        stream_vector_kernels_write_i64_le(output, index * 8, staged[index])
         index <- index + 1
     output_bytes.i64()
 
