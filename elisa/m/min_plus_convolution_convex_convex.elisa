@@ -20,23 +20,22 @@ def min_plus_convolution_convex_convex_impl(input: i64&, length: usize,
     n: usize = n_value.usize()
     m: usize = m_value.usize()
     if length != 2 + n + m: return -1
-    a: mutable i64[MPCC_MAX_N] = zeroed
-    b: mutable i64[MPCC_MAX_M] = zeroed
+    # Like the C reference, a and b are read in place: a = input + 2, b = input + 2 + n.
+    a_start: usize = 2
+    b_start: usize = 2 + n
     index: mutable usize = 0
     while index < n + m:
         value: i64 = input[2 + index]
         if value < 0 or value > 1000000000: return -1
-        if index < n: a[index] <- value
-        else: b[index - n] <- value
         index <- index + 1
 
     index <- 0
     while index + 2 < n:
-        if a[index + 1] - a[index] > a[index + 2] - a[index + 1]: return -1
+        if input[a_start + index + 1] - input[a_start + index] > input[a_start + index + 2] - input[a_start + index + 1]: return -1
         index <- index + 1
     index <- 0
     while index + 2 < m:
-        if b[index + 1] - b[index] > b[index + 2] - b[index + 1]: return -1
+        if input[b_start + index + 1] - input[b_start + index] > input[b_start + index + 2] - input[b_start + index + 1]: return -1
         index <- index + 1
 
     count: usize = n + m - 1
@@ -45,17 +44,17 @@ def min_plus_convolution_convex_convex_impl(input: i64&, length: usize,
     if output == null or capacity < bytes: return -2
 
     result: mutable i64[MPCC_MAX_N + MPCC_MAX_M - 1] = zeroed
-    result[0] <- a[0] + b[0]
+    result[0] <- input[a_start + 0] + input[b_start + 0]
     ai: mutable usize = 0
     bi: mutable usize = 0
     out: mutable usize = 1
     while ai + 1 < n or bi + 1 < m:
         slope: mutable i64 = 0
-        if bi + 1 == m or (ai + 1 < n and a[ai + 1] - a[ai] <= b[bi + 1] - b[bi]):
-            slope <- a[ai + 1] - a[ai]
+        if bi + 1 == m or (ai + 1 < n and input[a_start + ai + 1] - input[a_start + ai] <= input[b_start + bi + 1] - input[b_start + bi]):
+            slope <- input[a_start + ai + 1] - input[a_start + ai]
             ai <- ai + 1
         else:
-            slope <- b[bi + 1] - b[bi]
+            slope <- input[b_start + bi + 1] - input[b_start + bi]
             bi <- bi + 1
         result[out] <- result[out - 1] + slope
         out <- out + 1

@@ -18,18 +18,17 @@ def min_plus_convolution_convex_arbitrary_impl(input: i64&, length: usize,
     n: usize = n_value.usize()
     m: usize = m_value.usize()
     if length != 2 + n + m: return -1
-    a: mutable i64[32] = zeroed
-    b: mutable i64[32] = zeroed
+    # Like the C reference, a and b are read in place: a = input + 2, b = input + 2 + n.
+    a_start: usize = 2
+    b_start: usize = 2 + n
     index: mutable usize = 0
     while index < n + m:
         value: i64 = input[2 + index]
         if value < 0 or value > 1000000000: return -1
-        if index < n: a[index] <- value
-        else: b[index - n] <- value
         index <- index + 1
     index <- 0
     while index + 2 < n:
-        if a[index + 1] - a[index] > a[index + 2] - a[index + 1]: return -1
+        if input[a_start + index + 1] - input[a_start + index] > input[a_start + index + 2] - input[a_start + index + 1]: return -1
         index <- index + 1
     count: usize = n + m - 1
     bytes: usize = 8 * count
@@ -62,7 +61,7 @@ def min_plus_convolution_convex_arbitrary_impl(input: i64&, length: usize,
             best_j: mutable usize = low
             j: mutable usize = low
             while j <= high:
-                candidate: i64 = a[mid - j] + b[j]
+                candidate: i64 = input[a_start + mid - j] + input[b_start + j]
                 if candidate < best:
                     best <- candidate
                     best_j <- j
