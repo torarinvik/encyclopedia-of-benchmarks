@@ -13,11 +13,11 @@ struct SteinerEdge:
     weight: i64
 
 struct SteinerCandidate:
-    a: usize
-    b: usize
-    left: usize
-    right: usize
-    edge: usize
+    a: u32
+    b: u32
+    left: u32
+    right: u32
+    edge: u32
     weight: i64
 
 struct SteinerResult:
@@ -211,7 +211,7 @@ def steiner_solve(n: usize, m: usize, k: usize, terminals: view[usize], edges: v
                 b <- swap
                 left <- w
                 right <- u
-            candidate: SteinerCandidate = SteinerCandidate{a: a, b: b, left: left, right: right, edge: e, weight: dist[u] + edges[e].weight + dist[w]}
+            candidate: SteinerCandidate = SteinerCandidate{a: a.u32(), b: b.u32(), left: left.u32(), right: right.u32(), edge: e.u32(), weight: dist[u] + edges[e].weight + dist[w]}
             old: SteinerCandidate = best[a * MAX_N + b]
             if not has[a * MAX_N + b] or candidate.weight < old.weight or (candidate.weight == old.weight and (candidate.left < old.left or (candidate.left == old.left and (candidate.right < old.right or (candidate.right == old.right and candidate.edge < old.edge))))):
                 best[a * MAX_N + b] <- candidate
@@ -247,7 +247,7 @@ def steiner_solve(n: usize, m: usize, k: usize, terminals: view[usize], edges: v
         v <- v + 1
     i <- 0
     while i < candidate_count and chosen_count < k - 1:
-        if steiner_join(parent[0:MAX_N], rank[0:MAX_N], candidates[i].a, candidates[i].b):
+        if steiner_join(parent[0:MAX_N], rank[0:MAX_N], candidates[i].a.usize(), candidates[i].b.usize()):
             chosen[chosen_count] <- i
             chosen_count <- chosen_count + 1
         i <- i + 1
@@ -258,15 +258,15 @@ def steiner_solve(n: usize, m: usize, k: usize, terminals: view[usize], edges: v
     i <- 0
     while i < chosen_count:
         c: SteinerCandidate = candidates[chosen[i]]
-        used[c.edge] <- true
-        x: mutable usize = c.left
-        while x != c.a:
+        used[c.edge.usize()] <- true
+        x: mutable usize = c.left.usize()
+        while x != c.a.usize():
             if pred_edge[x] < 0:
                 return failed
             used[pred_edge[x].usize()] <- true
             x <- pred[x].usize()
-        x <- c.right
-        while x != c.b:
+        x <- c.right.usize()
+        while x != c.b.usize():
             if pred_edge[x] < 0:
                 return failed
             used[pred_edge[x].usize()] <- true
